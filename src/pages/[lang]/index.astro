@@ -1,0 +1,62 @@
+---
+import PublicLayout from '../../layouts/PublicLayout.astro';
+import { homeByLocale } from '../../site/home.js';
+import { pagesByLocale, pagePath, supportedLocales } from '../../site/content.js';
+import { translateText } from '../../site/localization.js';
+
+export function getStaticPaths() {
+  return supportedLocales.map((lang) => ({ params: { lang }, props: { lang } }));
+}
+
+const { lang } = Astro.props;
+const home = homeByLocale[lang];
+const t = (value) => translateText(value, lang);
+const products = pagesByLocale[lang].filter((page) => ['ai-video-generator', 'digital-human', 'voice-cloning', 'ai-music-generator'].includes(page.slug));
+const schema = {
+  '@type': 'SoftwareApplication',
+  name: 'Kali AI',
+  applicationCategory: 'MultimediaApplication',
+  operatingSystem: 'Web',
+  url: new URL(pagePath(lang), Astro.site),
+  description: home.description,
+  publisher: { '@id': `${Astro.site}#organization` },
+};
+---
+<PublicLayout locale={lang} title={home.title} description={home.description} schema={schema}>
+  <section class="home-hero">
+    <div class="hero-copy">
+      <p class="eyebrow">{home.eyebrow}</p>
+      <h1>{home.headline}</h1>
+      <p class="hero-lead">{home.lead}</p>
+      <div class="hero-actions"><a class="primary-cta" href="/app/">{t('Open the workspace')} <span>↗</span></a><a class="text-cta" href={pagePath(lang, 'ai-video-generator')}>{t('See the production flow')} <span>→</span></a></div>
+      <ul class="proof-row">{home.proof.map((item) => <li>{item}</li>)}</ul>
+    </div>
+    <div class="hero-visual" aria-label="Kali AI workspace preview">
+      <div class="visual-top"><span><i></i><i></i><i></i></span><small>{t('Production overview')}</small><b>{t('Ready')}</b></div>
+      <div class="visual-body">
+        <aside><strong>K</strong><span></span><span></span><span></span><span></span></aside>
+        <div class="visual-canvas">
+          <div class="visual-heading"><span><small>{t('CONTENT PIPELINE')}</small><strong>{t('Turn today’s idea into a finished video')}</strong></span><em>{t('New video')}</em></div>
+          <div class="workflow-line"><article><small>01</small><b>{t('Discover')}</b><span>{t('Trend selected')}</span></article><article><small>02</small><b>{t('Write')}</b><span>{t('Script ready')}</span></article><article><small>03</small><b>{t('Produce')}</b><span>{t('Assets linked')}</span></article></div>
+          <div class="visual-media"><div><img src="/yixiu-assets/digital-human.png" alt={t('Digital human')} loading="eager" /><span><b>{t('Digital human')}</b><small>{t('Approved asset')}</small></span></div><div class="wave"><i></i><i></i><i></i><i></i><i></i><i></i><span>{t('Voice ready')}</span></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="trust-strip" aria-label={t('Product capabilities')}><span>{t('Trend discovery')}</span><span>{t('Script generation')}</span><span>{t('Digital humans')}</span><span>{t('Voice cloning')}</span><span>{t('AI music')}</span><span>{t('Video publishing')}</span></section>
+
+  <section class="product-section">
+    <div class="section-heading"><p class="eyebrow">{t('CONNECTED STUDIOS')}</p><h2>{home.sectionTitle}</h2><p>{home.sectionLead}</p></div>
+    <div class="product-grid">
+      {products.map((product, index) => <article class:list={['product-card', `tone-${index + 1}`]}><span class="card-index">0{index + 1}</span><p>{product.eyebrow}</p><h3>{product.headline}</h3><p>{product.description}</p><a href={pagePath(lang, product.slug)}>{t('Explore')} {product.title} <span>→</span></a></article>)}
+    </div>
+  </section>
+
+  <section class="process-section">
+    <div class="section-heading"><p class="eyebrow">{t('THE WORKFLOW')}</p><h2>{t('Keep context from the first signal to the final publish')}</h2></div>
+    <ol class="process-list"><li><span>01</span><div><strong>{t('Find the angle')}</strong><p>{t('Start from a trend, topic, brief, or existing content idea.')}</p></div></li><li><span>02</span><div><strong>{t('Shape the script')}</strong><p>{t('Use an assistant, refine the copy, and keep the selected context attached.')}</p></div></li><li><span>03</span><div><strong>{t('Assemble production')}</strong><p>{t('Select approved people, voices, templates, music, covers, and supporting media.')}</p></div></li><li><span>04</span><div><strong>{t('Review and publish')}</strong><p>{t('Track production status, download the result, or continue into publishing.')}</p></div></li></ol>
+  </section>
+
+  <section class="closing-cta"><p class="eyebrow">{t('READY WHEN YOUR NEXT IDEA IS')}</p><h2>{t('Build the workflow once. Reuse it for every market.')}</h2><a class="primary-cta dark" href="/app/">{t('Start creating in Kali AI')} <span>↗</span></a></section>
+</PublicLayout>

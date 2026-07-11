@@ -1,0 +1,64 @@
+# 出海业务独立站 - MEMORY
+
+## 项目概况
+
+- 项目名：出海业务独立站
+- 创建日期：2026-07-08
+- 目标：学习既有 yixiu 小程序逻辑、页面和功能，后续规划海外市场网页版独立站。
+- 目标语言：中文、英文、日语、韩语、德语、俄语等。
+
+## 工作约束
+
+- 每次干活前先读取 `AGENTS.md` 和 `MEMORY.md`。
+- 新增可复用、可验证的项目经验时主动回写本文件。
+- 凭据只记位置不记值；代码能查到的内容不复制进本文件。
+
+## 已知事实
+
+- 2026-07-08：当前工作区初始为空，`~/.codex/templates/` 不存在；已创建最小可用 `AGENTS.md` 和 `MEMORY.md`。
+- 2026-07-08：yixiu 小程序源码位于 `/Users/yuerocky/Desktop/yixiu`，技术栈为 JavaScript、WXML、Less、TDesign MiniProgram；API 基地址为 `https://yixiuapi.xyaip.fun`。
+- 2026-07-08：已学习 yixiu 小程序并沉淀调研笔记到 `docs/yixiu-miniapp-study.md`。核心业务是“热点捕捉 -> AI 创作 -> 数字人/声音/音乐/图片资产 -> 视频生产 -> 发布/管理 -> 套餐付费”的 AI 内容生产工作台。
+- 2026-07-08：海外独立站不应照搬小程序 Tab 架构；建议拆成公开官网层和登录后工作台层，并从一开始支持中文、英文、日语、韩语、德语、俄语等国际化。
+- 2026-07-08：已创建 React + Vite 自适应 Web 原型；入口为 `src/main.jsx`，样式为 `src/styles.css`，复用 yixiu 小程序静态资产到 `public/yixiu-assets/`。页面采用左侧 Web 工作台导航、主内容区、右侧套餐/热点面板，移动端折叠导航并避免横向溢出。
+- 2026-07-08：已新增 API 接入层 `src/api.js`、页面接口配置 `src/pageConfig.js`、Vite 代理 `vite.config.js`。开发环境通过 `/api` 和 `/login` 代理到 `https://yixiuapi.xyaip.fun`；私有接口读取 localStorage 中的 `access_token`/`token`/`accessToken`，无 token 时在页面显示登录状态，不伪装成功。
+- 2026-07-08：海外站登录使用邮箱密码接口 `POST /api/user/email_login`，兼容路径为 `/api/user/login/email`。参数为 `email`、`password`、可选 `nickname`、`autoCreate/auto_create`；返回 `data.token`、`data.user`、`data.user_plan` 后写入 localStorage，不做短信、邮箱验证码或二次验证。
+- 2026-07-08：页面面向用户时不要展示技术提示文案，例如 API token、localStorage、短信/验证码/二次验证说明、接口路径等。资源列表默认每页 20 条，滚动到底加载更多；图片、视频、音频应按媒体类型展示，成功/处理中/失败/锁定状态用不同颜色区分。
+- 2026-07-08：热点跟踪页视觉按参考图延续浅薄荷榜单风格，业务以 yixiu 小程序 `/pages/hotTracking/index` 为准：热点聚合使用 `/api/hotlist/list` 并规范成 boards，媒体热点使用 `/api/hotlist/search` 按来源分组；分类、来源、话题点击进入脚本流均参考小程序逻辑，默认 20 条并滚动加载更多。
+- 2026-07-08：AI 助手页视觉参考小程序创作助手卡片页，业务以 yixiu 小程序 `/pages/message/index` 为准：使用 `/api/instruction_sets` 获取指令集，按文案/音乐/图片/视频类型归一化；创建、编辑、选择助手分别映射到指令集编辑种子、`video_chat_agent_context` 和热点脚本流合并。
+- 2026-07-08：AI 助手已补齐 Web 内部链路：创建/编辑指令集走 `/api/instruction_sets/create`、`/api/instruction_sets/edit`，编辑接口缺失时兼容 `/api/instruction_sets/update`；选择助手进入文案生成页，使用 `/api/chat/stream` 并携带 `instruction_set_id`、历史 messages 和热点脚本流。
+- 2026-07-09：从热点或 AI 助手跳转到文案生成页时，只预填输入框并提示用户确认，不自动调用生成接口；发送必须由用户手动点击。
+- 2026-07-09：视频页状态统一显示为失败、成功、制作中、发布完成、草稿五类；状态字段需兼容 `status/statusText/task_status/production_status/publish_status/draft_status/is_draft` 等接口返回。
+- 2026-07-09：Materials 页按 yixiu 小程序 `pages/materialManagement/index` 迁移为专用 9 宫格素材库；Web 端保留上传、管理选择和批量删除，上传流程为浏览器文件选择 -> `/api/file/upload` -> `/api/material/add`，删除走 `/api/material/delete`。
+- 2026-07-09：Materials 页不要做大卡片九宫格展示；Web 工作台素材库应采用更紧凑的多列资产视图，优先提高一屏素材密度，同时保留管理和上传入口。
+- 2026-07-09：Materials 紧凑资产视图一页 20 条容易铺不满首屏；Web 端请求素材列表应提高 page size，并从 `raw.data`、`data.data`、解包后的 data 多层兼容读取 `has_more/hasMore/next_cursor/total`，同时保留显式“加载更多”兜底。
+- 2026-07-09：数字人训练逻辑按 yixiu 小程序 `pages/aihumanCreate` 和 `pages/imageDigitalHuman` 迁移：视频训练需要数字人名称、个人形象视频、授权视频；图生数字人需要生成图片 ID 和授权视频 ID；新上传授权视频需先保存到团队授权视频库，再用返回或回查到的授权视频 ID 提交训练。
+- 2026-07-10：Templates 页视频模板和封面模板接口按单次 100 条拉取；模板接口下一页游标字段实际为 `sid`，加载更多时必须传 `sid`，不是 `start_cursor/cursor`。两套模板都是 9:16 竖版，Web 端桌面一行 6 个展示；视频模板点击后在卡片内播放 demo，不跳转新页面，封面模板不显示播放入口。
+- 2026-07-10：Templates 页加载更多会替换分组状态，必须缓存并恢复 `.template-grid-wrap` 的 `scrollTop`；该滚动容器设置 `overflow-anchor: none`，避免加载更多或图片加载后跳回顶部。
+- 2026-07-10：Image Studio 已按 yixiu 小程序 `pages/imageGeneration` 与 `pages/imageGenerationCreate` 迁移为独立业务页：生成记录从 `/api/image-generation/images` 读取并展示成功、制作中、失败状态；制作流程为上传本人照片 -> 选择 9 个平台场景或上传自定义场景 -> 可选 12 种镜头语言 -> `/api/file/upload` -> `/api/image-generation/create`。成功图片支持预览，并携带生成图片 ID 进入 Asset Studio 的图生数字人流程。
+- 2026-07-10：制作图片页的响应式断点必须按“扣除左侧导航后的内容宽度”设计，不能只按浏览器 viewport 判断；在 `1240px` 以下提前改单栏，场景与镜头选项使用自适应网格，避免 921–1240px 窗口被双栏最小宽度撑乱。平板端本人照片上传区保持单列，不做会产生空白槽位的内部双栏。
+- 2026-07-10：制作图片页 Header 错乱的直接原因是返回按钮复用了全局 `.outline-button { width: 100% }`，在横向 flex 容器内占满可用宽度并把标题挤出视口；横向工具栏中的通用按钮必须局部覆盖为 `width: auto`，文本容器设置 `min-width: 0; flex: 1`。
+- 2026-07-10：Music Studio 已按 yixiu 小程序音乐业务迁移为独立页：音乐列表读取 `/api/music/generated`，卡片必须进入详情页；详情通过 `/api/music/tasks/<task_id>` 刷新任务，兼容单曲与一个任务多首成品，支持试听、下载、失败重试，并通过 `/api/music/video/generate` 和 `/api/music/video/by-music/<music_id>` 制作、回显音乐视频；制作流支持描述生成、歌词歌曲、自建音色和纯音乐。
+- 2026-07-10：Video Studio 已从通用接口卡片迁移为独立视频制作列表与详情页：列表读取 `/api/video/production/list`，固定携带 `scene=digital_human_video`、单页 50 条并兼容多层列表与分页字段；详情读取 `/api/video-mix/detail?id=<video_id>`。详情支持保存成片、发布账号与立即/定时发布、团队分配、失败重做和草稿继续制作，分别沿用 `/api/team-notion/publish-account`、`/api/team-notion/publish-video`、`/api/video/production/teams`、`/api/video/production/assign-team` 和 `mix_video_production_prefill_draft`。
+- 2026-07-10：Asset Studio 声音克隆应作为与视频训练、图生数字人并列的第三个页签；流程沿用小程序业务：浏览器录音或上传 2 分钟内的声音、选择语种、明示同意声纹授权后提交 `/api/ai-voice/train`，并从 `/api/ai-voice/list` 回显和试听“我的声音”。
+- 2026-07-10：视频“分配到团队”不是通用功能，后端只允许小程序既有规则中的指定管理账号使用；Web 端必须通过本地 `user_info` 和 `/api/user/info` 合并校验权限，普通账号不显示分配入口。团队加载、未选择团队和提交失败信息必须显示在分配弹窗内，不能写到被遮挡的详情页消息区。
+- 2026-07-10：数字人视频创建已从占位弹窗迁移为完整 Web 创作页：按“标题/话题/文案 -> 数字人/声音/视频包装/封面包装/背景音乐 -> 封面与素材 -> 暂存/提交”执行；资源分别读取数字人、声音、闪剪模板、素材、音乐和团队预设接口，本地文件先走 `/api/file/upload`，最终提交 `/api/video/production/create`，场景固定为 `digital_human_video`、模板场景固定为 `virtualman`，并兼容失败重做和草稿续作的 `mix_video_production_prefill_draft`。
+- 2026-07-10：团队视频默认配置可能只返回声音 ID 而不返回声音名称；创作页应用预设时必须保留 `voiceId/speakerId`，名称缺失时用已加载声音列表按 ID 回填，并兼容 `speakerExtra`/独立字段中的语速。`isDefault` 不能直接用 `Boolean(string)` 判断，字符串 `"0"` 必须视为 false。
+- 2026-07-10：AI 助手生成结果后的操作按 yixiu 小程序 `pages/videoChat` 分流：音乐创作结果显示“去制作音乐”并把歌名、风格、歌词预填到 Music Studio；其他结果显示“智能成片”和“数字人口播”，把标题、话题、正文写入 `mix_video_production_prefill_draft` 后进入对应视频制作流。
+- 2026-07-10：从热点进入“选择创作助手”页时，不得默认选中或高亮列表第一个助手；只有用户主动点击助手后，才写入助手上下文并进入生成页。
+- 2026-07-10：热点跟踪页采用紧凑工作台密度：压缩标题、双模式切换、分类胶囊、榜单分组与行高；热点摘要单行省略，优先让桌面首屏展示更多榜单项，同时保持移动端可点击尺寸。
+- 2026-07-10：数字人视频制作时素材不设个数上限，只校验单个视频小于 60 秒和素材总时长不超过 5 分钟；图片按 2 秒计，接口未返回时长的视频按 60 秒计，避免未知时长绕过总时长限制。Materials 素材库自身的批量上传上限不受此规则影响。
+- 2026-07-10：视频定时发布弹窗每次打开都要重置为浏览器本地时间 5 分钟后，提交格式为 `YYYY-MM-DD HH:mm`，并阻止空时间和过去时间；发布账号需兼容 `aiHumanId/humanId/virtualmanId` 等小程序字段。账号加载、校验和接口失败信息必须显示在发布弹窗内，不能写到被遮挡的详情页。
+- 2026-07-10：Web 工作台统一消息中心已切换到正式个人站内通知接口：列表、未读数、单条已读和全部已读均由 `/api/notifications` 接口组管理，不再聚合 5 个业务列表或在浏览器本地保存已读状态；后端按 `user_id` 隔离、只产生成功/失败终态通知并按 `task_id + status` 去重。后端源码位于 `/Users/yuerocky/Desktop/social-auto-upload-baijiahao/小程序后端`。
+- 2026-07-10：AI 助手回复不能把流式事件对象或 JSON 包装直接显示给用户；需递归解包 `response/reply/content/delta/message/data/result/choices`，兼容嵌套 JSON、代码块、转义换行和中英文字段。生成时明确要求“标题/话题/文案”或“歌名/风格/歌词”的纯文本段落；跳转制作页优先使用已解析结构，热点流在字段缺失时回填热点标题与话题。
+- 2026-07-10：AI 助手卡片页桌面端采用一行 6 个的紧凑布局，单卡高度约 170px；中等宽度自动降为 4 列，小屏为 3 列。六列卡片只展示前两个标签，避免标题、类型和标签互相挤压。
+- 2026-07-10：公开信息层已补齐协议中心、用户服务/隐私/声纹/数字人形象/形象采集/AI 内容规则、关于我们、联系我们和官方媒体页，并由全站页脚统一导航。登录注册需同意用户协议与隐私政策；声纹、形象采集和数字人授权必须在对应功能中单独同意。原小程序正式用户协议/隐私政策仍以 `p.xyaip.fun` 发布页为准；新增专项协议需在商用上线前结合实际模型服务商、存储地与跨境传输做法务复核。
+- 2026-07-10：Asset Studio 训练提交要优先使用本次新上传的授权视频，不能被已选团队授权视频抢占；图生数字人也必须提供授权视频上传入口。上传返回 URL 需深层兼容 `filepath/full_path/oss_url/audio_url/video_url/url/path` 等字段；数字人训练、图生数字人和声音克隆提交体应同时带 camelCase 与 snake_case 别名，避免后端只识别小程序旧字段导致“提交无效”。
+- 2026-07-10：AI 助手页只有从热点列表点击具体话题跳转时才显示“当前热点”并把热点带入生成页；从侧边栏、首页卡片、音乐页或普通直达进入时必须清除旧的 `hot_topic_script_flow`，页面组件也不得读取残留热点。
+- 2026-07-10：Asset Studio 默认进入资产库，与“创建资产”分层；资产库统一展示我的形象、公共形象、我的声音和公共声音。公共形象读取 `/api/aihuman/common-list` 并用 `sid` 翻页，公共声音读取 `/api/ai-voice/common-list`；两者只能预览/试听和带入视频创作，不支持编辑或删除。
+- 2026-07-10：Web 工作台顶部不再展示全局搜索框，业务页内的筛选搜索保留；各页不再显示独立的登录状态提示条，登录/退出统一收口到顶部按钮，已登录时显示 `Sign out` 并执行退出。
+- 2026-07-10：Web 全局 UI 国际化扩展为 25 个界面语言：简体中文、繁体中文、粤语、英语、西班牙语、法语、俄语、德语、葡萄牙语、阿拉伯语、意大利语、日语、韩语、印度尼西亚语、越南语、土耳其语、荷兰语、乌克兰语、泰语、波兰语、罗马尼亚语、希腊语、捷克语、芬兰语和印地语。语言选择保存在 `kali_ui_locale`；本地语言包只替换源码静态文案，接口返回的热点、素材名、任务标题等动态数据保持原文；阿拉伯语启用 RTL 布局，各语言包按需异步加载。生成器为 `scripts/generate-translations.mjs`，命令为 `npm run i18n:generate`。
+- 2026-07-11：网站架构拆为公开获客层与应用层。公开层使用 Astro 静态生成，核心产品、套餐、关于和联系页均有独立 URL、完整首屏 HTML、canonical、JSON-LD、sitemap 和 robots；原 React 工作台保留业务逻辑并迁到 `/app/`，统一 `noindex`。公开站现支持 25 种语言，共生成 200 个可索引 URL；语言路由为 `/en/`、`/zh-cn/`、`/zh-tw/`、`/zh-hk/`、`/es/`、`/fr/`、`/ru/`、`/de/`、`/pt/`、`/ar/`、`/it/`、`/ja/`、`/ko/`、`/id/`、`/vi/`、`/tr/`、`/nl/`、`/uk/`、`/th/`、`/pl/`、`/ro/`、`/el/`、`/cs/`、`/fi/`、`/hi/`，每页互相声明 hreflang，阿拉伯语启用 RTL。公开站翻译源为 `src/site/site-translations.json`，生成命令为 `npm run site:i18n:generate`。canonical 默认站点暂设 `https://kali.xyaip.fun`，正式域名确定后通过 `SITE_URL` 覆盖。
+- 2026-07-11：AI 助手 `/api/chat/stream` 必须使用浏览器 `ReadableStream` 增量读取 SSE，逐条解析 `choices[0].delta.content`；由于后端启用了 `response_format=json_schema` 且内容包在 `{"response":"..."}` 中，流式阶段需从未闭合的 response 字符串实时解码正文，完成后再做结构化字段解析和显示制作操作。离开页面时应中止未完成请求。
+- 2026-07-11：粤语不再作为 Web 全局界面语言展示；声音克隆语种中继续保留“中文（粤语）· `zh-CN-yue`”，不影响粤语声音训练。
+- 2026-07-11：AI 助手对话的助手身份不能固定显示“AI”；应显示当前指令集的图片和名称，没有图片时使用名称缩写占位。
+- 2026-07-11：GitHub 插件已连接账号 `pabatiba89-sys`。之后项目的 GitHub 仓库、PR 和 Issue 操作优先使用插件；本地初始化、提交和推送继续使用 Git，插件当前不支持创建新仓库。

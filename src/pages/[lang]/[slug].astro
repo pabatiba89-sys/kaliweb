@@ -1,0 +1,40 @@
+---
+import PublicLayout from '../../layouts/PublicLayout.astro';
+import { getPage, pagePath, pagesByLocale, supportedLocales } from '../../site/content.js';
+import { translateText } from '../../site/localization.js';
+
+export function getStaticPaths() {
+  return supportedLocales.flatMap((lang) => pagesByLocale[lang].map((page) => ({ params: { lang, slug: page.slug }, props: { lang, page } })));
+}
+
+const { lang, page } = Astro.props;
+const t = (value) => translateText(value, lang);
+const pageSchema = {
+  '@type': 'WebPage',
+  name: page.title,
+  description: page.description,
+  url: new URL(pagePath(lang, page.slug), Astro.site),
+  isPartOf: { '@id': `${Astro.site}#website` },
+  about: { '@id': `${Astro.site}#organization` },
+  inLanguage: lang,
+};
+const faqSchema = {
+  '@type': 'FAQPage',
+  mainEntity: page.faq.map(([question, answer]) => ({ '@type': 'Question', name: question, acceptedAnswer: { '@type': 'Answer', text: answer } })),
+};
+---
+<PublicLayout locale={lang} slug={page.slug} title={`${page.title} | Kali AI`} description={page.description} eyebrow={page.eyebrow} schema={[pageSchema, faqSchema]}>
+  <section class="page-hero">
+    <div><p class="eyebrow">{page.eyebrow}</p><h1>{page.headline}</h1><p class="hero-lead">{page.lead}</p><div class="hero-actions"><a class="primary-cta" href="/app/">{t('Open the workspace')} <span>↗</span></a><a class="text-cta" href={pagePath(lang, 'contact')}>{t('Talk to the team')} <span>→</span></a></div></div>
+    <aside><p>{t('WHAT YOU CAN DO')}</p><ul>{page.bullets.map((bullet) => <li><span>✓</span>{bullet}</li>)}</ul></aside>
+  </section>
+  <section class="detail-section">
+    <div class="section-heading"><p class="eyebrow">{t('HOW IT FITS TOGETHER')}</p><h2>{t('A clear path from setup to repeatable output')}</h2></div>
+    <div class="detail-grid">{page.sections.map(([heading, body], index) => <article><span>0{index + 1}</span><h3>{heading}</h3><p>{body}</p></article>)}</div>
+  </section>
+  <section class="faq-section">
+    <div class="section-heading"><p class="eyebrow">{t('COMMON QUESTIONS')}</p><h2>{t('Answers before you start')}</h2></div>
+    <div class="faq-list">{page.faq.map(([question, answer]) => <details><summary>{question}<span>+</span></summary><p>{answer}</p></details>)}</div>
+  </section>
+  <section class="closing-cta"><p class="eyebrow">{t('KALI AI WORKSPACE')}</p><h2>{t('Take the next project from brief to finished media.')}</h2><a class="primary-cta dark" href="/app/">{t('Start creating')} <span>↗</span></a></section>
+</PublicLayout>
