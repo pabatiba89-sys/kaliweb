@@ -63,3 +63,4 @@
 - 2026-07-11：AI 助手对话的助手身份不能固定显示“AI”；应显示当前指令集的图片和名称，没有图片时使用名称缩写占位。
 - 2026-07-11：GitHub 插件已连接账号 `pabatiba89-sys`。之后项目的 GitHub 仓库、PR 和 Issue 操作优先使用插件；本地初始化、提交和推送继续使用 Git，插件当前不支持创建新仓库。
 - 2026-07-11：本项目已发布到 GitHub 公开仓库 `https://github.com/pabatiba89-sys/kaliweb`，本地 `main` 跟踪 `origin/main`。
+- 2026-07-11：Cloudflare Workers 部署必须保留根目录 `wrangler.jsonc`，明确将 `dist` 声明为纯静态资源目录。若缺少该配置，`wrangler deploy` 会自动注入 Astro Cloudflare adapter 并二次构建，可在预渲染环境因 `node:module`/`nodejs_compat` 失败。
