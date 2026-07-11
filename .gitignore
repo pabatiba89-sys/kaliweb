@@ -1,6 +1,7 @@
 node_modules/
 dist/
 .astro/
+.wrangler/
 .npm-cache/
 tmp/
 
@@ -10,4 +11,3 @@ tmp/
 .env
 .env.*
 !.env.example
-

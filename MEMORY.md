@@ -64,3 +64,4 @@
 - 2026-07-11：GitHub 插件已连接账号 `pabatiba89-sys`。之后项目的 GitHub 仓库、PR 和 Issue 操作优先使用插件；本地初始化、提交和推送继续使用 Git，插件当前不支持创建新仓库。
 - 2026-07-11：本项目已发布到 GitHub 公开仓库 `https://github.com/pabatiba89-sys/kaliweb`，本地 `main` 跟踪 `origin/main`。
 - 2026-07-11：Cloudflare Workers 部署必须保留根目录 `wrangler.jsonc`，明确将 `dist` 声明为纯静态资源目录。若缺少该配置，`wrangler deploy` 会自动注入 Astro Cloudflare adapter 并二次构建，可在预渲染环境因 `node:module`/`nodejs_compat` 失败。
+- 2026-07-11：Cloudflare 线上不会保留 Astro/Vite 的开发服务器 proxy；`wrangler.jsonc` 需通过 `main` 启用 Worker，并将 `ASSETS` 绑定到 `dist`。Worker 仅把 `/api/*` 和 `/login/*` 原样转发到 `https://yixiuapi.xyaip.fun`，其余路径交给静态资源响应。
