@@ -38,17 +38,27 @@ const request = (options, body = '') => new Promise((resolve, reject) => {
 });
 
 const headers = { 'User-Agent': 'Mozilla/5.0 AppleWebKit/537.36 Chrome/126 Safari/537.36' };
-const getToken = () => request({ hostname: 'edge.microsoft.com', path: '/translate/auth', method: 'GET', headers });
+const withRetries = async (operation, attempts = 4) => {
+  let lastError;
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    try {
+      return await operation();
+    } catch (error) {
+      lastError = error;
+      if (attempt < attempts - 1) await new Promise((resolve) => setTimeout(resolve, 350 * (attempt + 1)));
+    }
+  }
+  throw lastError;
+};
+const getToken = () => withRetries(() => request({ hostname: 'edge.microsoft.com', path: '/translate/auth', method: 'GET', headers }));
 let token = await getToken();
 
 const protect = (text) => text
   .replaceAll('Kali AI', 'KALI_BRAND_TOKEN_9841')
-  .replaceAll('Yixiu', 'YIXIU_BRAND_TOKEN_9841')
   .replaceAll('feedback@xyaip.fun', 'FEEDBACK_EMAIL_TOKEN_9841')
   .replaceAll('privacy@xyaip.fun', 'PRIVACY_EMAIL_TOKEN_9841');
 const restore = (text) => text
   .replaceAll('KALI_BRAND_TOKEN_9841', 'Kali AI')
-  .replaceAll('YIXIU_BRAND_TOKEN_9841', 'Yixiu')
   .replaceAll('FEEDBACK_EMAIL_TOKEN_9841', 'feedback@xyaip.fun')
   .replaceAll('PRIVACY_EMAIL_TOKEN_9841', 'privacy@xyaip.fun');
 
@@ -59,9 +69,9 @@ const targetEntries = Object.entries(targets);
 const groups = [];
 for (let index = 0; index < targetEntries.length; index += 8) groups.push(targetEntries.slice(index, index + 8));
 const batches = [];
-for (let index = 0; index < protectedTexts.length; index += 80) batches.push({ protectedBatch: protectedTexts.slice(index, index + 80), sourceBatch: sourceTexts.slice(index, index + 80) });
+for (let index = 0; index < protectedTexts.length; index += 40) batches.push({ protectedBatch: protectedTexts.slice(index, index + 40), sourceBatch: sourceTexts.slice(index, index + 40) });
 
-const translateBatch = async (batch, group, retry = true) => {
+const translateBatch = async (batch, group, retries = 3) => {
   const query = group.map(([, target]) => `to=${encodeURIComponent(target)}`).join('&');
   const body = JSON.stringify(batch.map((Text) => ({ Text })));
   try {
@@ -73,9 +83,10 @@ const translateBatch = async (batch, group, retry = true) => {
     }, body);
     return JSON.parse(result);
   } catch (error) {
-    if (!retry) throw error;
+    if (retries <= 0) throw error;
     token = await getToken();
-    return translateBatch(batch, group, false);
+    await new Promise((resolve) => setTimeout(resolve, 350));
+    return translateBatch(batch, group, retries - 1);
   }
 };
 

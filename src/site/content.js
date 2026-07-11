@@ -1,7 +1,6 @@
 import { localeMeta, localize, supportedLocales } from './localization.js';
 
 export const siteName = 'Kali AI';
-export const companyName = '上海喀理科技有限公司';
 export { localeMeta, supportedLocales };
 
 export const basePages = [
@@ -65,15 +64,47 @@ export const basePages = [
       faq: [['Is there a free trial?', 'The workspace presents trial benefits for eligible accounts and features. Exact availability is shown when you sign in.'], ['Where can I see current pricing?', 'Current plan details, quotas, and purchase options are shown in the billing area of the workspace.'], ['Do all creation types use the same quota?', 'Different production capabilities may use different plan allowances. Review the current billing page before starting a large batch.']],
     },
     {
+      slug: 'payment-policy',
+      title: 'Kali AI Payment Policy',
+      description: 'Understand prices, currencies, taxes, payment processing, plan activation, credits, and recurring charges for Kali AI purchases.',
+      eyebrow: 'PAYMENT POLICY',
+      headline: 'Clear payment terms before you confirm a purchase',
+      lead: 'The checkout page shows the plan or service, amount, currency, billing period, available payment method, and applicable taxes before you authorize payment.',
+      bullets: ['Review the final amount before confirming payment', 'Plans and credits activate after payment is confirmed', 'Recurring billing applies only when disclosed at checkout'],
+      sections: [
+        ['Prices, currencies, and taxes', 'Displayed prices may vary by region, currency, plan, promotion, and applicable tax rules. The final payable amount is shown before you confirm the order.'],
+        ['Payment processing', 'Payments may be processed by authorized third-party payment providers. Kali AI does not require you to send passwords, verification codes, or complete card details by email or support message.'],
+        ['Plan and credit activation', 'A plan, credit package, or paid capability becomes available after successful payment confirmation. Usage is deducted according to the rules shown in the workspace and at purchase.'],
+        ['Renewals and cancellation', 'If a purchase renews automatically, the renewal period, amount, and cancellation method will be disclosed before payment. Cancelling a future renewal does not automatically refund an earlier charge.'],
+      ],
+      faq: [['When is my plan activated?', 'Eligible plans and credits are normally activated after the payment provider confirms a successful charge.'], ['Will Kali AI renew my plan automatically?', 'Only purchases clearly marked as recurring at checkout renew automatically. One-time purchases do not become recurring without disclosure.'], ['What should I do if a charge looks incorrect?', 'Do not start a chargeback immediately. Contact feedback@xyaip.fun with your account email, order reference, charge date, amount, and a description of the issue.']],
+    },
+    {
+      slug: 'refund-policy',
+      title: 'Kali AI Refund Policy',
+      description: 'Learn when a Kali AI payment may qualify for a refund, which consumed services are normally non-refundable, and how to submit a request.',
+      eyebrow: 'REFUND POLICY',
+      headline: 'A practical refund process for billing and service problems',
+      lead: 'Refund eligibility depends on the reason for the request, whether credits or services have been consumed, the payment method, and any mandatory rights under applicable law.',
+      bullets: ['Duplicate or incorrect charges can be reviewed', 'Unused purchases may qualify depending on the circumstances', 'Consumed generation work is normally non-refundable'],
+      sections: [
+        ['When a refund may apply', 'We will review duplicate charges, incorrect billing amounts, payments for services that were not delivered because of a verified platform failure, and unused purchases where required by applicable law or approved after review.'],
+        ['Normally non-refundable items', 'Consumed credits, completed generation tasks, downloaded or delivered digital results, third-party costs already incurred, and accounts restricted for policy violations are normally non-refundable unless applicable law requires otherwise.'],
+        ['How to request a refund', 'Email feedback@xyaip.fun with the account email, order or payment reference, purchase date, amount, reason, and relevant evidence. Never include passwords, verification codes, or complete payment-card details.'],
+        ['Review and payment timing', 'We will confirm receipt and review the request against usage and payment records. Approved refunds return to the original payment method when possible; final arrival time depends on the payment provider and financial institution.'],
+      ],
+      faq: [['Does cancelling a subscription create a refund?', 'Cancellation stops a future renewal when completed before the next billing date. It does not automatically refund the current billing period.'], ['Can used credits be refunded?', 'Credits already consumed by generation or processing tasks are normally non-refundable because the underlying service cost has already been incurred.'], ['How long does a refund take?', 'Review time depends on the request and available records. After approval, the payment provider or bank controls the final settlement time.']],
+    },
+    {
       slug: 'about',
       title: 'About Kali AI',
       description: 'Learn how Kali AI brings trend discovery, AI creation, reusable assets, video production, and publishing into one content workflow.',
       eyebrow: 'ABOUT KALI AI',
       headline: 'A connected production workspace for modern content teams',
-      lead: 'Kali AI is developed and operated by Shanghai Kali Technology Co., Ltd. The product is focused on turning fragmented AI tools into a repeatable content-production system.',
+      lead: 'Kali AI is focused on turning fragmented AI tools into a repeatable content-production system for global creators and teams.',
       bullets: ['One workflow from discovery to publishing', 'Reusable team assets and production presets', 'Built for multilingual, multi-market content operations'],
       sections: [['Why we built it', 'Content teams often move ideas, scripts, media, and task status across disconnected tools. Kali AI brings those steps into one operational workspace.'], ['What we prioritize', 'Clear workflows, reusable assets, visible task status, and explicit authorization for sensitive voice and likeness data.'], ['Who it is for', 'Creators and teams producing recurring short-form video, digital-human content, social campaigns, and localized media.']],
-      faq: [['Is Kali AI the same as Yixiu?', 'Kali AI is the international-facing product brand. Yixiu refers to the underlying product lineage and system used during its development.'], ['Who operates the service?', 'The service is developed and operated by Shanghai Kali Technology Co., Ltd.'], ['How can I contact the team?', 'Use the contact page for product feedback, business enquiries, and privacy requests.']],
+      faq: [['Is Kali AI the same as Yixiu?', 'Kali AI is the international-facing product brand. Yixiu refers to the underlying product lineage and system used during its development.'], ['Who maintains the service?', 'The Kali AI product and operations team maintains the service.'], ['How can I contact the team?', 'Use the contact page for product feedback, business enquiries, and privacy requests.']],
     },
     {
       slug: 'contact',

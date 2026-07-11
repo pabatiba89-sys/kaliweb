@@ -51,7 +51,7 @@ import {
   X,
 } from 'lucide-react';
 import { apiFetch, clearSession, emailLogin, getAccessToken, storeSession, toList, uploadFile } from './api';
-import { getInitialLocale, languages, useAutoTranslate } from './i18n';
+import { getInitialLocale, languages, translateStatic, useAutoTranslate, useLocaleCatalog } from './i18n';
 import { pageConfigs } from './pageConfig';
 import './styles.css';
 
@@ -153,7 +153,7 @@ const legalDocuments = {
     icon: BookOpen,
     officialUrl: OFFICIAL_USER_AGREEMENT_URL,
     sections: [
-      ['1. 协议的接受与生效', '本服务由上海喀理科技有限公司开发并运营。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。'],
+      ['1. 协议的接受与生效', '本服务由 Kali AI 团队提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。'],
       ['2. 账号注册与安全', '用户可通过平台支持的邮箱、移动号码或第三方账号注册。用户应提供真实、合法的账号信息，妥善保管密码与登录凭证，并对账号下的活动负责。'],
       ['3. 产品与服务', '平台提供热点、文案、图片、音乐、声音、数字人与视频生产相关服务。部分能力可能依赖第三方模型或服务，也可能随合规与产品需求调整。'],
       ['4. 用户行为与内容', '不得上传、生成或发布违法违规、欺诈冒充、侵害他人人格权、隐私权、声音权、肖像权或知识产权的内容。用户应确保对上传素材与输出内容拥有充分权利。'],
@@ -231,6 +231,32 @@ const legalDocuments = {
       ['4. 素材与输出权利', '你应确保输入素材、提示词与最终使用不侵害他人知识产权、肖像权、声音权、隐私权或其他合法权益。'],
     ],
   },
+  'legal-payment': {
+    eyebrow: 'PAYMENT POLICY',
+    title: '支付政策',
+    description: '说明价格、币种、税费、支付处理、套餐生效、额度使用与续费规则。',
+    updated: '生效日期 2026-07-11',
+    icon: CircleDollarSign,
+    sections: [
+      ['1. 价格、币种与税费', '价格可能因地区、币种、套餐、促销与适用税收规则不同。确认订单前，结算页面会展示最终应付金额、币种和适用税费。'],
+      ['2. 支付处理', '付款可能由获授权的第三方支付服务商处理。请勿通过邮件或客服消息发送密码、验证码或完整银行卡信息。'],
+      ['3. 套餐与额度生效', '支付服务商确认付款成功后，对应套餐、额度包或付费能力生效。具体扣减规则以购买页面和工作台当时展示为准。'],
+      ['4. 续费与取消', '只有在结算页面明确标注为自动续费的购买才会周期续费，并在付款前展示周期、金额和取消方式。取消后续续费不等于退还此前已支付费用。'],
+    ],
+  },
+  'legal-refund': {
+    eyebrow: 'REFUND POLICY',
+    title: '退款政策',
+    description: '说明可申请退款的情形、通常不退款的已消耗服务，以及申请和审核流程。',
+    updated: '生效日期 2026-07-11',
+    icon: RefreshCw,
+    sections: [
+      ['1. 可审核退款的情形', '重复扣款、扣款金额错误、因经核实的平台故障导致已付款服务未交付，以及适用法律要求或经审核同意的未使用购买，可提交退款申请。'],
+      ['2. 通常不退款的情形', '已消耗额度、已完成的生成任务、已经下载或交付的数字结果、已经发生的第三方成本，以及因违反平台规则受到限制的账号，除适用法律另有强制要求外通常不退款。'],
+      ['3. 申请方式', '请发送邮件至 feedback@xyaip.fun，提供账号邮箱、订单或支付编号、购买日期、金额、申请原因和必要证据。不要提供密码、验证码或完整银行卡信息。'],
+      ['4. 审核与到账', '我们会结合使用记录和支付记录审核。获批退款将尽可能原路退回；最终到账时间取决于支付服务商和金融机构。取消续费不会自动产生当前账期退款。'],
+    ],
+  },
 };
 
 const agreementCards = [
@@ -240,6 +266,8 @@ const agreementCards = [
   ['legal-avatar', '数字人形象授权', '肖像、形象与数字分身使用边界'],
   ['legal-image', '形象信息采集', '照片、视频与面部特征的处理说明'],
   ['legal-ai', 'AI 生成内容规则', '生成、审核、标识与发布规则'],
+  ['legal-payment', '支付政策', '价格、支付、套餐生效与续费规则'],
+  ['legal-refund', '退款政策', '退款适用范围、申请与审核流程'],
 ];
 
 const trialBenefits = [
@@ -2751,7 +2779,7 @@ function AssetLibraryPanel({
   );
 }
 
-function AssetStudioPage({ authVersion, onLogin, onOpenInfo, onUseAsset, initialImageId = '', initialMode = '' }) {
+function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsset, initialImageId = '', initialMode = '' }) {
   const [view, setView] = useState(initialImageId ? 'create' : 'library');
   const [mode, setMode] = useState(initialMode || (initialImageId ? 'image' : 'video'));
   const [libraryTab, setLibraryTab] = useState(initialMode === 'voice' ? 'public-voice' : 'public-human');
@@ -2781,15 +2809,12 @@ function AssetStudioPage({ authVersion, onLogin, onOpenInfo, onUseAsset, initial
   const recordingTimerRef = useRef(null);
   const recordingStartedAtRef = useRef(0);
   const authed = Boolean(getAccessToken());
+  const localeCatalog = useLocaleCatalog(language);
   const selectedAuthVideo = authVideos.find((item) => item.key === selectedAuthKey) || null;
   const selectedImage = images.find((item) => item.id === selectedImageId) || null;
+  const authorizationTemplate = 'My name is {{name}}. I authorize Kali AI to use my likeness and voice from this authorization video to generate a custom digital human and voice for me, and to use them in my Kali AI account for content creation.';
   const authorizationLines = [
-    `我是 ${textOf(form.name) || 'XXX'}`,
-    '我授权亿秀(喀理)系统',
-    '使用视频中的肖像声音',
-    '为我生成定制数字人及声音',
-    '并在本人亿秀(喀理)系统账号中',
-    '创作使用',
+    translateStatic(authorizationTemplate, language, localeCatalog).replaceAll('{{name}}', textOf(form.name) || 'XXX'),
   ];
 
   const loadAssets = async () => {
@@ -5874,8 +5899,6 @@ function LegalDocumentPage({ document, onOpen }) {
         <aside className="legal-document-meta">
           <span><Icon size={22} /></span>
           <strong>{document.updated}</strong>
-          <small>运营主体</small>
-          <p>上海喀理科技有限公司</p>
           {document.officialUrl && (
             <a href={document.officialUrl} target="_blank" rel="noreferrer">查看正式全文<ExternalLink size={15} /></a>
           )}
@@ -5913,9 +5936,9 @@ function AboutPage({ onOpen }) {
         <article><Globe2 size={22} /><strong>面向全球市场</strong><p>独立站版会持续完善多语言、跨时区协作与主流媒体发布能力。</p></article>
       </section>
       <section className="company-facts">
-        <div><span>OPERATOR</span><strong>上海喀理科技有限公司</strong></div>
         <div><span>PRODUCT</span><strong>Kali AI · 亿秀系统</strong></div>
         <div><span>FOCUS</span><strong>AI Content Production</strong></div>
+        <div><span>WORKFLOW</span><strong>Discover · Create · Publish</strong></div>
       </section>
     </div>
   );
@@ -5991,11 +6014,11 @@ function SiteFooter({ onOpen }) {
       <div className="site-footer__brand"><span className="brand-mark">K</span><div><strong>Kali AI</strong><small>AI Content Production Workspace</small></div></div>
       <div className="site-footer__links">
         <div><strong>产品</strong><button onClick={() => onOpen('home')}>工作台</button><button onClick={() => onOpen('info-about')}>关于我们</button><button onClick={() => onOpen('info-media')}>官方媒体</button></div>
-        <div><strong>合规</strong><button onClick={() => onOpen('info-agreements')}>协议中心</button><button onClick={() => onOpen('legal-user')}>用户服务协议</button><button onClick={() => onOpen('legal-privacy')}>隐私政策</button></div>
+        <div><strong>合规</strong><button onClick={() => onOpen('info-agreements')}>协议中心</button><button onClick={() => onOpen('legal-user')}>用户服务协议</button><button onClick={() => onOpen('legal-privacy')}>隐私政策</button><button onClick={() => onOpen('legal-payment')}>支付政策</button><button onClick={() => onOpen('legal-refund')}>退款政策</button></div>
         <div><strong>专项授权</strong><button onClick={() => onOpen('legal-voice')}>声纹授权</button><button onClick={() => onOpen('legal-avatar')}>数字人形象授权</button><button onClick={() => onOpen('legal-image')}>形象信息采集</button></div>
         <div><strong>支持</strong><button onClick={() => onOpen('info-contact')}>联系我们</button><a href="mailto:feedback@xyaip.fun">feedback@xyaip.fun</a><a href="mailto:privacy@xyaip.fun">privacy@xyaip.fun</a></div>
       </div>
-      <div className="site-footer__bottom"><span>© 2026 上海喀理科技有限公司</span><span>Kali AI · Yixiu System</span></div>
+      <div className="site-footer__bottom"><span>© 2026 Kali AI</span><span>Kali AI · Yixiu System</span></div>
     </footer>
   );
 }
@@ -6551,6 +6574,7 @@ export default function App() {
             ) : active === 'assets' ? (
               <AssetStudioPage
                 authVersion={authVersion}
+                language={language}
                 onLogin={() => setLoginOpen(true)}
                 onOpenInfo={selectNav}
                 onUseAsset={useAssetInVideo}

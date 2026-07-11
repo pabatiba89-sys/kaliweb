@@ -58,6 +58,9 @@
 - 2026-07-10：Web 工作台顶部不再展示全局搜索框，业务页内的筛选搜索保留；各页不再显示独立的登录状态提示条，登录/退出统一收口到顶部按钮，已登录时显示 `Sign out` 并执行退出。
 - 2026-07-10：Web 全局 UI 国际化扩展为 25 个界面语言：简体中文、繁体中文、粤语、英语、西班牙语、法语、俄语、德语、葡萄牙语、阿拉伯语、意大利语、日语、韩语、印度尼西亚语、越南语、土耳其语、荷兰语、乌克兰语、泰语、波兰语、罗马尼亚语、希腊语、捷克语、芬兰语和印地语。语言选择保存在 `kali_ui_locale`；本地语言包只替换源码静态文案，接口返回的热点、素材名、任务标题等动态数据保持原文；阿拉伯语启用 RTL 布局，各语言包按需异步加载。生成器为 `scripts/generate-translations.mjs`，命令为 `npm run i18n:generate`。
 - 2026-07-11：网站架构拆为公开获客层与应用层。公开层使用 Astro 静态生成，核心产品、套餐、关于和联系页均有独立 URL、完整首屏 HTML、canonical、JSON-LD、sitemap 和 robots；原 React 工作台保留业务逻辑并迁到 `/app/`，统一 `noindex`。公开站现支持 25 种语言，共生成 200 个可索引 URL；语言路由为 `/en/`、`/zh-cn/`、`/zh-tw/`、`/zh-hk/`、`/es/`、`/fr/`、`/ru/`、`/de/`、`/pt/`、`/ar/`、`/it/`、`/ja/`、`/ko/`、`/id/`、`/vi/`、`/tr/`、`/nl/`、`/uk/`、`/th/`、`/pl/`、`/ro/`、`/el/`、`/cs/`、`/fi/`、`/hi/`，每页互相声明 hreflang，阿拉伯语启用 RTL。公开站翻译源为 `src/site/site-translations.json`，生成命令为 `npm run site:i18n:generate`。canonical 默认站点暂设 `https://kali.xyaip.fun`，正式域名确定后通过 `SITE_URL` 覆盖。
+- 2026-07-11：工作台源码存在大量中文静态文案，因此 `en-US` 不能作为“不翻译的原文模式”；英文也必须加载 `src/locales/en-US.json` 并执行 DOM 静态文案翻译。翻译生成器支持 `node scripts/generate-translations.mjs --locale=en-US` 单独刷新英文词库，避免为修复英文重跑全部语言；英文页面中语言选择器的母语名称可保留，版权显示为 `© 2026 Kali AI`。
+- 2026-07-11：前台暂不展示“上海喀理科技有限公司”，公开页面、工作台协议详情、关于页、页脚、版权和 JSON-LD 均只使用 Kali AI 品牌，恢复运营主体展示前需用户明确确认。公开站新增独立支付政策和退款政策，25 种语言分别使用 `/payment-policy/` 与 `/refund-policy/`，sitemap 扩展为 250 个 URL；工作台协议中心同步新增支付与退款入口。当前退款基线为审核重复/错误扣款、经核实未交付服务及依法可退的未使用购买；已消耗额度、已完成生成、已交付数字结果和已发生第三方成本通常不退，正式商用前须结合实际支付渠道、自动续费方式与目标市场强制性消费者权利复核。
+- 2026-07-11：多语言翻译只允许固定保留 `Kali AI` 品牌词，不能因句子包含 Kali 而跳过整句；生成器使用品牌占位符完成翻译后再原样恢复 Kali，其余 Yixiu、System、协议和授权文本均按目标语言翻译。数字人授权口播不再依赖 DOM 事后翻译，而是用当前界面语言直接生成完整授权声明，显示内容与提交给后端的 `authorization_text/authorizationText` 保持一致；姓名使用 `{{name}}` 安全占位。工作台已补回 `zh-CN-yue` 粤语选项及词库，现有 25 个工作台语言均使用对应授权口播并验证保留两处原样 `Kali AI`。
 - 2026-07-11：AI 助手 `/api/chat/stream` 必须使用浏览器 `ReadableStream` 增量读取 SSE，逐条解析 `choices[0].delta.content`；由于后端启用了 `response_format=json_schema` 且内容包在 `{"response":"..."}` 中，流式阶段需从未闭合的 response 字符串实时解码正文，完成后再做结构化字段解析和显示制作操作。离开页面时应中止未完成请求。
 - 2026-07-11：粤语不再作为 Web 全局界面语言展示；声音克隆语种中继续保留“中文（粤语）· `zh-CN-yue`”，不影响粤语声音训练。
 - 2026-07-11：AI 助手对话的助手身份不能固定显示“AI”；应显示当前指令集的图片和名称，没有图片时使用名称缩写占位。
@@ -65,3 +68,4 @@
 - 2026-07-11：本项目已发布到 GitHub 公开仓库 `https://github.com/pabatiba89-sys/kaliweb`，本地 `main` 跟踪 `origin/main`。
 - 2026-07-11：Cloudflare Workers 部署必须保留根目录 `wrangler.jsonc`，明确将 `dist` 声明为纯静态资源目录。若缺少该配置，`wrangler deploy` 会自动注入 Astro Cloudflare adapter 并二次构建，可在预渲染环境因 `node:module`/`nodejs_compat` 失败。
 - 2026-07-11：Cloudflare 线上不会保留 Astro/Vite 的开发服务器 proxy；`wrangler.jsonc` 需通过 `main` 启用 Worker，并将 `ASSETS` 绑定到 `dist`。Worker 仅把 `/api/*` 和 `/login/*` 原样转发到 `https://yixiuapi.xyaip.fun`，其余路径交给静态资源响应。
+- 2026-07-11：视频发布报“视频任务不存在”的根因在后端 `/api/team-notion/publish-video`：列表和详情使用团队归属查询，而发布接口曾仅按当前 `user_id` 查询，导致同团队其他成员创建的视频可见但不可发布。发布接口现统一使用 `team_owner_filter`，`videoId` 仍必须传 `video_production_tasks.id`。

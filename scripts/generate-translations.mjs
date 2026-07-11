@@ -11,8 +11,10 @@ const sourcePaths = [
 ];
 const outputDirectory = new URL('../src/locales/', import.meta.url);
 const localeTargets = {
+  'en-US': 'en',
   'zh-CN': 'zh-Hans',
   'zh-TW': 'zh-Hant',
+  'zh-CN-yue': 'yue',
   'es-MX': 'es',
   'fr-FR': 'fr',
   'ru-RU': 'ru',
@@ -36,6 +38,27 @@ const localeTargets = {
   'hi-IN': 'hi',
 };
 const localeOverrides = {
+  'en-US': {
+    '消息通知': 'Notifications',
+    '全部已读': 'Mark all as read',
+    '登录后查看任务通知': 'Sign in to view task notifications',
+    '正在同步任务进度…': 'Syncing task progress…',
+    '暂无任务通知': 'No task notifications yet',
+    '每分钟自动同步': 'Syncs automatically every minute',
+    '开启桌面提醒': 'Enable desktop notifications',
+    '桌面提醒已开启': 'Desktop notifications enabled',
+    '生产预览': 'Production preview',
+    '文案助手': 'Script Assistant',
+    '配音': 'Voiceover',
+    '套餐用量': 'Plan usage',
+    '人工智能内容制作工作空间': 'AI Content Production Workspace',
+    '关于我们': 'About us',
+    '官方媒体': 'Official media',
+    '合规': 'Compliance',
+    '专项授权': 'Specific authorizations',
+    '协议中心': 'Agreement center',
+    '联系我们': 'Contact us',
+  },
   'zh-CN': {
     'Go home': '返回首页',
     'Primary navigation': '主导航',
@@ -247,17 +270,39 @@ const request = (options, body = '') => new Promise((resolve, reject) => {
 const browserHeaders = {
   'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/126.0.0.0 Safari/537.36 Edg/126.0.0.0',
 };
-const getToken = async () => request({ hostname: 'edge.microsoft.com', path: '/translate/auth', method: 'GET', headers: browserHeaders });
+const withRetries = async (operation, attempts = 4) => {
+  let lastError;
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    try {
+      return await operation();
+    } catch (error) {
+      lastError = error;
+      if (attempt < attempts - 1) await new Promise((resolve) => setTimeout(resolve, 350 * (attempt + 1)));
+    }
+  }
+  throw lastError;
+};
+const getToken = async () => withRetries(() => request({ hostname: 'edge.microsoft.com', path: '/translate/auth', method: 'GET', headers: browserHeaders }));
 
+const protectBrand = (text) => text
+  .replaceAll('Kali AI', 'KALI_BRAND_TOKEN_9841')
+  .replaceAll('{{name}}', 'AUTH_NAME_TOKEN_9841');
+const restoreBrand = (text) => text
+  .replaceAll('KALI_BRAND_TOKEN_9841', 'Kali AI')
+  .replaceAll('AUTH_NAME_TOKEN_9841', '{{name}}');
+
+const requestedLocale = process.argv.find((argument) => argument.startsWith('--locale='))?.split('=')[1];
+if (requestedLocale && !localeTargets[requestedLocale]) throw new Error(`Unsupported locale: ${requestedLocale}`);
+const activeLocaleTargets = requestedLocale ? { [requestedLocale]: localeTargets[requestedLocale] } : localeTargets;
 let token = await getToken();
-const catalogs = Object.fromEntries(Object.keys(localeTargets).map((locale) => [locale, {}]));
-const targetEntries = Object.entries(localeTargets);
+const catalogs = Object.fromEntries(Object.keys(activeLocaleTargets).map((locale) => [locale, {}]));
+const targetEntries = Object.entries(activeLocaleTargets);
 const targetGroups = [];
 for (let index = 0; index < targetEntries.length; index += 8) targetGroups.push(targetEntries.slice(index, index + 8));
 
-const translateBatch = async (batch, group, retry = true) => {
+const translateBatch = async (batch, group, retries = 3) => {
   const query = group.map(([, target]) => `to=${encodeURIComponent(target)}`).join('&');
-  const body = JSON.stringify(batch.map((Text) => ({ Text })));
+  const body = JSON.stringify(batch.map((Text) => ({ Text: protectBrand(Text) })));
   try {
     const result = await request({
       hostname: 'api-edge.cognitive.microsofttranslator.com',
@@ -272,9 +317,10 @@ const translateBatch = async (batch, group, retry = true) => {
     }, body);
     return JSON.parse(result);
   } catch (error) {
-    if (!retry) throw error;
+    if (retries <= 0) throw error;
     token = await getToken();
-    return translateBatch(batch, group, false);
+    await new Promise((resolve) => setTimeout(resolve, 350));
+    return translateBatch(batch, group, retries - 1);
   }
 };
 
@@ -287,7 +333,8 @@ for (const batch of batches) {
     translatedRows.forEach((row, rowIndex) => {
       row.translations.forEach((translation) => {
         const locale = group.find(([, target]) => target.toLowerCase() === translation.to.toLowerCase())?.[0];
-        if (locale && translation.text && translation.text !== batch[rowIndex]) catalogs[locale][batch[rowIndex]] = translation.text;
+        const translatedText = restoreBrand(translation.text || '');
+        if (locale && translatedText && translatedText !== batch[rowIndex]) catalogs[locale][batch[rowIndex]] = translatedText;
       });
     });
     completed += 1;
@@ -295,7 +342,9 @@ for (const batch of batches) {
   }
 }
 
-Object.entries(localeOverrides).forEach(([locale, overrides]) => Object.assign(catalogs[locale], overrides));
+Object.entries(localeOverrides).forEach(([locale, overrides]) => {
+  if (catalogs[locale]) Object.assign(catalogs[locale], overrides);
+});
 await fs.mkdir(outputDirectory, { recursive: true });
 await Promise.all(Object.entries(catalogs).map(([locale, catalog]) => fs.writeFile(new URL(`${locale}.json`, outputDirectory), `${JSON.stringify(catalog, null, 2)}\n`)));
-console.log(`Generated ${texts.length} source phrases for ${Object.keys(localeTargets).length + 1} locales.`);
+console.log(`Generated ${texts.length} source phrases for ${Object.keys(activeLocaleTargets).length} locale(s).`);

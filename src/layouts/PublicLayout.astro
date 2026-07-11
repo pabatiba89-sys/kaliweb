@@ -27,7 +27,6 @@ const jsonLd = {
       '@type': 'Organization',
       '@id': `${Astro.site}#organization`,
       name: siteName,
-      legalName: '上海喀理科技有限公司',
       url: Astro.site,
       email: 'feedback@xyaip.fun',
     },
@@ -104,9 +103,9 @@ const jsonLd = {
       <div class="footer-links">
         <div><strong>{t('Product')}</strong><a href={pagePath(locale, 'ai-video-generator')}>{t('AI video')}</a><a href={pagePath(locale, 'digital-human')}>{t('Digital humans')}</a><a href={pagePath(locale, 'voice-cloning')}>{t('Voice cloning')}</a><a href={pagePath(locale, 'ai-music-generator')}>{t('AI music')}</a></div>
         <div><strong>{t('Company')}</strong><a href={pagePath(locale, 'about')}>{copy.about}</a><a href={pagePath(locale, 'contact')}>{copy.contact}</a><a href="mailto:feedback@xyaip.fun">{t('Product feedback')}</a></div>
-        <div><strong>{t('Workspace')}</strong><a href="/app/">{t('Open Kali AI')}</a><a href="mailto:privacy@xyaip.fun">{t('Privacy requests')}</a></div>
+        <div><strong>{t('Workspace')}</strong><a href="/app/">{t('Open Kali AI')}</a><a href={pagePath(locale, 'payment-policy')}>{t('Payment policy')}</a><a href={pagePath(locale, 'refund-policy')}>{t('Refund policy')}</a><a href="mailto:privacy@xyaip.fun">{t('Privacy requests')}</a></div>
       </div>
-      <div class="footer-bottom"><span>© 2026 上海喀理科技有限公司</span><span>{eyebrow || t('Kali AI · Yixiu System')}</span></div>
+      <div class="footer-bottom"><span>© 2026 Kali AI</span><span>{eyebrow || t('Kali AI · Yixiu System')}</span></div>
     </footer>
   </body>
 </html>

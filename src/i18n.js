@@ -1,11 +1,12 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 const localeModules = import.meta.glob('./locales/*.json', { import: 'default' });
-const catalogCache = { 'en-US': {} };
+const catalogCache = {};
 
 export const languages = [
   { code: 'zh-CN', label: '简体中文 · zh-CN', dir: 'ltr' },
   { code: 'zh-TW', label: '繁體中文 · zh-TW', dir: 'ltr' },
+  { code: 'zh-CN-yue', label: '粵語 · zh-CN-yue', dir: 'ltr' },
   { code: 'en-US', label: 'English · en-US', dir: 'ltr' },
   { code: 'es-MX', label: 'Español · es-MX', dir: 'ltr' },
   { code: 'fr-FR', label: 'Français · fr-FR', dir: 'ltr' },
@@ -46,9 +47,6 @@ const originalAttributes = new WeakMap();
 const TRANSLATABLE_ATTRIBUTES = ['placeholder', 'title', 'aria-label', 'alt'];
 const preservedPhrases = new Set([
   'Kali AI',
-  'Yixiu Global',
-  'Kali AI · Yixiu System',
-  '© 2026 上海喀理科技有限公司',
   'TikTok',
   'YouTube',
   'BBC',
@@ -60,6 +58,7 @@ const normalizeLocale = (value) => {
   if (supportedCodes.has(aliased)) return aliased;
   const lower = String(aliased).toLowerCase();
   if (lower.startsWith('zh-tw') || lower.startsWith('zh-hk') || lower.startsWith('zh-hant')) return 'zh-TW';
+  if (lower.startsWith('zh-cn-yue') || lower.startsWith('yue')) return 'zh-CN-yue';
   if (lower.startsWith('zh')) return 'zh-CN';
   return languages.find((language) => language.code.toLowerCase().startsWith(`${lower.split('-')[0]}-`))?.code || '';
 };
@@ -72,14 +71,36 @@ export const getInitialLocale = () => {
 };
 
 const translateValue = (value, locale, catalog) => {
-  if (!value || locale === 'en-US') return value;
+  if (!value) return value;
   if (!catalog) return value;
   const leading = value.match(/^\s*/)?.[0] || '';
   const trailing = value.match(/\s*$/)?.[0] || '';
   const source = value.trim();
-  if (preservedPhrases.has(source) || source.includes('Kali AI') || /^[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}$/.test(source)) return value;
+  if (preservedPhrases.has(source) || /^[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}$/.test(source)) return value;
   return source && catalog[source] ? `${leading}${catalog[source]}${trailing}` : value;
 };
+
+export const translateStatic = (value, locale, catalog) => translateValue(value, locale, catalog);
+
+const loadLocaleCatalog = async (locale) => {
+  if (catalogCache[locale]) return catalogCache[locale];
+  const modulePath = `./locales/${locale}.json`;
+  const catalog = localeModules[modulePath] ? await localeModules[modulePath]() : {};
+  catalogCache[locale] = catalog;
+  return catalog;
+};
+
+export function useLocaleCatalog(locale) {
+  const [catalog, setCatalog] = useState(() => catalogCache[locale] || {});
+  useEffect(() => {
+    let cancelled = false;
+    loadLocaleCatalog(locale).then((nextCatalog) => {
+      if (!cancelled) setCatalog(nextCatalog);
+    });
+    return () => { cancelled = true; };
+  }, [locale]);
+  return catalog;
+}
 
 const isExcluded = (node) => {
   const element = node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement;
@@ -138,8 +159,7 @@ export function useAutoTranslate(locale) {
     document.documentElement.dir = language.dir;
     window.localStorage.setItem(LANGUAGE_STORAGE_KEY, language.code);
     const start = async () => {
-      const modulePath = `./locales/${language.code}.json`;
-      const catalog = catalogCache[language.code] || (localeModules[modulePath] ? await localeModules[modulePath]() : {});
+      const catalog = await loadLocaleCatalog(language.code);
       if (cancelled) return;
       catalogCache[language.code] = catalog;
       translateTree(document.body, language.code, catalog);
