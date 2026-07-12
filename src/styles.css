@@ -4225,7 +4225,7 @@ html[dir="rtl"] .legal-back-button svg {
 
 .hot-page {
   min-height: calc(100vh - 110px);
-  padding: 20px;
+  padding: 14px;
   border: 1px solid #d3ebe4;
   border-radius: 24px;
   background:
@@ -4234,7 +4234,7 @@ html[dir="rtl"] .legal-back-button svg {
   box-shadow: var(--shadow);
   display: grid;
   grid-template-rows: auto auto auto minmax(0, 1fr);
-  gap: 12px;
+  gap: 8px;
 }
 
 .hot-header {
@@ -4252,25 +4252,25 @@ html[dir="rtl"] .legal-back-button svg {
 
 .hot-header h1 {
   margin: 0;
-  font-size: clamp(30px, 3.2vw, 44px);
+  font-size: clamp(24px, 2.4vw, 32px);
   line-height: 1;
   letter-spacing: 0;
 }
 
 .hot-header span {
-  padding: 5px 10px;
+  padding: 3px 8px;
   border: 1px solid #bdeee2;
   border-radius: 999px;
   color: #45a391;
   background: rgba(255, 255, 255, 0.5);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 820;
 }
 
 .hot-page .hot-more {
-  width: 58px;
-  height: 38px;
-  font-size: 19px;
+  width: 48px;
+  height: 32px;
+  font-size: 17px;
 }
 
 .hot-more {
@@ -4286,7 +4286,7 @@ html[dir="rtl"] .legal-back-button svg {
 }
 
 .hot-switch {
-  padding: 4px;
+  padding: 3px;
   border: 1px solid #d2e6e0;
   border-radius: 999px;
   background: rgba(225, 242, 237, 0.82);
@@ -4296,11 +4296,11 @@ html[dir="rtl"] .legal-back-button svg {
 }
 
 .hot-switch button {
-  min-height: 44px;
+  min-height: 34px;
   border-radius: 999px;
   background: transparent;
   color: #81969a;
-  font-size: clamp(15px, 1.45vw, 18px);
+  font-size: 14px;
   font-weight: 900;
 }
 
@@ -4312,7 +4312,7 @@ html[dir="rtl"] .legal-back-button svg {
 
 .hot-cats {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   overflow-x: auto;
   padding-bottom: 2px;
   scrollbar-width: none;
@@ -4324,16 +4324,16 @@ html[dir="rtl"] .legal-back-button svg {
 
 .hot-cats button {
   flex: 0 0 auto;
-  min-height: 38px;
-  padding: 0 13px;
+  min-height: 32px;
+  padding: 0 10px;
   border: 1px solid #e0ece8;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.9);
   color: #54676d;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 15px;
+  gap: 5px;
+  font-size: 13px;
   font-weight: 900;
   box-shadow: 0 6px 14px rgba(24, 62, 53, 0.07);
 }
@@ -4351,59 +4351,59 @@ html[dir="rtl"] .legal-back-button svg {
 
 .hot-board {
   min-height: 0;
-  padding: 16px 18px;
-  border-radius: 20px;
+  padding: 10px 12px;
+  border-radius: 16px;
   background: rgba(255, 255, 255, 0.92);
   box-shadow: 0 18px 48px rgba(24, 62, 53, 0.1);
   overflow-y: auto;
   display: grid;
   align-content: start;
-  gap: 12px;
+  gap: 8px;
 }
 
 .hot-board-card {
   display: grid;
-  gap: 10px;
+  gap: 6px;
 }
 
 .hot-board__title {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .hot-board__title span {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
   background: #e9f8f4;
   display: grid;
   place-items: center;
-  font-size: 22px;
+  font-size: 17px;
   box-shadow: 0 8px 18px rgba(24, 62, 53, 0.08);
 }
 
 .hot-board__title strong {
-  font-size: 22px;
+  font-size: 17px;
   line-height: 1;
 }
 
 .hot-list {
   display: grid;
-  gap: 7px;
+  gap: 4px;
 }
 
 .hot-row {
-  min-height: 58px;
+  min-height: 46px;
   width: 100%;
-  padding: 9px 14px;
+  padding: 6px 10px;
   border: 1px solid #dcefeb;
-  border-radius: 15px;
+  border-radius: 11px;
   background: rgba(250, 255, 253, 0.96);
   display: grid;
-  grid-template-columns: 38px minmax(0, 1fr) auto;
+  grid-template-columns: 30px minmax(0, 1fr) auto;
   align-items: center;
-  gap: 11px;
+  gap: 8px;
   text-align: left;
   box-shadow: 0 5px 14px rgba(24, 62, 53, 0.05);
 }
@@ -4414,18 +4414,18 @@ html[dir="rtl"] .legal-back-button svg {
 }
 
 .hot-row.is-top {
-  min-height: 68px;
+  min-height: 50px;
 }
 
 .hot-rank {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
   background: #ffffff;
   color: #7c9297;
   display: grid;
   place-items: center;
-  font-size: 16px;
+  font-size: 13px;
   font-weight: 900;
   box-shadow: 0 4px 12px rgba(24, 62, 53, 0.08);
 }
@@ -4450,15 +4450,15 @@ html[dir="rtl"] .legal-back-button svg {
 .hot-row__main h3 {
   margin: 0;
   color: #10252b;
-  font-size: clamp(16px, 1.5vw, 20px);
-  line-height: 1.3;
+  font-size: 15px;
+  line-height: 1.2;
   font-weight: 920;
 }
 
 .hot-row__main p {
-  margin: 3px 0 0;
+  margin: 2px 0 0;
   color: #82979b;
-  font-size: 12px;
+  font-size: 11px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -4466,7 +4466,7 @@ html[dir="rtl"] .legal-back-button svg {
 
 .hot-score {
   color: #00a884;
-  font-size: 15px;
+  font-size: 13px;
   white-space: nowrap;
 }
 
@@ -8832,13 +8832,13 @@ video.media-preview {
   }
 
   .hot-page {
-    padding: 14px 12px;
+    padding: 10px;
     border-radius: 20px;
-    gap: 10px;
+    gap: 8px;
   }
 
   .hot-header h1 {
-    font-size: 32px;
+    font-size: 26px;
   }
 
   .hot-header span {
@@ -8851,46 +8851,46 @@ video.media-preview {
   }
 
   .hot-switch button {
-    min-height: 40px;
-    font-size: 16px;
-  }
-
-  .hot-cats button {
     min-height: 36px;
-    padding: 0 12px;
     font-size: 14px;
   }
 
+  .hot-cats button {
+    min-height: 34px;
+    padding: 0 10px;
+    font-size: 13px;
+  }
+
   .hot-board {
-    padding: 12px 10px;
-    border-radius: 18px;
+    padding: 10px 8px;
+    border-radius: 16px;
   }
 
   .hot-board__title span {
-    width: 36px;
-    height: 36px;
-    font-size: 20px;
+    width: 30px;
+    height: 30px;
+    font-size: 17px;
   }
 
   .hot-board__title strong {
-    font-size: 21px;
+    font-size: 17px;
   }
 
   .hot-row {
-    min-height: 56px;
-    padding: 9px 10px;
-    grid-template-columns: 34px minmax(0, 1fr) auto;
-    gap: 9px;
+    min-height: 48px;
+    padding: 7px 8px;
+    grid-template-columns: 30px minmax(0, 1fr) auto;
+    gap: 7px;
   }
 
   .hot-row.is-top {
-    min-height: 64px;
+    min-height: 52px;
   }
 
   .hot-rank {
-    width: 31px;
-    height: 31px;
-    font-size: 15px;
+    width: 28px;
+    height: 28px;
+    font-size: 13px;
   }
 
   .hot-row__main h3 {
