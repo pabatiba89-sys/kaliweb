@@ -427,6 +427,7 @@ const studioModes = [
   { id: 'musicVideo', label: 'Music Video', icon: Music2 },
 ];
 const PAGE_SIZE = 20;
+const HOT_PAGE_SIZE = 100;
 const MATERIAL_PAGE_SIZE = 48;
 const MATERIAL_MIN_PAGE_SIZE_FOR_MORE = 20;
 const TEMPLATE_PAGE_SIZE = 100;
@@ -5692,7 +5693,7 @@ function HotTrendsPage({ onTopicSelect }) {
   const [boards, setBoards] = useState([]);
   const [mediaBoards, setMediaBoards] = useState([]);
   const [page, setPage] = useState(1);
-  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [visibleCount, setVisibleCount] = useState(HOT_PAGE_SIZE);
   const [hasMore, setHasMore] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -5700,20 +5701,20 @@ function HotTrendsPage({ onTopicSelect }) {
     setLoading(true);
     const result = await apiFetch('/api/hotlist/list', {
       auth: false,
-      params: { page: nextPage, page_size: PAGE_SIZE, pageSize: PAGE_SIZE, categories: categoryRequest(nextCategory) },
+      params: { page: nextPage, page_size: HOT_PAGE_SIZE, pageSize: HOT_PAGE_SIZE, categories: categoryRequest(nextCategory) },
     });
     const nextBoards = normalizeBoards(result);
     setBoards((current) => (append ? mergeBoards(current, nextBoards) : nextBoards));
     setPage(nextPage);
-    setVisibleCount(PAGE_SIZE);
-    setHasMore(result.ok && nextBoards.reduce((sum, board) => sum + board.topics.length, 0) >= PAGE_SIZE);
+    setVisibleCount(HOT_PAGE_SIZE);
+    setHasMore(result.ok && nextBoards.reduce((sum, board) => sum + board.topics.length, 0) >= HOT_PAGE_SIZE);
     setLoading(false);
   };
   const loadMedia = async () => {
     setLoading(true);
     const result = await apiFetch('/api/hotlist/search', { auth: false, params: { limit: 0 } });
     setMediaBoards(normalizeMediaBoards(result));
-    setVisibleCount(PAGE_SIZE);
+    setVisibleCount(HOT_PAGE_SIZE);
     setLoading(false);
   };
 
@@ -5743,18 +5744,17 @@ function HotTrendsPage({ onTopicSelect }) {
   const changeMode = async (nextMode) => {
     if (nextMode === mode) return;
     setMode(nextMode);
-    setVisibleCount(PAGE_SIZE);
+    setVisibleCount(HOT_PAGE_SIZE);
     if (nextMode === 'media' && !mediaBoards.length) await loadMedia();
   };
   const changeCategory = async (nextCategory) => {
     setCategory(nextCategory);
     await loadAggregate({ nextPage: 1, append: false, nextCategory });
   };
-  const handleScroll = (event) => {
-    const element = event.currentTarget;
-    if (loading || element.scrollTop + element.clientHeight < element.scrollHeight - 80) return;
+  const loadMore = () => {
+    if (loading) return;
     if (canRevealMore) {
-      setVisibleCount((value) => value + PAGE_SIZE);
+      setVisibleCount((value) => value + HOT_PAGE_SIZE);
       return;
     }
     if (mode === 'aggregate' && hasMore) loadAggregate({ nextPage: page + 1, append: true });
@@ -5806,7 +5806,7 @@ function HotTrendsPage({ onTopicSelect }) {
           </button>
         ))}
       </div>
-      <section className="hot-board" onScroll={handleScroll}>
+      <section className={`hot-board ${visibleBoards.length > 1 ? 'hot-board--sections' : ''}`}>
         {visibleBoards.map((board) => (
           <div className="hot-board-card" key={board.id}>
             <div className="hot-board__title">
@@ -5833,6 +5833,9 @@ function HotTrendsPage({ onTopicSelect }) {
           ))}
         {!visibleBoards.length && !loading && <div className="hot-empty">暂无热点</div>}
         {loading && <div className="hot-loading">加载中</div>}
+        {!loading && (canRevealMore || (mode === 'aggregate' && hasMore)) && (
+          <button className="hot-load-more" onClick={loadMore}>加载更多热点</button>
+        )}
       </section>
     </div>
   );
