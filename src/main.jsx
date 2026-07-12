@@ -153,7 +153,7 @@ const legalDocuments = {
     icon: BookOpen,
     officialUrl: OFFICIAL_USER_AGREEMENT_URL,
     sections: [
-      ['1. 协议的接受与生效', '本服务由 Kali AI 团队提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。'],
+      ['1. 协议的接受与生效', '本服务由 Kali 团队提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。'],
       ['2. 账号注册与安全', '用户可通过平台支持的邮箱、移动号码或第三方账号注册。用户应提供真实、合法的账号信息，妥善保管密码与登录凭证，并对账号下的活动负责。'],
       ['3. 产品与服务', '平台提供热点、文案、图片、音乐、声音、数字人与视频生产相关服务。部分能力可能依赖第三方模型或服务，也可能随合规与产品需求调整。'],
       ['4. 用户行为与内容', '不得上传、生成或发布违法违规、欺诈冒充、侵害他人人格权、隐私权、声音权、肖像权或知识产权的内容。用户应确保对上传素材与输出内容拥有充分权利。'],
@@ -467,8 +467,8 @@ function Sidebar({ active, collapsed, onSelect, onToggle }) {
       <button className="sidebar__brand" onClick={() => onSelect('home')} aria-label="Go home">
         <span className="brand-mark">K</span>
         <span className="brand-copy">
-          <strong>Kali AI</strong>
-          <small>Yixiu Global</small>
+          <strong>Kali</strong>
+          <small>Yixiu</small>
         </span>
       </button>
       <nav className="sidebar__nav" aria-label="Primary navigation">
@@ -659,7 +659,7 @@ function TrialStrip({ language }) {
     <section className="trial-strip" aria-label={t.trial}>
       <div className="trial-strip__copy">
         <strong>{t.trial}</strong>
-        <span>Start production with the same yixiu trial package.</span>
+        <span>Start production with the same Yixiu trial package.</span>
       </div>
       <div className="trial-strip__items">
         {trialBenefits.map((item) => (
@@ -772,7 +772,7 @@ function PreviewPanel({ language, activeMode, setActiveMode }) {
       </div>
       <div className="video-builder">
         <div className="video-frame">
-          <img src="/yixiu-assets/swiper0.png" alt="Kali AI production preview" />
+          <img src="/yixiu-assets/swiper0.png" alt="Kali production preview" />
           <button className="play-button" aria-label="Play preview">
             <Play size={22} fill="currentColor" />
           </button>
@@ -2812,7 +2812,7 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
   const localeCatalog = useLocaleCatalog(language);
   const selectedAuthVideo = authVideos.find((item) => item.key === selectedAuthKey) || null;
   const selectedImage = images.find((item) => item.id === selectedImageId) || null;
-  const authorizationTemplate = 'My name is {{name}}. I authorize Kali AI to use my likeness and voice from this authorization video to generate a custom digital human and voice for me, and to use them in my Kali AI account for content creation.';
+  const authorizationTemplate = 'My name is {{name}}. I authorize Kali to use my likeness and voice from this authorization video to generate a custom digital human and voice for me, and to use them in my Kali account for content creation.';
   const authorizationLines = [
     translateStatic(authorizationTemplate, language, localeCatalog).replaceAll('{{name}}', textOf(form.name) || 'XXX'),
   ];
@@ -3156,7 +3156,7 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
     <div className="asset-page">
       <section className={`asset-hero ${(view === 'library' ? libraryTab.endsWith('-voice') : mode === 'voice') ? 'is-voice' : ''}`}>
         <div>
-          <h1>{view === 'library' ? 'Asset Library' : mode === 'voice' ? 'Voice Cloning' : 'Digital Human Training'}</h1>
+          <h1>{view === 'library' ? 'Asset Library' : mode === 'voice' ? 'Voice Cloning' : 'Digital Human Asset Management'}</h1>
           <p>{view === 'library' ? '统一浏览我的资产与公共素材，预览形象、试听声音并直接带入视频创作。' : mode === 'voice' ? '录制或上传本人授权的清晰声音，训练可复用的多语种克隆声音。' : '把真人形象视频、AI 形象图和授权视频整理成可追踪的数字人训练流程。'}</p>
         </div>
         <div className="asset-hero-actions"><button className="outline-button" onClick={authed ? loadAssets : onLogin} disabled={loading}><RefreshCw className={loading ? 'is-spinning' : ''} size={17} /><span>{loading ? '同步中' : '同步资产'}</span></button><button className="primary-button" onClick={() => setView(view === 'library' ? 'create' : 'library')}>{view === 'library' ? <Plus size={17} /> : <Library size={17} />}<span>{view === 'library' ? '创建资产' : '返回资产库'}</span></button></div>
@@ -5921,14 +5921,14 @@ function AboutPage({ onOpen }) {
   return (
     <div className="public-page">
       <PublicPageHeader
-        eyebrow="ABOUT KALI AI"
+        eyebrow="ABOUT KALI"
         title="关于我们"
         description="让热点、创意、数字人、声音与媒体发布成为一条可复用的 AI 内容生产线。"
         onBack={() => onOpen('home')}
       />
       <section className="about-story">
-        <div className="about-story__mark"><span className="brand-mark">K</span><small>KALI AI · YIXIU SYSTEM</small></div>
-        <div><h2>我们在解决什么</h2><p>企业做视频内容时，难点不是某一个 AI 工具不够强，而是选题、文案、人物、声音、素材、成片与发布被分散在不同流程中。Kali AI 将这些环节连成一个可追踪、可复用、可协作的内容工作台。</p></div>
+        <div className="about-story__mark"><span className="brand-mark">K</span><small>KALI · YIXIU</small></div>
+        <div><h2>我们在解决什么</h2><p>企业做视频内容时，难点不是某一个 AI 工具不够强，而是选题、文案、人物、声音、素材、成片与发布被分散在不同流程中。Kali 将这些环节连成一个可追踪、可复用、可协作的内容工作台。</p></div>
       </section>
       <section className="about-values">
         <article><TrendingUp size={22} /><strong>从趋势到选题</strong><p>聚合公开热点与媒体信号，帮助团队更快找到值得表达的话题。</p></article>
@@ -5936,7 +5936,7 @@ function AboutPage({ onOpen }) {
         <article><Globe2 size={22} /><strong>面向全球市场</strong><p>独立站版会持续完善多语言、跨时区协作与主流媒体发布能力。</p></article>
       </section>
       <section className="company-facts">
-        <div><span>PRODUCT</span><strong>Kali AI · 亿秀系统</strong></div>
+        <div><span>PRODUCT</span><strong>Kali · Yixiu</strong></div>
         <div><span>FOCUS</span><strong>AI Content Production</strong></div>
         <div><span>WORKFLOW</span><strong>Discover · Create · Publish</strong></div>
       </section>
@@ -5994,7 +5994,7 @@ function MediaAccountsPage({ onOpen }) {
       </section>
       <section className="media-safety-note">
         <ShieldCheck size={21} />
-        <div><strong>账号安全提醒</strong><p>当前未公布可验证的官方媒体 ID。任何以 Kali AI 或亿秀系统名义索要密码、验证码或转账的账号均不可信。如需核验，请发送邮件至 <a href="mailto:feedback@xyaip.fun">feedback@xyaip.fun</a>。</p></div>
+        <div><strong>账号安全提醒</strong><p>当前未公布可验证的官方媒体 ID。任何以 Kali 或 Yixiu 名义索要密码、验证码或转账的账号均不可信。如需核验，请发送邮件至 <a href="mailto:feedback@xyaip.fun">feedback@xyaip.fun</a>。</p></div>
       </section>
     </div>
   );
@@ -6011,14 +6011,14 @@ function PublicInfoPage({ active, onOpen }) {
 function SiteFooter({ onOpen }) {
   return (
     <footer className="site-footer">
-      <div className="site-footer__brand"><span className="brand-mark">K</span><div><strong>Kali AI</strong><small>AI Content Production Workspace</small></div></div>
+      <div className="site-footer__brand"><span className="brand-mark">K</span><div><strong>Kali</strong><small>AI Content Production Workspace</small></div></div>
       <div className="site-footer__links">
         <div><strong>产品</strong><button onClick={() => onOpen('home')}>工作台</button><button onClick={() => onOpen('info-about')}>关于我们</button><button onClick={() => onOpen('info-media')}>官方媒体</button></div>
         <div><strong>合规</strong><button onClick={() => onOpen('info-agreements')}>协议中心</button><button onClick={() => onOpen('legal-user')}>用户服务协议</button><button onClick={() => onOpen('legal-privacy')}>隐私政策</button><button onClick={() => onOpen('legal-payment')}>支付政策</button><button onClick={() => onOpen('legal-refund')}>退款政策</button></div>
         <div><strong>专项授权</strong><button onClick={() => onOpen('legal-voice')}>声纹授权</button><button onClick={() => onOpen('legal-avatar')}>数字人形象授权</button><button onClick={() => onOpen('legal-image')}>形象信息采集</button></div>
         <div><strong>支持</strong><button onClick={() => onOpen('info-contact')}>联系我们</button><a href="mailto:feedback@xyaip.fun">feedback@xyaip.fun</a><a href="mailto:privacy@xyaip.fun">privacy@xyaip.fun</a></div>
       </div>
-      <div className="site-footer__bottom"><span>© 2026 Kali AI</span><span>Kali AI · Yixiu System</span></div>
+      <div className="site-footer__bottom"><span>© 2026 Kali</span><span>Kali · Yixiu</span></div>
     </footer>
   );
 }

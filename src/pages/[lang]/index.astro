@@ -3,6 +3,7 @@ import PublicLayout from '../../layouts/PublicLayout.astro';
 import { homeByLocale } from '../../site/home.js';
 import { pagesByLocale, pagePath, supportedLocales } from '../../site/content.js';
 import { translateText } from '../../site/localization.js';
+import { brandName } from '../../site/localization.js';
 
 export function getStaticPaths() {
   return supportedLocales.map((lang) => ({ params: { lang }, props: { lang } }));
@@ -14,7 +15,7 @@ const t = (value) => translateText(value, lang);
 const products = pagesByLocale[lang].filter((page) => ['ai-video-generator', 'digital-human', 'voice-cloning', 'ai-music-generator'].includes(page.slug));
 const schema = {
   '@type': 'SoftwareApplication',
-  name: 'Kali AI',
+  name: brandName(lang),
   applicationCategory: 'MultimediaApplication',
   operatingSystem: 'Web',
   url: new URL(pagePath(lang), Astro.site),
@@ -31,7 +32,7 @@ const schema = {
       <div class="hero-actions"><a class="primary-cta" href="/app/">{t('Open the workspace')} <span>↗</span></a><a class="text-cta" href={pagePath(lang, 'ai-video-generator')}>{t('See the production flow')} <span>→</span></a></div>
       <ul class="proof-row">{home.proof.map((item) => <li>{item}</li>)}</ul>
     </div>
-    <div class="hero-visual" aria-label="Kali AI workspace preview">
+    <div class="hero-visual" aria-label={`${brandName(lang)} workspace preview`}>
       <div class="visual-top"><span><i></i><i></i><i></i></span><small>{t('Production overview')}</small><b>{t('Ready')}</b></div>
       <div class="visual-body">
         <aside><strong>K</strong><span></span><span></span><span></span><span></span></aside>
@@ -54,9 +55,9 @@ const schema = {
   </section>
 
   <section class="process-section">
-    <div class="section-heading"><p class="eyebrow">{t('THE WORKFLOW')}</p><h2>{t('Keep context from the first signal to the final publish')}</h2></div>
+    <div class="section-heading"><p class="eyebrow">{t('THE WORKFLOW')}</p><h2>{t('Keep every decision connected from first insight to final publish')}</h2></div>
     <ol class="process-list"><li><span>01</span><div><strong>{t('Find the angle')}</strong><p>{t('Start from a trend, topic, brief, or existing content idea.')}</p></div></li><li><span>02</span><div><strong>{t('Shape the script')}</strong><p>{t('Use an assistant, refine the copy, and keep the selected context attached.')}</p></div></li><li><span>03</span><div><strong>{t('Assemble production')}</strong><p>{t('Select approved people, voices, templates, music, covers, and supporting media.')}</p></div></li><li><span>04</span><div><strong>{t('Review and publish')}</strong><p>{t('Track production status, download the result, or continue into publishing.')}</p></div></li></ol>
   </section>
 
-  <section class="closing-cta"><p class="eyebrow">{t('READY WHEN YOUR NEXT IDEA IS')}</p><h2>{t('Build the workflow once. Reuse it for every market.')}</h2><a class="primary-cta dark" href="/app/">{t('Start creating in Kali AI')} <span>↗</span></a></section>
+  <section class="closing-cta"><p class="eyebrow">{t('READY FOR YOUR NEXT IDEA')}</p><h2>{t('Build once. Create for every market.')}</h2><a class="primary-cta dark" href="/app/">{t('Create with Kali')} <span>↗</span></a></section>
 </PublicLayout>

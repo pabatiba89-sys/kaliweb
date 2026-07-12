@@ -1,6 +1,7 @@
 ---
-import { localeMeta, pagePath, siteName, supportedLocales } from '../site/content.js';
+import { localeMeta, pagePath, supportedLocales } from '../site/content.js';
 import { translateText } from '../site/localization.js';
+import { brandName } from '../site/localization.js';
 import '../site/public.css';
 
 const {
@@ -26,14 +27,14 @@ const jsonLd = {
     {
       '@type': 'Organization',
       '@id': `${Astro.site}#organization`,
-      name: siteName,
+      name: brandName(locale),
       url: Astro.site,
       email: 'feedback@xyaip.fun',
     },
     {
       '@type': 'WebSite',
       '@id': `${Astro.site}#website`,
-      name: siteName,
+      name: brandName(locale),
       url: Astro.site,
       publisher: { '@id': `${Astro.site}#organization` },
       inLanguage: copy.appLocale,
@@ -54,14 +55,14 @@ const jsonLd = {
     {alternates.map((item) => <link rel="alternate" hreflang={item.code} href={item.href} />)}
     <link rel="alternate" hreflang="x-default" href={new URL('/en/', Astro.site)} />
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content={siteName} />
+    <meta property="og:site_name" content={brandName(locale)} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={new URL('/og.png', Astro.site)} />
-    <meta property="og:image:width" content="1734" />
-    <meta property="og:image:height" content="907" />
-    <meta property="og:image:alt" content="Kali AI content production workflow" />
+    <meta property="og:image:width" content="1731" />
+    <meta property="og:image:height" content="909" />
+    <meta property="og:image:alt" content={`${brandName(locale)} content production workflow`} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
@@ -71,9 +72,9 @@ const jsonLd = {
   <body>
     <a class="skip-link" href="#main">{t('Skip to content')}</a>
     <header class="site-header">
-      <a class="brand" href={pagePath(locale)} aria-label={`${siteName} home`}>
+      <a class="brand" href={pagePath(locale)} aria-label={`${brandName(locale)} home`}>
         <span class="brand-mark" aria-hidden="true">K</span>
-        <span><strong>Kali AI</strong><small>{t('Content production workspace')}</small></span>
+        <span><strong>{brandName(locale)}</strong><small>{t('Content production workspace')}</small></span>
       </a>
       <nav aria-label={t('Primary navigation')}>
         <a href={pagePath(locale)}>{copy.home}</a>
@@ -98,14 +99,14 @@ const jsonLd = {
     <footer class="public-footer">
       <div class="footer-brand">
         <span class="brand-mark" aria-hidden="true">K</span>
-        <div><strong>Kali AI</strong><p>{t('From trend discovery to publish-ready media.')}</p></div>
+        <div><strong>{brandName(locale)}</strong><p>{t('From trend discovery to publish-ready media.')}</p></div>
       </div>
       <div class="footer-links">
         <div><strong>{t('Product')}</strong><a href={pagePath(locale, 'ai-video-generator')}>{t('AI video')}</a><a href={pagePath(locale, 'digital-human')}>{t('Digital humans')}</a><a href={pagePath(locale, 'voice-cloning')}>{t('Voice cloning')}</a><a href={pagePath(locale, 'ai-music-generator')}>{t('AI music')}</a></div>
         <div><strong>{t('Company')}</strong><a href={pagePath(locale, 'about')}>{copy.about}</a><a href={pagePath(locale, 'contact')}>{copy.contact}</a><a href="mailto:feedback@xyaip.fun">{t('Product feedback')}</a></div>
-        <div><strong>{t('Workspace')}</strong><a href="/app/">{t('Open Kali AI')}</a><a href={pagePath(locale, 'payment-policy')}>{t('Payment policy')}</a><a href={pagePath(locale, 'refund-policy')}>{t('Refund policy')}</a><a href="mailto:privacy@xyaip.fun">{t('Privacy requests')}</a></div>
+        <div><strong>{t('Workspace')}</strong><a href="/app/">{t('Open Kali')}</a><a href={pagePath(locale, 'payment-policy')}>{t('Payment policy')}</a><a href={pagePath(locale, 'refund-policy')}>{t('Refund policy')}</a><a href="mailto:privacy@xyaip.fun">{t('Privacy requests')}</a></div>
       </div>
-      <div class="footer-bottom"><span>© 2026 Kali AI</span><span>{eyebrow || t('Kali AI · Yixiu System')}</span></div>
+      <div class="footer-bottom"><span>© 2026 {brandName(locale)}</span><span>{eyebrow || t('Kali · Yixiu')}</span></div>
     </footer>
   </body>
 </html>

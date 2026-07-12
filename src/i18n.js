@@ -6,7 +6,6 @@ const catalogCache = {};
 export const languages = [
   { code: 'zh-CN', label: '简体中文 · zh-CN', dir: 'ltr' },
   { code: 'zh-TW', label: '繁體中文 · zh-TW', dir: 'ltr' },
-  { code: 'zh-CN-yue', label: '粵語 · zh-CN-yue', dir: 'ltr' },
   { code: 'en-US', label: 'English · en-US', dir: 'ltr' },
   { code: 'es-MX', label: 'Español · es-MX', dir: 'ltr' },
   { code: 'fr-FR', label: 'Français · fr-FR', dir: 'ltr' },
@@ -46,19 +45,28 @@ const lastAppliedText = new WeakMap();
 const originalAttributes = new WeakMap();
 const TRANSLATABLE_ATTRIBUTES = ['placeholder', 'title', 'aria-label', 'alt'];
 const preservedPhrases = new Set([
-  'Kali AI',
+  'Kali',
   'TikTok',
   'YouTube',
   'BBC',
 ]);
+
+const isChineseLocale = (locale) => String(locale || '').toLowerCase().startsWith('zh');
+const yixiuVariants = ['一秀', '一修', '奕秀', '伊秀', 'Исиу', 'Исю', 'Ісю', 'Їсіу', 'ييشيو', 'يي شيو', '이쉬우', '이시우', 'यिक्सिउ'];
+const normalizeProductName = (value) => yixiuVariants.reduce((current, variant) => current.replaceAll(variant, 'Yixiu'), String(value));
+const applyProductNames = (value, locale) => {
+  const normalized = normalizeProductName(value);
+  if (!isChineseLocale(locale)) return normalized;
+  return normalized.replaceAll('Kali', '喀理').replaceAll('Yixiu', '亿秀');
+};
 
 const normalizeLocale = (value) => {
   if (!value) return '';
   const aliased = legacyLocaleAliases[value] || value;
   if (supportedCodes.has(aliased)) return aliased;
   const lower = String(aliased).toLowerCase();
+  if (lower.startsWith('zh-cn-yue') || lower.startsWith('yue')) return 'zh-CN';
   if (lower.startsWith('zh-tw') || lower.startsWith('zh-hk') || lower.startsWith('zh-hant')) return 'zh-TW';
-  if (lower.startsWith('zh-cn-yue') || lower.startsWith('yue')) return 'zh-CN-yue';
   if (lower.startsWith('zh')) return 'zh-CN';
   return languages.find((language) => language.code.toLowerCase().startsWith(`${lower.split('-')[0]}-`))?.code || '';
 };
@@ -76,8 +84,10 @@ const translateValue = (value, locale, catalog) => {
   const leading = value.match(/^\s*/)?.[0] || '';
   const trailing = value.match(/\s*$/)?.[0] || '';
   const source = value.trim();
-  if (preservedPhrases.has(source) || /^[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}$/.test(source)) return value;
-  return source && catalog[source] ? `${leading}${catalog[source]}${trailing}` : value;
+  if (/^[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}$/.test(source)) return value;
+  if (source === 'Kali · Yixiu') return `${leading}${isChineseLocale(locale) ? '喀理 · 亿秀' : 'Kali · Yixiu'}${trailing}`;
+  const translated = preservedPhrases.has(source) ? source : (source && catalog[source] ? catalog[source] : source);
+  return `${leading}${applyProductNames(translated, locale)}${trailing}`;
 };
 
 export const translateStatic = (value, locale, catalog) => translateValue(value, locale, catalog);

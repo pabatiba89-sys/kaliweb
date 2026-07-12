@@ -4,7 +4,6 @@ export const localeDefinitions = [
   ['en', 'en', 'en', 'English', 'ltr'],
   ['zh-cn', 'zh-CN', 'zh-CN', '简体中文', 'ltr'],
   ['zh-tw', 'zh-TW', 'zh-TW', '繁體中文', 'ltr'],
-  ['zh-hk', 'zh-HK', 'zh-HK', '粵語', 'ltr'],
   ['es', 'es', 'es-MX', 'Español', 'ltr'],
   ['fr', 'fr', 'fr-FR', 'Français', 'ltr'],
   ['ru', 'ru', 'ru-RU', 'Русский', 'ltr'],
@@ -30,9 +29,21 @@ export const localeDefinitions = [
 
 export const supportedLocales = localeDefinitions.map((locale) => locale.route);
 
+const isChineseLocale = (locale) => String(locale || '').startsWith('zh-');
+export const brandName = (locale) => isChineseLocale(locale) ? '喀理' : 'Kali';
+export const productName = (locale) => isChineseLocale(locale) ? '亿秀' : 'Yixiu';
+const yixiuVariants = ['一秀', '一修', '奕秀', '伊秀', 'Исиу', 'Исю', 'Ісю', 'Їсіу', 'ييشيو', 'يي شيو', '이쉬우', '이시우', 'यिक्सिउ'];
+const normalizeProductName = (value) => yixiuVariants.reduce((current, variant) => current.replaceAll(variant, 'Yixiu'), String(value));
+const applyProductNames = (value, locale) => {
+  const normalized = normalizeProductName(value);
+  return isChineseLocale(locale) ? normalized.replaceAll('Kali', '喀理').replaceAll('Yixiu', '亿秀') : normalized;
+};
+
 export function translateText(value, locale) {
-  if (locale === 'en' || !value) return value;
-  return catalogs[locale]?.[value] || value;
+  if (!value) return value;
+  if (value === 'Kali · Yixiu') return `${brandName(locale)} · ${productName(locale)}`;
+  const translated = locale === 'en' ? value : (catalogs[locale]?.[value] || value);
+  return applyProductNames(translated, locale);
 }
 
 export function localize(value, locale) {
@@ -47,11 +58,11 @@ const navigation = {
   pricing: 'Pricing',
   about: 'About',
   contact: 'Contact',
-  workspace: 'Open workspace',
+  workspace: 'Open the workspace',
   menu: 'Menu',
   close: 'Close',
   learnMore: 'Learn more',
-  cta: 'Start creating',
+  cta: 'Create with Kali',
 };
 
 export const publicUiStrings = [
@@ -59,19 +70,19 @@ export const publicUiStrings = [
   'Skip to content', 'Primary navigation', 'Content production workspace',
   'From trend discovery to publish-ready media.', 'Product', 'Company', 'Workspace',
   'AI video', 'Digital humans', 'Voice cloning', 'AI music', 'Product feedback',
-  'Open Kali AI', 'Privacy requests', 'Kali AI · Yixiu System',
+  'Open Kali', 'Privacy requests', 'Kali · Yixiu',
   'Payment policy', 'Refund policy',
   'Open the workspace', 'See the production flow', 'Product capabilities',
   'Trend discovery', 'Script generation', 'Digital humans', 'Voice cloning', 'AI music', 'Video publishing',
-  'CONNECTED STUDIOS', 'Explore', 'THE WORKFLOW', 'Keep context from the first signal to the final publish',
+  'CONNECTED STUDIOS', 'Explore', 'THE WORKFLOW', 'Keep every decision connected from first insight to final publish',
   'Find the angle', 'Start from a trend, topic, brief, or existing content idea.',
   'Shape the script', 'Use an assistant, refine the copy, and keep the selected context attached.',
   'Assemble production', 'Select approved people, voices, templates, music, covers, and supporting media.',
   'Review and publish', 'Track production status, download the result, or continue into publishing.',
-  'READY WHEN YOUR NEXT IDEA IS', 'Build the workflow once. Reuse it for every market.', 'Start creating in Kali AI',
+  'READY FOR YOUR NEXT IDEA', 'Build once. Create for every market.', 'Create with Kali',
   'WHAT YOU CAN DO', 'Talk to the team', 'HOW IT FITS TOGETHER', 'A clear path from setup to repeatable output',
-  'COMMON QUESTIONS', 'Answers before you start', 'KALI AI WORKSPACE',
-  'Take the next project from brief to finished media.', 'Start creating',
+  'COMMON QUESTIONS', 'Answers before you start', 'KALI WORKSPACE',
+  'Bring your next idea to life.', 'Create with Kali',
   'Production overview', 'Ready', 'CONTENT PIPELINE', 'Turn today’s idea into a finished video', 'New video',
   'Discover', 'Trend selected', 'Write', 'Script ready', 'Produce', 'Assets linked', 'Digital human', 'Approved asset', 'Voice ready',
 ];

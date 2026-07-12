@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import https from 'node:https';
 import { parse } from '@babel/parser';
 import traverseModule from '@babel/traverse';
+import { workspaceLocalizationOverrides } from './localization-overrides.mjs';
 
 const traverse = traverseModule.default;
 const sourcePaths = [
@@ -14,7 +15,6 @@ const localeTargets = {
   'en-US': 'en',
   'zh-CN': 'zh-Hans',
   'zh-TW': 'zh-Hant',
-  'zh-CN-yue': 'yue',
   'es-MX': 'es',
   'fr-FR': 'fr',
   'ru-RU': 'ru',
@@ -60,6 +60,7 @@ const localeOverrides = {
     '联系我们': 'Contact us',
   },
   'zh-CN': {
+    'Digital Human Asset Management': '数字人资产管理',
     'Go home': '返回首页',
     'Primary navigation': '主导航',
     Collapse: '收起',
@@ -78,7 +79,7 @@ const localeOverrides = {
     'Sign out': '退出',
     'New Video': '新建视频',
     'Ready to create': '准备创作',
-    'Start production with the same yixiu trial package.': '使用艺秀同款试用套餐开始创作。',
+    'Start production with the same Yixiu trial package.': '使用亿秀同款试用套餐开始创作。',
     '1 Digital Human': '1 个数字人',
     '1 Voice': '1 个声音',
     '3 AI Videos': '3 个 AI 视频',
@@ -121,6 +122,7 @@ const localeOverrides = {
     'Trend preview is ready.': '热点预览已就绪。',
   },
   'zh-TW': {
+    'Digital Human Asset Management': '數位人資產管理',
     'Go home': '返回首頁',
     'Primary navigation': '主導覽',
     Collapse: '收合',
@@ -139,7 +141,7 @@ const localeOverrides = {
     'Sign out': '登出',
     'New Video': '新增影片',
     'Ready to create': '準備創作',
-    'Start production with the same yixiu trial package.': '使用藝秀同款試用方案開始創作。',
+    'Start production with the same Yixiu trial package.': '使用亿秀同款试用方案开始创作。',
     '1 Digital Human': '1 個數位人',
     '1 Voice': '1 個聲音',
     '3 AI Videos': '3 個 AI 影片',
@@ -173,27 +175,30 @@ const localeOverrides = {
 
 const navigationKeys = ['Home', 'Hot Trends', 'AI Assistant', 'Video Studio', 'Asset Studio', 'Music Studio', 'Image Studio', 'Materials', 'Templates', 'Billing', 'Settings', 'Sign in', 'Sign out', 'New Video', 'Collapse'];
 const navigationOverrides = {
-  'es-MX': ['Inicio', 'Tendencias', 'Asistente de IA', 'Estudio de video', 'Estudio de recursos', 'Estudio de música', 'Estudio de imágenes', 'Materiales', 'Plantillas', 'Planes y facturación', 'Configuración', 'Iniciar sesión', 'Cerrar sesión', 'Nuevo video', 'Contraer'],
-  'fr-FR': ['Accueil', 'Tendances', 'Assistant IA', 'Studio vidéo', 'Studio de ressources', 'Studio de musique', 'Studio d’images', 'Ressources', 'Modèles', 'Abonnement et facturation', 'Paramètres', 'Se connecter', 'Se déconnecter', 'Nouvelle vidéo', 'Réduire'],
-  'ru-RU': ['Главная', 'Тренды', 'ИИ-ассистент', 'Видеостудия', 'Студия ресурсов', 'Музыкальная студия', 'Студия изображений', 'Материалы', 'Шаблоны', 'Тариф и оплата', 'Настройки', 'Войти', 'Выйти', 'Новое видео', 'Свернуть'],
-  'de-DE': ['Startseite', 'Trends', 'KI-Assistent', 'Videostudio', 'Asset-Studio', 'Musikstudio', 'Bildstudio', 'Medien', 'Vorlagen', 'Tarif und Abrechnung', 'Einstellungen', 'Anmelden', 'Abmelden', 'Neues Video', 'Einklappen'],
-  'pt-PT': ['Início', 'Tendências', 'Assistente de IA', 'Estúdio de vídeo', 'Estúdio de recursos', 'Estúdio de música', 'Estúdio de imagens', 'Materiais', 'Modelos', 'Plano e faturação', 'Definições', 'Iniciar sessão', 'Terminar sessão', 'Novo vídeo', 'Recolher'],
-  'ar-AE': ['الرئيسية', 'الموضوعات الرائجة', 'مساعد الذكاء الاصطناعي', 'استوديو الفيديو', 'استوديو الأصول', 'استوديو الموسيقى', 'استوديو الصور', 'المواد', 'القوالب', 'الخطة والفوترة', 'الإعدادات', 'تسجيل الدخول', 'تسجيل الخروج', 'فيديو جديد', 'طي'],
-  'it-IT': ['Home', 'Tendenze', 'Assistente IA', 'Studio video', 'Studio risorse', 'Studio musicale', 'Studio immagini', 'Materiali', 'Modelli', 'Piano e fatturazione', 'Impostazioni', 'Accedi', 'Esci', 'Nuovo video', 'Comprimi'],
-  'ja-JP': ['ホーム', 'トレンド', 'AIアシスタント', '動画スタジオ', 'アセットスタジオ', '音楽スタジオ', '画像スタジオ', '素材', 'テンプレート', 'プラン・請求', '設定', 'ログイン', 'ログアウト', '新規動画', '折りたたむ'],
-  'ko-KR': ['홈', '인기 트렌드', 'AI 어시스턴트', '비디오 스튜디오', '에셋 스튜디오', '음악 스튜디오', '이미지 스튜디오', '자료', '템플릿', '요금제 및 결제', '설정', '로그인', '로그아웃', '새 비디오', '접기'],
-  'id-ID': ['Beranda', 'Tren Populer', 'Asisten AI', 'Studio Video', 'Studio Aset', 'Studio Musik', 'Studio Gambar', 'Materi', 'Templat', 'Paket & Tagihan', 'Pengaturan', 'Masuk', 'Keluar', 'Video Baru', 'Ciutkan'],
-  'vi-VN': ['Trang chủ', 'Xu hướng nổi bật', 'Trợ lý AI', 'Studio video', 'Studio tài sản', 'Studio âm nhạc', 'Studio hình ảnh', 'Tư liệu', 'Mẫu', 'Gói & thanh toán', 'Cài đặt', 'Đăng nhập', 'Đăng xuất', 'Video mới', 'Thu gọn'],
-  'tr-TR': ['Ana Sayfa', 'Popüler Trendler', 'AI Asistanı', 'Video Stödyosu', 'Varlık Stödyosu', 'Müzik Stödyosu', 'Görsel Stödyosu', 'Materyaller', 'Şablonlar', 'Plan ve Faturalandırma', 'Ayarlar', 'Giriş yap', 'Çıkış yap', 'Yeni Video', 'Daralt'],
-  'nl-NL': ['Start', 'Trends', 'AI-assistent', 'Videostudio', 'Assetstudio', 'Muziekstudio', 'Afbeeldingsstudio', 'Materialen', 'Sjablonen', 'Abonnement en facturering', 'Instellingen', 'Inloggen', 'Uitloggen', 'Nieuwe video', 'Inklappen'],
-  'uk-UA': ['Головна', 'Популярні тренди', 'AI-помічник', 'Відеостудія', 'Студія ресурсів', 'Музична студія', 'Студія зображень', 'Матеріали', 'Шаблони', 'Тариф і оплата', 'Налаштування', 'Увійти', 'Вийти', 'Нове відео', 'Згорнути'],
+  'en-US': ['Home', 'Trends', 'AI Assistant', 'Video', 'Assets', 'Music', 'Images', 'Media', 'Templates', 'Plans & billing', 'Settings', 'Sign in', 'Sign out', 'New video', 'Collapse'],
+  'zh-CN': ['首页', '热点', 'AI 助手', '视频', '资产', '音乐', '图片', '素材', '模板', '套餐与账单', '设置', '登录', '退出', '新建视频', '收起'],
+  'zh-TW': ['首頁', '熱點', 'AI 助手', '影片', '資產', '音樂', '圖片', '素材', '範本', '方案與帳單', '設定', '登入', '登出', '新增影片', '收合'],
+  'es-MX': ['Inicio', 'Tendencias', 'Asistente de IA', 'Video', 'Recursos', 'Música', 'Imágenes', 'Contenido', 'Plantillas', 'Planes y facturación', 'Configuración', 'Iniciar sesión', 'Cerrar sesión', 'Nuevo video', 'Contraer'],
+  'fr-FR': ['Accueil', 'Tendances', 'Assistant IA', 'Vidéo', 'Ressources', 'Musique', 'Images', 'Médias', 'Modèles', 'Abonnement et facturation', 'Paramètres', 'Se connecter', 'Se déconnecter', 'Nouvelle vidéo', 'Réduire'],
+  'ru-RU': ['Главная', 'Тренды', 'ИИ-ассистент', 'Видео', 'Ресурсы', 'Музыка', 'Изображения', 'Медиа', 'Шаблоны', 'Тариф и оплата', 'Настройки', 'Войти', 'Выйти', 'Новое видео', 'Свернуть'],
+  'de-DE': ['Startseite', 'Trends', 'KI-Assistent', 'Video', 'Assets', 'Musik', 'Bilder', 'Medien', 'Vorlagen', 'Tarif und Abrechnung', 'Einstellungen', 'Anmelden', 'Abmelden', 'Neues Video', 'Einklappen'],
+  'pt-PT': ['Início', 'Tendências', 'Assistente de IA', 'Vídeo', 'Recursos', 'Música', 'Imagens', 'Multimédia', 'Modelos', 'Plano e faturação', 'Definições', 'Iniciar sessão', 'Terminar sessão', 'Novo vídeo', 'Recolher'],
+  'ar-AE': ['الرئيسية', 'الرائج', 'مساعد الذكاء الاصطناعي', 'الفيديو', 'الأصول', 'الموسيقى', 'الصور', 'الوسائط', 'القوالب', 'الخطة والفوترة', 'الإعدادات', 'تسجيل الدخول', 'تسجيل الخروج', 'فيديو جديد', 'طي'],
+  'it-IT': ['Home', 'Tendenze', 'Assistente IA', 'Video', 'Risorse', 'Musica', 'Immagini', 'Contenuti multimediali', 'Modelli', 'Piano e fatturazione', 'Impostazioni', 'Accedi', 'Esci', 'Nuovo video', 'Comprimi'],
+  'ja-JP': ['ホーム', 'トレンド', 'AIアシスタント', '動画', 'アセット', '音楽', '画像', '素材', 'テンプレート', 'プランと請求', '設定', 'ログイン', 'ログアウト', '新規動画', '折りたたむ'],
+  'ko-KR': ['홈', '트렌드', 'AI 어시스턴트', '비디오', '에셋', '음악', '이미지', '미디어', '템플릿', '요금제 및 결제', '설정', '로그인', '로그아웃', '새 비디오', '접기'],
+  'id-ID': ['Beranda', 'Tren', 'Asisten AI', 'Video', 'Aset', 'Musik', 'Gambar', 'Media', 'Templat', 'Paket & Tagihan', 'Pengaturan', 'Masuk', 'Keluar', 'Video Baru', 'Ciutkan'],
+  'vi-VN': ['Trang chủ', 'Xu hướng', 'Trợ lý AI', 'Video', 'Tài nguyên', 'Âm nhạc', 'Hình ảnh', 'Thư viện', 'Mẫu', 'Gói & thanh toán', 'Cài đặt', 'Đăng nhập', 'Đăng xuất', 'Video mới', 'Thu gọn'],
+  'tr-TR': ['Ana Sayfa', 'Trendler', 'AI Asistanı', 'Video', 'Varlıklar', 'Müzik', 'Görseller', 'Medya', 'Şablonlar', 'Plan ve Faturalandırma', 'Ayarlar', 'Giriş yap', 'Çıkış yap', 'Yeni Video', 'Daralt'],
+  'nl-NL': ['Start', 'Trends', 'AI-assistent', 'Video', 'Assets', 'Muziek', 'Afbeeldingen', 'Media', 'Sjablonen', 'Abonnement en facturering', 'Instellingen', 'Inloggen', 'Uitloggen', 'Nieuwe video', 'Inklappen'],
+  'uk-UA': ['Головна', 'Тренди', 'AI-помічник', 'Відео', 'Ресурси', 'Музика', 'Зображення', 'Медіа', 'Шаблони', 'Тариф і оплата', 'Налаштування', 'Увійти', 'Вийти', 'Нове відео', 'Згорнути'],
   'th-TH': ['หน้าหลัก', 'เทรนด์ยอดนิยม', 'ผู้ช่วย AI', 'สตูดิโอวิดีโอ', 'สตูดิโอแอสเซท', 'สตูดิโอเพลง', 'สตูดิโอรูปภาพ', 'สื่อ', 'เทมเพลต', 'แพ็กเกจและการเรียกเก็บเงิน', 'การตั้งค่า', 'เข้าสู่ระบบ', 'ออกจากระบบ', 'วิดีโอใหม่', 'ย่อ'],
-  'pl-PL': ['Strona główna', 'Popularne trendy', 'Asystent AI', 'Studio wideo', 'Studio zasobów', 'Studio muzyczne', 'Studio obrazów', 'Materiały', 'Szablony', 'Plan i rozliczenia', 'Ustawienia', 'Zaloguj się', 'Wyloguj się', 'Nowe wideo', 'Zwiń'],
-  'ro-RO': ['Acasă', 'Tendințe populare', 'Asistent AI', 'Studio video', 'Studio de resurse', 'Studio muzical', 'Studio de imagini', 'Materiale', 'Șabloane', 'Plan și facturare', 'Setări', 'Autentificare', 'Deconectare', 'Videoclip nou', 'Restrânge'],
-  'el-GR': ['Αρχική', 'Δημοφιλείς τάσεις', 'Βοηθός AI', 'Στούντιο βίντεο', 'Στούντιο πόρων', 'Στούντιο μουσικής', 'Στούντιο εικόνας', 'Υλικό', 'Πρότυπα', 'Πρόγραμμα και χρέωση', 'Ρυθμίσεις', 'Σύνδεση', 'Αποσύνδεση', 'Νέο βίντεο', 'Σύμπτυξη'],
-  'cs-CZ': ['Domů', 'Populární trendy', 'AI asistent', 'Video studio', 'Studio prostředků', 'Hudební studio', 'Obrazové studio', 'Materiály', 'Šablony', 'Tarif a fakturace', 'Nastavení', 'Přihlásit se', 'Odhlásit se', 'Nové video', 'Sbalit'],
-  'fi-FI': ['Etusivu', 'Suositut trendit', 'Tekoälyavustaja', 'Videostudio', 'Resurssistudio', 'Musiikkistudio', 'Kuvastudio', 'Materiaalit', 'Mallit', 'Tilaus ja laskutus', 'Asetukset', 'Kirjaudu sisään', 'Kirjaudu ulos', 'Uusi video', 'Kutista'],
-  'hi-IN': ['होम', 'लोकप्रिय रुझान', 'AI सहायक', 'वीडियो स्टूडियो', 'एसेट स्टूडियो', 'संगीत स्टूडियो', 'इमेज स्टूडियो', 'सामग्री', 'टेमप्लेट', 'प्लान और बिलिंग', 'सेटिंग्स', 'साइन इन', 'साइन आउट', 'नया वीडियो', 'संक्षिप्त करें'],
+  'pl-PL': ['Strona główna', 'Trendy', 'Asystent AI', 'Wideo', 'Zasoby', 'Muzyka', 'Obrazy', 'Multimedia', 'Szablony', 'Plan i rozliczenia', 'Ustawienia', 'Zaloguj się', 'Wyloguj się', 'Nowe wideo', 'Zwiń'],
+  'ro-RO': ['Acasă', 'Tendințe', 'Asistent AI', 'Video', 'Resurse', 'Muzică', 'Imagini', 'Conținut media', 'Șabloane', 'Plan și facturare', 'Setări', 'Autentificare', 'Deconectare', 'Videoclip nou', 'Restrânge'],
+  'el-GR': ['Αρχική', 'Τάσεις', 'Βοηθός AI', 'Βίντεο', 'Πόροι', 'Μουσική', 'Εικόνες', 'Πολυμέσα', 'Πρότυπα', 'Πρόγραμμα και χρέωση', 'Ρυθμίσεις', 'Σύνδεση', 'Αποσύνδεση', 'Νέο βίντεο', 'Σύμπτυξη'],
+  'cs-CZ': ['Domů', 'Trendy', 'AI asistent', 'Video', 'Prostředky', 'Hudba', 'Obrázky', 'Média', 'Šablony', 'Tarif a fakturace', 'Nastavení', 'Přihlásit se', 'Odhlásit se', 'Nové video', 'Sbalit'],
+  'fi-FI': ['Etusivu', 'Trendit', 'Tekoälyavustaja', 'Video', 'Resurssit', 'Musiikki', 'Kuvat', 'Media', 'Mallit', 'Tilaus ja laskutus', 'Asetukset', 'Kirjaudu sisään', 'Kirjaudu ulos', 'Uusi video', 'Kutista'],
+  'hi-IN': ['होम', 'ट्रेंड', 'AI सहायक', 'वीडियो', 'एसेट', 'संगीत', 'इमेज', 'मीडिया', 'टेमप्लेट', 'प्लान और बिलिंग', 'सेटिंग्स', 'साइन इन', 'साइन आउट', 'नया वीडियो', 'संक्षिप्त करें'],
 };
 
 Object.entries(navigationOverrides).forEach(([locale, values]) => {
@@ -201,6 +206,43 @@ Object.entries(navigationOverrides).forEach(([locale, values]) => {
     ...(localeOverrides[locale] || {}),
     ...Object.fromEntries(navigationKeys.map((key, index) => [key, values[index]])),
   };
+});
+
+const digitalHumanAssetManagementOverrides = {
+  'en-US': 'Digital Human Asset Management',
+  'zh-CN': '数字人资产管理',
+  'zh-TW': '數位人資產管理',
+  'es-MX': 'Gestión de activos de humanos digitales',
+  'fr-FR': 'Gestion des ressources d’humains numériques',
+  'ru-RU': 'Управление цифровыми аватарами',
+  'de-DE': 'Verwaltung digitaler Avatare',
+  'pt-PT': 'Gestão de ativos de humanos digitais',
+  'ar-AE': 'إدارة أصول البشر الرقميين',
+  'it-IT': 'Gestione delle risorse degli umani digitali',
+  'ja-JP': 'デジタルヒューマン資産管理',
+  'ko-KR': '디지털 휴먼 자산 관리',
+  'id-ID': 'Pengelolaan Aset Manusia Digital',
+  'vi-VN': 'Quản lý tài sản người kỹ thuật số',
+  'tr-TR': 'Dijital İnsan Varlık Yönetimi',
+  'nl-NL': 'Beheer van digitale menselijke assets',
+  'uk-UA': 'Керування цифровими аватарами',
+  'th-TH': 'การจัดการสินทรัพย์มนุษย์ดิจิทัล',
+  'pl-PL': 'Zarządzanie zasobami cyfrowych postaci',
+  'ro-RO': 'Gestionarea activelor umane digitale',
+  'el-GR': 'Διαχείριση ψηφιακών ανθρώπινων πόρων',
+  'cs-CZ': 'Správa digitálních lidských prostředků',
+  'fi-FI': 'Digitaalisten ihmishahmojen hallinta',
+  'hi-IN': 'डिजिटल ह्यूमन एसेट प्रबंधन',
+};
+Object.entries(digitalHumanAssetManagementOverrides).forEach(([locale, translation]) => {
+  localeOverrides[locale] = {
+    ...(localeOverrides[locale] || {}),
+    'Digital Human Asset Management': translation,
+  };
+});
+
+Object.entries(workspaceLocalizationOverrides).forEach(([locale, overrides]) => {
+  localeOverrides[locale] = { ...(localeOverrides[locale] || {}), ...overrides };
 });
 
 const normalize = (value) => String(value || '').replace(/\s+/g, ' ').trim();
@@ -285,10 +327,12 @@ const withRetries = async (operation, attempts = 4) => {
 const getToken = async () => withRetries(() => request({ hostname: 'edge.microsoft.com', path: '/translate/auth', method: 'GET', headers: browserHeaders }));
 
 const protectBrand = (text) => text
-  .replaceAll('Kali AI', 'KALI_BRAND_TOKEN_9841')
+  .replaceAll('Kali', 'KALI_BRAND_TOKEN_9841')
+  .replaceAll('Yixiu', 'YIXIU_BRAND_TOKEN_9841')
   .replaceAll('{{name}}', 'AUTH_NAME_TOKEN_9841');
 const restoreBrand = (text) => text
-  .replaceAll('KALI_BRAND_TOKEN_9841', 'Kali AI')
+  .replaceAll('KALI_BRAND_TOKEN_9841', 'Kali')
+  .replaceAll('YIXIU_BRAND_TOKEN_9841', 'Yixiu')
   .replaceAll('AUTH_NAME_TOKEN_9841', '{{name}}');
 
 const requestedLocale = process.argv.find((argument) => argument.startsWith('--locale='))?.split('=')[1];
