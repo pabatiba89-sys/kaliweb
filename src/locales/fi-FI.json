@@ -988,7 +988,7 @@
   "数字人形象授权协议": "Digitaalisen ihmiskuvan valtuutussopimus",
   "数字人训练": "Digitaalinen ihmiskoulutus",
   "数字人训练提交失败": "Digitaalinen ihmisen koulutuksen lähetys epäonnistui",
-  "文案": "Copywriting",
+  "文案": "Käsikirjoitus",
   "文案:": "Juonitiivistelmä:",
   "文案：": "Juonitiivistelmä:",
   "文案创作": "Copywritingin luominen",
@@ -1140,7 +1140,7 @@
   "点击上传，添加图片或视频素材": "Klikkaa Lataa lisätäksesi kuvia tai videomateriaalia",
   "点击制作视频，提交第一条数字人口播视频。": "Klikkaa luodaksesi videon ja lähettääksesi ensimmäisen digitaalisen äänilähetysvideosi.",
   "热榜": "Kuuma lista",
-  "热点": "Kuuma aihe",
+  "热点": "Trendit",
   "热点：": "Kuumat aiheet:",
   "热点内容已带入输入框，请确认或修改后再发送。": "Kuuma aihe on lisätty syötekenttään. Vahvista tai muokkaa se ennen lähettämistä.",
   "热点聚合": "Hotspot-aggregaatio",
@@ -1469,5 +1469,11 @@
   "打开热点": "Avaa trendit",
   "选择智能体": "Valitse agentti",
   "查看发布": "Näytä julkaisu",
-  "套餐与额度": "Paketti ja kiintiö"
+  "套餐与额度": "Paketti ja kiintiö",
+  "把热点变成可发布的数字人口播视频": "Muunna trendit julkaisuvalmiiksi avatarvideoiksi",
+  "发送给智能体": "Lähetä agentille",
+  "资产准备": "Aineistot",
+  "视频与发布": "Video ja julkaisu",
+  "智能体": "Agentti",
+  "视频制作拆解": "Videotyönkulku"
 }

@@ -977,7 +977,7 @@
   "数字人形象授权协议": "Digitale Overeenkomst voor Autorisatie van Menselijke Beelden",
   "数字人训练": "Digitale menselijke training",
   "数字人训练提交失败": "Digitale menselijke training inzendingen mislukt",
-  "文案": "Copywriting",
+  "文案": "Script",
   "文案:": "Samenvatting:",
   "文案：": "Samenvatting:",
   "文案创作": "Copywriting-creatie",
@@ -1129,7 +1129,7 @@
   "点击上传，添加图片或视频素材": "Klik op Uploaden om afbeeldingen of videomateriaal toe te voegen",
   "点击制作视频，提交第一条数字人口播视频。": "Klik om een video te maken en je eerste digitale spraakuitzendvideo in te dienen.",
   "热榜": "Hot list",
-  "热点": "Hot topic",
+  "热点": "Trends",
   "热点：": "Hot Topics:",
   "热点内容已带入输入框，请确认或修改后再发送。": "Het hot topic is toegevoegd aan het invoervak. Bevestig of wijzig het alstublieft voordat u het indient.",
   "热点聚合": "Hotspotaggregatie",
@@ -1458,5 +1458,11 @@
   "打开热点": "Trends openen",
   "选择智能体": "Agent kiezen",
   "查看发布": "Publicatie bekijken",
-  "套餐与额度": "Plan en quota"
+  "套餐与额度": "Plan en quota",
+  "把热点变成可发布的数字人口播视频": "Zet trends om in publiceerklare avatarvideo’s",
+  "发送给智能体": "Naar agent sturen",
+  "资产准备": "Assets",
+  "视频与发布": "Video en publicatie",
+  "智能体": "Agent",
+  "视频制作拆解": "Videoworkflow"
 }

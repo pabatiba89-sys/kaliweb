@@ -980,7 +980,7 @@
   "数字人形象授权协议": "Smlouva o autorizaci digitálního lidského obrazu",
   "数字人训练": "Digitální lidské vzdělávání",
   "数字人训练提交失败": "Odeslání digitálního lidského školení neúspěšné",
-  "文案": "Copywriting",
+  "文案": "Scénář",
   "文案:": "Synopse:",
   "文案：": "Synopse:",
   "文案创作": "Tvorba copywritingu",
@@ -1132,7 +1132,7 @@
   "点击上传，添加图片或视频素材": "Klikněte na Nahrávat pro přidání obrázků nebo video materiálů",
   "点击制作视频，提交第一条数字人口播视频。": "Klikněte pro vytvoření videa a odesílání vašeho prvního digitálního hlasového vysílání.",
   "热榜": "Seznam žhavých",
-  "热点": "Aktuální téma",
+  "热点": "Trendy",
   "热点：": "Aktuální témata:",
   "热点内容已带入输入框，请确认或修改后再发送。": "Aktuální téma bylo přidáno do vstupního pole. Před odesláním prosím potvrďte nebo upravte tento příspěvek.",
   "热点聚合": "Agregace hotspotů",
@@ -1462,5 +1462,11 @@
   "打开热点": "Otevřít trendy",
   "选择智能体": "Vybrat agenta",
   "查看发布": "Zobrazit publikování",
-  "套餐与额度": "Plán a kvóta"
+  "套餐与额度": "Plán a kvóta",
+  "把热点变成可发布的数字人口播视频": "Proměňte trendy ve videa s avatarem připravená k publikování",
+  "发送给智能体": "Odeslat agentovi",
+  "资产准备": "Podklady",
+  "视频与发布": "Video a publikování",
+  "智能体": "Agent",
+  "视频制作拆解": "Video workflow"
 }

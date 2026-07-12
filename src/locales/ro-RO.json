@@ -996,7 +996,7 @@
   "数字人形象授权协议": "Acordul de Autorizare a Imaginii Umane Digitale",
   "数字人训练": "Instruire umană digitală",
   "数字人训练提交失败": "Trimiterea instruirii digitale umane a eșuat",
-  "文案": "Redactare publicitară",
+  "文案": "Script",
   "文案:": "Sinopsis:",
   "文案：": "Sinopsis:",
   "文案创作": "Crearea copywriting-ului",
@@ -1148,7 +1148,7 @@
   "点击上传，添加图片或视频素材": "Apasă pe Încărcare pentru a adăuga imagini sau materiale video",
   "点击制作视频，提交第一条数字人口播视频。": "Apasă pentru a crea un videoclip și a trimite primul tău videoclip digital de difuzare vocală.",
   "热榜": "Listă fierbinte",
-  "热点": "Subiect fierbinte",
+  "热点": "Tendințe",
   "热点：": "Subiecte fierbinți:",
   "热点内容已带入输入框，请确认或修改后再发送。": "Subiectul fierbinte a fost adăugat în caseta de input. Vă rugăm să îl confirmați sau să îl modificați înainte de a trimite.",
   "热点聚合": "Agregarea punctelor fierbinți",
@@ -1477,5 +1477,11 @@
   "打开热点": "Deschide tendințe",
   "选择智能体": "Alege agentul",
   "查看发布": "Vezi publicarea",
-  "套餐与额度": "Plan și cotă"
+  "套餐与额度": "Plan și cotă",
+  "把热点变成可发布的数字人口播视频": "Transformă tendințele în videoclipuri avatar gata de publicare",
+  "发送给智能体": "Trimite către agent",
+  "资产准备": "Resurse",
+  "视频与发布": "Video și publicare",
+  "智能体": "Agent",
+  "视频制作拆解": "Flux video"
 }

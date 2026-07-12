@@ -152,9 +152,48 @@ const workflowRows = {
   'hi-IN': ['ट्रेंड से वीडियो तक', 'मुख्य फ़्लो', 'वर्कफ़्लो', 'ट्रेंड से शुरू करें', 'अभी वीडियो बनाएँ', 'ट्रेंड से पब्लिश तक', 'मुख्य फ़्लो', 'ट्रेंड की पुष्टि करें', 'स्क्रिप्ट बनाएँ', 'वीडियो बनाएँ', 'ट्रेंड पुष्टि', 'एजेंट को भेजें', 'वीडियो उत्पादन', 'प्रकाशित करें', 'स्टेप ब्रेकडाउन', 'प्रगति', 'वर्कफ़्लो', 'ट्रेंड खोलें', 'एजेंट चुनें', 'प्रकाशन देखें', 'प्लान और कोटा', 'प्लान देखें'],
 };
 
+const homeKeys = [
+  '把热点变成可发布的数字人口播视频',
+  '发送给智能体',
+  '资产准备',
+  '视频与发布',
+  '热点',
+  '智能体',
+  '文案',
+  '视频制作拆解',
+];
+
+const homeRows = {
+  'en-US': ['Turn trends into publish-ready avatar videos', 'Send to agent', 'Assets', 'Video and publishing', 'Trends', 'Agent', 'Script', 'Video workflow'],
+  'zh-CN': ['把热点变成可发布的数字人口播视频', '发送给智能体', '资产准备', '视频与发布', '热点', '智能体', '文案', '视频制作拆解'],
+  'zh-TW': ['把熱點變成可發佈的數位人口播影片', '發送給智能體', '資產準備', '影片與發佈', '熱點', '智能體', '文案', '影片製作拆解'],
+  'es-MX': ['Convierte tendencias en videos de avatar listos para publicar', 'Enviar al agente', 'Recursos', 'Video y publicación', 'Tendencias', 'Agente', 'Guion', 'Flujo de video'],
+  'fr-FR': ['Transformez les tendances en vidéos avatar prêtes à publier', 'Envoyer à l’agent', 'Ressources', 'Vidéo et publication', 'Tendances', 'Agent', 'Script', 'Workflow vidéo'],
+  'ru-RU': ['Превращайте тренды в готовые к публикации видео с аватаром', 'Отправить агенту', 'Ресурсы', 'Видео и публикация', 'Тренды', 'Агент', 'Сценарий', 'Видеопроцесс'],
+  'de-DE': ['Trends in veröffentlichungsreife Avatar-Videos verwandeln', 'An Agent senden', 'Assets', 'Video und Veröffentlichung', 'Trends', 'Agent', 'Skript', 'Video-Workflow'],
+  'pt-PT': ['Transforme tendências em vídeos de avatar prontos a publicar', 'Enviar ao agente', 'Recursos', 'Vídeo e publicação', 'Tendências', 'Agente', 'Guião', 'Fluxo de vídeo'],
+  'ar-AE': ['حوّل الترندات إلى فيديوهات أفاتار جاهزة للنشر', 'إرسال إلى الوكيل', 'الأصول', 'الفيديو والنشر', 'الترندات', 'الوكيل', 'النص', 'سير عمل الفيديو'],
+  'it-IT': ['Trasforma i trend in video avatar pronti da pubblicare', 'Invia all’agente', 'Asset', 'Video e pubblicazione', 'Trend', 'Agente', 'Script', 'Flusso video'],
+  'ja-JP': ['トレンドを公開可能なアバター動画へ', 'エージェントへ送信', 'アセット準備', '動画と公開', 'トレンド', 'エージェント', '台本', '動画制作フロー'],
+  'ko-KR': ['트렌드를 게시 가능한 아바타 영상으로 전환', '에이전트로 보내기', '자산 준비', '영상 및 게시', '트렌드', '에이전트', '대본', '영상 워크플로'],
+  'id-ID': ['Ubah tren menjadi video avatar siap terbit', 'Kirim ke agen', 'Aset', 'Video dan publikasi', 'Tren', 'Agen', 'Naskah', 'Alur video'],
+  'vi-VN': ['Biến xu hướng thành video avatar sẵn sàng đăng tải', 'Gửi cho agent', 'Tài sản', 'Video và đăng tải', 'Xu hướng', 'Agent', 'Kịch bản', 'Quy trình video'],
+  'tr-TR': ['Trendleri yayına hazır avatar videolarına dönüştürün', 'Ajana gönder', 'Varlıklar', 'Video ve yayın', 'Trendler', 'Ajan', 'Metin', 'Video akışı'],
+  'nl-NL': ['Zet trends om in publiceerklare avatarvideo’s', 'Naar agent sturen', 'Assets', 'Video en publicatie', 'Trends', 'Agent', 'Script', 'Videoworkflow'],
+  'uk-UA': ['Перетворюйте тренди на готові до публікації відео з аватаром', 'Надіслати агенту', 'Ресурси', 'Відео і публікація', 'Тренди', 'Агент', 'Сценарій', 'Відеопроцес'],
+  'th-TH': ['เปลี่ยนเทรนด์เป็นวิดีโออวาตาร์พร้อมเผยแพร่', 'ส่งให้เอเจนต์', 'แอสเซ็ต', 'วิดีโอและการเผยแพร่', 'เทรนด์', 'เอเจนต์', 'สคริปต์', 'เวิร์กโฟลว์วิดีโอ'],
+  'pl-PL': ['Zamieniaj trendy w gotowe do publikacji filmy z awatarem', 'Wyślij do agenta', 'Zasoby', 'Wideo i publikacja', 'Trendy', 'Agent', 'Scenariusz', 'Workflow wideo'],
+  'ro-RO': ['Transformă tendințele în videoclipuri avatar gata de publicare', 'Trimite către agent', 'Resurse', 'Video și publicare', 'Tendințe', 'Agent', 'Script', 'Flux video'],
+  'el-GR': ['Μετατρέψτε τις τάσεις σε βίντεο avatar έτοιμα για δημοσίευση', 'Αποστολή στον agent', 'Πόροι', 'Βίντεο και δημοσίευση', 'Τάσεις', 'Agent', 'Σενάριο', 'Ροή βίντεο'],
+  'cs-CZ': ['Proměňte trendy ve videa s avatarem připravená k publikování', 'Odeslat agentovi', 'Podklady', 'Video a publikování', 'Trendy', 'Agent', 'Scénář', 'Video workflow'],
+  'fi-FI': ['Muunna trendit julkaisuvalmiiksi avatarvideoiksi', 'Lähetä agentille', 'Aineistot', 'Video ja julkaisu', 'Trendit', 'Agentti', 'Käsikirjoitus', 'Videotyönkulku'],
+  'hi-IN': ['ट्रेंड को प्रकाशित करने योग्य अवतार वीडियो में बदलें', 'एजेंट को भेजें', 'एसेट', 'वीडियो और प्रकाशन', 'ट्रेंड', 'एजेंट', 'स्क्रिप्ट', 'वीडियो वर्कफ़्लो'],
+};
+
 export const workspaceLocalizationOverrides = Object.fromEntries(Object.entries(actionRows).map(([locale, values]) => {
   const overrides = {};
   actionKeys.forEach((key, index) => actionAliases[key].forEach((source) => { overrides[source] = values[index]; }));
   workflowKeys.forEach((key, index) => { overrides[key] = workflowRows[locale][index]; });
+  homeKeys.forEach((key, index) => { overrides[key] = homeRows[locale][index]; });
   return [locale, overrides];
 }));

@@ -542,7 +542,7 @@
   "数字人形象授权协议": "Digital Human Image Authorization Agreement",
   "数字人训练": "Digital human training",
   "数字人训练提交失败": "Digital human training submission failed",
-  "文案": "Copywriting",
+  "文案": "Script",
   "文案:": "Synopsis:",
   "文案：": "Synopsis:",
   "文案创作": "Copywriting creation",
@@ -694,7 +694,7 @@
   "点击上传，添加图片或视频素材": "Click Upload to add images or video materials",
   "点击制作视频，提交第一条数字人口播视频。": "Click to create video and submit your first digital voice broadcast video.",
   "热榜": "Hot list",
-  "热点": "Hot topic",
+  "热点": "Trends",
   "热点：": "Hot Topics:",
   "热点内容已带入输入框，请确认或修改后再发送。": "The hot topic has been added to the input box. Please confirm or modify it before submitting.",
   "热点聚合": "Hotspot aggregation",
@@ -1045,5 +1045,11 @@
   "打开热点": "Open trends",
   "选择智能体": "Choose agent",
   "查看发布": "View publishing",
-  "套餐与额度": "Plan and quota"
+  "套餐与额度": "Plan and quota",
+  "把热点变成可发布的数字人口播视频": "Turn trends into publish-ready avatar videos",
+  "发送给智能体": "Send to agent",
+  "资产准备": "Assets",
+  "视频与发布": "Video and publishing",
+  "智能体": "Agent",
+  "视频制作拆解": "Video workflow"
 }

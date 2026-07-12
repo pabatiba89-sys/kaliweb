@@ -67,7 +67,7 @@ const copy = {
   },
   zh: {
     workspace: '把热点变成可发布的数字人口播视频',
-    subline: '面向出海团队的生产首页：捕捉需求、生成文案、选择形象与声音、包装成片并发布。',
+    subline: '',
     trial: '免费体验权益',
     cta: '新建视频',
     search: '搜索热点、脚本、资产',
@@ -279,7 +279,6 @@ const actionCards = [
   {
     id: 'trends',
     title: '热点确认',
-    text: '从综合榜单和媒体热点里确定选题。',
     icon: TrendingUp,
     color: '#00a884',
     image: '/yixiu-assets/hot-aggregate.png',
@@ -287,7 +286,6 @@ const actionCards = [
   {
     id: 'assistant',
     title: '发送给智能体',
-    text: '把热点或已有文案交给合适的创作助手。',
     icon: BrainCircuit,
     color: '#1b7f68',
     image: '/yixiu-assets/creative-assistant.png',
@@ -295,7 +293,6 @@ const actionCards = [
   {
     id: 'assistant',
     title: '生成文案',
-    text: '确认标题、话题、正文，再进入视频制作。',
     icon: Edit3,
     color: '#0e8fbd',
     image: '/yixiu-assets/smart-video.png',
@@ -303,7 +300,6 @@ const actionCards = [
   {
     id: 'assets',
     title: '资产准备',
-    text: '数字人、声音、图片、音乐和素材都在这里拆解。',
     icon: Layers3,
     color: '#64748b',
     image: '/yixiu-assets/digital-human.png',
@@ -311,7 +307,6 @@ const actionCards = [
   {
     id: 'video',
     title: '视频制作',
-    text: '选择数字人口播或混剪，完成模板、封面、音乐配置。',
     icon: FileVideo,
     color: '#007d68',
     image: '/yixiu-assets/ai-video.png',
@@ -319,7 +314,6 @@ const actionCards = [
   {
     id: 'video',
     title: '发布',
-    text: '审核成片，立即发布或定时发布。',
     icon: Send,
     color: '#d58b2a',
     image: '/yixiu-assets/trial-video.jpg',
@@ -327,7 +321,6 @@ const actionCards = [
   {
     id: 'billing',
     title: '套餐与额度',
-    text: '查看套餐、额度、支付和退款边界。',
     icon: CircleDollarSign,
     color: '#9a6a2f',
     image: '/yixiu-assets/trial-video.jpg',
@@ -406,11 +399,11 @@ const instructionTypeAliases = {
 };
 
 const workflowSteps = [
-  { no: '01', id: 'trends', title: '热点确认', text: '从榜单或媒体源里选中一个确定要跟进的话题。', icon: TrendingUp, action: '打开热点' },
-  { no: '02', id: 'assistant', title: '发给智能体', text: '选择创作助手，把热点上下文带入文案生成。', icon: Bot, action: '选择智能体' },
-  { no: '03', id: 'assistant', title: '生成文案', text: '拿到标题、话题和正文，人工确认后再进入制作。', icon: Edit3, action: '生成文案' },
-  { no: '04', id: 'video', title: '视频制作', text: '配置数字人、声音、模板、封面、音乐和素材。', icon: Video, action: '制作视频', production: 'oral' },
-  { no: '05', id: 'video', title: '发布', text: '审核成片，选择账号，立即发布或定时发布。', icon: Send, action: '查看发布' },
+  { no: '01', id: 'trends', title: '热点确认', icon: TrendingUp, action: '打开热点' },
+  { no: '02', id: 'assistant', title: '发给智能体', icon: Bot, action: '选择智能体' },
+  { no: '03', id: 'assistant', title: '生成文案', icon: Edit3, action: '生成文案' },
+  { no: '04', id: 'video', title: '视频制作', icon: Video, action: '制作视频', production: 'oral' },
+  { no: '05', id: 'video', title: '发布', icon: Send, action: '查看发布' },
 ];
 
 const studioModes = [
@@ -708,7 +701,6 @@ function HomeWorkflow({ onSelect, onStartVideo }) {
               <span className="flow-step__copy">
                 <small>{step.no}</small>
                 <strong>{step.title}</strong>
-                <em>{step.text}</em>
               </span>
               <span className="flow-step__action">
                 {step.action}
@@ -746,7 +738,6 @@ function ActionGrid({ active, onSelect }) {
                   <Icon size={22} />
                 </span>
                 <strong>{card.title}</strong>
-                <small>{card.text}</small>
               </span>
               <ChevronRight className="action-card__arrow" size={18} />
             </button>
@@ -882,9 +873,6 @@ function TrendsPanel() {
             <span className="rank">{String(index + 1).padStart(2, '0')}</span>
             <span>
               <strong>{row.topic}</strong>
-              <small>
-                {row.source} · {row.category}
-              </small>
             </span>
           </button>
         ))}
@@ -4558,30 +4546,9 @@ function ResourcePage({ active, language, onNewVideo, authVersion }) {
 }
 
 function BillingPage({ language, authVersion }) {
-  const [country, setCountry] = useState('');
-  const [regionReady, setRegionReady] = useState(false);
+  const useChinaBilling = language === 'zh-CN' || language === 'zh-TW';
 
-  useEffect(() => {
-    let cancelled = false;
-    fetch('/site-region', { headers: { accept: 'application/json' }, cache: 'no-store' })
-      .then((response) => (response.ok ? response.json() : Promise.reject(new Error('Region unavailable'))))
-      .then((payload) => {
-        if (!cancelled) setCountry(String(payload?.country || '').toUpperCase());
-      })
-      .catch(() => {
-        if (!cancelled && language === 'zh-CN') setCountry('CN');
-      })
-      .finally(() => {
-        if (!cancelled) setRegionReady(true);
-      });
-    return () => { cancelled = true; };
-  }, [language]);
-
-  if (!regionReady) {
-    return <div className="billing-region-loading"><RefreshCw className="is-spinning" size={20} />正在确认可用的套餐服务…</div>;
-  }
-
-  if (country !== 'CN') {
+  if (!useChinaBilling) {
     return <ResourcePage active="billing" language={language} authVersion={authVersion} />;
   }
 
@@ -4589,9 +4556,9 @@ function BillingPage({ language, authVersion }) {
     <div className="china-billing-page">
       <section className="china-billing-hero">
         <div className="china-billing-copy">
-          <span className="china-billing-eyebrow">中国大陆地区</span>
+          <span className="china-billing-eyebrow">中文服务区</span>
           <h1>账单与套餐</h1>
-          <p>中国大陆地区的套餐购买、续费和账单服务统一在喀理小程序中完成。</p>
+          <p>中文界面的套餐购买、续费和账单服务统一在喀理小程序中完成。</p>
           <ol>
             <li><span>1</span><div><strong>打开微信扫一扫</strong><small>扫描右侧小程序码进入喀理小程序</small></div></li>
             <li><span>2</span><div><strong>登录同一账号</strong><small>使用与当前工作台一致的账号，确保套餐正确到账</small></div></li>
@@ -6067,7 +6034,6 @@ function HotTrendsPage({ onTopicSelect }) {
         source: 'hotTopic',
         topic: topic.title,
         title: topic.title,
-        summary: topic.summary,
         category: board.categoryLabel,
         url: topic.url,
         prompt: topic.title,
@@ -6138,7 +6104,6 @@ function HotTrendsPage({ onTopicSelect }) {
                   <span className="hot-rank">{topic.rank}</span>
                   <span className="hot-row__main">
                     <h3>{topic.title}</h3>
-                    {topic.summary && <p>{topic.summary}</p>}
                   </span>
                 </button>
               ))}
@@ -6855,7 +6820,6 @@ export default function App() {
                 <div className="hero-copy">
                   <span>HOT TOPIC TO VIDEO</span>
                   <h1>{t.workspace}</h1>
-                  <p>{t.subline}</p>
                   <div className="hero-actions">
                     <button className="primary-button" onClick={() => selectNav('trends')}>
                       <TrendingUp size={18} />

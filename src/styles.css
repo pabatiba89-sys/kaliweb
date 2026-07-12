@@ -3242,14 +3242,6 @@ html[dir="rtl"] .legal-back-button svg {
   letter-spacing: 0;
 }
 
-.hero-copy p {
-  max-width: 590px;
-  margin: 14px 0 0;
-  color: var(--muted);
-  font-size: clamp(15px, 1.6vw, 17px);
-  line-height: 1.6;
-}
-
 .hero-actions {
   margin-top: 24px;
   display: flex;
@@ -3509,13 +3501,6 @@ html[dir="rtl"] .legal-back-button svg {
   font-size: 16px;
 }
 
-.flow-step__copy em {
-  color: var(--muted);
-  font-size: 12px;
-  font-style: normal;
-  line-height: 1.5;
-}
-
 .flow-step__action {
   align-self: end;
   color: var(--green-dark);
@@ -3612,13 +3597,6 @@ html[dir="rtl"] .legal-back-button svg {
 .action-card strong {
   font-size: 14px;
   line-height: 1.2;
-}
-
-.action-card small {
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 1.42;
-  overflow-wrap: anywhere;
 }
 
 .action-card__arrow {
@@ -3833,8 +3811,7 @@ html[dir="rtl"] .legal-back-button svg {
   font-weight: 850;
 }
 
-.trend-row strong,
-.trend-row small {
+.trend-row strong {
   display: block;
 }
 
@@ -3843,19 +3820,6 @@ html[dir="rtl"] .legal-back-button svg {
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 13px;
-}
-
-.trend-row small {
-  margin-top: 4px;
-  color: var(--muted);
-  font-size: 12px;
-}
-
-.trend-row em {
-  color: var(--amber);
-  font-size: 12px;
-  font-style: normal;
-  font-weight: 800;
 }
 
 .workflow-section {
@@ -4846,15 +4810,6 @@ html[dir="rtl"] .legal-back-button svg {
   font-weight: 920;
 }
 
-.hot-row__main p {
-  margin: 2px 0 0;
-  color: #82979b;
-  font-size: 11px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 .hot-empty,
 .hot-loading {
   padding: 20px;
@@ -5139,20 +5094,6 @@ video.media-preview {
 
 .endpoint-loading {
   grid-column: 1 / -1;
-}
-
-.billing-region-loading {
-  min-height: 240px;
-  border: 1px solid var(--line);
-  border-radius: 28px;
-  background: rgba(255, 255, 255, 0.92);
-  color: var(--muted);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  font-size: 14px;
-  font-weight: 750;
 }
 
 .china-billing-page {
@@ -9599,10 +9540,6 @@ video.media-preview {
 
   .hero-copy h1 {
     font-size: 38px;
-  }
-
-  .hero-copy p {
-    font-size: 15px;
   }
 
   .action-grid {

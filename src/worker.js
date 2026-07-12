@@ -73,14 +73,6 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
-    if (url.pathname === '/site-region' && request.method === 'GET') {
-      const country = String(request.cf?.country || request.headers.get('cf-ipcountry') || '').toUpperCase();
-      return Response.json(
-        { country },
-        { headers: { 'cache-control': 'private, no-store' } },
-      );
-    }
-
     if (url.pathname === '/' && (request.method === 'GET' || request.method === 'HEAD')) {
       const locale = defaultLocaleForRequest(request);
       return Response.redirect(new URL(`/${locale}/${url.search}`, url), 302);

@@ -1008,7 +1008,7 @@
   "数字人形象授权协议": "Acuerdo de Autorización de Imagen Digital Humana",
   "数字人训练": "Entrenamiento humano digital",
   "数字人训练提交失败": "Envío de formación humana digital fallido",
-  "文案": "Redacción publicitaria",
+  "文案": "Guion",
   "文案:": "Sinopsis:",
   "文案：": "Sinopsis:",
   "文案创作": "Creación de redacción publicitaria",
@@ -1160,7 +1160,7 @@
   "点击上传，添加图片或视频素材": "Haz clic en Subir para añadir imágenes o materiales de vídeo",
   "点击制作视频，提交第一条数字人口播视频。": "Haz clic para crear un vídeo y enviar tu primer vídeo digital de emisión de voz.",
   "热榜": "Lista de canciones",
-  "热点": "Tema candente",
+  "热点": "Tendencias",
   "热点：": "Temas candentes:",
   "热点内容已带入输入框，请确认或修改后再发送。": "El tema candente se ha añadido a la caja de entrada. Por favor, confirme o modifícalo antes de enviarlo.",
   "热点聚合": "Agregación de puntos calientes",
@@ -1487,5 +1487,11 @@
   "打开热点": "Abrir tendencias",
   "选择智能体": "Elegir agente",
   "查看发布": "Ver publicación",
-  "套餐与额度": "Plan y cuota"
+  "套餐与额度": "Plan y cuota",
+  "把热点变成可发布的数字人口播视频": "Convierte tendencias en videos de avatar listos para publicar",
+  "发送给智能体": "Enviar al agente",
+  "资产准备": "Recursos",
+  "视频与发布": "Video y publicación",
+  "智能体": "Agente",
+  "视频制作拆解": "Flujo de video"
 }

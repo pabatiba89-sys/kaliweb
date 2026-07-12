@@ -1053,7 +1053,7 @@
   "数字人形象授权协议": "Thỏa thuận ủy quyền hình ảnh con người kỹ thuật số",
   "数字人训练": "Đào tạo con người kỹ thuật số",
   "数字人训练提交失败": "Gửi đào tạo con người kỹ thuật số không thành công",
-  "文案": "Viết quảng cáo",
+  "文案": "Kịch bản",
   "文案:": "Tóm tắt nội dung:",
   "文案：": "Tóm tắt nội dung:",
   "文案创作": "Tạo copywriting",
@@ -1205,7 +1205,7 @@
   "点击上传，添加图片或视频素材": "Nhấp vào Tải lên để thêm hình ảnh hoặc tài liệu video",
   "点击制作视频，提交第一条数字人口播视频。": "Nhấp để tạo video và gửi video phát sóng bằng giọng nói kỹ thuật số đầu tiên của bạn.",
   "热榜": "Danh sách nóng",
-  "热点": "Chủ đề nóng",
+  "热点": "Xu hướng",
   "热点：": "Chủ đề nóng:",
   "热点内容已带入输入框，请确认或修改后再发送。": "Chủ đề nóng đã được thêm vào hộp nhập. Vui lòng xác nhận hoặc sửa đổi nó trước khi gửi.",
   "热点聚合": "Tổng hợp điểm phát sóng",
@@ -1532,5 +1532,11 @@
   "打开热点": "Mở xu hướng",
   "选择智能体": "Chọn agent",
   "查看发布": "Xem đăng tải",
-  "套餐与额度": "Gói và hạn mức"
+  "套餐与额度": "Gói và hạn mức",
+  "把热点变成可发布的数字人口播视频": "Biến xu hướng thành video avatar sẵn sàng đăng tải",
+  "发送给智能体": "Gửi cho agent",
+  "资产准备": "Tài sản",
+  "视频与发布": "Video và đăng tải",
+  "智能体": "Agent",
+  "视频制作拆解": "Quy trình video"
 }

@@ -985,7 +985,7 @@
   "数字人形象授权协议": "Umowa Autoryzacji Cyfrowego Obrazu Człowieka",
   "数字人训练": "Cyfrowe szkolenie człowieka",
   "数字人训练提交失败": "Zgłoszenie z cyfrowego szkolenia człowieka nie zostało przyznane",
-  "文案": "Copywriting",
+  "文案": "Scenariusz",
   "文案:": "Streszczenie:",
   "文案：": "Streszczenie:",
   "文案创作": "Tworzenie copywriterów",
@@ -1137,7 +1137,7 @@
   "点击上传，添加图片或视频素材": "Kliknij Prześlij, aby dodać obrazy lub materiały wideo",
   "点击制作视频，提交第一条数字人口播视频。": "Kliknij, aby utworzyć wideo i przesłać swój pierwszy cyfrowy nagranie głosowe.",
   "热榜": "Gorąca lista",
-  "热点": "Gorący temat",
+  "热点": "Trendy",
   "热点：": "Gorące tematy:",
   "热点内容已带入输入框，请确认或修改后再发送。": "Gorący temat został dodany do pola wprowadzania. Prosimy o potwierdzenie lub modyfikację przed przesłaniem.",
   "热点聚合": "Agregacja hotspotów",
@@ -1466,5 +1466,11 @@
   "打开热点": "Otwórz trendy",
   "选择智能体": "Wybierz agenta",
   "查看发布": "Zobacz publikację",
-  "套餐与额度": "Plan i limit"
+  "套餐与额度": "Plan i limit",
+  "把热点变成可发布的数字人口播视频": "Zamieniaj trendy w gotowe do publikacji filmy z awatarem",
+  "发送给智能体": "Wyślij do agenta",
+  "资产准备": "Zasoby",
+  "视频与发布": "Wideo i publikacja",
+  "智能体": "Agent",
+  "视频制作拆解": "Workflow wideo"
 }

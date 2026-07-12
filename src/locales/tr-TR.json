@@ -986,7 +986,7 @@
   "数字人形象授权协议": "Dijital İnsan Görüntüsü Yetkilendirme Anlaşması",
   "数字人训练": "Dijital insan eğitimi",
   "数字人训练提交失败": "Dijital insan eğitimi başvurusu başarısız oldu",
-  "文案": "Metin yazarlığı",
+  "文案": "Metin",
   "文案:": "Özet:",
   "文案：": "Özet:",
   "文案创作": "Metin yazarlığı oluşturma",
@@ -1138,7 +1138,7 @@
   "点击上传，添加图片或视频素材": "Resim veya video materyalleri eklemek için Yükleme'ye tıklayın",
   "点击制作视频，提交第一条数字人口播视频。": "Video oluşturmak ve ilk dijital sesli yayın videonuzu göndermek için tıklayın.",
   "热榜": "Sıcak liste",
-  "热点": "Sıcak konu",
+  "热点": "Trendler",
   "热点：": "Sıcak Konular:",
   "热点内容已带入输入框，请确认或修改后再发送。": "Sıcak konu giriş kutusuna eklendi. Lütfen göndermeden önce onaylayın veya değiştirin.",
   "热点聚合": "Hotspot toplanması",
@@ -1465,5 +1465,11 @@
   "打开热点": "Trendleri aç",
   "选择智能体": "Ajan seç",
   "查看发布": "Yayını görüntüle",
-  "套餐与额度": "Plan ve kota"
+  "套餐与额度": "Plan ve kota",
+  "把热点变成可发布的数字人口播视频": "Trendleri yayına hazır avatar videolarına dönüştürün",
+  "发送给智能体": "Ajana gönder",
+  "资产准备": "Varlıklar",
+  "视频与发布": "Video ve yayın",
+  "智能体": "Ajan",
+  "视频制作拆解": "Video akışı"
 }

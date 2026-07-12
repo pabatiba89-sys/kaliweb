@@ -1016,7 +1016,7 @@
   "数字人形象授权协议": "Perjanjian Otorisasi Gambar Manusia Digital",
   "数字人训练": "Pelatihan manusia digital",
   "数字人训练提交失败": "Pengiriman pelatihan manusia digital gagal",
-  "文案": "Copywriting",
+  "文案": "Naskah",
   "文案:": "Ringkasan:",
   "文案：": "Ringkasan:",
   "文案创作": "Pembuatan copywriting",
@@ -1168,7 +1168,7 @@
   "点击上传，添加图片或视频素材": "Klik Unggah untuk menambahkan gambar atau materi video",
   "点击制作视频，提交第一条数字人口播视频。": "Klik untuk membuat video dan mengirimkan video siaran suara digital pertama Anda.",
   "热榜": "Daftar panas",
-  "热点": "Topik hangat",
+  "热点": "Tren",
   "热点：": "Topik hangat:",
   "热点内容已带入输入框，请确认或修改后再发送。": "Topik hangat telah ditambahkan ke kotak input. Harap konfirmasi atau modifikasi sebelum mengirimkan.",
   "热点聚合": "Agregasi hotspot",
@@ -1495,5 +1495,11 @@
   "打开热点": "Buka tren",
   "选择智能体": "Pilih agen",
   "查看发布": "Lihat publikasi",
-  "套餐与额度": "Paket dan kuota"
+  "套餐与额度": "Paket dan kuota",
+  "把热点变成可发布的数字人口播视频": "Ubah tren menjadi video avatar siap terbit",
+  "发送给智能体": "Kirim ke agen",
+  "资产准备": "Aset",
+  "视频与发布": "Video dan publikasi",
+  "智能体": "Agen",
+  "视频制作拆解": "Alur video"
 }
