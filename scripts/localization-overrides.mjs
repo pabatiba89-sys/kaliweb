@@ -100,8 +100,61 @@ const actionRows = {
   'hi-IN': ['रद्द करें', 'बंद करें', 'हटाएँ', 'अपलोड करें', 'रीफ़्रेश करें', 'और लोड करें', 'डाउनलोड करें', 'सेव करें', 'संपादित करें', 'प्रकाशित करें', 'फिर से कोशिश करें', 'वापस', 'लोड हो रहा है…', 'पूरा हुआ', 'विफल', 'प्रोसेस हो रहा है', 'ड्राफ़्ट', 'तैयार'],
 };
 
+const workflowKeys = [
+  'HOT TOPIC TO VIDEO',
+  'MAIN FLOW',
+  'Workflow essentials',
+  '从热点开始',
+  '直接制作视频',
+  '从热点到发布',
+  '主流程',
+  '确认热点',
+  '生成文案',
+  '制作视频',
+  '热点确认',
+  '发给智能体',
+  '视频制作',
+  '发布',
+  '环节拆解',
+  '当前推进',
+  '工作流',
+  '打开热点',
+  '选择智能体',
+  '查看发布',
+  '套餐与额度',
+  '查看套餐',
+];
+
+const workflowRows = {
+  'en-US': ['Hot topic to video', 'Main flow', 'Workflow', 'Start with trends', 'Make a video now', 'From trend to publish', 'Main flow', 'Confirm trend', 'Generate script', 'Make video', 'Confirm trend', 'Send to agent', 'Video production', 'Publish', 'Breakdown', 'Progress', 'Workflow', 'Open trends', 'Choose agent', 'View publishing', 'Plan and quota', 'View plan'],
+  'zh-CN': ['热点到视频', '主流程', '工作流', '从热点开始', '直接制作视频', '从热点到发布', '主流程', '确认热点', '生成文案', '制作视频', '热点确认', '发给智能体', '视频制作', '发布', '环节拆解', '当前推进', '工作流', '打开热点', '选择智能体', '查看发布', '套餐与额度', '查看套餐'],
+  'zh-TW': ['熱點到影片', '主流程', '工作流', '從熱點開始', '直接製作影片', '從熱點到發佈', '主流程', '確認熱點', '生成文案', '製作影片', '熱點確認', '發給智能體', '影片製作', '發佈', '環節拆解', '目前推進', '工作流', '打開熱點', '選擇智能體', '查看發佈', '方案與額度', '查看方案'],
+  'es-MX': ['Del tema en tendencia al video', 'Flujo principal', 'Flujo de trabajo', 'Empezar con tendencias', 'Crear video ahora', 'De tendencia a publicación', 'Flujo principal', 'Confirmar tendencia', 'Generar guion', 'Crear video', 'Confirmar tendencia', 'Enviar al agente', 'Producción de video', 'Publicar', 'Desglose', 'Progreso', 'Flujo', 'Abrir tendencias', 'Elegir agente', 'Ver publicación', 'Plan y cuota', 'Ver plan'],
+  'fr-FR': ['Du sujet tendance à la vidéo', 'Flux principal', 'Workflow', 'Commencer par les tendances', 'Créer une vidéo', 'De la tendance à la publication', 'Flux principal', 'Valider la tendance', 'Générer le script', 'Créer la vidéo', 'Validation tendance', 'Envoyer à l’agent', 'Production vidéo', 'Publier', 'Découpage', 'Progression', 'Workflow', 'Ouvrir les tendances', 'Choisir un agent', 'Voir la publication', 'Offre et quota', 'Voir l’offre'],
+  'ru-RU': ['От тренда к видео', 'Основной поток', 'Рабочий процесс', 'Начать с трендов', 'Создать видео', 'От тренда к публикации', 'Основной поток', 'Подтвердить тренд', 'Создать сценарий', 'Сделать видео', 'Подтверждение тренда', 'Отправить агенту', 'Производство видео', 'Опубликовать', 'Разбор этапов', 'Прогресс', 'Процесс', 'Открыть тренды', 'Выбрать агента', 'Смотреть публикацию', 'Тариф и квота', 'Смотреть тариф'],
+  'de-DE': ['Vom Trend zum Video', 'Hauptablauf', 'Workflow', 'Mit Trends starten', 'Video direkt erstellen', 'Vom Trend zur Veröffentlichung', 'Hauptablauf', 'Trend bestätigen', 'Skript erstellen', 'Video erstellen', 'Trendbestätigung', 'An Agent senden', 'Videoproduktion', 'Veröffentlichen', 'Aufschlüsselung', 'Fortschritt', 'Workflow', 'Trends öffnen', 'Agent wählen', 'Veröffentlichung ansehen', 'Plan und Kontingent', 'Plan ansehen'],
+  'pt-PT': ['Do tópico em alta ao vídeo', 'Fluxo principal', 'Fluxo de trabalho', 'Começar pelas tendências', 'Criar vídeo agora', 'Da tendência à publicação', 'Fluxo principal', 'Confirmar tendência', 'Gerar guião', 'Criar vídeo', 'Confirmação de tendência', 'Enviar ao agente', 'Produção de vídeo', 'Publicar', 'Detalhamento', 'Progresso', 'Fluxo', 'Abrir tendências', 'Escolher agente', 'Ver publicação', 'Plano e quota', 'Ver plano'],
+  'ar-AE': ['من الموضوع الرائج إلى الفيديو', 'المسار الرئيسي', 'سير العمل', 'ابدأ بالموضوعات الرائجة', 'إنشاء فيديو الآن', 'من الترند إلى النشر', 'المسار الرئيسي', 'تأكيد الترند', 'إنشاء النص', 'إنشاء الفيديو', 'تأكيد الترند', 'إرسال إلى الوكيل', 'إنتاج الفيديو', 'نشر', 'تفصيل المراحل', 'التقدم', 'سير العمل', 'فتح الترندات', 'اختيار الوكيل', 'عرض النشر', 'الخطة والحصة', 'عرض الخطة'],
+  'it-IT': ['Dal trend al video', 'Flusso principale', 'Workflow', 'Inizia dai trend', 'Crea subito un video', 'Dal trend alla pubblicazione', 'Flusso principale', 'Conferma trend', 'Genera script', 'Crea video', 'Conferma trend', 'Invia all’agente', 'Produzione video', 'Pubblica', 'Scomposizione', 'Avanzamento', 'Workflow', 'Apri trend', 'Scegli agente', 'Vedi pubblicazione', 'Piano e quota', 'Vedi piano'],
+  'ja-JP': ['トレンドから動画へ', 'メインフロー', 'ワークフロー', 'トレンドから開始', 'すぐ動画を作成', 'トレンドから公開まで', 'メインフロー', 'トレンド確認', '台本生成', '動画制作', 'トレンド確認', 'エージェントへ送信', '動画制作', '公開', '工程分解', '進行状況', 'ワークフロー', 'トレンドを開く', 'エージェントを選択', '公開を確認', 'プランと枠', 'プランを見る'],
+  'ko-KR': ['트렌드에서 영상까지', '메인 플로우', '워크플로', '트렌드로 시작', '바로 영상 제작', '트렌드에서 게시까지', '메인 플로우', '트렌드 확인', '대본 생성', '영상 제작', '트렌드 확인', '에이전트로 보내기', '영상 제작', '게시', '단계 분해', '진행 상황', '워크플로', '트렌드 열기', '에이전트 선택', '게시 보기', '요금제와 한도', '요금제 보기'],
+  'id-ID': ['Dari tren ke video', 'Alur utama', 'Alur kerja', 'Mulai dari tren', 'Buat video sekarang', 'Dari tren ke publikasi', 'Alur utama', 'Konfirmasi tren', 'Buat naskah', 'Buat video', 'Konfirmasi tren', 'Kirim ke agen', 'Produksi video', 'Publikasikan', 'Rincian tahap', 'Progres', 'Alur kerja', 'Buka tren', 'Pilih agen', 'Lihat publikasi', 'Paket dan kuota', 'Lihat paket'],
+  'vi-VN': ['Từ xu hướng đến video', 'Luồng chính', 'Quy trình', 'Bắt đầu từ xu hướng', 'Tạo video ngay', 'Từ xu hướng đến đăng tải', 'Luồng chính', 'Xác nhận xu hướng', 'Tạo kịch bản', 'Tạo video', 'Xác nhận xu hướng', 'Gửi cho agent', 'Sản xuất video', 'Đăng tải', 'Tách bước', 'Tiến độ', 'Quy trình', 'Mở xu hướng', 'Chọn agent', 'Xem đăng tải', 'Gói và hạn mức', 'Xem gói'],
+  'tr-TR': ['Trendden videoya', 'Ana akış', 'İş akışı', 'Trendlerden başla', 'Hemen video oluştur', 'Trendden yayına', 'Ana akış', 'Trendi onayla', 'Metin oluştur', 'Video oluştur', 'Trend onayı', 'Ajana gönder', 'Video üretimi', 'Yayınla', 'Aşamalar', 'İlerleme', 'İş akışı', 'Trendleri aç', 'Ajan seç', 'Yayını görüntüle', 'Plan ve kota', 'Planı görüntüle'],
+  'nl-NL': ['Van trend naar video', 'Hoofdstroom', 'Workflow', 'Begin met trends', 'Maak direct een video', 'Van trend naar publicatie', 'Hoofdstroom', 'Trend bevestigen', 'Script genereren', 'Video maken', 'Trendbevestiging', 'Naar agent sturen', 'Videoproductie', 'Publiceren', 'Uitsplitsing', 'Voortgang', 'Workflow', 'Trends openen', 'Agent kiezen', 'Publicatie bekijken', 'Plan en quota', 'Plan bekijken'],
+  'uk-UA': ['Від тренду до відео', 'Основний потік', 'Робочий процес', 'Почати з трендів', 'Створити відео зараз', 'Від тренду до публікації', 'Основний потік', 'Підтвердити тренд', 'Створити сценарій', 'Створити відео', 'Підтвердження тренду', 'Надіслати агенту', 'Виробництво відео', 'Опублікувати', 'Розбір етапів', 'Прогрес', 'Процес', 'Відкрити тренди', 'Вибрати агента', 'Переглянути публікацію', 'План і квота', 'Переглянути план'],
+  'th-TH': ['จากเทรนด์สู่วิดีโอ', 'โฟลว์หลัก', 'เวิร์กโฟลว์', 'เริ่มจากเทรนด์', 'สร้างวิดีโอทันที', 'จากเทรนด์สู่การเผยแพร่', 'โฟลว์หลัก', 'ยืนยันเทรนด์', 'สร้างสคริปต์', 'สร้างวิดีโอ', 'ยืนยันเทรนด์', 'ส่งให้เอเจนต์', 'ผลิตวิดีโอ', 'เผยแพร่', 'แยกขั้นตอน', 'ความคืบหน้า', 'เวิร์กโฟลว์', 'เปิดเทรนด์', 'เลือกเอเจนต์', 'ดูการเผยแพร่', 'แพ็กเกจและโควตา', 'ดูแพ็กเกจ'],
+  'pl-PL': ['Od trendu do wideo', 'Główny przepływ', 'Workflow', 'Zacznij od trendów', 'Utwórz wideo teraz', 'Od trendu do publikacji', 'Główny przepływ', 'Potwierdź trend', 'Wygeneruj scenariusz', 'Utwórz wideo', 'Potwierdzenie trendu', 'Wyślij do agenta', 'Produkcja wideo', 'Opublikuj', 'Podział etapów', 'Postęp', 'Workflow', 'Otwórz trendy', 'Wybierz agenta', 'Zobacz publikację', 'Plan i limit', 'Zobacz plan'],
+  'ro-RO': ['De la trend la video', 'Flux principal', 'Workflow', 'Începe cu tendințele', 'Creează video acum', 'De la trend la publicare', 'Flux principal', 'Confirmă trendul', 'Generează scriptul', 'Creează video', 'Confirmare trend', 'Trimite către agent', 'Producție video', 'Publică', 'Descompunere', 'Progres', 'Workflow', 'Deschide tendințe', 'Alege agentul', 'Vezi publicarea', 'Plan și cotă', 'Vezi planul'],
+  'el-GR': ['Από τάση σε βίντεο', 'Κύρια ροή', 'Ροή εργασίας', 'Ξεκινήστε από τις τάσεις', 'Δημιουργία βίντεο τώρα', 'Από την τάση στη δημοσίευση', 'Κύρια ροή', 'Επιβεβαίωση τάσης', 'Δημιουργία σεναρίου', 'Δημιουργία βίντεο', 'Επιβεβαίωση τάσης', 'Αποστολή στον agent', 'Παραγωγή βίντεο', 'Δημοσίευση', 'Ανάλυση σταδίων', 'Πρόοδος', 'Ροή εργασίας', 'Άνοιγμα τάσεων', 'Επιλογή agent', 'Προβολή δημοσίευσης', 'Πλάνο και όριο', 'Προβολή πλάνου'],
+  'cs-CZ': ['Od trendu k videu', 'Hlavní tok', 'Workflow', 'Začít trendy', 'Vytvořit video', 'Od trendu k publikování', 'Hlavní tok', 'Potvrdit trend', 'Vygenerovat scénář', 'Vytvořit video', 'Potvrzení trendu', 'Odeslat agentovi', 'Produkce videa', 'Publikovat', 'Rozpad etap', 'Postup', 'Workflow', 'Otevřít trendy', 'Vybrat agenta', 'Zobrazit publikování', 'Plán a kvóta', 'Zobrazit plán'],
+  'fi-FI': ['Trendistä videoksi', 'Päävirta', 'Työnkulku', 'Aloita trendeistä', 'Luo video nyt', 'Trendistä julkaisuun', 'Päävirta', 'Vahvista trendi', 'Luo käsikirjoitus', 'Luo video', 'Trendin vahvistus', 'Lähetä agentille', 'Videotuotanto', 'Julkaise', 'Vaiheistus', 'Edistyminen', 'Työnkulku', 'Avaa trendit', 'Valitse agentti', 'Näytä julkaisu', 'Paketti ja kiintiö', 'Näytä paketti'],
+  'hi-IN': ['ट्रेंड से वीडियो तक', 'मुख्य फ़्लो', 'वर्कफ़्लो', 'ट्रेंड से शुरू करें', 'अभी वीडियो बनाएँ', 'ट्रेंड से पब्लिश तक', 'मुख्य फ़्लो', 'ट्रेंड की पुष्टि करें', 'स्क्रिप्ट बनाएँ', 'वीडियो बनाएँ', 'ट्रेंड पुष्टि', 'एजेंट को भेजें', 'वीडियो उत्पादन', 'प्रकाशित करें', 'स्टेप ब्रेकडाउन', 'प्रगति', 'वर्कफ़्लो', 'ट्रेंड खोलें', 'एजेंट चुनें', 'प्रकाशन देखें', 'प्लान और कोटा', 'प्लान देखें'],
+};
+
 export const workspaceLocalizationOverrides = Object.fromEntries(Object.entries(actionRows).map(([locale, values]) => {
   const overrides = {};
   actionKeys.forEach((key, index) => actionAliases[key].forEach((source) => { overrides[source] = values[index]; }));
+  workflowKeys.forEach((key, index) => { overrides[key] = workflowRows[locale][index]; });
   return [locale, overrides];
 }));

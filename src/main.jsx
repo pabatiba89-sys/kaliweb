@@ -342,20 +342,20 @@ const usageItems = [
 ];
 
 const trendRows = [
-  { source: 'TikTok', topic: 'AI presenter product demos', heat: '98.2k', category: 'AI' },
-  { source: 'YouTube', topic: 'Founder-led short video funnels', heat: '71.4k', category: 'Marketing' },
-  { source: 'BBC', topic: 'Synthetic media disclosure rules', heat: '42.7k', category: 'News' },
+  { source: 'TikTok', topic: 'AI presenter product demos', category: 'AI' },
+  { source: 'YouTube', topic: 'Founder-led short video funnels', category: 'Marketing' },
+  { source: 'BBC', topic: 'Synthetic media disclosure rules', category: 'News' },
 ];
 const trendCategories = [
-  { key: 'all', label: '综合', icon: '🐌', aliases: ['all', '综合', '糖果梦综合', '全部'] },
-  { key: 'technology', label: '科技', icon: '💡', aliases: ['technology', '科技', '糖果梦科技'] },
-  { key: 'finance', label: '财经', icon: '💹', aliases: ['finance', '财经', '糖果梦财经'] },
-  { key: 'livelihood', label: '民生', icon: '🏡', aliases: ['livelihood', '民生', '生活', '糖果梦民生'] },
-  { key: 'ai', label: 'AI', icon: '🤖', aliases: ['ai', 'AI', '糖果梦AI'] },
+  { key: 'all', label: '综合', icon: '🐌', aliases: ['all', '综合', '全部'] },
+  { key: 'technology', label: '科技', icon: '💡', aliases: ['technology', '科技'] },
+  { key: 'finance', label: '财经', icon: '💹', aliases: ['finance', '财经'] },
+  { key: 'livelihood', label: '民生', icon: '🏡', aliases: ['livelihood', '民生', '生活'] },
+  { key: 'ai', label: 'AI', icon: '🤖', aliases: ['ai', 'AI'] },
   { key: 'alltalk', label: '争议', icon: '🎬', aliases: ['alltalk', '争议', '争议榜'] },
   { key: 'education', label: '教育', icon: '🎬', aliases: ['education', '教育', 'jiaoyu'] },
-  { key: 'game', label: '游戏', icon: '🎮', aliases: ['game', '游戏', '糖果梦游戏'] },
-  { key: 'entertainment', label: '媒体', icon: '🎬', aliases: ['entertainment', '媒体', '糖果梦娱乐'] },
+  { key: 'game', label: '游戏', icon: '🎮', aliases: ['game', '游戏'] },
+  { key: 'entertainment', label: '媒体', icon: '🎬', aliases: ['entertainment', '媒体'] },
 ];
 const mediaSources = [
   ['抖音', '🎵'],
@@ -651,7 +651,6 @@ function TrialStrip() {
     <section className="trial-strip" aria-label="Workflow essentials">
       <div className="trial-strip__copy">
         <strong>主流程</strong>
-        <span>热点确认、智能体、文案、视频制作、发布，是首页唯一主线。</span>
       </div>
       <div className="trial-strip__items">
         {trialBenefits.map((item) => (
@@ -691,7 +690,6 @@ function HomeWorkflow({ onSelect, onStartVideo }) {
           <span>MAIN FLOW</span>
           <h2>从热点到发布</h2>
         </div>
-        <p>每一步都可以单独拆开处理；连起来就是完整的视频生产链路。</p>
       </div>
       <div className="flow-track">
         <span className="flow-track__line" />
@@ -729,7 +727,6 @@ function ActionGrid({ active, onSelect }) {
     <section className="home-section" aria-label="环节拆解">
       <div className="section-title">
         <h2>环节拆解</h2>
-        <p>不走完整链路时，从任一环节单独进入。</p>
       </div>
       <div className="action-grid">
         {actionCards.map((card) => {
@@ -766,7 +763,6 @@ function UsagePanel({ language }) {
       <div className="panel-head">
         <div>
           <h2>当前推进</h2>
-          <p>首页只跟踪主流程状态</p>
         </div>
         <CheckCircle2 size={20} />
       </div>
@@ -803,7 +799,6 @@ function PreviewPanel({ language, activeMode, setActiveMode }) {
       <div className="panel-head">
         <div>
           <h2>视频制作拆解</h2>
-          <p>主流程走到制作环节后，再选择数字人口播、混剪或音乐视频。</p>
         </div>
         <button className="icon-button" aria-label="Upload material">
           <Upload size={18} />
@@ -861,7 +856,6 @@ function TrendsPanel() {
           ? list.slice(0, 3).map((item, index) => ({
               source: item.source || item.platform || item.media || 'Trend',
               topic: item.title || item.name || item.keyword || item.topic || `Trend ${index + 1}`,
-              heat: item.hotScore || item.heat || item.score || item.views || item.count || '-',
               category: item.category || item.channel || 'General',
             }))
           : trendRows,
@@ -879,7 +873,6 @@ function TrendsPanel() {
       <div className="panel-head">
         <div>
           <h2>Hot Trends</h2>
-          <p>{status === 'live' ? 'Latest trend data is ready.' : 'Trend preview is ready.'}</p>
         </div>
         <Sparkles size={20} />
       </div>
@@ -893,7 +886,6 @@ function TrendsPanel() {
                 {row.source} · {row.category}
               </small>
             </span>
-            <em>{row.heat}</em>
           </button>
         ))}
       </div>
@@ -2675,9 +2667,7 @@ function ImageStudioPage({ authVersion, onLogin, onUseForDigitalHuman, onOpenBil
             <p>上传本人照片，选择场景或上传参考场景，生成可继续制作数字人的新形象。</p>
           </div>
         </header>
-        <div className="image-ai-notice image-consent-notice">
-          <strong>AI 生成</strong>
-          <span>请仅上传本人或已获得合法授权的照片，并在使用前核验生成内容。</span>
+        <div className="image-consent-notice">
           <label><input type="checkbox" checked={imageAgreement} onChange={(event) => setImageAgreement(event.target.checked)} /><span>我已阅读并同意</span></label>
           <button onClick={() => onOpenInfo('legal-image')}>《形象信息采集与使用协议》</button>
         </div>
@@ -2797,7 +2787,6 @@ function AssetLibraryPanel({
         </div>
         <label className="asset-library-search"><Search size={16} /><input value={query} onChange={(event) => onQueryChange(event.target.value)} placeholder={isVoice ? '搜索声音名称或语种' : '搜索形象名称'} /></label>
       </div>
-      {isPublic && <div className="public-asset-notice"><Globe2 size={18} /><span>公共素材由平台统一管理，可用于当前账号的内容创作，不支持编辑或删除。</span></div>}
       {message && isPublic && <div className="asset-library-message">{message}</div>}
       {!authed ? (
         <div className="asset-library-empty"><Library size={34} /><strong>登录后查看资产库</strong><p>公共形象、公共声音和你的个人资产会集中展示在这里。</p><button className="primary-button" onClick={onLogin}>去登录</button></div>
@@ -3893,7 +3882,6 @@ function VideoStudioPage({ authVersion, onLogin, onNewVideo }) {
           <button className="video-back-button" onClick={() => { setView('list'); setActionMessage(''); }}><ArrowLeft size={18} />返回视频列表</button>
           <button className="video-refresh-button" onClick={() => openDetail(video, { refresh: true })} disabled={detailLoading}><RefreshCw size={16} />{detailLoading ? '刷新中…' : '刷新详情'}</button>
         </header>
-        <div className="video-ai-notice"><span>AI 生成视频</span><p>本视频由人工智能辅助生成，请核验内容后保存或发布。</p></div>
         {video ? (
           <section className="video-detail-layout">
             <div className="video-detail-preview">
@@ -3950,7 +3938,6 @@ function VideoStudioPage({ authVersion, onLogin, onNewVideo }) {
         <button className={!isMixedVideo ? 'is-active' : ''} onClick={() => selectStudioSection('oral')}><UserRound size={18} /><span><strong>数字人口播</strong><small>数字人、声音与口播文案</small></span></button>
         <button className={isMixedVideo ? 'is-active' : ''} onClick={() => selectStudioSection('mix')}><Clapperboard size={18} /><span><strong>混剪视频</strong><small>图片、视频与包装素材混剪</small></span></button>
       </nav>
-      <div className="video-ai-notice"><span>AI 生成视频</span><p>列表内视频由人工智能辅助生成，请核验内容后使用。</p></div>
       <section className="video-list-tools">
         <label><Search size={17} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索标题、话题、形象或任务 ID" /></label>
         <div className="video-status-tabs">{[['all', '全部'], ['processing', '制作中'], ['success', '成功'], ['failed', '失败'], ['published', '已发布'], ['draft', '草稿']].map(([key, label]) => <button key={key} className={statusFilter === key ? 'is-active' : ''} onClick={() => setStatusFilter(key)}>{label}<em>{key === 'all' ? videos.length : videos.filter((video) => video.status.key === key).length}</em></button>)}</div>
@@ -4516,7 +4503,6 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
     <div className="video-creator-page">
       <header className="video-creator-header"><button className="video-back-button" onClick={onBack} disabled={Boolean(busy)}><ArrowLeft size={18} />{backLabel}</button><div><span>{isMixed ? 'MIXED VIDEO' : 'DIGITAL HUMAN VIDEO'}</span><h1>{usePrefill ? `继续制作${isMixed ? '混剪' : '数字人'}视频` : `制作${isMixed ? '混剪' : '数字人'}视频`}</h1><p>{isMixed ? '填写内容并组合声音、混剪剪辑模板、封面和素材，提交后进入混剪制作队列。' : '填写内容并组合数字人、声音、包装和素材，提交后进入视频制作队列。'}</p></div><div className="video-creator-progress"><span className="is-done"><Check size={14} />内容</span><i /><span className="is-done"><Check size={14} />配置</span><i /><span>提交</span></div></header>
       {!token ? <div className="video-empty-state"><UserRound size={38} /><strong>登录后开始制作</strong><p>登录后才能读取数字人、声音、素材并提交制作任务。</p><button className="primary-button" onClick={onLogin}>登录</button></div> : <>
-        <div className="video-ai-notice"><span>AI 生成内容</span><p>文案和视频由人工智能辅助生成，请在提交和发布前核验内容。</p></div>
         <div className="video-creator-layout">
           <main className="video-creator-main">
             <section className="video-creator-section"><div className="video-creator-section__head"><span>01</span><div><h2>基础内容</h2><p>{isMixed ? '标题和话题用于成片包装，文案用于字幕、关键词和素材编排。' : '标题和话题用于成片包装，文案会由数字人朗读。'}</p></div></div><div className="video-creator-fields"><label><span>标题 <em>必填</em></span><input maxLength={80} value={form.title} onChange={(event) => updateForm('title', event.target.value)} placeholder="请输入视频标题" /><small>{form.title.length}/80</small></label><label><span>话题 <em>必填</em></span><input value={form.topic} onChange={(event) => updateForm('topic', event.target.value)} placeholder="例如：同城获客、门店活动" /></label><label className="is-wide"><span>文案 <em>必填</em></span><textarea maxLength={2000} value={form.script} onChange={(event) => updateForm('script', event.target.value)} placeholder={isMixed ? '请输入混剪视频文案' : '请输入数字人口播文案'} /><small>{form.script.length}/2000</small></label></div></section>
@@ -4567,6 +4553,63 @@ function ResourcePage({ active, language, onNewVideo, authVersion }) {
       {active === 'video' && (
         <PreviewPanel language={language} activeMode="mix" setActiveMode={() => {}} />
       )}
+    </div>
+  );
+}
+
+function BillingPage({ language, authVersion }) {
+  const [country, setCountry] = useState('');
+  const [regionReady, setRegionReady] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/site-region', { headers: { accept: 'application/json' }, cache: 'no-store' })
+      .then((response) => (response.ok ? response.json() : Promise.reject(new Error('Region unavailable'))))
+      .then((payload) => {
+        if (!cancelled) setCountry(String(payload?.country || '').toUpperCase());
+      })
+      .catch(() => {
+        if (!cancelled && language === 'zh-CN') setCountry('CN');
+      })
+      .finally(() => {
+        if (!cancelled) setRegionReady(true);
+      });
+    return () => { cancelled = true; };
+  }, [language]);
+
+  if (!regionReady) {
+    return <div className="billing-region-loading"><RefreshCw className="is-spinning" size={20} />正在确认可用的套餐服务…</div>;
+  }
+
+  if (country !== 'CN') {
+    return <ResourcePage active="billing" language={language} authVersion={authVersion} />;
+  }
+
+  return (
+    <div className="china-billing-page">
+      <section className="china-billing-hero">
+        <div className="china-billing-copy">
+          <span className="china-billing-eyebrow">中国大陆地区</span>
+          <h1>账单与套餐</h1>
+          <p>中国大陆地区的套餐购买、续费和账单服务统一在喀理小程序中完成。</p>
+          <ol>
+            <li><span>1</span><div><strong>打开微信扫一扫</strong><small>扫描右侧小程序码进入喀理小程序</small></div></li>
+            <li><span>2</span><div><strong>登录同一账号</strong><small>使用与当前工作台一致的账号，确保套餐正确到账</small></div></li>
+            <li><span>3</span><div><strong>选择套餐并完成支付</strong><small>支付成功后返回工作台刷新，即可查看最新额度</small></div></li>
+          </ol>
+          <div className="china-billing-note"><ShieldCheck size={18} /><span>请勿通过私人转账购买套餐，以小程序内展示的订单和支付结果为准。</span></div>
+        </div>
+        <aside className="china-billing-qr">
+          <span>微信扫码进入小程序</span>
+          <div><img src="/payments/kali-mini-program.png" alt="喀理小程序码" /></div>
+          <strong>喀理小程序</strong>
+          <small>套餐购买 · 续费 · 账单查询</small>
+        </aside>
+      </section>
+      <section className="china-billing-help">
+        <div><CircleDollarSign size={20} /><span><strong>支付后没有到账？</strong><small>请先返回工作台刷新套餐额度；仍未更新时，保留小程序订单号并联系客服。</small></span></div>
+        <a href="mailto:feedback@xyaip.fun">联系支持 <ChevronRight size={16} /></a>
+      </section>
     </div>
   );
 }
@@ -4778,12 +4821,6 @@ const arrayOf = (value) => {
   if (Array.isArray(value?.data)) return value.data;
   return [];
 };
-const heatOf = (value) => {
-  const text = textOf(value);
-  if (text) return text;
-  if (value === 0) return '0';
-  return '';
-};
 const categoryFrom = (value) => {
   const name = textOf(value);
   const exact = trendCategories.find((item) =>
@@ -4798,8 +4835,6 @@ const normalizeTopic = (item = {}, index = 0) => ({
   rank: Number(item.rank || item.index || item.sort || index + 1),
   title: pick(item.title, item.name, item.keyword, item.hot_title, item.topic, `热点 ${index + 1}`),
   summary: pick(item.summary, item.desc, item.description, item.subtitle, item.content, item.reason, item.brief),
-  heat: heatOf(item.hotScore || item.heat || item.hot || item.score || item.count || item.views),
-  heatValue: Number(item.hotScore || item.heat || item.hot || item.score || item.count || item.views || 0),
   url: pick(item.url, item.link),
 });
 const makeBoard = (source = {}, index = 0) => {
@@ -4835,7 +4870,7 @@ const groupToBoards = (items = []) => {
     ...board,
     topics: board.topics
       .slice()
-      .sort((a, b) => (b.heatValue || 0) - (a.heatValue || 0))
+      .sort((a, b) => (a.rank || 0) - (b.rank || 0))
       .map((topic, index) => ({ ...topic, rank: index + 1 })),
   }));
 };
@@ -5091,10 +5126,6 @@ function AssistantPage({ authVersion, useHotTopicFlow, onLogin, onCreateAgent, o
         </div>
         <button className="hot-more" aria-label="More options">•••</button>
       </header>
-      <div className="agent-notice">
-        <strong>人工智能生成</strong>
-        <span>文案内容由人工智能辅助生成，请核验后使用</span>
-      </div>
       {flow && (
         <section className="agent-flow">
           <span>当前热点</span>
@@ -6109,7 +6140,6 @@ function HotTrendsPage({ onTopicSelect }) {
                     <h3>{topic.title}</h3>
                     {topic.summary && <p>{topic.summary}</p>}
                   </span>
-                  {topic.heat && <strong className="hot-score">🔥{topic.heat}</strong>}
                 </button>
               ))}
               {!board.topics.length && (
@@ -6317,14 +6347,12 @@ function Workflow({ language }) {
     <section className="workflow-section">
       <div className="section-title">
         <h2>拆解原则</h2>
-        <p>主流程优先；素材、音乐、图片、模板都是服务视频制作的局部能力。</p>
       </div>
       <div className="workflow-grid">
         {workflowSteps.map((step) => (
           <article className="workflow-step" key={step.no}>
             <span>{step.no}</span>
             <h3>{step.title}</h3>
-            <p>{step.text}</p>
           </article>
         ))}
       </div>
@@ -6842,7 +6870,7 @@ export default function App() {
                 <div className="hero-board">
                   <div className="hero-status">
                     <span className="status-dot" />
-                    工作流优先
+                    工作流
                   </div>
                   <div className="hero-metrics">
                     <span><strong>01</strong> 热点确认</span>
@@ -6919,6 +6947,8 @@ export default function App() {
                 initialImageId={imageTrainingSeed?.id || ''}
                 initialMode={assetInitialMode}
               />
+            ) : active === 'billing' ? (
+              <BillingPage language={language} authVersion={authVersion} />
             ) : (
               <ResourcePage
                 active={active}
