@@ -4318,6 +4318,11 @@ html[dir="rtl"] .legal-back-button svg {
   overflow: visible;
 }
 
+.hot-cats.is-aggregate {
+  display: grid;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+}
+
 .hot-cats button {
   flex: 0 0 auto;
   min-height: 32px;
@@ -4332,6 +4337,16 @@ html[dir="rtl"] .legal-back-button svg {
   font-size: 13px;
   font-weight: 900;
   box-shadow: 0 6px 14px rgba(24, 62, 53, 0.07);
+}
+
+.hot-cats.is-aggregate button {
+  width: 100%;
+  min-width: 0;
+  justify-content: center;
+  padding-inline: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .hot-cats button.is-active {
@@ -4395,6 +4410,31 @@ html[dir="rtl"] .legal-back-button svg {
 .hot-board__title strong {
   font-size: 17px;
   line-height: 1;
+}
+
+.hot-board__refresh {
+  width: 30px;
+  height: 30px;
+  margin-left: auto;
+  border: 1px solid #d6ebe6;
+  border-radius: 9px;
+  background: #f4fbf9;
+  color: #178f79;
+  display: grid;
+  place-items: center;
+}
+
+.hot-board__refresh:hover {
+  border-color: #9edaca;
+  background: #e7f8f3;
+}
+
+.hot-board__refresh.is-loading svg {
+  animation: hot-refresh-spin 0.8s linear infinite;
+}
+
+@keyframes hot-refresh-spin {
+  to { transform: rotate(360deg); }
 }
 
 .hot-list {
@@ -4487,6 +4527,17 @@ html[dir="rtl"] .legal-back-button svg {
   color: var(--muted);
   font-weight: 760;
   text-align: center;
+}
+
+.hot-board__empty {
+  min-height: 70px;
+  border-radius: 10px;
+  background: #f7fcfa;
+  color: var(--muted);
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  font-weight: 760;
 }
 
 .hot-board--sections > .hot-empty,
@@ -8358,6 +8409,16 @@ video.media-preview {
 }
 
 @media (max-width: 640px) {
+  .hot-cats.is-aggregate {
+    grid-template-columns: repeat(9, minmax(68px, 1fr));
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .hot-cats.is-aggregate::-webkit-scrollbar {
+    display: none;
+  }
+
   .hot-board--sections {
     grid-template-columns: 1fr;
   }

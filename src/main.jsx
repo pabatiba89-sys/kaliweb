@@ -5690,31 +5690,63 @@ function HotTrendsPage({ onTopicSelect }) {
   const [mode, setMode] = useState('aggregate');
   const [category, setCategory] = useState(trendCategories[0]);
   const [source, setSource] = useState(mediaSources[0]);
-  const [boards, setBoards] = useState([]);
+  const [boards, setBoards] = useState(() =>
+    trendCategories.map((item) => ({
+      id: `aggregate-${item.key}`,
+      categoryKey: item.key,
+      categoryLabel: item.label,
+      title: item.label,
+      icon: item.icon,
+      topics: [],
+    })),
+  );
   const [mediaBoards, setMediaBoards] = useState([]);
-  const [page, setPage] = useState(1);
-  const [visibleCount, setVisibleCount] = useState(HOT_PAGE_SIZE);
-  const [hasMore, setHasMore] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [boardLoading, setBoardLoading] = useState({});
 
-  const loadAggregate = async ({ nextPage = 1, append = false, nextCategory = category } = {}) => {
-    setLoading(true);
+  const loadAggregateBoard = async (nextCategory) => {
+    setBoardLoading((current) => ({ ...current, [nextCategory.key]: true }));
     const result = await apiFetch('/api/hotlist/list', {
       auth: false,
-      params: { page: nextPage, page_size: HOT_PAGE_SIZE, pageSize: HOT_PAGE_SIZE, categories: categoryRequest(nextCategory) },
+      params: { page: 1, page_size: HOT_PAGE_SIZE, pageSize: HOT_PAGE_SIZE, categories: categoryRequest(nextCategory) },
     });
     const nextBoards = normalizeBoards(result);
-    setBoards((current) => (append ? mergeBoards(current, nextBoards) : nextBoards));
-    setPage(nextPage);
-    setVisibleCount(HOT_PAGE_SIZE);
-    setHasMore(result.ok && nextBoards.reduce((sum, board) => sum + board.topics.length, 0) >= HOT_PAGE_SIZE);
+    const matchingBoards = nextBoards.filter((board) =>
+      nextCategory.key === 'all' || board.categoryKey === nextCategory.key,
+    );
+    const nextBoard = {
+      id: `aggregate-${nextCategory.key}`,
+      categoryKey: nextCategory.key,
+      categoryLabel: nextCategory.label,
+      title: nextCategory.label,
+      icon: nextCategory.icon,
+      topics: matchingBoards.flatMap((board) => board.topics).slice(0, HOT_PAGE_SIZE),
+    };
+    setBoards((current) =>
+      trendCategories.map((item) =>
+        item.key === nextCategory.key
+          ? nextBoard
+          : current.find((board) => board.categoryKey === item.key) || {
+              id: `aggregate-${item.key}`,
+              categoryKey: item.key,
+              categoryLabel: item.label,
+              title: item.label,
+              icon: item.icon,
+              topics: [],
+            },
+      ),
+    );
+    setBoardLoading((current) => ({ ...current, [nextCategory.key]: false }));
+  };
+  const loadAggregate = async () => {
+    setLoading(true);
+    await Promise.all(trendCategories.map((item) => loadAggregateBoard(item)));
     setLoading(false);
   };
   const loadMedia = async () => {
     setLoading(true);
     const result = await apiFetch('/api/hotlist/search', { auth: false, params: { limit: 0 } });
     setMediaBoards(normalizeMediaBoards(result));
-    setVisibleCount(HOT_PAGE_SIZE);
     setLoading(false);
   };
 
@@ -5722,42 +5754,18 @@ function HotTrendsPage({ onTopicSelect }) {
     loadAggregate();
   }, []);
 
-  const activeBoards =
-    mode === 'aggregate'
-      ? category.key === 'all'
-        ? boards
-        : boards.filter((board) => board.categoryKey === category.key)
-      : mediaBoards.filter((board) => board.source === source.key);
-  const activeTotal = activeBoards.reduce((sum, board) => sum + board.topics.length, 0);
-  const visibleBoards = activeBoards
-    .map((board) => {
-      let remaining = visibleCount;
-      const prior = activeBoards
-        .slice(0, activeBoards.indexOf(board))
-        .reduce((sum, item) => sum + item.topics.length, 0);
-      remaining = Math.max(visibleCount - prior, 0);
-      return { ...board, topics: board.topics.slice(0, remaining) };
-    })
-    .filter((board) => board.topics.length);
-  const canRevealMore = visibleCount < activeTotal;
+  const visibleBoards = mode === 'aggregate' ? boards : mediaBoards.filter((board) => board.source === source.key);
 
   const changeMode = async (nextMode) => {
     if (nextMode === mode) return;
     setMode(nextMode);
-    setVisibleCount(HOT_PAGE_SIZE);
     if (nextMode === 'media' && !mediaBoards.length) await loadMedia();
   };
-  const changeCategory = async (nextCategory) => {
+  const changeCategory = (nextCategory) => {
     setCategory(nextCategory);
-    await loadAggregate({ nextPage: 1, append: false, nextCategory });
-  };
-  const loadMore = () => {
-    if (loading) return;
-    if (canRevealMore) {
-      setVisibleCount((value) => value + HOT_PAGE_SIZE);
-      return;
-    }
-    if (mode === 'aggregate' && hasMore) loadAggregate({ nextPage: page + 1, append: true });
+    window.requestAnimationFrame(() => {
+      document.getElementById(`hot-board-${nextCategory.key}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
   };
   const chooseTopic = (topic, board) => {
     window.localStorage.setItem(
@@ -5794,7 +5802,7 @@ function HotTrendsPage({ onTopicSelect }) {
           媒体热点
         </button>
       </div>
-      <div className="hot-cats">
+      <div className={`hot-cats ${mode === 'aggregate' ? 'is-aggregate' : ''}`}>
         {(mode === 'aggregate' ? trendCategories : mediaSources).map((item) => (
           <button
             key={item.key}
@@ -5808,10 +5816,20 @@ function HotTrendsPage({ onTopicSelect }) {
       </div>
       <section className={`hot-board ${visibleBoards.length > 1 ? 'hot-board--sections' : ''}`}>
         {visibleBoards.map((board) => (
-          <div className="hot-board-card" key={board.id}>
+          <div className="hot-board-card" id={`hot-board-${board.categoryKey || board.source}`} key={board.id}>
             <div className="hot-board__title">
               <span>{board.icon}</span>
               <strong>{board.title}</strong>
+              {mode === 'aggregate' && (
+                <button
+                  className={`hot-board__refresh ${boardLoading[board.categoryKey] ? 'is-loading' : ''}`}
+                  onClick={() => loadAggregateBoard(trendCategories.find((item) => item.key === board.categoryKey))}
+                  disabled={boardLoading[board.categoryKey]}
+                  aria-label={`刷新${board.title}`}
+                >
+                  <RefreshCw size={14} />
+                </button>
+              )}
             </div>
             <div className="hot-list">
               {board.topics.map((topic, index) => (
@@ -5828,14 +5846,14 @@ function HotTrendsPage({ onTopicSelect }) {
                   {topic.heat && <strong className="hot-score">🔥{topic.heat}</strong>}
                 </button>
               ))}
+              {!board.topics.length && (
+                <div className="hot-board__empty">{boardLoading[board.categoryKey] ? '加载中' : '暂无热点'}</div>
+              )}
             </div>
           </div>
           ))}
         {!visibleBoards.length && !loading && <div className="hot-empty">暂无热点</div>}
-        {loading && <div className="hot-loading">加载中</div>}
-        {!loading && (canRevealMore || (mode === 'aggregate' && hasMore)) && (
-          <button className="hot-load-more" onClick={loadMore}>加载更多热点</button>
-        )}
+        {mode === 'media' && loading && <div className="hot-loading">加载中</div>}
       </section>
     </div>
   );
