@@ -5537,6 +5537,19 @@ async function requestGeneratedCopy({ prompt, agent, messages, signal, onProgres
   return { text: reply, script: parseGeneratedResult(reply) };
 }
 
+const GENERATED_THINKING_MESSAGES = [
+  '正在思考中',
+  'Thinking',
+  '考えています',
+  '생각하고 있어요',
+  'Sto pensando',
+  'Réflexion en cours',
+  'Ich denke nach',
+  'Pensando',
+  'Думаю',
+  'جارٍ التفكير',
+];
+
 function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVideo, onMakeMusic }) {
   const [flow] = useState(() => (useHotTopicFlow ? getPendingFlow() : null));
   const initialPrompt = flow?.prompt || flow?.topic || '';
@@ -5550,11 +5563,21 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
     },
   ]);
   const [loading, setLoading] = useState(false);
+  const [thinkingIndex, setThinkingIndex] = useState(0);
   const chatRef = useRef(null);
   const streamAbortRef = useRef(null);
   const authed = Boolean(getAccessToken());
+  const isThinking = loading && messages.some((message) => message.role === 'pending');
+  const thinkingText = GENERATED_THINKING_MESSAGES[thinkingIndex % GENERATED_THINKING_MESSAGES.length];
 
   useEffect(() => () => streamAbortRef.current?.abort(), []);
+  useEffect(() => {
+    if (!isThinking) return undefined;
+    const timer = window.setInterval(() => {
+      setThinkingIndex((index) => (index + 1) % GENERATED_THINKING_MESSAGES.length);
+    }, 1050);
+    return () => window.clearInterval(timer);
+  }, [isThinking]);
   useEffect(() => {
     const chat = chatRef.current;
     if (!chat) return;
@@ -5570,6 +5593,7 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
     if (!prompt || loading) return;
     const userMessage = { role: 'user', text: prompt };
     const nextMessages = messages.concat(userMessage);
+    setThinkingIndex(0);
     setMessages(nextMessages.concat({ role: 'pending', text: '正在生成文案' }));
     setLoading(true);
     setInput('');
@@ -5658,7 +5682,16 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
               {message.role !== 'user' && <small title={agentName}>{agentName}</small>}
             </div>
             <div className="copy-message__content">
-              <p>{message.text}{message.streaming && <i className="copy-stream-cursor" />}</p>
+              <p>
+                {message.role === 'pending' ? (
+                  <span className="copy-thinking" key={thinkingText} translate="no">
+                    <span>{thinkingText}</span>
+                    <i className="copy-thinking__dots" aria-hidden="true"><i /><i /><i /></i>
+                  </span>
+                ) : (
+                  <>{message.text}{message.streaming && <i className="copy-stream-cursor" />}</>
+                )}
+              </p>
               {message.generated && !message.error && (
                 <div className="copy-message-actions">
                   {isMusicAgent ? (
@@ -5700,9 +5733,20 @@ function HotTrendsPage({ onTopicSelect }) {
       topics: [],
     })),
   );
-  const [mediaBoards, setMediaBoards] = useState([]);
+  const [mediaBoards, setMediaBoards] = useState(() =>
+    mediaSources.map((item) => ({
+      id: `media-${item.key}`,
+      source: item.key,
+      categoryLabel: '媒体',
+      title: item.label,
+      icon: item.icon,
+      topics: [],
+    })),
+  );
   const [loading, setLoading] = useState(false);
   const [boardLoading, setBoardLoading] = useState({});
+  const [mediaLoaded, setMediaLoaded] = useState(false);
+  const [mediaLoading, setMediaLoading] = useState({});
 
   const loadAggregateBoard = async (nextCategory) => {
     setBoardLoading((current) => ({ ...current, [nextCategory.key]: true }));
@@ -5745,26 +5789,61 @@ function HotTrendsPage({ onTopicSelect }) {
   };
   const loadMedia = async () => {
     setLoading(true);
+    setMediaLoading(Object.fromEntries(mediaSources.map((item) => [item.key, true])));
     const result = await apiFetch('/api/hotlist/search', { auth: false, params: { limit: 0 } });
-    setMediaBoards(normalizeMediaBoards(result));
+    const nextBoards = normalizeMediaBoards(result);
+    setMediaBoards(
+      mediaSources.map((item) =>
+        nextBoards.find((board) => board.source === item.key) || {
+          id: `media-${item.key}`,
+          source: item.key,
+          categoryLabel: '媒体',
+          title: item.label,
+          icon: item.icon,
+          topics: [],
+        },
+      ),
+    );
+    setMediaLoaded(true);
+    setMediaLoading(Object.fromEntries(mediaSources.map((item) => [item.key, false])));
     setLoading(false);
+  };
+  const loadMediaBoard = async (nextSource) => {
+    setMediaLoading((current) => ({ ...current, [nextSource.key]: true }));
+    const result = await apiFetch('/api/hotlist/search', { auth: false, params: { limit: 0 } });
+    const refreshed = normalizeMediaBoards(result).find((board) => board.source === nextSource.key) || {
+      id: `media-${nextSource.key}`,
+      source: nextSource.key,
+      categoryLabel: '媒体',
+      title: nextSource.label,
+      icon: nextSource.icon,
+      topics: [],
+    };
+    setMediaBoards((current) => current.map((board) => (board.source === nextSource.key ? refreshed : board)));
+    setMediaLoading((current) => ({ ...current, [nextSource.key]: false }));
   };
 
   useEffect(() => {
     loadAggregate();
   }, []);
 
-  const visibleBoards = mode === 'aggregate' ? boards : mediaBoards.filter((board) => board.source === source.key);
+  const visibleBoards = mode === 'aggregate' ? boards : mediaBoards;
 
   const changeMode = async (nextMode) => {
     if (nextMode === mode) return;
     setMode(nextMode);
-    if (nextMode === 'media' && !mediaBoards.length) await loadMedia();
+    if (nextMode === 'media' && !mediaLoaded) await loadMedia();
   };
   const changeCategory = (nextCategory) => {
     setCategory(nextCategory);
     window.requestAnimationFrame(() => {
       document.getElementById(`hot-board-${nextCategory.key}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  };
+  const changeSource = (nextSource) => {
+    setSource(nextSource);
+    window.requestAnimationFrame(() => {
+      document.getElementById(`hot-board-${nextSource.key}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   };
   const chooseTopic = (topic, board) => {
@@ -5802,12 +5881,12 @@ function HotTrendsPage({ onTopicSelect }) {
           媒体热点
         </button>
       </div>
-      <div className={`hot-cats ${mode === 'aggregate' ? 'is-aggregate' : ''}`}>
+      <div className={`hot-cats ${mode === 'aggregate' ? 'is-aggregate' : 'is-media'}`}>
         {(mode === 'aggregate' ? trendCategories : mediaSources).map((item) => (
           <button
             key={item.key}
             className={(mode === 'aggregate' ? category.key : source.key) === item.key ? 'is-active' : ''}
-            onClick={() => (mode === 'aggregate' ? changeCategory(item) : setSource(item))}
+            onClick={() => (mode === 'aggregate' ? changeCategory(item) : changeSource(item))}
           >
             <span>{item.icon}</span>
             {item.label}
@@ -5820,16 +5899,20 @@ function HotTrendsPage({ onTopicSelect }) {
             <div className="hot-board__title">
               <span>{board.icon}</span>
               <strong>{board.title}</strong>
-              {mode === 'aggregate' && (
-                <button
-                  className={`hot-board__refresh ${boardLoading[board.categoryKey] ? 'is-loading' : ''}`}
-                  onClick={() => loadAggregateBoard(trendCategories.find((item) => item.key === board.categoryKey))}
-                  disabled={boardLoading[board.categoryKey]}
-                  aria-label={`刷新${board.title}`}
-                >
-                  <RefreshCw size={14} />
-                </button>
-              )}
+              <button
+                className={`hot-board__refresh ${
+                  mode === 'aggregate' ? (boardLoading[board.categoryKey] ? 'is-loading' : '') : (mediaLoading[board.source] ? 'is-loading' : '')
+                }`}
+                onClick={() =>
+                  mode === 'aggregate'
+                    ? loadAggregateBoard(trendCategories.find((item) => item.key === board.categoryKey))
+                    : loadMediaBoard(mediaSources.find((item) => item.key === board.source))
+                }
+                disabled={mode === 'aggregate' ? boardLoading[board.categoryKey] : mediaLoading[board.source]}
+                aria-label={`刷新${board.title}`}
+              >
+                <RefreshCw size={14} />
+              </button>
             </div>
             <div className="hot-list">
               {board.topics.map((topic, index) => (
@@ -5847,7 +5930,9 @@ function HotTrendsPage({ onTopicSelect }) {
                 </button>
               ))}
               {!board.topics.length && (
-                <div className="hot-board__empty">{boardLoading[board.categoryKey] ? '加载中' : '暂无热点'}</div>
+                <div className="hot-board__empty">
+                  {(mode === 'aggregate' ? boardLoading[board.categoryKey] : mediaLoading[board.source]) ? '加载中' : '暂无热点'}
+                </div>
               )}
             </div>
           </div>

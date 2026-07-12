@@ -4149,6 +4149,54 @@ html[dir="rtl"] .legal-back-button svg {
   background: #fbfffd;
 }
 
+.copy-message--pending p {
+  color: #2f6258;
+  background: linear-gradient(110deg, #ffffff, #f0fbf7, #ffffff);
+  background-size: 220% 100%;
+  animation: copy-thinking-surface 2.4s ease-in-out infinite;
+}
+
+.copy-thinking {
+  min-height: 26px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 760;
+  animation: copy-thinking-language 0.42s ease both;
+}
+
+.copy-thinking__dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.copy-thinking__dots > i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #00a884;
+  animation: copy-thinking-dot 1s ease-in-out infinite;
+}
+
+.copy-thinking__dots > i:nth-child(2) { animation-delay: 0.16s; }
+.copy-thinking__dots > i:nth-child(3) { animation-delay: 0.32s; }
+
+@keyframes copy-thinking-language {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes copy-thinking-dot {
+  0%, 70%, 100% { opacity: 0.28; transform: translateY(0); }
+  35% { opacity: 1; transform: translateY(-3px); }
+}
+
+@keyframes copy-thinking-surface {
+  0%, 100% { background-position: 100% 0; }
+  50% { background-position: 0 0; }
+}
+
 .copy-stream-cursor {
   display: inline-block;
   width: 2px;
@@ -4163,6 +4211,15 @@ html[dir="rtl"] .legal-back-button svg {
 @keyframes copy-stream-cursor {
   0%, 100% { opacity: 0.25; }
   50% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .copy-message--pending p,
+  .copy-thinking,
+  .copy-thinking__dots > i,
+  .copy-stream-cursor {
+    animation: none;
+  }
 }
 
 .copy-message-actions {
@@ -4318,9 +4375,17 @@ html[dir="rtl"] .legal-back-button svg {
   overflow: visible;
 }
 
-.hot-cats.is-aggregate {
+.hot-cats.is-aggregate,
+.hot-cats.is-media {
   display: grid;
+}
+
+.hot-cats.is-aggregate {
   grid-template-columns: repeat(9, minmax(0, 1fr));
+}
+
+.hot-cats.is-media {
+  grid-template-columns: repeat(10, minmax(0, 1fr));
 }
 
 .hot-cats button {
@@ -4339,7 +4404,8 @@ html[dir="rtl"] .legal-back-button svg {
   box-shadow: 0 6px 14px rgba(24, 62, 53, 0.07);
 }
 
-.hot-cats.is-aggregate button {
+.hot-cats.is-aggregate button,
+.hot-cats.is-media button {
   width: 100%;
   min-width: 0;
   justify-content: center;
@@ -4373,7 +4439,7 @@ html[dir="rtl"] .legal-back-button svg {
 }
 
 .hot-board--sections {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
   align-items: start;
   background: rgba(255, 255, 255, 0.64);
 }
@@ -4383,6 +4449,7 @@ html[dir="rtl"] .legal-back-button svg {
   align-content: start;
   gap: 6px;
   min-width: 0;
+  height: 380px;
   padding: 10px;
   border: 1px solid #dcefeb;
   border-radius: 14px;
@@ -4439,7 +4506,12 @@ html[dir="rtl"] .legal-back-button svg {
 
 .hot-list {
   display: grid;
+  align-content: start;
   gap: 4px;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #c5e4dc transparent;
 }
 
 .hot-row {
@@ -8409,18 +8481,31 @@ video.media-preview {
 }
 
 @media (max-width: 640px) {
-  .hot-cats.is-aggregate {
-    grid-template-columns: repeat(9, minmax(68px, 1fr));
+  .hot-cats.is-aggregate,
+  .hot-cats.is-media {
     overflow-x: auto;
     scrollbar-width: none;
   }
 
-  .hot-cats.is-aggregate::-webkit-scrollbar {
+  .hot-cats.is-aggregate {
+    grid-template-columns: repeat(9, minmax(68px, 1fr));
+  }
+
+  .hot-cats.is-media {
+    grid-template-columns: repeat(10, minmax(74px, 1fr));
+  }
+
+  .hot-cats.is-aggregate::-webkit-scrollbar,
+  .hot-cats.is-media::-webkit-scrollbar {
     display: none;
   }
 
   .hot-board--sections {
     grid-template-columns: 1fr;
+  }
+
+  .hot-board-card {
+    height: 360px;
   }
 
   .music-studio-page,
