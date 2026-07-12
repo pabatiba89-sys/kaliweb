@@ -108,5 +108,15 @@ const jsonLd = {
       </div>
       <div class="footer-bottom"><span>© 2026 {brandName(locale)}</span><span>{eyebrow || t('Kali · Yixiu')}</span></div>
     </footer>
+    <script is:inline>
+      document.querySelectorAll('.language-menu a').forEach((link) => {
+        link.addEventListener('click', () => {
+          const locale = new URL(link.href).pathname.split('/').filter(Boolean)[0];
+          if (locale) {
+            document.cookie = `kali_site_locale=${encodeURIComponent(locale)}; Path=/; Max-Age=31536000; SameSite=Lax; Secure`;
+          }
+        });
+      });
+    </script>
   </body>
 </html>
