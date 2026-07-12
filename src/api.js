@@ -1,6 +1,12 @@
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
 const AUTH_KEYS = ['access_token', 'token', 'accessToken'];
 const EMAIL_LOGIN_URL = '/api/user/email_login';
+const AUTH_ENDPOINTS = {
+  forgotPassword: ['/api/user/password/forgot', '/api/user/forgot-password', '/api/user/reset-password/request'],
+  changePassword: ['/api/user/password/change', '/api/user/change-password', '/api/user/reset-password'],
+  sendPhoneCode: ['/api/user/phone/send-code', '/api/user/send-phone-code', '/api/sms/send'],
+  bindPhone: ['/api/user/phone/bind', '/api/user/bind-phone', '/api/user/mobile/bind'],
+};
 
 export const getAccessToken = () => {
   for (const key of AUTH_KEYS) {
@@ -100,6 +106,73 @@ export async function emailLogin({ email, password, nickname, autoCreate = true 
       auto_create: autoCreate,
     },
   });
+}
+
+async function apiFetchAny(paths, options, fallbackMessage) {
+  let lastResult = null;
+  for (const path of paths) {
+    const result = await apiFetch(path, options);
+    if (result.ok) return result;
+    lastResult = result;
+    if (result.authMissing) return result;
+    if (result.status && result.status !== 404 && result.status !== 405) return result;
+  }
+  return lastResult || { ok: false, status: 0, message: fallbackMessage, data: null };
+}
+
+export async function requestPasswordReset({ email }) {
+  return apiFetchAny(AUTH_ENDPOINTS.forgotPassword, {
+    method: 'POST',
+    auth: false,
+    timeoutMs: 10000,
+    body: { email },
+  }, 'Password reset is not available yet');
+}
+
+export async function changePassword({ currentPassword, newPassword }) {
+  return apiFetchAny(AUTH_ENDPOINTS.changePassword, {
+    method: 'POST',
+    timeoutMs: 10000,
+    body: {
+      currentPassword,
+      current_password: currentPassword,
+      oldPassword: currentPassword,
+      old_password: currentPassword,
+      newPassword,
+      new_password: newPassword,
+      password: newPassword,
+    },
+  }, 'Password change is not available yet');
+}
+
+export async function sendPhoneVerificationCode({ countryCode, phone }) {
+  return apiFetchAny(AUTH_ENDPOINTS.sendPhoneCode, {
+    method: 'POST',
+    timeoutMs: 10000,
+    body: {
+      countryCode,
+      country_code: countryCode,
+      phone,
+      mobile: phone,
+      scene: 'bind_phone',
+    },
+  }, 'Phone verification is not available yet');
+}
+
+export async function bindPhoneNumber({ countryCode, phone, code }) {
+  return apiFetchAny(AUTH_ENDPOINTS.bindPhone, {
+    method: 'POST',
+    timeoutMs: 10000,
+    body: {
+      countryCode,
+      country_code: countryCode,
+      phone,
+      mobile: phone,
+      code,
+      verificationCode: code,
+      verification_code: code,
+    },
+  }, 'Phone binding is not available yet');
 }
 
 export function storeSession(data = {}) {

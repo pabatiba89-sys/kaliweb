@@ -25,6 +25,7 @@ import {
   Globe2,
   Home,
   Image,
+  KeyRound,
   Layers3,
   Library,
   Mail,
@@ -32,6 +33,7 @@ import {
   Mic2,
   Music2,
   PanelLeftClose,
+  Phone,
   Play,
   Plus,
   RefreshCw,
@@ -49,7 +51,19 @@ import {
   Video,
   X,
 } from 'lucide-react';
-import { apiFetch, clearSession, emailLogin, getAccessToken, storeSession, toList, uploadFile } from './api';
+import {
+  apiFetch,
+  bindPhoneNumber,
+  changePassword,
+  clearSession,
+  emailLogin,
+  getAccessToken,
+  requestPasswordReset,
+  sendPhoneVerificationCode,
+  storeSession,
+  toList,
+  uploadFile,
+} from './api';
 import { getInitialLocale, languages, translateStatic, useAutoTranslate, useLocaleCatalog } from './i18n';
 import { pageConfigs } from './pageConfig';
 import './styles.css';
@@ -4545,6 +4559,234 @@ function ResourcePage({ active, language, onNewVideo, authVersion }) {
   );
 }
 
+const phoneCountryCodes = [
+  { value: '+1', label: 'US / Canada +1' },
+  { value: '+44', label: 'United Kingdom +44' },
+  { value: '+61', label: 'Australia +61' },
+  { value: '+81', label: 'Japan +81' },
+  { value: '+82', label: 'Korea +82' },
+  { value: '+86', label: 'China +86' },
+  { value: '+852', label: 'Hong Kong +852' },
+  { value: '+886', label: 'Taiwan +886' },
+  { value: '+49', label: 'Germany +49' },
+  { value: '+33', label: 'France +33' },
+  { value: '+34', label: 'Spain +34' },
+  { value: '+39', label: 'Italy +39' },
+  { value: '+31', label: 'Netherlands +31' },
+  { value: '+55', label: 'Brazil +55' },
+  { value: '+7', label: 'Russia +7' },
+  { value: '+91', label: 'India +91' },
+  { value: '+62', label: 'Indonesia +62' },
+  { value: '+84', label: 'Vietnam +84' },
+  { value: '+66', label: 'Thailand +66' },
+  { value: '+90', label: 'Turkey +90' },
+];
+
+const readStoredUser = () => {
+  try {
+    return JSON.parse(window.localStorage.getItem('user_info') || '{}') || {};
+  } catch {
+    return {};
+  }
+};
+
+function SettingsPage({ authVersion, onLogin, onLogout }) {
+  const [profile, setProfile] = useState(() => readStoredUser());
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+  const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
+  const [phoneForm, setPhoneForm] = useState({ countryCode: '+1', phone: '', code: '' });
+  const [busy, setBusy] = useState('');
+  const token = getAccessToken();
+
+  useEffect(() => {
+    if (!token) {
+      setProfile({});
+      return undefined;
+    }
+    let ignore = false;
+    setLoading(true);
+    apiFetch('/api/user/info', { timeoutMs: 10000 }).then((result) => {
+      if (ignore) return;
+      setLoading(false);
+      if (result.ok) {
+        const nextProfile = result.data?.user || result.data || {};
+        setProfile(nextProfile);
+        window.localStorage.setItem('user_info', JSON.stringify(nextProfile));
+      } else {
+        setMessage(result.message || 'Profile loading failed');
+      }
+    });
+    return () => {
+      ignore = true;
+    };
+  }, [token, authVersion]);
+
+  const updatePassword = (key, value) => setPasswordForm((current) => ({ ...current, [key]: value }));
+  const updatePhone = (key, value) => setPhoneForm((current) => ({ ...current, [key]: value }));
+
+  const submitPassword = async (event) => {
+    event.preventDefault();
+    if (passwordForm.newPassword.length < 8) {
+      setMessage('New password must be at least 8 characters.');
+      return;
+    }
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setMessage('The two new passwords do not match.');
+      return;
+    }
+    setBusy('password');
+    setMessage('');
+    const result = await changePassword(passwordForm);
+    setBusy('');
+    if (result.ok) {
+      setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      setMessage('Password updated. Please keep your new password safe.');
+      return;
+    }
+    setMessage(result.message || 'Password change failed');
+  };
+
+  const sendCode = async () => {
+    if (!phoneForm.phone.trim()) {
+      setMessage('Enter a phone number first.');
+      return;
+    }
+    setBusy('send-code');
+    setMessage('');
+    const result = await sendPhoneVerificationCode(phoneForm);
+    setBusy('');
+    setMessage(result.ok ? 'Verification code sent.' : result.message || 'Verification code failed');
+  };
+
+  const submitPhone = async (event) => {
+    event.preventDefault();
+    if (!phoneForm.phone.trim() || !phoneForm.code.trim()) {
+      setMessage('Enter phone number and verification code.');
+      return;
+    }
+    setBusy('bind-phone');
+    setMessage('');
+    const result = await bindPhoneNumber(phoneForm);
+    setBusy('');
+    if (result.ok) {
+      setMessage('Phone number bound successfully.');
+      setProfile((current) => ({ ...current, phone: phoneForm.phone, countryCode: phoneForm.countryCode }));
+      setPhoneForm((current) => ({ ...current, code: '' }));
+      return;
+    }
+    setMessage(result.message || 'Phone binding failed');
+  };
+
+  const email = pick(profile.email, profile.mail, profile.account, profile.username);
+  const nickname = pick(profile.nickname, profile.name, profile.userName, profile.user_name);
+  const phone = pick(profile.phone, profile.mobile, profile.tel);
+
+  if (!token) {
+    return (
+      <div className="settings-page">
+        <section className="settings-hero">
+          <div>
+            <span>ACCOUNT SECURITY</span>
+            <h1>Settings</h1>
+          </div>
+        </section>
+        <div className="settings-empty">
+          <UserRound size={34} />
+          <strong>Sign in to manage account security.</strong>
+          <button className="primary-button" onClick={onLogin}>Sign in</button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="settings-page">
+      <section className="settings-hero">
+        <div>
+          <span>ACCOUNT SECURITY</span>
+          <h1>Settings</h1>
+        </div>
+        <button className="outline-button" onClick={onLogout}>
+          <UserRound size={17} />
+          Sign out
+        </button>
+      </section>
+
+      {message && <div className={`settings-message ${/failed|fail|not available|match|first|required|Enter/i.test(message) ? 'is-error' : ''}`}>{message}</div>}
+
+      <section className="settings-grid" aria-busy={loading}>
+        <article className="settings-card">
+          <header>
+            <Mail size={20} />
+            <div><h2>Account</h2></div>
+          </header>
+          <dl className="settings-profile">
+            <div><dt>Email</dt><dd>{email || 'Not available'}</dd></div>
+            <div><dt>Nickname</dt><dd>{nickname || 'Not set'}</dd></div>
+            <div><dt>Phone</dt><dd>{phone || 'Optional'}</dd></div>
+          </dl>
+        </article>
+
+        <form className="settings-card settings-form" onSubmit={submitPassword}>
+          <header>
+            <KeyRound size={20} />
+            <div><h2>Change password</h2></div>
+          </header>
+          <label>
+            <span>Current password</span>
+            <input type="password" value={passwordForm.currentPassword} onChange={(event) => updatePassword('currentPassword', event.target.value)} required />
+          </label>
+          <label>
+            <span>New password</span>
+            <input type="password" minLength={8} value={passwordForm.newPassword} onChange={(event) => updatePassword('newPassword', event.target.value)} required />
+          </label>
+          <label>
+            <span>Confirm new password</span>
+            <input type="password" minLength={8} value={passwordForm.confirmPassword} onChange={(event) => updatePassword('confirmPassword', event.target.value)} required />
+          </label>
+          <button className="primary-button" disabled={busy === 'password'}>
+            <ShieldCheck size={17} />
+            {busy === 'password' ? 'Saving' : 'Update password'}
+          </button>
+        </form>
+
+        <form className="settings-card settings-form" onSubmit={submitPhone}>
+          <header>
+            <Phone size={20} />
+            <div><h2>Phone verification</h2></div>
+          </header>
+          <div className="phone-row">
+            <label>
+              <span>Country code</span>
+              <select value={phoneForm.countryCode} onChange={(event) => updatePhone('countryCode', event.target.value)}>
+                {phoneCountryCodes.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
+              </select>
+            </label>
+            <label>
+              <span>Phone number</span>
+              <input inputMode="tel" value={phoneForm.phone} onChange={(event) => updatePhone('phone', event.target.value.replace(/[^\d\s()-]/g, ''))} required />
+            </label>
+          </div>
+          <div className="phone-code-row">
+            <label>
+              <span>Verification code</span>
+              <input inputMode="numeric" value={phoneForm.code} onChange={(event) => updatePhone('code', event.target.value)} required />
+            </label>
+            <button type="button" className="outline-button" onClick={sendCode} disabled={busy === 'send-code'}>
+              {busy === 'send-code' ? 'Sending' : 'Send code'}
+            </button>
+          </div>
+          <button className="primary-button" disabled={busy === 'bind-phone'}>
+            <CheckCircle2 size={17} />
+            {busy === 'bind-phone' ? 'Binding' : 'Bind phone'}
+          </button>
+        </form>
+      </section>
+    </div>
+  );
+}
+
 function BillingPage({ language, authVersion }) {
   const useChinaBilling = language === 'zh-CN' || language === 'zh-TW';
 
@@ -6327,13 +6569,29 @@ function Workflow({ language }) {
 
 function LoginModal({ open, onClose, onSuccess, onOpenInfo }) {
   const [form, setForm] = useState({ email: '', password: '', nickname: '', autoCreate: true, agreement: false });
+  const [mode, setMode] = useState('login');
   const [status, setStatus] = useState({ loading: false, message: '' });
 
   if (!open) return null;
 
   const update = (key, value) => setForm((current) => ({ ...current, [key]: value }));
+  const switchMode = (nextMode) => {
+    setMode(nextMode);
+    setStatus({ loading: false, message: '' });
+  };
   const submit = async (event) => {
     event.preventDefault();
+
+    if (mode === 'forgot') {
+      setStatus({ loading: true, message: '' });
+      const result = await requestPasswordReset({ email: form.email });
+      setStatus({
+        loading: false,
+        message: result.ok ? 'Password reset instructions have been sent if this email is registered.' : result.message || 'Password reset failed',
+      });
+      return;
+    }
+
     if (!form.agreement) {
       setStatus({ loading: false, message: '请先阅读并同意用户服务协议和隐私政策' });
       return;
@@ -6352,52 +6610,59 @@ function LoginModal({ open, onClose, onSuccess, onOpenInfo }) {
   };
 
   return (
-    <div className="modal-layer" role="dialog" aria-modal="true" aria-label="Email login">
+    <div className="modal-layer" role="dialog" aria-modal="true" aria-label={mode === 'forgot' ? 'Reset password' : 'Email login'}>
       <form className="modal-card login-card" onSubmit={submit}>
         <button type="button" className="modal-close" onClick={onClose} aria-label="Close">
           <X size={18} />
         </button>
-        <h2>Email login</h2>
-        <p>Use your email and password to access the workspace.</p>
+        <h2>{mode === 'forgot' ? 'Reset password' : 'Email login'}</h2>
+        <p>{mode === 'forgot' ? 'Enter your account email and we will send password reset instructions.' : 'Use your email and password to access the workspace.'}</p>
         <div className="modal-grid login-grid">
           <label>
             <span>Email</span>
             <input type="email" value={form.email} onChange={(event) => update('email', event.target.value)} required />
           </label>
-          <label>
-            <span>Password</span>
-            <input
-              type="password"
-              value={form.password}
-              onChange={(event) => update('password', event.target.value)}
-              required
-            />
-          </label>
-          <label>
-            <span>Nickname</span>
-            <input value={form.nickname} onChange={(event) => update('nickname', event.target.value)} placeholder="Optional" />
-          </label>
-          <label className="checkbox-row">
-            <input
-              type="checkbox"
-              checked={form.autoCreate}
-              onChange={(event) => update('autoCreate', event.target.checked)}
-            />
-            <span>Auto-create account on first login</span>
-          </label>
-          <div className="login-consent-row">
-            <label><input type="checkbox" checked={form.agreement} onChange={(event) => update('agreement', event.target.checked)} /><span>我已阅读并同意</span></label>
-            <span><button type="button" onClick={() => onOpenInfo('legal-user')}>《用户服务协议》</button>与<button type="button" onClick={() => onOpenInfo('legal-privacy')}>《隐私政策》</button></span>
-          </div>
+          {mode === 'login' && (
+            <>
+              <label>
+                <span>Password</span>
+                <input
+                  type="password"
+                  value={form.password}
+                  onChange={(event) => update('password', event.target.value)}
+                  required
+                />
+              </label>
+              <div className="login-inline-action">
+                <button type="button" onClick={() => switchMode('forgot')}>Forgot password?</button>
+              </div>
+              <label>
+                <span>Nickname</span>
+                <input value={form.nickname} onChange={(event) => update('nickname', event.target.value)} placeholder="Optional" />
+              </label>
+              <label className="checkbox-row">
+                <input
+                  type="checkbox"
+                  checked={form.autoCreate}
+                  onChange={(event) => update('autoCreate', event.target.checked)}
+                />
+                <span>Auto-create account on first login</span>
+              </label>
+              <div className="login-consent-row">
+                <label><input type="checkbox" checked={form.agreement} onChange={(event) => update('agreement', event.target.checked)} /><span>我已阅读并同意</span></label>
+                <span><button type="button" onClick={() => onOpenInfo('legal-user')}>《用户服务协议》</button>与<button type="button" onClick={() => onOpenInfo('legal-privacy')}>《隐私政策》</button></span>
+              </div>
+            </>
+          )}
         </div>
         {status.message && <div className="form-message">{status.message}</div>}
         <div className="modal-actions">
-          <button type="button" className="outline-button" onClick={onClose}>
-            Cancel
+          <button type="button" className="outline-button" onClick={mode === 'forgot' ? () => switchMode('login') : onClose}>
+            {mode === 'forgot' ? 'Back to sign in' : 'Cancel'}
           </button>
-          <button type="submit" className="primary-button" disabled={status.loading || !form.agreement}>
-            <UserRound size={17} />
-            {status.loading ? 'Signing in' : 'Sign in'}
+          <button type="submit" className="primary-button" disabled={status.loading || (mode === 'login' && !form.agreement)}>
+            {mode === 'forgot' ? <Mail size={17} /> : <UserRound size={17} />}
+            {status.loading ? (mode === 'forgot' ? 'Sending' : 'Signing in') : (mode === 'forgot' ? 'Send reset email' : 'Sign in')}
           </button>
         </div>
       </form>
@@ -6913,6 +7178,12 @@ export default function App() {
               />
             ) : active === 'billing' ? (
               <BillingPage language={language} authVersion={authVersion} />
+            ) : active === 'settings' ? (
+              <SettingsPage
+                authVersion={authVersion}
+                onLogin={() => setLoginOpen(true)}
+                onLogout={logout}
+              />
             ) : (
               <ResourcePage
                 active={active}
