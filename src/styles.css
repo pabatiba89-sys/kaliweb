@@ -4439,7 +4439,7 @@ html[dir="rtl"] .legal-back-button svg {
 }
 
 .hot-board--sections {
-  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: start;
   background: rgba(255, 255, 255, 0.64);
 }

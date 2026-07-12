@@ -4074,7 +4074,7 @@ function VideoCreatorDialog({ type, options, selected, loading, onClose, onSelec
   );
 }
 
-function VideoCreatorPage({ authVersion, usePrefill, onBack, onLogin, onCreated }) {
+function VideoCreatorPage({ authVersion, usePrefill, backLabel = '返回视频管理', onBack, onLogin, onCreated }) {
   const initial = useMemo(() => getCreatorInitialState(usePrefill), [usePrefill]);
   const [form, setForm] = useState(initial.form);
   const [selected, setSelected] = useState(initial.selected);
@@ -4331,7 +4331,7 @@ function VideoCreatorPage({ authVersion, usePrefill, onBack, onLogin, onCreated 
 
   return (
     <div className="video-creator-page">
-      <header className="video-creator-header"><button className="video-back-button" onClick={onBack} disabled={Boolean(busy)}><ArrowLeft size={18} />返回视频管理</button><div><span>DIGITAL HUMAN VIDEO</span><h1>{usePrefill ? '继续制作数字人视频' : '制作数字人视频'}</h1><p>填写内容并组合数字人、声音、包装和素材，提交后进入视频制作队列。</p></div><div className="video-creator-progress"><span className="is-done"><Check size={14} />内容</span><i /><span className="is-done"><Check size={14} />配置</span><i /><span>提交</span></div></header>
+      <header className="video-creator-header"><button className="video-back-button" onClick={onBack} disabled={Boolean(busy)}><ArrowLeft size={18} />{backLabel}</button><div><span>DIGITAL HUMAN VIDEO</span><h1>{usePrefill ? '继续制作数字人视频' : '制作数字人视频'}</h1><p>填写内容并组合数字人、声音、包装和素材，提交后进入视频制作队列。</p></div><div className="video-creator-progress"><span className="is-done"><Check size={14} />内容</span><i /><span className="is-done"><Check size={14} />配置</span><i /><span>提交</span></div></header>
       {!token ? <div className="video-empty-state"><UserRound size={38} /><strong>登录后开始制作</strong><p>登录后才能读取数字人、声音、素材并提交制作任务。</p><button className="primary-button" onClick={onLogin}>登录</button></div> : <>
         <div className="video-ai-notice"><span>AI 生成内容</span><p>文案和视频由人工智能辅助生成，请在提交和发布前核验内容。</p></div>
         <div className="video-creator-layout">
@@ -5031,7 +5031,7 @@ function InstructionSetEditorPage({ seed, onBack, onSaved, onLogin }) {
           <h1>{isEdit ? '编辑指令集' : '创建指令集'}</h1>
           <span>Creative Agent</span>
         </div>
-        <button type="button" className="outline-top-button" onClick={onBack}>返回</button>
+        <button type="button" className="outline-top-button" onClick={onBack}><ArrowLeft size={16} />返回创作助手</button>
       </header>
       <section className="agent-editor-panel">
         <label>
@@ -5658,7 +5658,7 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
   return (
     <div className="copy-page">
       <header className="copy-header">
-        <button className="outline-top-button" onClick={onBack}>返回</button>
+        <button className="outline-top-button" onClick={onBack}><ArrowLeft size={16} />返回创作助手</button>
         <div>
           <h1>文案生成</h1>
           <span>{agent?.name || 'Creative Agent'}</span>
@@ -6457,6 +6457,7 @@ export default function App() {
   const [mobileNav, setMobileNav] = useState(false);
   const [videoCreatorOpen, setVideoCreatorOpen] = useState(false);
   const [videoCreatorPrefill, setVideoCreatorPrefill] = useState(false);
+  const [videoCreatorReturn, setVideoCreatorReturn] = useState({ active: 'video', generator: null });
   const [loginOpen, setLoginOpen] = useState(false);
   const [activeMode, setActiveMode] = useState('mix');
   const [authVersion, setAuthVersion] = useState(0);
@@ -6492,12 +6493,23 @@ export default function App() {
     clearSession();
     refreshAuth();
   };
-  const openVideoCreator = ({ prefill = false } = {}) => {
+  const openVideoCreator = ({ prefill = false, returnTo = active } = {}) => {
     if (!prefill) window.localStorage.removeItem(VIDEO_PREFILL_KEY);
+    setVideoCreatorReturn({
+      active: returnTo === 'generator' ? 'assistant' : returnTo,
+      generator: returnTo === 'generator' ? generatorAgent : null,
+    });
     setVideoCreatorPrefill(prefill);
     setVideoCreatorOpen(true);
     setActive('video');
     setMobileNav(false);
+  };
+  const closeVideoCreator = () => {
+    setVideoCreatorOpen(false);
+    setVideoCreatorPrefill(false);
+    setActive(videoCreatorReturn.active || 'video');
+    setGeneratorAgent(videoCreatorReturn.generator || null);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
   const useAssetInVideo = (asset, kind) => {
     let draft = {};
@@ -6571,11 +6583,13 @@ export default function App() {
             <VideoCreatorPage
               authVersion={authVersion}
               usePrefill={videoCreatorPrefill}
-              onBack={() => setVideoCreatorOpen(false)}
+              backLabel={videoCreatorReturn.generator ? '返回文案生成' : videoCreatorReturn.active === 'assets' ? '返回资产管理' : '返回视频管理'}
+              onBack={closeVideoCreator}
               onLogin={() => setLoginOpen(true)}
               onCreated={() => {
                 setVideoCreatorOpen(false);
                 setVideoCreatorPrefill(false);
+                setGeneratorAgent(null);
                 setActive('video');
                 refreshAuth();
               }}
@@ -6598,8 +6612,7 @@ export default function App() {
               onBack={() => setGeneratorAgent(null)}
               onLogin={() => setLoginOpen(true)}
               onMakeVideo={() => {
-                setGeneratorAgent(null);
-                openVideoCreator({ prefill: true });
+                openVideoCreator({ prefill: true, returnTo: 'generator' });
               }}
               onMakeMusic={() => {
                 setGeneratorAgent(null);
