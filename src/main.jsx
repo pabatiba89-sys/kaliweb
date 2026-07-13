@@ -4134,7 +4134,7 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
         apiFetch('/api/ai-voice/common-list', { params: { page: 1, page_size: 50 }, timeoutMs: 12000 }),
         apiFetch('/api/shanjian/video-templates', { auth: false, params: { page: 1, page_size: 100, scene: templateScene }, timeoutMs: 12000 }),
         apiFetch('/api/shanjian/cover-templates', { auth: false, params: { page: 1, page_size: 100, scene: templateScene }, timeoutMs: 12000 }),
-        apiFetch('/api/material/list', { params: { page: 1, page_size: MATERIAL_PAGE_SIZE, pageSize: MATERIAL_PAGE_SIZE, limit: MATERIAL_PAGE_SIZE }, timeoutMs: 12000 }),
+        apiFetch('/api/material/list', { params: { page: 1, page_size: MATERIAL_PAGE_SIZE, pageSize: MATERIAL_PAGE_SIZE, limit: MATERIAL_PAGE_SIZE, include_total: 0 }, timeoutMs: 12000 }),
         apiFetch('/api/music/generated', { params: { page: 1, page_size: 50 }, timeoutMs: 12000 }),
         isMixed ? Promise.resolve({ ok: true, data: {}, raw: {} }) : apiFetch('/api/user/info', { timeoutMs: 10000 }),
       ]);
@@ -4184,7 +4184,9 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
         material: {
           page: 1,
           cursor: getMaterialNextCursor(materialResult),
-          hasMore: materialResult.ok && getMaterialHasMore({ result: materialResult, cursor: '', list: materialItems, page: 1 }),
+          // Some deployed material APIs report has_more=false while older rows still exist.
+          // Probe the next page whenever this page returned records; stop on an empty or duplicate page.
+          hasMore: materialResult.ok && materialItems.length > 0,
           loadingMore: false,
           message: materialResult.ok ? '' : getResultMessage(materialResult, '素材加载失败'),
         },
@@ -4228,7 +4230,7 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
         page: nextPage,
         page_size: isMaterial ? MATERIAL_PAGE_SIZE : TEMPLATE_PAGE_SIZE,
         pageSize: isMaterial ? MATERIAL_PAGE_SIZE : TEMPLATE_PAGE_SIZE,
-        ...(isMaterial ? { limit: MATERIAL_PAGE_SIZE } : { scene: templateScene }),
+        ...(isMaterial ? { limit: MATERIAL_PAGE_SIZE, include_total: 0 } : { scene: templateScene }),
         ...(paging.cursor ? (isMaterial ? { start_cursor: paging.cursor } : { sid: paging.cursor }) : {}),
       },
       timeoutMs: 12000,
@@ -4250,9 +4252,9 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
         page: result.ok ? nextPage : current[type].page,
         cursor: result.ok ? nextCursor : current[type].cursor,
         hasMore: result.ok
-          ? uniqueItems.length > 0 && (isMaterial
-            ? getMaterialHasMore({ result, cursor: paging.cursor, list: rawItems, page: nextPage })
-            : getTemplateHasMore({ result, cursor: paging.cursor, list: rawItems, page: nextPage }))
+          ? (isMaterial
+            ? uniqueItems.length > 0
+            : uniqueItems.length > 0 && getTemplateHasMore({ result, cursor: paging.cursor, list: rawItems, page: nextPage }))
           : current[type].hasMore,
         loadingMore: false,
         message: result.ok ? '' : getResultMessage(result, isMaterial ? '素材加载失败，请重试' : '模板加载失败，请重试'),
