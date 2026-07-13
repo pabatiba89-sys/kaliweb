@@ -3921,6 +3921,7 @@ const getCreatorInitialState = (usePrefill) => {
   const shanjian = videoObject(detail.shanjianData || detail.shanjian_data || draft.shanjianData || draft.shanjian_data);
   const speakerExtra = videoObject(detail.speakerExtra || detail.speaker_extra || shanjian.speakerExtra || shanjian.speaker_extra);
   const coverUrl = getApiMediaUrl(videoText(draft.coverUrl, draft.cover, detail.coverUrl, detail.cover_url, detail.cover));
+  const humanPreviewUrl = getApiMediaUrl(videoText(draft.humanPreviewUrl, detail.humanPreviewUrl, detail.human_preview_url));
   const materialSource = [draft.materials, detail.materials, shanjian.materials].find(Array.isArray) || [];
   const materials = materialSource.map((item, index) => {
     const source = videoObject(item);
@@ -3947,7 +3948,7 @@ const getCreatorInitialState = (usePrefill) => {
       human: {
         id: videoText(draft.humanId, draft.aiHumanId, draft.virtualmanId, detail.aiHumanId, detail.ai_human_id, detail.virtualmanId, shanjian.aiHumanId, shanjian.virtualmanId),
         title: videoText(draft.humanName, draft.aiHumanName, draft.virtualmanName, detail.aiHumanName, detail.ai_human_name, detail.virtualmanName),
-        cover: getApiMediaUrl(videoText(draft.humanPreviewUrl, detail.humanPreviewUrl, detail.human_preview_url)),
+        cover: humanPreviewUrl,
       },
       voice: {
         id: videoText(draft.voiceId, draft.speakerId, detail.voiceId, detail.voice_id, detail.speakerId, shanjian.speakerId),
@@ -3970,7 +3971,7 @@ const getCreatorInitialState = (usePrefill) => {
         audioUrl: getApiMediaUrl(videoText(draft.bgmusic, draft.bgMusic, detail.bgmusic?.url, detail.bgMusic, shanjian.bgmusic?.url)),
       },
     },
-    cover: coverUrl ? { title: '当前封面', url: coverUrl, previewUrl: coverUrl, origin: 'remote' } : null,
+    cover: coverUrl ? { title: '当前封面', url: coverUrl, previewUrl: coverUrl, origin: coverUrl === humanPreviewUrl ? 'human' : 'remote' } : null,
     materials,
     draftId: videoText(draft.draftRecordId, draft.draft_id, draft.id, detail.draftRecordId, detail.id),
   };
@@ -4196,7 +4197,7 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
         const defaultPreset = presets.filter((item) => item.isDefault);
         if (!result.human.id && !result.voice.id && !result.videoTemplate.id && !result.coverTemplate.id && defaultPreset.length === 1) {
           Object.assign(result, { human: defaultPreset[0].human, voice: defaultPreset[0].voice, videoTemplate: defaultPreset[0].videoTemplate, coverTemplate: defaultPreset[0].coverTemplate });
-          if (!cover && defaultPreset[0].human.cover) setCover({ title: `${defaultPreset[0].human.title || '数字人'}封面`, url: defaultPreset[0].human.cover, previewUrl: defaultPreset[0].human.cover, origin: 'remote' });
+          if (!cover && defaultPreset[0].human.cover) setCover({ title: `${defaultPreset[0].human.title || '数字人'}封面`, url: defaultPreset[0].human.cover, previewUrl: defaultPreset[0].human.cover, origin: 'human', humanId: defaultPreset[0].human.id });
           return result;
         }
         if (!result.human.id && humans.length === 1) result.human = humans[0];
@@ -4276,12 +4277,22 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
       });
       return;
     }
+    const syncHumanCover = (human) => {
+      setCover((current) => {
+        const currentUrl = current?.url || current?.previewUrl || '';
+        const previousHumanCover = selected.human?.cover || '';
+        const followsHuman = !current || current.origin === 'human' || (previousHumanCover && currentUrl === previousHumanCover);
+        if (!followsHuman) return current;
+        if (!human?.cover) return null;
+        return { title: `${human.title || '数字人'}封面`, url: human.cover, previewUrl: human.cover, origin: 'human', humanId: human.id };
+      });
+    };
     if (type === 'preset') {
       setSelected((current) => ({ ...current, human: option.human, voice: option.voice, videoTemplate: option.videoTemplate, coverTemplate: option.coverTemplate }));
-      if (!cover && option.human.cover) setCover({ title: `${option.human.title || '数字人'}封面`, url: option.human.cover, previewUrl: option.human.cover, origin: 'remote' });
+      syncHumanCover(option.human);
     } else {
       setSelected((current) => ({ ...current, [type]: option }));
-      if (type === 'human' && !cover && option.cover) setCover({ title: `${option.title}封面`, url: option.cover, previewUrl: option.cover, origin: 'remote' });
+      if (type === 'human') syncHumanCover(option);
     }
     setDialogType('');
   };
