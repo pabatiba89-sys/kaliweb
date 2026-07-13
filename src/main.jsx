@@ -4099,6 +4099,7 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
   const [resourcePaging, setResourcePaging] = useState({
     videoTemplate: { page: 1, cursor: '', hasMore: false, loadingMore: false, message: '' },
     coverTemplate: { page: 1, cursor: '', hasMore: false, loadingMore: false, message: '' },
+    material: { page: 1, cursor: '', hasMore: false, loadingMore: false, message: '' },
   });
   const [loadingResources, setLoadingResources] = useState(false);
   const [dialogType, setDialogType] = useState('');
@@ -4107,7 +4108,7 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
   const [uploadProgress, setUploadProgress] = useState('');
   const coverRef = useRef(cover);
   const materialsRef = useRef(materials);
-  const templateLoadingRef = useRef({ videoTemplate: false, coverTemplate: false });
+  const resourceLoadingRef = useRef({ videoTemplate: false, coverTemplate: false, material: false });
   const token = getAccessToken();
 
   const updateForm = (key, value) => setForm((current) => ({ ...current, [key]: value }));
@@ -4133,7 +4134,7 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
         apiFetch('/api/ai-voice/common-list', { params: { page: 1, page_size: 50 }, timeoutMs: 12000 }),
         apiFetch('/api/shanjian/video-templates', { auth: false, params: { page: 1, page_size: 100, scene: templateScene }, timeoutMs: 12000 }),
         apiFetch('/api/shanjian/cover-templates', { auth: false, params: { page: 1, page_size: 100, scene: templateScene }, timeoutMs: 12000 }),
-        apiFetch('/api/material/list', { params: { page: 1, page_size: 100 }, timeoutMs: 12000 }),
+        apiFetch('/api/material/list', { params: { page: 1, page_size: MATERIAL_PAGE_SIZE, pageSize: MATERIAL_PAGE_SIZE, limit: MATERIAL_PAGE_SIZE }, timeoutMs: 12000 }),
         apiFetch('/api/music/generated', { params: { page: 1, page_size: 50 }, timeoutMs: 12000 }),
         isMixed ? Promise.resolve({ ok: true, data: {}, raw: {} }) : apiFetch('/api/user/info', { timeoutMs: 10000 }),
       ]);
@@ -4154,12 +4155,13 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
       if (ignore) return;
       const videoTemplateItems = getCreatorPayloadList(videoTemplates);
       const coverTemplateItems = getCreatorPayloadList(coverTemplates);
+      const materialItems = toList(materialResult.data);
       const next = {
         human: humans,
         voice: voices,
         videoTemplate: videoTemplateItems.map((item, index) => normalizeTemplate(item, index, isMixed ? '混剪剪辑模板' : '视频包装')),
         coverTemplate: coverTemplateItems.map((item, index) => normalizeTemplate(item, index, '封面包装')),
-        material: getCreatorPayloadList(materialResult).map(normalizeMaterial).filter((item) => item.url),
+        material: materialItems.map(normalizeMaterial).filter((item) => item.url),
         music,
         preset: presets,
       };
@@ -4178,6 +4180,13 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
           hasMore: coverTemplates.ok && getTemplateHasMore({ result: coverTemplates, cursor: '', list: coverTemplateItems, page: 1 }),
           loadingMore: false,
           message: coverTemplates.ok ? '' : getResultMessage(coverTemplates, '封面模板加载失败'),
+        },
+        material: {
+          page: 1,
+          cursor: getMaterialNextCursor(materialResult),
+          hasMore: materialResult.ok && getMaterialHasMore({ result: materialResult, cursor: '', list: materialItems, page: 1 }),
+          loadingMore: false,
+          message: materialResult.ok ? '' : getResultMessage(materialResult, '素材加载失败'),
         },
       });
       setSelected((current) => {
@@ -4198,35 +4207,39 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
     return () => { ignore = true; };
   }, [authVersion, token, isMixed, templateScene]);
 
-  const loadMoreCreatorTemplates = async (type) => {
-    if (!['videoTemplate', 'coverTemplate'].includes(type)) return;
+  const loadMoreCreatorResources = async (type) => {
+    if (!['videoTemplate', 'coverTemplate', 'material'].includes(type)) return;
     const paging = resourcePaging[type];
-    if (!paging?.hasMore || paging.loadingMore || templateLoadingRef.current[type]) return;
+    if (!paging?.hasMore || paging.loadingMore || resourceLoadingRef.current[type]) return;
 
-    templateLoadingRef.current[type] = true;
+    resourceLoadingRef.current[type] = true;
     setResourcePaging((current) => ({
       ...current,
       [type]: { ...current[type], loadingMore: true, message: '' },
     }));
 
-    const path = type === 'videoTemplate' ? '/api/shanjian/video-templates' : '/api/shanjian/cover-templates';
+    const isMaterial = type === 'material';
+    const path = isMaterial ? '/api/material/list' : type === 'videoTemplate' ? '/api/shanjian/video-templates' : '/api/shanjian/cover-templates';
     const group = type === 'videoTemplate' ? (isMixed ? '混剪剪辑模板' : '视频包装') : '封面包装';
     const nextPage = paging.page + 1;
     const result = await apiFetch(path, {
-      auth: false,
+      auth: isMaterial,
       params: {
         page: nextPage,
-        page_size: TEMPLATE_PAGE_SIZE,
-        scene: templateScene,
-        ...(paging.cursor ? { sid: paging.cursor } : {}),
+        page_size: isMaterial ? MATERIAL_PAGE_SIZE : TEMPLATE_PAGE_SIZE,
+        pageSize: isMaterial ? MATERIAL_PAGE_SIZE : TEMPLATE_PAGE_SIZE,
+        ...(isMaterial ? { limit: MATERIAL_PAGE_SIZE } : { scene: templateScene }),
+        ...(paging.cursor ? (isMaterial ? { start_cursor: paging.cursor } : { sid: paging.cursor }) : {}),
       },
       timeoutMs: 12000,
     });
-    const rawItems = getCreatorPayloadList(result);
-    const normalized = rawItems.map((item, index) => normalizeTemplate(item, resources[type].length + index, group));
+    const rawItems = isMaterial ? toList(result.data) : getCreatorPayloadList(result);
+    const normalized = rawItems
+      .map((item, index) => isMaterial ? normalizeMaterial(item, resources[type].length + index) : normalizeTemplate(item, resources[type].length + index, group))
+      .filter((item) => !isMaterial || item.url);
     const existingIds = new Set(resources[type].map((item) => String(item.id)));
     const uniqueItems = normalized.filter((item) => !existingIds.has(String(item.id)));
-    const nextCursor = getTemplateNextCursor(result);
+    const nextCursor = isMaterial ? getMaterialNextCursor(result) : getTemplateNextCursor(result);
 
     if (result.ok && uniqueItems.length) {
       setResources((current) => ({ ...current, [type]: current[type].concat(uniqueItems) }));
@@ -4237,13 +4250,15 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
         page: result.ok ? nextPage : current[type].page,
         cursor: result.ok ? nextCursor : current[type].cursor,
         hasMore: result.ok
-          ? uniqueItems.length > 0 && getTemplateHasMore({ result, cursor: paging.cursor, list: rawItems, page: nextPage })
+          ? uniqueItems.length > 0 && (isMaterial
+            ? getMaterialHasMore({ result, cursor: paging.cursor, list: rawItems, page: nextPage })
+            : getTemplateHasMore({ result, cursor: paging.cursor, list: rawItems, page: nextPage }))
           : current[type].hasMore,
         loadingMore: false,
-        message: result.ok ? '' : getResultMessage(result, '模板加载失败，请重试'),
+        message: result.ok ? '' : getResultMessage(result, isMaterial ? '素材加载失败，请重试' : '模板加载失败，请重试'),
       },
     }));
-    templateLoadingRef.current[type] = false;
+    resourceLoadingRef.current[type] = false;
   };
 
   const chooseResource = (type, option) => {
@@ -4434,7 +4449,7 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
           <aside className="video-creator-summary"><span>PRODUCTION SUMMARY</span><h2>制作确认</h2><dl><div><dt>标题</dt><dd>{form.title || '未填写'}</dd></div>{!isMixed && <div><dt>数字人</dt><dd>{selected.human.title || '未选择'}</dd></div>}<div><dt>声音</dt><dd>{selected.voice.title || '未选择'}</dd></div><div><dt>{isMixed ? '混剪模板' : '视频包装'}</dt><dd>{selected.videoTemplate.title || '未选择'}</dd></div><div><dt>封面包装</dt><dd>{selected.coverTemplate.title || '未选择'}</dd></div><div><dt>背景音乐</dt><dd>{selected.music.title || '未选择'}</dd></div><div><dt>素材</dt><dd>{materials.length} 个 / {formatDuration(materialDuration)}</dd></div></dl>{uploadProgress && <div className="video-creator-uploading"><RefreshCw className="is-spinning" size={17} />{uploadProgress}</div>}{message && <div className={`video-list-message ${/失败|请|不能|未返回|最多/.test(message) ? 'is-error' : ''}`}>{message}</div>}<div className="video-creator-submit"><button className="outline-button" onClick={() => submit(true)} disabled={Boolean(busy)}>{busy === 'draft' ? '暂存中…' : '暂存'}</button><button className="primary-button" onClick={() => submit(false)} disabled={Boolean(busy)}><Sparkles size={17} />{busy === 'submit' ? '提交中…' : '提交制作'}</button></div><p>提交后会进入制作队列，可在 Video Studio 查看进度。</p></aside>
         </div>
       </>}
-      {dialogType && <VideoCreatorDialog type={dialogType} titleOverride={isMixed && dialogType === 'videoTemplate' ? '选择混剪剪辑模板' : ''} options={resources[dialogType] || []} selected={dialogType === 'material' ? materials : selected[dialogType]} loading={loadingResources} hasMore={resourcePaging[dialogType]?.hasMore || false} loadingMore={resourcePaging[dialogType]?.loadingMore || false} loadMessage={resourcePaging[dialogType]?.message || ''} onClose={() => setDialogType('')} onSelect={(option) => chooseResource(dialogType, option)} onLoadMore={() => loadMoreCreatorTemplates(dialogType)} />}
+      {dialogType && <VideoCreatorDialog type={dialogType} titleOverride={isMixed && dialogType === 'videoTemplate' ? '选择混剪剪辑模板' : ''} options={resources[dialogType] || []} selected={dialogType === 'material' ? materials : selected[dialogType]} loading={loadingResources} hasMore={resourcePaging[dialogType]?.hasMore || false} loadingMore={resourcePaging[dialogType]?.loadingMore || false} loadMessage={resourcePaging[dialogType]?.message || ''} onClose={() => setDialogType('')} onSelect={(option) => chooseResource(dialogType, option)} onLoadMore={() => loadMoreCreatorResources(dialogType)} />}
     </div>
   );
 }
