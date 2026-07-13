@@ -4362,24 +4362,33 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
     if (validation) { setMessage(validation); return; }
     setBusy(isDraft ? 'draft' : 'submit');
     setMessage('');
+    let savedUploadCount = 0;
     try {
       let coverUrl = cover?.url || '';
-      if (cover?.file) {
+      if (cover?.file && !coverUrl) {
         setUploadProgress('正在上传封面…');
         const result = await uploadFile(cover.file, { source: 'cover' });
         if (!result.ok) throw new Error(getResultMessage(result, '封面上传失败'));
         coverUrl = getUploadedUrl(result);
         if (!coverUrl) throw new Error('封面上传未返回地址');
+        savedUploadCount += 1;
+        setCover((current) => current?.file === cover.file ? { ...current, url: coverUrl, uploaded: true } : current);
       }
       const submitMaterials = [];
+      const pendingMaterialCount = materials.filter((item) => item.file && !item.url).length;
+      let pendingMaterialIndex = 0;
       for (let index = 0; index < materials.length; index += 1) {
         const material = materials[index];
         let url = material.url || '';
-        if (material.file) {
-          setUploadProgress(`正在上传素材 ${index + 1}/${materials.length}…`);
+        if (material.file && !url) {
+          pendingMaterialIndex += 1;
+          setUploadProgress(`正在上传未完成素材 ${pendingMaterialIndex}/${pendingMaterialCount}…`);
           const result = await uploadFile(material.file, { source: 'material' });
           if (!result.ok) throw new Error(`${material.title}：${getResultMessage(result, '上传失败')}`);
           url = getUploadedUrl(result);
+          if (!url) throw new Error(`${material.title} 上传未返回地址`);
+          savedUploadCount += 1;
+          setMaterials((current) => current.map((item) => item.id === material.id ? { ...item, url, uploaded: true } : item));
         }
         if (!url) throw new Error(`${material.title} 上传未返回地址`);
         const submitUrl = material.type === 'image' && !url.includes('imageView2/') ? `${url}${url.includes('?') ? '&' : '?'}imageView2/0/w/1980/h/1980/format/copy/ignore-error/1` : url;
@@ -4434,7 +4443,8 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
         window.setTimeout(onCreated, 650);
       }
     } catch (error) {
-      setMessage(error.message || (isDraft ? '暂存失败' : '提交失败'));
+      const reason = error.message || (isDraft ? '暂存失败' : '提交失败');
+      setMessage(savedUploadCount ? `${reason}；已保留 ${savedUploadCount} 个成功上传，下次仅重试未完成内容` : reason);
     } finally {
       setBusy('');
       setUploadProgress('');
