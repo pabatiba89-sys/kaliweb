@@ -3710,7 +3710,8 @@ function VideoStudioPage({ authVersion, onLogin, onNewVideo }) {
   };
 
   const remakeVideo = (video) => {
-    const draft = { draftRecordId: video.publishId || video.id, id: video.publishId || video.id, productionType: isMixedVideo ? 'mix' : 'oral', source: 'videoDetailRemake', detail: video.raw, title: video.title, topic: video.topic, script: video.script, content: video.script, createdAt: Date.now() };
+    const continuationId = video.canContinueDraft ? video.publishId || video.id : '';
+    const draft = { ...(continuationId ? { draftRecordId: continuationId, id: continuationId } : {}), productionType: isMixedVideo ? 'mix' : 'oral', source: video.canContinueDraft ? 'videoDetailDraft' : 'videoDetailRemake', status: video.status.key, detail: video.raw, title: video.title, topic: video.topic, script: video.script, content: video.script, createdAt: Date.now() };
     window.localStorage.setItem(VIDEO_PREFILL_KEY, JSON.stringify(draft));
     onNewVideo({ prefill: true, productionType: isMixedVideo ? 'mix' : 'oral' });
   };
@@ -3915,6 +3916,35 @@ const getCreatorRawDraft = (usePrefill) => {
   }
 };
 
+const getCreatorMaterialsJsonList = (...values) => {
+  const visit = (value, depth = 0) => {
+    if (value === undefined || value === null || value === '' || depth > 6) return [];
+    if (typeof value === 'string') {
+      try {
+        return visit(JSON.parse(value), depth + 1);
+      } catch {
+        return [];
+      }
+    }
+    if (Array.isArray(value)) return value;
+    if (typeof value !== 'object') return [];
+    for (const key of ['materials', 'materialList', 'material_list']) {
+      const nested = visit(value[key], depth + 1);
+      if (nested.length) return nested;
+    }
+    for (const key of ['draft_payload', 'draftPayload', 'shanjianData', 'shanjian_data', 'data', 'payload']) {
+      const nested = visit(value[key], depth + 1);
+      if (nested.length) return nested;
+    }
+    return [];
+  };
+  for (const value of values) {
+    const list = visit(value);
+    if (list.length) return list;
+  }
+  return [];
+};
+
 const getCreatorInitialState = (usePrefill) => {
   const draft = getCreatorRawDraft(usePrefill);
   const detail = videoObject(draft.detail || draft.raw || draft);
@@ -3922,10 +3952,18 @@ const getCreatorInitialState = (usePrefill) => {
   const speakerExtra = videoObject(detail.speakerExtra || detail.speaker_extra || shanjian.speakerExtra || shanjian.speaker_extra);
   const coverUrl = getApiMediaUrl(videoText(draft.coverUrl, draft.cover, detail.coverUrl, detail.cover_url, detail.cover));
   const humanPreviewUrl = getApiMediaUrl(videoText(draft.humanPreviewUrl, detail.humanPreviewUrl, detail.human_preview_url));
-  const materialSource = [draft.materials, detail.materials, shanjian.materials].find(Array.isArray) || [];
+  const materialSource = getCreatorMaterialsJsonList(
+    draft.materials_json,
+    draft.materialsJson,
+    detail.materials_json,
+    detail.materialsJson,
+    draft.materials,
+    detail.materials,
+    shanjian.materials,
+  );
   const materials = materialSource.map((item, index) => {
     const source = videoObject(item);
-    const url = getApiMediaUrl(videoText(source.fileUrl, source.file_url, source.url, source.path));
+    const url = getApiMediaUrl(getMaterialUrl(source));
     const type = getMaterialType({ ...source, url });
     return {
       id: videoText(source.id, source.materialId, source.material_id, url, `prefill-${index}`),
@@ -3937,6 +3975,8 @@ const getCreatorInitialState = (usePrefill) => {
       origin: 'library',
     };
   }).filter((item) => item.url);
+  const prefillStatus = normalizeStatus(getVideoStatusValue({ ...detail, ...draft }));
+  const isFailedPrefill = prefillStatus.key === 'failed' || draft.source === 'videoDetailRemake';
 
   return {
     form: {
@@ -3973,7 +4013,7 @@ const getCreatorInitialState = (usePrefill) => {
     },
     cover: coverUrl ? { title: '当前封面', url: coverUrl, previewUrl: coverUrl, origin: coverUrl === humanPreviewUrl ? 'human' : 'remote' } : null,
     materials,
-    draftId: videoText(draft.draftRecordId, draft.draft_id, draft.id, detail.draftRecordId, detail.id),
+    draftId: isFailedPrefill ? '' : videoText(draft.draftRecordId, draft.draft_id, draft.id, detail.draftRecordId, detail.id),
   };
 };
 
