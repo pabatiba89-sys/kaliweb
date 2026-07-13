@@ -289,42 +289,36 @@ const supportCards = [
     title: '数字人与声音',
     icon: Layers3,
     color: '#64748b',
-    image: '/yixiu-assets/digital-human.png',
   },
   {
     id: 'materials',
     title: '素材库',
     icon: Library,
     color: '#0e8fbd',
-    image: '/yixiu-assets/asset-management.png',
   },
   {
     id: 'templates',
     title: '视频模板',
     icon: GalleryVerticalEnd,
     color: '#6d4dc2',
-    image: '/yixiu-assets/video-template.png',
   },
   {
     id: 'music',
     title: '音乐',
     icon: Music2,
     color: '#a05b12',
-    image: '/yixiu-assets/ai-music.png',
   },
   {
     id: 'image',
     title: '图片',
     icon: Image,
     color: '#bf4652',
-    image: '/yixiu-assets/ai-image.png',
   },
   {
     id: 'billing',
     title: '套餐与额度',
     icon: CircleDollarSign,
     color: '#9a6a2f',
-    image: '/yixiu-assets/trial-video.jpg',
   },
 ];
 
@@ -707,7 +701,7 @@ function SupportGrid({ active, onSelect }) {
               onClick={() => onSelect(card.id)}
             >
               <span className="action-card__media">
-                <img src={card.image} alt="" />
+                <Icon size={24} />
               </span>
               <span className="action-card__body">
                 <span className="action-card__icon">

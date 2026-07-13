@@ -3473,17 +3473,16 @@ html[dir="rtl"] .legal-back-button svg {
   width: 100%;
   max-width: 100%;
   min-width: 0;
-  min-height: 142px;
-  padding: 10px;
+  min-height: 76px;
+  padding: 12px 42px 12px 12px;
   border: 1px solid var(--line);
-  border-radius: 22px;
+  border-radius: 18px;
   background: #fff;
   color: var(--ink);
   text-align: left;
-  display: flex;
   display: grid;
   grid-template-columns: 48px minmax(0, 1fr);
-  align-content: start;
+  align-items: center;
   gap: 10px;
   overflow: hidden;
   box-shadow: 0 12px 28px rgba(24, 62, 53, 0.06);
@@ -3499,21 +3498,16 @@ html[dir="rtl"] .legal-back-button svg {
   height: 48px;
   border-radius: 13px;
   background: color-mix(in srgb, var(--card-accent), white 86%);
+  color: color-mix(in srgb, var(--card-accent), #17342f 18%);
   display: grid;
   place-items: center;
-}
-
-.action-card__media img {
-  width: 34px;
-  height: 34px;
-  object-fit: contain;
 }
 
 .action-card__body {
   min-width: 0;
   display: grid;
   gap: 8px;
-  padding: 0 18px 0 0;
+  padding: 0;
 }
 
 .action-card__icon {
@@ -3521,15 +3515,19 @@ html[dir="rtl"] .legal-back-button svg {
 }
 
 .action-card strong {
-  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 15px;
   line-height: 1.2;
 }
 
 .action-card__arrow {
   position: absolute;
-  right: 10px;
-  bottom: 10px;
+  right: 14px;
+  top: 50%;
   color: color-mix(in srgb, var(--card-accent), #17342f 22%);
+  transform: translateY(-50%);
 }
 
 .preview-panel,
@@ -9684,7 +9682,7 @@ video.media-preview {
   .action-card {
     width: 100%;
     max-width: 100%;
-    min-height: 112px;
+    min-height: 72px;
     display: grid;
     grid-template-columns: 48px minmax(0, 1fr);
     gap: 10px;
@@ -9700,7 +9698,6 @@ video.media-preview {
 
   .action-card__arrow {
     right: 14px;
-    bottom: 14px;
   }
 
   .preview-panel,
