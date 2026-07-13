@@ -7114,6 +7114,105 @@ video.media-preview {
   font-weight: 760;
 }
 
+.form-message.is-error {
+  background: #fff7f7;
+  color: #b83b4a;
+}
+
+.password-reset-page {
+  min-height: calc(100vh - 110px);
+  padding: clamp(18px, 4vw, 42px);
+  display: grid;
+  place-items: center;
+}
+
+.password-reset-card {
+  width: min(520px, 100%);
+  padding: clamp(24px, 4vw, 38px);
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 22px 58px rgba(24, 62, 53, 0.1);
+  display: grid;
+  align-content: start;
+  gap: 14px;
+}
+
+.password-reset-back {
+  width: max-content;
+  min-height: 38px;
+  margin-bottom: 6px;
+  padding: 0 10px;
+  border-radius: 12px;
+  background: #eef8f2;
+  color: var(--green-dark);
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.password-reset-icon {
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+  background: #e6f8ef;
+  color: var(--green-dark);
+  display: grid;
+  place-items: center;
+}
+
+.password-reset-card > span {
+  margin-top: 4px;
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+}
+
+.password-reset-card h1 {
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(34px, 5vw, 48px);
+  line-height: 1;
+}
+
+.password-reset-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.password-reset-form {
+  margin-top: 8px;
+  display: grid;
+  gap: 14px;
+}
+
+.password-reset-form label {
+  display: grid;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 760;
+}
+
+.password-reset-form input {
+  min-width: 0;
+  width: 100%;
+  height: 46px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  outline: 0;
+}
+
+.password-reset-form .primary-button {
+  width: 100%;
+}
+
 .settings-page {
   min-height: calc(100vh - 110px);
   display: grid;

@@ -6567,30 +6567,56 @@ function Workflow({ language }) {
   );
 }
 
-function LoginModal({ open, onClose, onSuccess, onOpenInfo }) {
+function PasswordResetPage({ initialEmail = '', onBackToLogin }) {
+  const [email, setEmail] = useState(initialEmail);
+  const [status, setStatus] = useState({ loading: false, message: '' });
+
+  const submit = async (event) => {
+    event.preventDefault();
+    setStatus({ loading: true, message: '' });
+    const result = await requestPasswordReset({ email });
+    setStatus({
+      loading: false,
+      message: result.ok ? 'Password reset instructions have been sent if this email is registered.' : result.message || 'Password reset failed',
+    });
+  };
+
+  return (
+    <div className="password-reset-page">
+      <section className="password-reset-card">
+        <button className="password-reset-back" type="button" onClick={onBackToLogin}>
+          <ArrowLeft size={17} />
+          Back to sign in
+        </button>
+        <div className="password-reset-icon"><KeyRound size={28} /></div>
+        <span>ACCOUNT SECURITY</span>
+        <h1>Reset password</h1>
+        <p>Enter your account email and we will send password reset instructions.</p>
+        <form className="password-reset-form" onSubmit={submit}>
+          <label>
+            <span>Email</span>
+            <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
+          </label>
+          {status.message && <div className={`form-message ${status.message.includes('failed') ? 'is-error' : ''}`}>{status.message}</div>}
+          <button className="primary-button" disabled={status.loading}>
+            <Mail size={17} />
+            {status.loading ? 'Sending' : 'Send reset email'}
+          </button>
+        </form>
+      </section>
+    </div>
+  );
+}
+
+function LoginModal({ open, onClose, onSuccess, onOpenInfo, onForgotPassword }) {
   const [form, setForm] = useState({ email: '', password: '', nickname: '', autoCreate: true, agreement: false });
-  const [mode, setMode] = useState('login');
   const [status, setStatus] = useState({ loading: false, message: '' });
 
   if (!open) return null;
 
   const update = (key, value) => setForm((current) => ({ ...current, [key]: value }));
-  const switchMode = (nextMode) => {
-    setMode(nextMode);
-    setStatus({ loading: false, message: '' });
-  };
   const submit = async (event) => {
     event.preventDefault();
-
-    if (mode === 'forgot') {
-      setStatus({ loading: true, message: '' });
-      const result = await requestPasswordReset({ email: form.email });
-      setStatus({
-        loading: false,
-        message: result.ok ? 'Password reset instructions have been sent if this email is registered.' : result.message || 'Password reset failed',
-      });
-      return;
-    }
 
     if (!form.agreement) {
       setStatus({ loading: false, message: '请先阅读并同意用户服务协议和隐私政策' });
@@ -6610,59 +6636,55 @@ function LoginModal({ open, onClose, onSuccess, onOpenInfo }) {
   };
 
   return (
-    <div className="modal-layer" role="dialog" aria-modal="true" aria-label={mode === 'forgot' ? 'Reset password' : 'Email login'}>
+    <div className="modal-layer" role="dialog" aria-modal="true" aria-label="Email login">
       <form className="modal-card login-card" onSubmit={submit}>
         <button type="button" className="modal-close" onClick={onClose} aria-label="Close">
           <X size={18} />
         </button>
-        <h2>{mode === 'forgot' ? 'Reset password' : 'Email login'}</h2>
-        <p>{mode === 'forgot' ? 'Enter your account email and we will send password reset instructions.' : 'Use your email and password to access the workspace.'}</p>
+        <h2>Email login</h2>
+        <p>Use your email and password to access the workspace.</p>
         <div className="modal-grid login-grid">
           <label>
             <span>Email</span>
             <input type="email" value={form.email} onChange={(event) => update('email', event.target.value)} required />
           </label>
-          {mode === 'login' && (
-            <>
-              <label>
-                <span>Password</span>
-                <input
-                  type="password"
-                  value={form.password}
-                  onChange={(event) => update('password', event.target.value)}
-                  required
-                />
-              </label>
-              <div className="login-inline-action">
-                <button type="button" onClick={() => switchMode('forgot')}>Forgot password?</button>
-              </div>
-              <label>
-                <span>Nickname</span>
-                <input value={form.nickname} onChange={(event) => update('nickname', event.target.value)} placeholder="Optional" />
-              </label>
-              <label className="checkbox-row">
-                <input
-                  type="checkbox"
-                  checked={form.autoCreate}
-                  onChange={(event) => update('autoCreate', event.target.checked)}
-                />
-                <span>Auto-create account on first login</span>
-              </label>
-              <div className="login-consent-row">
-                <label><input type="checkbox" checked={form.agreement} onChange={(event) => update('agreement', event.target.checked)} /><span>我已阅读并同意</span></label>
-                <span><button type="button" onClick={() => onOpenInfo('legal-user')}>《用户服务协议》</button>与<button type="button" onClick={() => onOpenInfo('legal-privacy')}>《隐私政策》</button></span>
-              </div>
-            </>
-          )}
+          <label>
+            <span>Password</span>
+            <input
+              type="password"
+              value={form.password}
+              onChange={(event) => update('password', event.target.value)}
+              required
+            />
+          </label>
+          <div className="login-inline-action">
+            <button type="button" onClick={() => onForgotPassword(form.email)}>Forgot password?</button>
+          </div>
+          <label>
+            <span>Nickname</span>
+            <input value={form.nickname} onChange={(event) => update('nickname', event.target.value)} placeholder="Optional" />
+          </label>
+          <label className="checkbox-row">
+            <input
+              type="checkbox"
+              checked={form.autoCreate}
+              onChange={(event) => update('autoCreate', event.target.checked)}
+            />
+            <span>Auto-create account on first login</span>
+          </label>
+          <div className="login-consent-row">
+            <label><input type="checkbox" checked={form.agreement} onChange={(event) => update('agreement', event.target.checked)} /><span>我已阅读并同意</span></label>
+            <span><button type="button" onClick={() => onOpenInfo('legal-user')}>《用户服务协议》</button>与<button type="button" onClick={() => onOpenInfo('legal-privacy')}>《隐私政策》</button></span>
+          </div>
         </div>
         {status.message && <div className="form-message">{status.message}</div>}
         <div className="modal-actions">
-          <button type="button" className="outline-button" onClick={mode === 'forgot' ? () => switchMode('login') : onClose}>
-            {mode === 'forgot' ? 'Back to sign in' : 'Cancel'}
+          <button type="button" className="outline-button" onClick={onClose}>
+            Cancel
           </button>
-          <button type="submit" className="primary-button" disabled={status.loading || (mode === 'login' && !form.agreement)}>
-            {mode === 'forgot' ? <Mail size={17} /> : <UserRound size={17} />}
-            {status.loading ? (mode === 'forgot' ? 'Sending' : 'Signing in') : (mode === 'forgot' ? 'Send reset email' : 'Sign in')}
+          <button type="submit" className="primary-button" disabled={status.loading || !form.agreement}>
+            <UserRound size={17} />
+            {status.loading ? 'Signing in' : 'Sign in'}
           </button>
         </div>
       </form>
@@ -6671,6 +6693,12 @@ function LoginModal({ open, onClose, onSuccess, onOpenInfo }) {
 }
 
 const NOTIFICATION_POLL_MS = 60 * 1000;
+
+const getInitialWorkspacePage = () => {
+  if (typeof window === 'undefined') return 'home';
+  const page = new URLSearchParams(window.location.search).get('page');
+  return page === 'password-reset' ? 'password-reset' : 'home';
+};
 
 const getNotificationDateValue = (raw = {}) => pick(
   raw.updated_at,
@@ -6892,7 +6920,7 @@ function useTaskNotifications({ authed, authVersion }) {
 
 export default function App() {
   const [language, setLanguage] = useState(getInitialLocale);
-  const [active, setActive] = useState('home');
+  const [active, setActive] = useState(getInitialWorkspacePage);
   const [collapsed, setCollapsed] = useState(false);
   const [mobileNav, setMobileNav] = useState(false);
   const [videoCreatorOpen, setVideoCreatorOpen] = useState(false);
@@ -6900,6 +6928,7 @@ export default function App() {
   const [videoCreatorType, setVideoCreatorType] = useState('oral');
   const [videoCreatorReturn, setVideoCreatorReturn] = useState({ active: 'video', generator: null });
   const [loginOpen, setLoginOpen] = useState(false);
+  const [passwordResetEmail, setPasswordResetEmail] = useState('');
   const [authVersion, setAuthVersion] = useState(0);
   const [agentVersion, setAgentVersion] = useState(0);
   const [editorSeed, setEditorSeed] = useState(null);
@@ -6914,10 +6943,20 @@ export default function App() {
   const taskNotifications = useTaskNotifications({ authed, authVersion });
   useAutoTranslate(language);
 
+  const syncWorkspacePageQuery = (id) => {
+    const url = new URL(window.location.href);
+    if (id === 'password-reset') {
+      url.searchParams.set('page', 'password-reset');
+    } else {
+      url.searchParams.delete('page');
+    }
+    window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
+  };
   const selectNav = (id, { preserveHotTopic = false } = {}) => {
     const useHotTopic = id === 'assistant' && preserveHotTopic;
     if (id === 'assistant' && !useHotTopic) window.localStorage.removeItem(HOT_TOPIC_FLOW_KEY);
     setAssistantUsesHotTopic(useHotTopic);
+    syncWorkspacePageQuery(id);
     setActive(id);
     setVideoCreatorOpen(false);
     setVideoCreatorPrefill(false);
@@ -6947,6 +6986,7 @@ export default function App() {
     const nextProductionType = productionType === 'mix' || productionType === 'oral'
       ? productionType
       : storedProductionType === 'mix' ? 'mix' : 'oral';
+    syncWorkspacePageQuery('video');
     setVideoCreatorReturn({
       active: returnTo === 'generator' ? 'assistant' : returnTo,
       generator: returnTo === 'generator' ? generatorAgent : null,
@@ -7001,8 +7041,14 @@ export default function App() {
     setGeneratorAgent(null);
     setImageTrainingSeed(null);
     setAssetInitialMode(item.assetMode || '');
+    syncWorkspacePageQuery(item.destination);
     setActive(item.destination);
     setMobileNav(false);
+  };
+  const openPasswordReset = (email = '') => {
+    setPasswordResetEmail(email);
+    setLoginOpen(false);
+    selectNav('password-reset');
   };
 
   return (
@@ -7050,6 +7096,14 @@ export default function App() {
           )}
           {isPublicInfo ? (
             <PublicInfoPage active={active} onOpen={selectNav} />
+          ) : active === 'password-reset' ? (
+            <PasswordResetPage
+              initialEmail={passwordResetEmail}
+              onBackToLogin={() => {
+                setLoginOpen(true);
+                selectNav('home');
+              }}
+            />
           ) : videoCreatorOpen ? (
             <VideoCreatorPage
               authVersion={authVersion}
@@ -7201,6 +7255,7 @@ export default function App() {
         onClose={() => setLoginOpen(false)}
         onSuccess={refreshAuth}
         onOpenInfo={(id) => { setLoginOpen(false); selectNav(id); }}
+        onForgotPassword={openPasswordReset}
       />
     </div>
   );
