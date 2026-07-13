@@ -3,6 +3,7 @@ const AUTH_KEYS = ['access_token', 'token', 'accessToken'];
 const EMAIL_LOGIN_URL = '/api/user/email_login';
 const AUTH_ENDPOINTS = {
   forgotPassword: ['/api/user/password/forgot', '/api/user/forgot-password', '/api/user/reset-password/request'],
+  resetPassword: ['/api/user/password/reset', '/api/user/password/reset-with-code', '/api/user/reset-password/confirm', '/api/user/reset-password'],
   changePassword: ['/api/user/password/change', '/api/user/change-password', '/api/user/reset-password'],
   sendPhoneCode: ['/api/user/phone/send-code', '/api/user/send-phone-code', '/api/sms/send'],
   bindPhone: ['/api/user/phone/bind', '/api/user/bind-phone', '/api/user/mobile/bind'],
@@ -126,6 +127,23 @@ export async function requestPasswordReset({ email }) {
     auth: false,
     timeoutMs: 10000,
     body: { email },
+  }, 'Password reset is not available yet');
+}
+
+export async function confirmPasswordReset({ email, code, newPassword }) {
+  return apiFetchAny(AUTH_ENDPOINTS.resetPassword, {
+    method: 'POST',
+    auth: false,
+    timeoutMs: 10000,
+    body: {
+      email,
+      code,
+      verificationCode: code,
+      verification_code: code,
+      newPassword,
+      new_password: newPassword,
+      password: newPassword,
+    },
   }, 'Password reset is not available yet');
 }
 

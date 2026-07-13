@@ -56,6 +56,7 @@ import {
   bindPhoneNumber,
   changePassword,
   clearSession,
+  confirmPasswordReset,
   emailLogin,
   getAccessToken,
   requestPasswordReset,
@@ -6569,17 +6570,54 @@ function Workflow({ language }) {
 
 function PasswordResetPage({ initialEmail = '', onBackToLogin }) {
   const [email, setEmail] = useState(initialEmail);
+  const [step, setStep] = useState('request');
+  const [resetForm, setResetForm] = useState({ code: '', newPassword: '', confirmPassword: '' });
   const [status, setStatus] = useState({ loading: false, message: '' });
 
-  const submit = async (event) => {
+  const submitRequest = async (event) => {
     event.preventDefault();
     setStatus({ loading: true, message: '' });
     const result = await requestPasswordReset({ email });
+    if (result.ok) {
+      setStep('confirm');
+      setStatus({
+        loading: false,
+        message: 'Verification code sent.',
+      });
+      return;
+    }
     setStatus({
       loading: false,
-      message: result.ok ? 'Password reset instructions have been sent if this email is registered.' : result.message || 'Password reset failed',
+      message: result.message || 'Password reset failed',
     });
   };
+
+  const submitConfirm = async (event) => {
+    event.preventDefault();
+    if (resetForm.newPassword.length < 8) {
+      setStatus({ loading: false, message: 'New password must be at least 8 characters.' });
+      return;
+    }
+    if (resetForm.newPassword !== resetForm.confirmPassword) {
+      setStatus({ loading: false, message: 'The two new passwords do not match.' });
+      return;
+    }
+    setStatus({ loading: true, message: '' });
+    const result = await confirmPasswordReset({
+      email,
+      code: resetForm.code,
+      newPassword: resetForm.newPassword,
+    });
+    if (result.ok) {
+      setStatus({ loading: false, message: 'Password updated. Please keep your new password safe.' });
+      setResetForm({ code: '', newPassword: '', confirmPassword: '' });
+      return;
+    }
+    setStatus({ loading: false, message: result.message || 'Password reset failed' });
+  };
+
+  const updateResetForm = (key, value) => setResetForm((current) => ({ ...current, [key]: value }));
+  const statusIsError = /failed|fail|match|least|验证码|错误|失效|过期/i.test(status.message);
 
   return (
     <div className="password-reset-page">
@@ -6591,16 +6629,37 @@ function PasswordResetPage({ initialEmail = '', onBackToLogin }) {
         <div className="password-reset-icon"><KeyRound size={28} /></div>
         <span>ACCOUNT SECURITY</span>
         <h1>Reset password</h1>
-        <p>Enter your account email and we will send password reset instructions.</p>
-        <form className="password-reset-form" onSubmit={submit}>
+        <p>{step === 'request' ? 'Enter your account email and we will send password reset instructions.' : 'Verification code'}</p>
+        <form className="password-reset-form" onSubmit={step === 'request' ? submitRequest : submitConfirm}>
           <label>
             <span>Email</span>
-            <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
+            <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} required disabled={step === 'confirm'} />
           </label>
-          {status.message && <div className={`form-message ${status.message.includes('failed') ? 'is-error' : ''}`}>{status.message}</div>}
+          {step === 'confirm' && (
+            <>
+              <label>
+                <span>Verification code</span>
+                <input inputMode="numeric" value={resetForm.code} onChange={(event) => updateResetForm('code', event.target.value.trim())} required />
+              </label>
+              <label>
+                <span>New password</span>
+                <input type="password" minLength={8} value={resetForm.newPassword} onChange={(event) => updateResetForm('newPassword', event.target.value)} required />
+              </label>
+              <label>
+                <span>Confirm new password</span>
+                <input type="password" minLength={8} value={resetForm.confirmPassword} onChange={(event) => updateResetForm('confirmPassword', event.target.value)} required />
+              </label>
+            </>
+          )}
+          {status.message && <div className={`form-message ${statusIsError ? 'is-error' : ''}`}>{status.message}</div>}
+          {step === 'confirm' && (
+            <button type="button" className="outline-button" onClick={submitRequest} disabled={status.loading}>
+              {status.loading ? 'Sending' : 'Send code'}
+            </button>
+          )}
           <button className="primary-button" disabled={status.loading}>
-            <Mail size={17} />
-            {status.loading ? 'Sending' : 'Send reset email'}
+            {step === 'request' ? <Mail size={17} /> : <ShieldCheck size={17} />}
+            {status.loading ? (step === 'request' ? 'Sending' : 'Saving') : (step === 'request' ? 'Send code' : 'Reset password')}
           </button>
         </form>
       </section>
