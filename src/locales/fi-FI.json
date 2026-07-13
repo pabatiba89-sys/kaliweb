@@ -802,7 +802,7 @@
   "团队授权视频": "Joukkueen hyväksytty video",
   "国内产品动态与使用教程": "Kotitaloustuotteiden trendit ja käyttöohjeet",
   "国风": "Guofeng",
-  "图片": "Kuva",
+  "图片": "Kuvat",
   "图片 · 2 秒": "Kuva · 2 sekuntia",
   "图片仅支持 jpg / png / webp": "Kuvat tukevat vain jpg / png / webp",
   "图片仅支持 jpg / png / webp 静态图": "Kuvat tukevat vain jpg / png / webp -staattisia kuvia",
@@ -1509,5 +1509,9 @@
   "Phone binding failed": "Puhelimen liittäminen epäonnistui",
   "Verification code failed": "Vahvistuskoodin lähetys epäonnistui",
   "Saving": "Tallennetaan",
-  "Binding": "Liitetään"
+  "Binding": "Liitetään",
+  "支撑入口": "Tuki",
+  "数字人与声音": "Avatarit ja äänet",
+  "素材库": "Mediakirjasto",
+  "视频模板": "Videomallit"
 }

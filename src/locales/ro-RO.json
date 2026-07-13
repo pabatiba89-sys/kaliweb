@@ -810,7 +810,7 @@
   "团队授权视频": "Video autorizat de echipă",
   "国内产品动态与使用教程": "Tendințe de produse interne și tutoriale de utilizare",
   "国风": "Guofeng",
-  "图片": "Imagine",
+  "图片": "Imagini",
   "图片 · 2 秒": "Imagine · 2 secunde",
   "图片仅支持 jpg / png / webp": "Imaginile suportă doar jpg / png / webp",
   "图片仅支持 jpg / png / webp 静态图": "Imaginile suportă doar imagini statice jpg / png / webp",
@@ -1517,5 +1517,9 @@
   "Phone binding failed": "Legarea telefonului a eșuat",
   "Verification code failed": "Trimiterea codului de verificare a eșuat",
   "Saving": "Se salvează",
-  "Binding": "Se leagă"
+  "Binding": "Se leagă",
+  "支撑入口": "Suport",
+  "数字人与声音": "Avataruri și voci",
+  "素材库": "Bibliotecă media",
+  "视频模板": "Șabloane video"
 }

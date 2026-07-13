@@ -794,7 +794,7 @@
   "团队授权视频": "Týmové autorizované video",
   "国内产品动态与使用教程": "Návody na domácí produkty a využití",
   "国风": "Guofeng",
-  "图片": "Obrázek",
+  "图片": "Obrázky",
   "图片 · 2 秒": "Obrázek · 2 sekundy",
   "图片仅支持 jpg / png / webp": "Obrázky podporují pouze jpg / png / webp",
   "图片仅支持 jpg / png / webp 静态图": "Obrázky podporují pouze statické obrázky jpg / png / webp",
@@ -1503,5 +1503,9 @@
   "Phone binding failed": "Připojení telefonu selhalo",
   "Verification code failed": "Odeslání ověřovacího kódu selhalo",
   "Saving": "Ukládání",
-  "Binding": "Připojování"
+  "Binding": "Připojování",
+  "支撑入口": "Podpora",
+  "数字人与声音": "Avataři a hlasy",
+  "素材库": "Knihovna médií",
+  "视频模板": "Video šablony"
 }

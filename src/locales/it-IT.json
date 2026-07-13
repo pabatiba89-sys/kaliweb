@@ -813,7 +813,7 @@
   "团队授权视频": "Video autorizzato dal team",
   "国内产品动态与使用教程": "Tendenze dei prodotti nazionali e tutorial sull'utilizzo",
   "国风": "Guofeng",
-  "图片": "Immagine",
+  "图片": "Immagini",
   "图片 · 2 秒": "Immagine · 2 secondi",
   "图片仅支持 jpg / png / webp": "Le immagini supportano solo jpg / png / webp",
   "图片仅支持 jpg / png / webp 静态图": "Le immagini supportano solo immagini statiche jpg / png / webp",
@@ -1521,5 +1521,9 @@
   "Phone binding failed": "Associazione telefono non riuscita",
   "Verification code failed": "Invio codice di verifica non riuscito",
   "Saving": "Salvataggio",
-  "Binding": "Associazione"
+  "Binding": "Associazione",
+  "支撑入口": "Supporto",
+  "数字人与声音": "Avatar e voci",
+  "素材库": "Libreria media",
+  "视频模板": "Modelli video"
 }

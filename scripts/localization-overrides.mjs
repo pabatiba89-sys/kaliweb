@@ -190,6 +190,34 @@ const homeRows = {
   'hi-IN': ['ट्रेंड को प्रकाशित करने योग्य अवतार वीडियो में बदलें', 'एजेंट को भेजें', 'एसेट', 'वीडियो और प्रकाशन', 'ट्रेंड', 'एजेंट', 'स्क्रिप्ट', 'वीडियो वर्कफ़्लो'],
 };
 
+const supportKeys = ['支撑入口', '数字人与声音', '素材库', '视频模板', '音乐', '图片'];
+const supportRows = {
+  'en-US': ['Support', 'Avatars and voices', 'Media library', 'Video templates', 'Music', 'Images'],
+  'zh-CN': ['支撑入口', '数字人与声音', '素材库', '视频模板', '音乐', '图片'],
+  'zh-TW': ['支撐入口', '數位人與聲音', '素材庫', '影片範本', '音樂', '圖片'],
+  'es-MX': ['Soporte', 'Avatares y voces', 'Biblioteca multimedia', 'Plantillas de video', 'Música', 'Imágenes'],
+  'fr-FR': ['Support', 'Avatars et voix', 'Bibliothèque média', 'Modèles vidéo', 'Musique', 'Images'],
+  'ru-RU': ['Поддержка', 'Аватары и голоса', 'Медиатека', 'Видеошаблоны', 'Музыка', 'Изображения'],
+  'de-DE': ['Support', 'Avatare und Stimmen', 'Medienbibliothek', 'Videovorlagen', 'Musik', 'Bilder'],
+  'pt-PT': ['Suporte', 'Avatares e vozes', 'Biblioteca multimédia', 'Modelos de vídeo', 'Música', 'Imagens'],
+  'ar-AE': ['الدعم', 'الأفاتارات والأصوات', 'مكتبة الوسائط', 'قوالب الفيديو', 'الموسيقى', 'الصور'],
+  'it-IT': ['Supporto', 'Avatar e voci', 'Libreria media', 'Modelli video', 'Musica', 'Immagini'],
+  'ja-JP': ['サポート', 'アバターと音声', 'メディアライブラリ', '動画テンプレート', '音楽', '画像'],
+  'ko-KR': ['지원', '아바타와 음성', '미디어 라이브러리', '영상 템플릿', '음악', '이미지'],
+  'id-ID': ['Dukungan', 'Avatar dan suara', 'Pustaka media', 'Templat video', 'Musik', 'Gambar'],
+  'vi-VN': ['Hỗ trợ', 'Avatar và giọng nói', 'Thư viện media', 'Mẫu video', 'Âm nhạc', 'Hình ảnh'],
+  'tr-TR': ['Destek', 'Avatarlar ve sesler', 'Medya kitaplığı', 'Video şablonları', 'Müzik', 'Görseller'],
+  'nl-NL': ['Ondersteuning', 'Avatars en stemmen', 'Mediabibliotheek', 'Videosjablonen', 'Muziek', 'Afbeeldingen'],
+  'uk-UA': ['Підтримка', 'Аватари і голоси', 'Медіатека', 'Відеошаблони', 'Музика', 'Зображення'],
+  'th-TH': ['ส่วนสนับสนุน', 'อวาตาร์และเสียง', 'ไลบรารีสื่อ', 'เทมเพลตวิดีโอ', 'เพลง', 'รูปภาพ'],
+  'pl-PL': ['Wsparcie', 'Awatary i głosy', 'Biblioteka mediów', 'Szablony wideo', 'Muzyka', 'Obrazy'],
+  'ro-RO': ['Suport', 'Avataruri și voci', 'Bibliotecă media', 'Șabloane video', 'Muzică', 'Imagini'],
+  'el-GR': ['Υποστήριξη', 'Avatar και φωνές', 'Βιβλιοθήκη media', 'Πρότυπα βίντεο', 'Μουσική', 'Εικόνες'],
+  'cs-CZ': ['Podpora', 'Avataři a hlasy', 'Knihovna médií', 'Video šablony', 'Hudba', 'Obrázky'],
+  'fi-FI': ['Tuki', 'Avatarit ja äänet', 'Mediakirjasto', 'Videomallit', 'Musiikki', 'Kuvat'],
+  'hi-IN': ['सहायक प्रवेश', 'अवतार और आवाज़ें', 'मीडिया लाइब्रेरी', 'वीडियो टेम्पलेट', 'संगीत', 'छवियाँ'],
+};
+
 const accountSecurityKeys = [
   'Reset password',
   'Enter your account email and we will send password reset instructions.',
@@ -262,6 +290,7 @@ export const workspaceLocalizationOverrides = Object.fromEntries(Object.entries(
   actionKeys.forEach((key, index) => actionAliases[key].forEach((source) => { overrides[source] = values[index]; }));
   workflowKeys.forEach((key, index) => { overrides[key] = workflowRows[locale][index]; });
   homeKeys.forEach((key, index) => { overrides[key] = homeRows[locale][index]; });
+  supportKeys.forEach((key, index) => { overrides[key] = supportRows[locale][index]; });
   accountSecurityKeys.forEach((key, index) => { overrides[key] = accountSecurityRows[locale][index]; });
   return [locale, overrides];
 }));

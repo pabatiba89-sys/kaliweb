@@ -6,7 +6,6 @@ import {
   BellRing,
   BookOpen,
   Bot,
-  BrainCircuit,
   Building2,
   CalendarDays,
   Check,
@@ -284,54 +283,41 @@ const agreementCards = [
   ['legal-refund', '退款政策', '退款适用范围、申请与审核流程'],
 ];
 
-const trialBenefits = [
-  { title: '确认热点', image: '/yixiu-assets/hot-aggregate.png' },
-  { title: '生成文案', image: '/yixiu-assets/creative-assistant.png' },
-  { title: '制作视频', image: '/yixiu-assets/ai-video.png' },
-];
-
-const actionCards = [
-  {
-    id: 'trends',
-    title: '热点确认',
-    icon: TrendingUp,
-    color: '#00a884',
-    image: '/yixiu-assets/hot-aggregate.png',
-  },
-  {
-    id: 'assistant',
-    title: '发送给智能体',
-    icon: BrainCircuit,
-    color: '#1b7f68',
-    image: '/yixiu-assets/creative-assistant.png',
-  },
-  {
-    id: 'assistant',
-    title: '生成文案',
-    icon: Edit3,
-    color: '#0e8fbd',
-    image: '/yixiu-assets/smart-video.png',
-  },
+const supportCards = [
   {
     id: 'assets',
-    title: '资产准备',
+    title: '数字人与声音',
     icon: Layers3,
     color: '#64748b',
     image: '/yixiu-assets/digital-human.png',
   },
   {
-    id: 'video',
-    title: '视频制作',
-    icon: FileVideo,
-    color: '#007d68',
-    image: '/yixiu-assets/ai-video.png',
+    id: 'materials',
+    title: '素材库',
+    icon: Library,
+    color: '#0e8fbd',
+    image: '/yixiu-assets/asset-management.png',
   },
   {
-    id: 'video',
-    title: '发布',
-    icon: Send,
-    color: '#d58b2a',
-    image: '/yixiu-assets/trial-video.jpg',
+    id: 'templates',
+    title: '视频模板',
+    icon: GalleryVerticalEnd,
+    color: '#6d4dc2',
+    image: '/yixiu-assets/video-template.png',
+  },
+  {
+    id: 'music',
+    title: '音乐',
+    icon: Music2,
+    color: '#a05b12',
+    image: '/yixiu-assets/ai-music.png',
+  },
+  {
+    id: 'image',
+    title: '图片',
+    icon: Image,
+    color: '#bf4652',
+    image: '/yixiu-assets/ai-image.png',
   },
   {
     id: 'billing',
@@ -340,13 +326,6 @@ const actionCards = [
     color: '#9a6a2f',
     image: '/yixiu-assets/trial-video.jpg',
   },
-];
-
-const usageItems = [
-  { name: '热点', remaining: 1, total: 1, icon: TrendingUp },
-  { name: '智能体', remaining: 1, total: 1, icon: Bot },
-  { name: '文案', remaining: 1, total: 1, icon: Edit3 },
-  { name: '视频与发布', remaining: 1, total: 2, icon: Video },
 ];
 
 const trendRows = [
@@ -654,24 +633,6 @@ function Topbar({ language, setLanguage, onNewVideo, onMenu, onLogin, onLogout, 
   );
 }
 
-function TrialStrip() {
-  return (
-    <section className="trial-strip" aria-label="Workflow essentials">
-      <div className="trial-strip__copy">
-        <strong>主流程</strong>
-      </div>
-      <div className="trial-strip__items">
-        {trialBenefits.map((item) => (
-          <div className="trial-item" key={item.title}>
-            <img src={item.image} alt="" />
-            <span>{item.title}</span>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
 function HomeWorkflow({ onSelect, onStartVideo }) {
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -729,14 +690,14 @@ function HomeWorkflow({ onSelect, onStartVideo }) {
   );
 }
 
-function ActionGrid({ active, onSelect }) {
+function SupportGrid({ active, onSelect }) {
   return (
-    <section className="home-section" aria-label="环节拆解">
+    <section className="home-section" aria-label="支撑入口">
       <div className="section-title">
-        <h2>环节拆解</h2>
+        <h2>支撑入口</h2>
       </div>
       <div className="action-grid">
-        {actionCards.map((card) => {
+        {supportCards.map((card) => {
           const Icon = card.icon;
           return (
             <button
@@ -760,42 +721,6 @@ function ActionGrid({ active, onSelect }) {
         })}
       </div>
     </section>
-  );
-}
-
-function UsagePanel({ language }) {
-  return (
-    <aside className="usage-panel">
-      <div className="panel-head">
-        <div>
-          <h2>当前推进</h2>
-        </div>
-        <CheckCircle2 size={20} />
-      </div>
-      <div className="usage-list">
-        {usageItems.map((item) => {
-          const Icon = item.icon;
-          const percentage = Math.round((item.remaining / item.total) * 100);
-          return (
-            <div className="usage-item" key={item.name}>
-              <div className="usage-item__top">
-                <span>
-                  <Icon size={17} />
-                  {item.name}
-                </span>
-                <strong>
-                  {item.remaining}/{item.total}
-                </strong>
-              </div>
-              <div className="meter">
-                <span style={{ width: `${percentage}%` }} />
-              </div>
-            </div>
-          );
-        })}
-      </div>
-      <button className="outline-button">查看套餐</button>
-    </aside>
   );
 }
 
@@ -6550,24 +6475,6 @@ function SiteFooter({ onOpen }) {
   );
 }
 
-function Workflow({ language }) {
-  return (
-    <section className="workflow-section">
-      <div className="section-title">
-        <h2>拆解原则</h2>
-      </div>
-      <div className="workflow-grid">
-        {workflowSteps.map((step) => (
-          <article className="workflow-step" key={step.no}>
-            <span>{step.no}</span>
-            <h3>{step.title}</h3>
-          </article>
-        ))}
-      </div>
-    </section>
-  );
-}
-
 function PasswordResetPage({ initialEmail = '', onBackToLogin }) {
   const [email, setEmail] = useState(initialEmail);
   const [step, setStep] = useState('request');
@@ -7209,27 +7116,13 @@ export default function App() {
                     </button>
                   </div>
                 </div>
-                <div className="hero-board">
-                  <div className="hero-status">
-                    <span className="status-dot" />
-                    工作流
-                  </div>
-                  <div className="hero-metrics">
-                    <span><strong>01</strong> 热点确认</span>
-                    <span><strong>03</strong> 生成文案</span>
-                    <span><strong>05</strong> 发布</span>
-                  </div>
-                </div>
               </section>
-              <TrialStrip language={language} />
               <HomeWorkflow onSelect={selectNav} onStartVideo={openVideoCreator} />
               <div className="content-grid">
                 <div className="content-main">
-                  <ActionGrid active={active} onSelect={selectNav} />
-                  <Workflow language={language} />
+                  <SupportGrid active={active} onSelect={selectNav} />
                 </div>
                 <div className="content-side">
-                  <UsagePanel language={language} />
                   <TrendsPanel />
                 </div>
               </div>
