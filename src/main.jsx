@@ -5170,6 +5170,52 @@ const getAgentList = (result) => {
   if (Array.isArray(payload.aihumans)) return payload.aihumans;
   return arrayOf(payload);
 };
+const agentPayloads = (result = {}) => {
+  const raw = compactObject(result.raw);
+  const rawData = compactObject(raw.data);
+  const rawNestedData = compactObject(rawData.data);
+  const payloads = [compactObject(result.data), rawNestedData, rawData, raw];
+  return payloads
+    .flatMap((payload) => [payload, compactObject(payload.pagination), compactObject(payload.pager), compactObject(payload.meta)])
+    .filter((payload) => Object.keys(payload).length);
+};
+const getAgentNextCursor = (result = {}) => pick(
+  ...agentPayloads(result).flatMap((payload) => [
+    payload.next_cursor,
+    payload.nextCursor,
+    payload.start_cursor,
+    payload.startCursor,
+    payload.cursor,
+    payload.sid,
+  ]),
+);
+const normalizePaginationFlag = (value) => {
+  if (typeof value !== 'string') return Boolean(value);
+  return !['', '0', 'false', 'no', 'off', 'null', 'undefined'].includes(value.trim().toLowerCase());
+};
+const getAgentHasMore = ({ result, page, list, uniqueCount, loadedCount, cursor }) => {
+  if (!result.ok || !list.length || (page > 1 && !uniqueCount)) return false;
+  const payloads = agentPayloads(result);
+  const nextCursor = getAgentNextCursor(result);
+  if (nextCursor && nextCursor !== cursor) return true;
+
+  const total = Number(pick(...payloads.flatMap((payload) => [payload.total, payload.total_count, payload.totalCount, payload.count]))) || 0;
+  const totalPage = Number(pick(...payloads.flatMap((payload) => [payload.total_page, payload.totalPage, payload.total_pages, payload.totalPages, payload.pages, payload.last_page, payload.lastPage]))) || 0;
+  if (totalPage) return page < totalPage;
+  if (total) return loadedCount < total;
+
+  const explicit = payloads
+    .map((payload) => (payload.has_more !== undefined ? payload.has_more : payload.hasMore))
+    .find((value) => value !== undefined);
+  if (explicit !== undefined) return normalizePaginationFlag(explicit);
+
+  const nextPage = Number(pick(...payloads.flatMap((payload) => [payload.next_page, payload.nextPage]))) || 0;
+  if (nextPage) return nextPage > page;
+
+  // Some deployments cap the response below the requested page size. Probe the
+  // next page once and stop when it is empty or contains no new instruction sets.
+  return true;
+};
 const mapAgent = (item = {}, index = 0) => {
   const type = normalizeInstructionType(
     pick(item.type, item.instructionSetType, item.instruction_set_type, item.creativeType, item.creative_type, item.categoryType, item.category_type),
@@ -5259,28 +5305,79 @@ function AssistantPage({ authVersion, useHotTopicFlow, onLogin, onCreateAgent, o
   const [agents, setAgents] = useState([]);
   const [selected, setSelected] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [loadError, setLoadError] = useState('');
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [flow, setFlow] = useState(() => (useHotTopicFlow ? getPendingFlow() : null));
+  const agentsRef = useRef([]);
+  const nextCursorRef = useRef('');
+  const loadingRef = useRef(false);
+  const loadMoreRef = useRef(null);
   const authed = Boolean(getAccessToken());
 
-  const loadAgents = async ({ nextPage = 1, append = false } = {}) => {
-    setLoading(true);
-    const result = await apiFetch('/api/instruction_sets', {
-      auth: authed,
-      params: { page: nextPage, page_size: PAGE_SIZE, pageSize: PAGE_SIZE, limit: PAGE_SIZE },
-    });
-    const nextAgents = getAgentList(result).slice(0, PAGE_SIZE).map(mapAgent);
-    setAgents((current) => (append ? current.concat(nextAgents) : nextAgents));
-    setPage(nextPage);
-    setHasMore(result.ok && nextAgents.length === PAGE_SIZE);
-    setLoading(false);
-  };
+  const loadAgents = useCallback(async ({ nextPage = 1, append = false } = {}) => {
+    if (loadingRef.current) return;
+    loadingRef.current = true;
+    if (append) setLoadingMore(true);
+    else setLoading(true);
+    setLoadError('');
+    const cursor = append ? nextCursorRef.current : '';
+    try {
+      const result = await apiFetch('/api/instruction_sets', {
+        auth: authed,
+        params: {
+          page: nextPage,
+          page_size: PAGE_SIZE,
+          pageSize: PAGE_SIZE,
+          limit: PAGE_SIZE,
+          include_total: true,
+          ...(cursor ? { start_cursor: cursor, cursor, sid: cursor } : {}),
+        },
+      });
+      if (!result.ok) {
+        setLoadError(getResultMessage(result, '创作助手列表获取失败'));
+        if (!append) {
+          agentsRef.current = [];
+          setAgents([]);
+          setHasMore(false);
+        }
+        return;
+      }
+
+      const received = getAgentList(result).map((item, index) => mapAgent(item, (nextPage - 1) * PAGE_SIZE + index));
+      const current = append ? agentsRef.current : [];
+      const knownIds = new Set(current.map((agent) => agent.id));
+      const unique = append ? received.filter((agent) => !knownIds.has(agent.id)) : received;
+      const combined = append ? current.concat(unique) : unique;
+      const nextCursor = getAgentNextCursor(result);
+
+      agentsRef.current = combined;
+      nextCursorRef.current = nextCursor && nextCursor !== cursor ? nextCursor : '';
+      setAgents(combined);
+      setPage(nextPage);
+      setHasMore(getAgentHasMore({ result, page: nextPage, list: received, uniqueCount: unique.length, loadedCount: combined.length, cursor }));
+    } finally {
+      loadingRef.current = false;
+      if (append) setLoadingMore(false);
+      else setLoading(false);
+    }
+  }, [authed]);
 
   useEffect(() => {
     setFlow(useHotTopicFlow ? getPendingFlow() : null);
     loadAgents({ nextPage: 1, append: false });
-  }, [authVersion, useHotTopicFlow]);
+  }, [authVersion, useHotTopicFlow, loadAgents]);
+
+  useEffect(() => {
+    const target = loadMoreRef.current;
+    if (!target || !hasMore || loading || loadingMore || loadError || typeof IntersectionObserver === 'undefined') return undefined;
+    const observer = new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) loadAgents({ nextPage: page + 1, append: true });
+    }, { root: null, rootMargin: '280px 0px' });
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [agents.length, hasMore, loadError, loading, loadingMore, page, loadAgents]);
 
   const selectAgent = (agent) => {
     if (!authed) {
@@ -5317,13 +5414,6 @@ function AssistantPage({ authVersion, useHotTopicFlow, onLogin, onCreateAgent, o
     if (!agent.isOwn) return;
     onCreateAgent(agent);
   };
-  const handleScroll = (event) => {
-    const element = event.currentTarget;
-    if (!loading && hasMore && element.scrollTop + element.clientHeight >= element.scrollHeight - 80) {
-      loadAgents({ nextPage: page + 1, append: true });
-    }
-  };
-
   return (
     <div className="agent-page">
       <header className="agent-header">
@@ -5340,7 +5430,7 @@ function AssistantPage({ authVersion, useHotTopicFlow, onLogin, onCreateAgent, o
           {flow.summary && <p>{flow.summary}</p>}
         </section>
       )}
-      <section className="agent-grid" onScroll={handleScroll}>
+      <section className="agent-grid">
         <button className="agent-card agent-card--create" onClick={createAgent}>
           <span className="agent-create-icon">
             <Plus size={42} />
@@ -5375,8 +5465,20 @@ function AssistantPage({ authVersion, useHotTopicFlow, onLogin, onCreateAgent, o
             </button>
           );
         })}
-        {!agents.length && !loading && <div className="agent-empty">暂无创作助手</div>}
-        {loading && <div className="agent-empty">加载中</div>}
+        {!agents.length && !loading && !loadError && <div className="agent-empty">暂无创作助手</div>}
+        {loading && <div className="agent-empty">加载中…</div>}
+        {loadError && !agents.length && <div className="agent-empty agent-empty--error"><span>{loadError}</span><button onClick={() => loadAgents({ nextPage: 1, append: false })}>重试</button></div>}
+        {!!agents.length && (hasMore || loadingMore || loadError || page > 1) && (
+          <div className="agent-pagination" ref={loadMoreRef}>
+            {loadError ? (
+              <><span>{loadError}</span><button onClick={() => loadAgents({ nextPage: page + 1, append: true })}>重试加载</button></>
+            ) : hasMore || loadingMore ? (
+              <button onClick={() => loadAgents({ nextPage: page + 1, append: true })} disabled={loadingMore}>{loadingMore ? '加载中…' : '加载更多'}</button>
+            ) : (
+              <span>已加载全部创作助手</span>
+            )}
+          </div>
+        )}
       </section>
     </div>
   );

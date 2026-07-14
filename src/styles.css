@@ -3741,7 +3741,7 @@ html[dir="rtl"] .legal-back-button svg {
     linear-gradient(180deg, #e9faf5 0%, #f4fbf8 55%, #f8fcfa 100%);
   box-shadow: var(--shadow);
   display: grid;
-  grid-template-rows: auto auto auto minmax(0, 1fr);
+  align-content: start;
   gap: 12px;
 }
 
@@ -3820,7 +3820,7 @@ html[dir="rtl"] .legal-back-button svg {
 
 .agent-grid {
   min-height: 0;
-  overflow-y: auto;
+  overflow: visible;
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
   align-content: start;
@@ -3992,6 +3992,40 @@ html[dir="rtl"] .legal-back-button svg {
   color: var(--muted);
   font-weight: 760;
   text-align: center;
+}
+
+.agent-empty--error,
+.agent-pagination {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.agent-empty--error button,
+.agent-pagination button {
+  min-height: 38px;
+  padding: 0 16px;
+  border: 1px solid #a7ded1;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #087866;
+  font-size: 12px;
+  font-weight: 820;
+}
+
+.agent-pagination {
+  min-height: 50px;
+  padding: 5px 0 2px;
+  color: #718781;
+  font-size: 12px;
+  font-weight: 760;
+}
+
+.agent-pagination button:disabled {
+  cursor: wait;
+  opacity: 0.62;
 }
 
 .agent-edit-page,
