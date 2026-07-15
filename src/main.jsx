@@ -6518,7 +6518,7 @@ const cleanGeneratedContent = (value) => textOf(value)
   .replace(/^\*{1,2}|\*{1,2}$/g, '')
   .replace(/^[\s"'“”]+|[\s"'“”]+$/g, '')
   .trim();
-const GENERATED_SCENE_REGEX = /(?:^|\n)\s*(?:#{1,6}\s*)?(?:[*`_\-\s]*)?(?:分镜|镜头|场景|片段)\s*[第]?\s*([0-9０-９一二三四五六七八九十百]+)?\s*[）).、:：-]?\s*/g;
+const GENERATED_SCENE_REGEX = /(?:^|[\n\r]+|[\s。！？!?；;，,]+)(?:#{1,6}\s*)?(?:[*`_\-\s]*)?(?:分镜|镜头|场景|片段)\s*[第]?\s*([0-9０-９一二三四五六七八九十百]+)?\s*[）).、:：-]?\s*/g;
 const cleanGeneratedScene = (value) => cleanGeneratedContent(value)
   .replace(/^[\s"'“”*`_-]+/, '')
   .replace(/^[，,。；;：:、-]+/, '')
