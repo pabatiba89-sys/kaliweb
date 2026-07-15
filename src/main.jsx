@@ -4557,6 +4557,232 @@ function ResourcePage({ active, language, onNewVideo, authVersion }) {
   );
 }
 
+const billingQuotaMap = [
+  {
+    key: 'digitalHumans',
+    label: 'Digital humans',
+    icon: UserRound,
+    remaining: ['digital_human_remaining', 'digitalHumanRemaining', 'aihuman_remaining', 'aiHumanRemaining', 'human_remaining', 'humanRemaining'],
+    total: ['digital_human_total', 'digitalHumanTotal', 'aihuman_total', 'aiHumanTotal', 'human_total', 'humanTotal', 'digital_human_quota', 'digitalHumanQuota'],
+  },
+  {
+    key: 'voices',
+    label: 'Voices',
+    icon: Mic2,
+    remaining: ['voice_remaining', 'voiceRemaining', 'ai_voice_remaining', 'aiVoiceRemaining'],
+    total: ['voice_total', 'voiceTotal', 'ai_voice_total', 'aiVoiceTotal', 'voice_quota', 'voiceQuota'],
+  },
+  {
+    key: 'videos',
+    label: 'Videos',
+    icon: Video,
+    remaining: ['video_remaining', 'videoRemaining', 'video_count_remaining', 'videoCountRemaining', 'production_remaining', 'productionRemaining'],
+    total: ['video_total', 'videoTotal', 'video_quota', 'videoQuota', 'production_total', 'productionTotal'],
+  },
+  {
+    key: 'music',
+    label: 'AI music',
+    icon: Music2,
+    remaining: ['music_remaining', 'musicRemaining', 'ai_music_remaining', 'aiMusicRemaining'],
+    total: ['music_total', 'musicTotal', 'music_quota', 'musicQuota', 'ai_music_total', 'aiMusicTotal'],
+  },
+];
+
+const billingPick = (source = {}, keys = []) => {
+  for (const key of keys) {
+    const value = source[key];
+    if (value !== undefined && value !== null && value !== '') return value;
+  }
+  return '';
+};
+const billingNumber = (value) => {
+  if (value === undefined || value === null || value === '') return null;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+};
+const billingPayloads = (result = {}) => {
+  const raw = result.raw || {};
+  return [result.data, raw.data?.data, raw.data, raw]
+    .flatMap((payload) => (payload && typeof payload === 'object' ? [payload] : []));
+};
+const findBillingPlan = (result = {}) => {
+  for (const payload of billingPayloads(result)) {
+    if (Array.isArray(payload)) return payload[0] || {};
+    const plan = payload.user_plan || payload.userPlan || payload.current_plan || payload.currentPlan || payload.plan || payload;
+    if (plan && typeof plan === 'object' && !Array.isArray(plan)) return plan;
+  }
+  return {};
+};
+const getBillingPlans = (result = {}) => {
+  for (const payload of billingPayloads(result)) {
+    if (Array.isArray(payload)) return payload;
+    for (const key of ['plans', 'plan_list', 'planList', 'packages', 'list', 'items', 'records', 'rows', 'data']) {
+      if (Array.isArray(payload[key])) return payload[key];
+    }
+  }
+  return [];
+};
+const formatBillingDate = (value) => {
+  if (!value) return '';
+  const numeric = Number(value);
+  const date = new Date(Number.isFinite(numeric) && numeric > 0 && numeric < 1000000000000 ? numeric * 1000 : value);
+  if (Number.isNaN(date.getTime())) return textOf(value);
+  return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(date);
+};
+const formatBillingMoney = (plan = {}) => {
+  const amount = billingPick(plan, ['price', 'amount', 'sale_price', 'salePrice', 'pay_amount', 'payAmount']);
+  const number = billingNumber(amount);
+  if (number === null) return pick(plan.price_text, plan.priceText, plan.display_price, plan.displayPrice, plan.billingText, plan.billing_text) || 'Contact sales';
+  const currency = pick(plan.currency, plan.currency_code, plan.currencyCode) || 'USD';
+  try {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(number);
+  } catch {
+    return `${currency} ${number}`;
+  }
+};
+const normalizeBillingQuota = (source = {}, item) => {
+  const remaining = billingNumber(billingPick(source, item.remaining));
+  const total = billingNumber(billingPick(source, item.total));
+  const used = total !== null && remaining !== null ? Math.max(total - remaining, 0) : null;
+  const percent = total && used !== null ? Math.min(Math.max((used / total) * 100, 0), 100) : 0;
+
+  return {
+    ...item,
+    remaining,
+    total,
+    value: remaining !== null && total !== null ? `${remaining} / ${total}` : remaining !== null ? `${remaining} left` : total !== null ? `${total} included` : 'Not included',
+    percent,
+  };
+};
+const normalizePlanCard = (plan = {}, index = 0) => {
+  const quotaText = billingQuotaMap
+    .map((item) => {
+      const total = billingNumber(billingPick(plan, item.total));
+      return total !== null ? `${total} ${item.label.toLowerCase()}` : '';
+    })
+    .filter(Boolean)
+    .slice(0, 3);
+  const period = pick(plan.period, plan.duration, plan.valid_days && `${plan.valid_days} days`, plan.validDays && `${plan.validDays} days`, plan.cycle, plan.billing_cycle, plan.billingCycle);
+
+  return {
+    id: pick(plan.id, plan.plan_id, plan.planId, plan.name, `plan-${index}`),
+    title: pick(plan.title, plan.name, plan.plan_name, plan.planName, plan.package_name, plan.packageName) || `Plan ${index + 1}`,
+    price: formatBillingMoney(plan),
+    period: period || 'One-time quota',
+    summary: quotaText.length ? quotaText.join(' · ') : pick(plan.description, plan.desc, plan.remark, plan.note) || 'Quota package',
+  };
+};
+const getBillingResult = (results, label) => results.find((result) => result.endpoint.label === label) || {};
+
+function OverseasBillingPage({ authVersion }) {
+  const config = pageConfigs.billing;
+  const { loading, results } = useEndpointGroup(config, authVersion);
+  const currentResult = getBillingResult(results, 'Current plan');
+  const planResult = getBillingResult(results, 'Plan list');
+  const currentPlan = findBillingPlan(currentResult);
+  const planCards = getBillingPlans(planResult).map(normalizePlanCard);
+  const quotas = billingQuotaMap.map((item) => normalizeBillingQuota(currentPlan, item));
+  const planName = pick(currentPlan.title, currentPlan.name, currentPlan.plan_name, currentPlan.planName, currentPlan.package_name, currentPlan.packageName) || (currentResult.authMissing ? 'Sign in required' : 'No active plan');
+  const expireText = formatBillingDate(pick(currentPlan.expire_at, currentPlan.expireAt, currentPlan.end_at, currentPlan.endAt, currentPlan.valid_until, currentPlan.validUntil));
+  const updatedText = formatBillingDate(pick(currentPlan.updated_at, currentPlan.updatedAt, currentPlan.created_at, currentPlan.createdAt));
+  const hasCurrentPlan = Boolean(Object.keys(currentPlan).length);
+  const message = currentResult.authMissing
+    ? 'Sign in to view your quota and current plan.'
+    : currentResult.ok === false && currentResult.message
+      ? currentResult.message
+      : '';
+
+  return (
+    <div className="billing-page">
+      <section className="billing-hero">
+        <div>
+          <span className="billing-eyebrow">PLANS & BILLING</span>
+          <h1>Plans & billing</h1>
+          <p>Review your active plan, remaining production quota, and available packages.</p>
+        </div>
+        <div className="billing-hero-actions">
+          <button className="outline-button" onClick={() => window.location.reload()} disabled={loading}>
+            <RefreshCw size={17} />
+            {loading ? 'Refreshing' : 'Refresh'}
+          </button>
+          <a className="primary-button" href="mailto:feedback@xyaip.fun">
+            <CircleDollarSign size={17} />
+            Upgrade
+          </a>
+        </div>
+      </section>
+
+      {message && (
+        <section className={`billing-message ${currentResult.authMissing ? '' : 'is-error'}`}>
+          <AlertCircle size={18} />
+          <span>{message}</span>
+        </section>
+      )}
+
+      <section className="billing-summary-grid" aria-busy={loading}>
+        <article className="billing-current-card">
+          <div className="billing-card-head">
+            <span><CircleDollarSign size={20} /></span>
+            <div>
+              <small>Current plan</small>
+              <h2>{planName}</h2>
+            </div>
+          </div>
+          <dl className="billing-current-meta">
+            <div><dt>Status</dt><dd>{hasCurrentPlan ? 'Active' : currentResult.authMissing ? 'Locked' : 'Not started'}</dd></div>
+            <div><dt>Renews / expires</dt><dd>{expireText || 'Not set'}</dd></div>
+            <div><dt>Last updated</dt><dd>{updatedText || 'Not available'}</dd></div>
+          </dl>
+        </article>
+
+        <div className="billing-quota-grid">
+          {quotas.map(({ key, label, icon: Icon, value, percent }) => (
+            <article className="billing-quota-card" key={key}>
+              <div>
+                <span><Icon size={18} /></span>
+                <strong>{label}</strong>
+              </div>
+              <b>{value}</b>
+              <i><em style={{ width: `${percent}%` }} /></i>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="billing-plans-panel">
+        <div className="billing-section-head">
+          <div>
+            <h2>Available plans</h2>
+            <p>{planCards.length ? `${planCards.length} packages available` : 'No published packages returned yet'}</p>
+          </div>
+          <a href="mailto:feedback@xyaip.fun">View invoices <ChevronRight size={16} /></a>
+        </div>
+        {loading ? (
+          <div className="billing-empty">Loading billing data...</div>
+        ) : planCards.length ? (
+          <div className="billing-plan-list">
+            {planCards.map((plan) => (
+              <article className="billing-plan-card" key={plan.id}>
+                <div>
+                  <strong>{plan.title}</strong>
+                  <small>{plan.summary}</small>
+                </div>
+                <span>
+                  <b>{plan.price}</b>
+                  <small>{plan.period}</small>
+                </span>
+                <a href="mailto:feedback@xyaip.fun">Choose</a>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="billing-empty">{planResult.ok === false ? planResult.message || 'Plan list unavailable.' : 'No plans available yet.'}</div>
+        )}
+      </section>
+    </div>
+  );
+}
+
 const phoneCountryCodes = [
   { value: '+1', label: 'US / Canada +1' },
   { value: '+44', label: 'United Kingdom +44' },
@@ -4789,7 +5015,7 @@ function BillingPage({ language, authVersion }) {
   const useChinaBilling = language === 'zh-CN' || language === 'zh-TW';
 
   if (!useChinaBilling) {
-    return <ResourcePage active="billing" language={language} authVersion={authVersion} />;
+    return <OverseasBillingPage authVersion={authVersion} />;
   }
 
   return (
