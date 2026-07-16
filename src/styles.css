@@ -1966,6 +1966,14 @@
   gap: 14px;
 }
 
+.video-creator-cover-grid {
+  grid-template-columns: minmax(220px, 420px);
+}
+
+.video-creator-upload-grid:has(+ .video-scene-builder) {
+  display: none;
+}
+
 .video-creator-cover,
 .video-creator-material-actions {
   min-width: 0;
