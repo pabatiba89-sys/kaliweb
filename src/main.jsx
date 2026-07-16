@@ -5131,14 +5131,19 @@ const loadEvonetDropIn = () => {
 const normalizeEvonetSession = (result = {}) => {
   const payloads = billingPayloads(result);
   for (const payload of payloads) {
-    const sessionID = pick(payload.sessionID, payload.sessionId, payload.session_id, payload.id);
+    const params = payload.pay_params || payload.payParams || {};
+    const order = payload.order || {};
+    const sessionID = pick(params.sessionID, params.sessionId, params.session_id, payload.sessionID, payload.sessionId, payload.session_id, order.evonet_session_id, order.evonetSessionId);
     if (sessionID) {
       return {
         ...payload,
         sessionID,
-        merchantOrderID: pick(payload.merchantOrderID, payload.merchantOrderId, payload.merchant_order_id, payload.orderId, payload.order_id),
+        order_no: pick(payload.order_no, payload.orderNo, order.order_no, order.orderNo),
+        order_id: pick(payload.order_id, payload.orderId, order.id),
+        linkUrl: pick(payload.linkUrl, payload.link_url, payload.link, order.evonet_link_url, order.evonetLinkUrl),
+        merchantOrderID: pick(payload.order_no, payload.orderNo, order.order_no, order.orderNo, payload.merchantOrderID, payload.merchantOrderId, payload.merchant_order_id),
         merchantTransID: pick(payload.merchantTransID, payload.merchantTransId, payload.merchant_trans_id),
-        environment: pick(payload.environment, payload.env, import.meta.env.VITE_EVONET_ENV) || 'UAT',
+        environment: pick(params.environment, params.env, payload.sdk_environment, payload.sdkEnvironment, payload.environment, payload.env, import.meta.env.VITE_EVONET_ENV) || 'UAT',
       };
     }
   }

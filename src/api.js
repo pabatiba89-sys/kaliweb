@@ -9,17 +9,8 @@ const AUTH_ENDPOINTS = {
   bindPhone: ['/api/user/phone/bind', '/api/user/bind-phone', '/api/user/mobile/bind'],
 };
 const PAYMENT_ENDPOINTS = {
-  evonetOneTimeSession: [
-    '/api/payment/evonet/one-time/session',
-    '/api/payments/evonet/one-time/session',
-    '/api/billing/evonet/one-time/session',
-    '/api/evonet/interaction',
-  ],
-  evonetOneTimeCallback: [
-    '/api/payment/evonet/one-time/callback',
-    '/api/payments/evonet/one-time/callback',
-    '/api/billing/evonet/one-time/callback',
-  ],
+  evonetOneTimeSession: ['/api/pay/evonet/create_session'],
+  evonetOneTimeSync: ['/api/pay/evonet/sync'],
 };
 
 export const getAccessToken = () => {
@@ -208,45 +199,39 @@ export async function bindPhoneNumber({ countryCode, phone, code }) {
 
 export async function createEvonetOneTimePaymentSession({ plan, locale }) {
   const planId = plan?.id || plan?.plan_id || plan?.planId || plan?.package_id || plan?.packageId;
+  const userInfo = readStoredUserInfo();
+  const email = userInfo.email || userInfo.user_email || userInfo.userEmail || userInfo.account || userInfo.username || '';
   return apiFetchAny(PAYMENT_ENDPOINTS.evonetOneTimeSession, {
     method: 'POST',
     timeoutMs: 20000,
     body: {
-      paymentType: 'one_time',
-      payment_type: 'one_time',
-      recurring: false,
-      locale,
-      planId,
       plan_id: planId,
-      packageId: plan?.package_id || plan?.packageId || planId,
-      package_id: plan?.package_id || plan?.packageId || planId,
-      productName: plan?.name || plan?.title || plan?.plan_name || plan?.planName || plan?.package_name || plan?.packageName,
-      product_name: plan?.name || plan?.title || plan?.plan_name || plan?.planName || plan?.package_name || plan?.packageName,
-      amount: plan?.price ?? plan?.amount ?? plan?.sale_price ?? plan?.salePrice ?? plan?.pay_amount ?? plan?.payAmount,
+      ...(email ? { email } : {}),
       currency: plan?.currency || plan?.currency_code || plan?.currencyCode || 'USD',
+      locale,
     },
   }, 'Payment checkout is not available yet');
 }
 
 export async function reportEvonetOneTimePaymentEvent({ session, event }) {
-  return apiFetchAny(PAYMENT_ENDPOINTS.evonetOneTimeCallback, {
+  const orderNo = session?.order_no || session?.orderNo || session?.merchantOrderID || session?.merchantOrderId || session?.merchant_order_id;
+  return apiFetchAny(PAYMENT_ENDPOINTS.evonetOneTimeSync, {
     method: 'POST',
     timeoutMs: 12000,
     body: {
-      paymentType: 'one_time',
-      payment_type: 'one_time',
-      sessionID: session?.sessionID || session?.sessionId || session?.session_id,
-      sessionId: session?.sessionID || session?.sessionId || session?.session_id,
-      merchantOrderID: session?.merchantOrderID || session?.merchantOrderId || session?.merchant_order_id,
-      merchantOrderId: session?.merchantOrderID || session?.merchantOrderId || session?.merchant_order_id,
-      merchantTransID: event?.merchantTransID || event?.merchantTransId || event?.merchant_trans_id,
-      merchantTransId: event?.merchantTransID || event?.merchantTransId || event?.merchant_trans_id,
-      type: event?.type,
-      code: event?.code,
-      message: event?.message,
-      event,
+      order_no: orderNo,
+      payload: event,
     },
   }, 'Payment result could not be recorded');
+}
+
+function readStoredUserInfo() {
+  if (typeof window === 'undefined') return {};
+  try {
+    return JSON.parse(window.localStorage.getItem('user_info') || '{}') || {};
+  } catch {
+    return {};
+  }
 }
 
 export function storeSession(data = {}) {
