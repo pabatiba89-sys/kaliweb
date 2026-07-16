@@ -4566,6 +4566,14 @@ html[dir="rtl"] .legal-back-button svg {
   background: #111827;
 }
 
+.copy-message-actions .is-pro-broadcast {
+  background: #0f766e;
+}
+
+.copy-message-actions .is-pro-material {
+  background: #334155;
+}
+
 .copy-message-actions .is-music {
   background: #a05b12;
 }

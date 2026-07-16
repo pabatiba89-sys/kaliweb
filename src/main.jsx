@@ -1125,15 +1125,15 @@ const VIDEO_PRODUCTION_TYPES = {
   professional: {
     key: 'professional',
     listKey: 'professional',
-    label: '数字人 Pro',
-    createLabel: '制作数字人 Pro',
-    emptyLabel: '数字人 Pro 视频',
-    syncLabel: '数字人 Pro 视频',
+    label: '形象播报 Pro',
+    createLabel: '制作形象播报 Pro',
+    emptyLabel: '形象播报 Pro 视频',
+    syncLabel: '形象播报 Pro 视频',
     eyebrow: 'PROFESSIONAL BROADCAST',
     icon: GalleryVerticalEnd,
-    description: '查看数字人 Pro 的分镜素材视频制作记录、成片状态和发布流程。',
+    description: '查看形象播报 Pro 的分镜素材视频制作记录、成片状态和发布流程。',
     sectionHint: '数字人、声音、文案分镜与素材',
-    title: '数字人 Pro 视频',
+    title: '形象播报 Pro 视频',
     templateScene: 'virtualman',
     productionScene: 'custom_virtualman_broadcast',
     listPath: '/api/video-mix/list',
@@ -1145,15 +1145,15 @@ const VIDEO_PRODUCTION_TYPES = {
   materialPackage: {
     key: 'materialPackage',
     listKey: 'materialPackage',
-    label: '素材 Pro',
-    createLabel: '制作素材 Pro',
-    emptyLabel: '素材 Pro 视频',
-    syncLabel: '素材 Pro 视频',
+    label: '素材成片 Pro',
+    createLabel: '制作素材成片 Pro',
+    emptyLabel: '素材成片 Pro 视频',
+    syncLabel: '素材成片 Pro 视频',
     eyebrow: 'CUSTOM BROADCAST MIXCUT',
     icon: Layers3,
-    description: '查看素材 Pro 的分镜素材视频制作记录、成片状态和发布流程。',
+    description: '查看素材成片 Pro 的分镜素材视频制作记录、成片状态和发布流程。',
     sectionHint: '声音、文案分镜与素材',
-    title: '素材 Pro 视频',
+    title: '素材成片 Pro 视频',
     templateScene: 'oralMixCutting',
     productionScene: 'custom_broadcast_mixcut',
     listPath: '/api/video-mix/list',
@@ -4026,6 +4026,35 @@ const getCreatorMaterialsJsonList = (...values) => {
   return [];
 };
 
+const getCreatorSceneDraftList = (...values) => {
+  const visit = (value, depth = 0) => {
+    if (value === undefined || value === null || value === '' || depth > 6) return [];
+    if (typeof value === 'string') {
+      try {
+        return visit(JSON.parse(value), depth + 1);
+      } catch {
+        return parseGeneratedScenes(value).map((content) => ({ content }));
+      }
+    }
+    if (Array.isArray(value)) return value;
+    if (typeof value !== 'object') return [];
+    for (const key of ['scenes', 'sceneList', 'scene_list', 'storyboards', 'shots']) {
+      const nested = visit(value[key], depth + 1);
+      if (nested.length) return nested;
+    }
+    for (const key of ['draft_payload', 'draftPayload', 'shanjianData', 'shanjian_data', 'data', 'payload']) {
+      const nested = visit(value[key], depth + 1);
+      if (nested.length) return nested;
+    }
+    return [];
+  };
+  for (const value of values) {
+    const list = visit(value);
+    if (list.length) return list;
+  }
+  return [];
+};
+
 const getCreatorInitialState = (usePrefill) => {
   const draft = getCreatorRawDraft(usePrefill);
   const detail = videoObject(draft.detail || draft.raw || draft);
@@ -4056,6 +4085,15 @@ const getCreatorInitialState = (usePrefill) => {
       origin: 'library',
     };
   }).filter((item) => item.url);
+  const sceneSource = getCreatorSceneDraftList(draft.scenes, draft.sceneList, detail.scenes, detail.sceneList, shanjian.scenes);
+  const scenes = sceneSource
+    .map((item) => {
+      const source = videoObject(item);
+      const captions = videoObject(source.captions || source.caption);
+      const content = cleanGeneratedScene(videoText(source.content, source.text, source.script, captions.content, captions.text));
+      return content ? createCreatorScene(content) : null;
+    })
+    .filter(Boolean);
   const prefillStatus = normalizeStatus(getVideoStatusValue({ ...detail, ...draft }));
   const isFailedPrefill = prefillStatus.key === 'failed' || draft.source === 'videoDetailRemake';
 
@@ -4094,6 +4132,7 @@ const getCreatorInitialState = (usePrefill) => {
     },
     cover: coverUrl ? { title: '当前封面', url: coverUrl, previewUrl: coverUrl, origin: coverUrl === humanPreviewUrl ? 'human' : 'remote' } : null,
     materials,
+    scenes,
     draftId: isFailedPrefill ? '' : videoText(draft.draftRecordId, draft.draft_id, draft.id, detail.draftRecordId, detail.id),
   };
 };
@@ -4211,8 +4250,8 @@ const createCreatorScene = (content = '', materials = []) => ({
 
 const getInitialCreatorScenes = (form = {}, materials = []) => {
   const chunks = textOf(form.script)
-    .split(/\n{2,}|\n(?=\d+[.、])|(?=第[一二三四五六七八九十]+[个段幕镜])/)
-    .map((item) => item.replace(/^\s*\d+[.、]\s*/, '').trim())
+    .split(/\n{2,}|\n(?=\d+[.、])|(?=\s*(?:分镜|镜头|场景|片段)\s*[第]?\s*[0-9０-９一二三四五六七八九十百]*\s*[）).、:：-]?)|(?=第[一二三四五六七八九十]+[个段幕镜])/)
+    .map((item) => cleanGeneratedScene(item.replace(/^\s*\d+[.、]\s*/, '').replace(GENERATED_SCENE_REGEX, '')))
     .filter(Boolean);
   if (chunks.length) return chunks.map((content, index) => createCreatorScene(content, index === 0 ? materials : []));
   return [createCreatorScene(textOf(form.script), materials)];
@@ -4252,7 +4291,7 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
   });
   const [cover, setCover] = useState(initial.cover);
   const [materials, setMaterials] = useState(initial.materials);
-  const [scenes, setScenes] = useState(() => getInitialCreatorScenes(initial.form, initial.materials));
+  const [scenes, setScenes] = useState(() => initial.scenes?.length ? initial.scenes : getInitialCreatorScenes(initial.form, initial.materials));
   const [activeSceneId, setActiveSceneId] = useState('');
   const [draftId, setDraftId] = useState(initial.draftId);
   const [resources, setResources] = useState({ human: [], voice: [], videoTemplate: [], coverTemplate: [], music: [], material: [], preset: [] });
@@ -4806,7 +4845,7 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
           <main className="video-creator-main">
             <section className="video-creator-section"><div className="video-creator-section__head"><span>01</span><div><h2>基础内容</h2><p>{isCustomMixcut ? '标题和话题用于成片包装，总文案可一键拆成分镜。' : isMixed ? '标题和话题用于成片包装，文案用于字幕、关键词和素材编排。' : '标题和话题用于成片包装，文案会由数字人朗读。'}</p></div></div><div className="video-creator-fields"><label><span>标题 <em>必填</em></span><input maxLength={80} value={form.title} onChange={(event) => updateForm('title', event.target.value)} placeholder="请输入视频标题" /><small>{form.title.length}/80</small></label><label><span>话题 <em>必填</em></span><input value={form.topic} onChange={(event) => updateForm('topic', event.target.value)} placeholder="例如：同城获客、门店活动" /></label><label className="is-wide"><span>{isCustomMixcut ? '总文案' : '文案'} {!isCustomMixcut && <em>必填</em>}</span><textarea maxLength={2000} value={form.script} onChange={(event) => updateForm('script', event.target.value)} placeholder={isCustomMixcut ? '可先输入完整文案，再点击按文案拆分' : isMixed ? '请输入混剪视频文案' : '请输入数字人口播文案'} /><small>{form.script.length}/2000</small></label></div></section>
             <section className="video-creator-section"><div className="video-creator-section__head"><span>02</span><div><h2>选择配置</h2><p>{isCustomMixcut ? '选择声音、包装混剪模板、封面包装和背景音乐。' : isMixed ? '选择声音、混剪剪辑模板、封面包装和背景音乐。' : '使用已有资源，也可以一键应用团队预设。'}</p></div>{needsHuman && resources.preset.length > 0 && <button className="video-creator-preset-button" onClick={() => setDialogType('preset')}><Layers3 size={16} />选择已配置</button>}</div><div className="video-creator-select-list">{selectorRows.map(({ key, label, hint, icon: Icon }) => { const value = selected[key]; const preview = value.cover; return <button key={key} onClick={() => setDialogType(key)}><i><Icon size={19} /></i><span><strong>{label}</strong><small>{value.title || hint}</small></span>{preview && <img src={preview} alt="" />}{key === 'music' && value.audioUrl && <audio src={value.audioUrl} controls onClick={(event) => event.stopPropagation()} />}<ChevronRight size={18} /></button>; })}</div>{isCustomMixcut && <div className="video-creator-upload-grid video-creator-cover-grid">{coverPanel}</div>}</section>
-            <section className="video-creator-section"><div className="video-creator-section__head"><span>03</span><div><h2>{isCustomMixcut ? '文案分镜' : '封面与素材'}</h2><p>{isCustomMixcut ? '每个分镜需要字幕文本和对应素材，素材只支持图片和视频。' : '图片按 2 秒计，单个视频小于 60 秒，总时长不超过 5 分钟。'}</p></div></div><div className="video-creator-upload-grid"><div className="video-creator-cover"><h3>封面图片 <em>必填</em></h3>{cover ? <div className="video-creator-cover-preview"><img src={cover.previewUrl || cover.url} alt="" /><span><strong>{cover.title}</strong><button onClick={() => { if (cover.origin === 'local') URL.revokeObjectURL(cover.previewUrl); setCover(null); }}><Trash2 size={15} />删除</button></span></div> : <label className="video-creator-dropzone"><Image size={26} /><strong>上传封面图片</strong><small>jpg / png / webp</small><input type="file" accept="image/jpeg,image/png,image/webp" onChange={chooseCover} /></label>}</div>{!isCustomMixcut && <div className="video-creator-material-actions"><h3>视频素材 <em>必填</em></h3><div><button onClick={() => setDialogType('material')}><Library size={18} />从素材库选择</button><label><Upload size={18} />本地上传<input type="file" multiple accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime" onChange={chooseLocalMaterials} /></label></div><small>已选 {materials.length} 个 · 总时长 {formatDuration(materialDuration)}</small></div>}</div>{isCustomMixcut ? <div className="video-scene-builder"><div className="video-scene-builder__toolbar"><button onClick={splitScriptToScenes}><Sparkles size={16} />按文案拆分</button><button onClick={addScene}><Plus size={16} />新增分镜</button><span>{scenes.length} 个分镜 · {sceneMaterialCount} 个素材 · {formatDuration(materialDuration)}</span></div><div className="video-scene-list">{scenes.map((scene, index) => <article className="video-scene-card" key={scene.id}><header><span>分镜 {index + 1}</span><button onClick={() => removeScene(scene.id)} disabled={scenes.length <= 1} aria-label="删除分镜"><Trash2 size={15} /></button></header><label><span>字幕文本 <em>必填</em></span><textarea value={scene.content} onChange={(event) => updateScene(scene.id, { content: event.target.value })} placeholder="单个分镜字幕文本不能少于 3 个字符" /></label><div className="video-scene-actions"><button onClick={() => { setActiveSceneId(scene.id); setDialogType('material'); }}><Library size={16} />从素材库选择</button><label><Upload size={16} />本地上传<input type="file" multiple accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime" onChange={(event) => chooseLocalMaterials(event, scene.id)} /></label><small>{(scene.materials || []).length} 个素材</small></div>{(scene.materials || []).length > 0 && <div className="video-creator-material-grid video-scene-material-grid">{scene.materials.map((material) => <article key={`${scene.id}-${material.id}`}><span>{material.type === 'video' && material.file ? <video src={material.previewUrl} muted playsInline /> : material.previewUrl ? <img src={material.previewUrl} alt="" /> : <Video size={24} />}</span><div><strong>{material.title}</strong><small>{material.type === 'video' ? `视频 · ${formatDuration(material.duration)}` : '图片 · 2 秒'}</small></div><button onClick={() => removeSceneMaterial(scene.id, material.id)} aria-label="删除素材"><X size={16} /></button></article>)}</div>}</article>)}</div></div> : materials.length > 0 && <div className="video-creator-material-grid">{materials.map((material) => <article key={material.id}><span>{material.type === 'video' && material.file ? <video src={material.previewUrl} muted playsInline /> : material.previewUrl ? <img src={material.previewUrl} alt="" /> : <Video size={24} />}</span><div><strong>{material.title}</strong><small>{material.type === 'video' ? `视频 · ${formatDuration(material.duration)}` : '图片 · 2 秒'}</small></div><button onClick={() => removeMaterial(material.id)} aria-label="删除素材"><X size={16} /></button></article>)}</div>}</section>
+            <section className="video-creator-section"><div className="video-creator-section__head"><span>03</span><div><h2>{isCustomMixcut ? '文案分镜' : '封面与素材'}</h2><p>{isCustomMixcut ? '每个分镜需要字幕文本和对应素材，素材只支持图片和视频。' : '图片按 2 秒计，单个视频小于 60 秒，总时长不超过 5 分钟。'}</p></div></div>{!isCustomMixcut && <div className="video-creator-upload-grid"><div className="video-creator-cover"><h3>封面图片 <em>必填</em></h3>{cover ? <div className="video-creator-cover-preview"><img src={cover.previewUrl || cover.url} alt="" /><span><strong>{cover.title}</strong><button onClick={() => { if (cover.origin === 'local') URL.revokeObjectURL(cover.previewUrl); setCover(null); }}><Trash2 size={15} />删除</button></span></div> : <label className="video-creator-dropzone"><Image size={26} /><strong>上传封面图片</strong><small>jpg / png / webp</small><input type="file" accept="image/jpeg,image/png,image/webp" onChange={chooseCover} /></label>}</div><div className="video-creator-material-actions"><h3>视频素材 <em>必填</em></h3><div><button onClick={() => setDialogType('material')}><Library size={18} />从素材库选择</button><label><Upload size={18} />本地上传<input type="file" multiple accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime" onChange={chooseLocalMaterials} /></label></div><small>已选 {materials.length} 个 · 总时长 {formatDuration(materialDuration)}</small></div></div>}{isCustomMixcut ? <div className="video-scene-builder"><div className="video-scene-builder__toolbar"><button onClick={splitScriptToScenes}><Sparkles size={16} />按文案拆分</button><button onClick={addScene}><Plus size={16} />新增分镜</button><span>{scenes.length} 个分镜 · {sceneMaterialCount} 个素材 · {formatDuration(materialDuration)}</span></div><div className="video-scene-list">{scenes.map((scene, index) => <article className="video-scene-card" key={scene.id}><header><span>分镜 {index + 1}</span><button onClick={() => removeScene(scene.id)} disabled={scenes.length <= 1} aria-label="删除分镜"><Trash2 size={15} /></button></header><label><span>字幕文本 <em>必填</em></span><textarea value={scene.content} onChange={(event) => updateScene(scene.id, { content: event.target.value })} placeholder="单个分镜字幕文本不能少于 3 个字符" /></label><div className="video-scene-actions"><button onClick={() => { setActiveSceneId(scene.id); setDialogType('material'); }}><Library size={16} />从素材库选择</button><label><Upload size={16} />本地上传<input type="file" multiple accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime" onChange={(event) => chooseLocalMaterials(event, scene.id)} /></label><small>{(scene.materials || []).length} 个素材</small></div>{(scene.materials || []).length > 0 && <div className="video-creator-material-grid video-scene-material-grid">{scene.materials.map((material) => <article key={`${scene.id}-${material.id}`}><span>{material.type === 'video' && material.file ? <video src={material.previewUrl} muted playsInline /> : material.previewUrl ? <img src={material.previewUrl} alt="" /> : <Video size={24} />}</span><div><strong>{material.title}</strong><small>{material.type === 'video' ? `视频 · ${formatDuration(material.duration)}` : '图片 · 2 秒'}</small></div><button onClick={() => removeSceneMaterial(scene.id, material.id)} aria-label="删除素材"><X size={16} /></button></article>)}</div>}</article>)}</div></div> : materials.length > 0 && <div className="video-creator-material-grid">{materials.map((material) => <article key={material.id}><span>{material.type === 'video' && material.file ? <video src={material.previewUrl} muted playsInline /> : material.previewUrl ? <img src={material.previewUrl} alt="" /> : <Video size={24} />}</span><div><strong>{material.title}</strong><small>{material.type === 'video' ? `视频 · ${formatDuration(material.duration)}` : '图片 · 2 秒'}</small></div><button onClick={() => removeMaterial(material.id)} aria-label="删除素材"><X size={16} /></button></article>)}</div>}</section>
           </main>
           <aside className="video-creator-summary"><span>PRODUCTION SUMMARY</span><h2>制作确认</h2><dl><div><dt>标题</dt><dd>{form.title || '未填写'}</dd></div>{needsHuman && <div><dt>数字人</dt><dd>{selected.human.title || '未选择'}</dd></div>}<div><dt>声音</dt><dd>{selected.voice.title || '未选择'}</dd></div><div><dt>{isMixed ? '混剪模板' : isCustomMixcut ? '包装模板' : '视频包装'}</dt><dd>{selected.videoTemplate.title || '未选择'}</dd></div><div><dt>封面包装</dt><dd>{selected.coverTemplate.title || '未选择'}</dd></div><div><dt>背景音乐</dt><dd>{selected.music.title || '未选择'}</dd></div>{isCustomMixcut && <div><dt>分镜</dt><dd>{scenes.length} 个</dd></div>}<div><dt>素材</dt><dd>{isCustomMixcut ? sceneMaterialCount : materials.length} 个 / {formatDuration(materialDuration)}</dd></div></dl>{uploadProgress && <div className="video-creator-uploading"><RefreshCw className="is-spinning" size={17} />{uploadProgress}</div>}{message && <div className={`video-list-message ${/失败|请|不能|未返回|最多/.test(message) ? 'is-error' : ''}`}>{message}</div>}<div className="video-creator-submit"><button className="outline-button" onClick={() => submit(true)} disabled={Boolean(busy)}>{busy === 'draft' ? '暂存中…' : '暂存'}</button><button className="primary-button" onClick={() => submit(false)} disabled={Boolean(busy)}><Sparkles size={17} />{busy === 'submit' ? '提交中…' : '提交制作'}</button></div><p>提交后会进入制作队列，可在 Video Studio 查看进度。</p></aside>
         </div>
@@ -6411,12 +6450,28 @@ const extractReply = (payload, prompt = '') => {
   const direct = normalizeGeneratedText(payload);
   return direct && direct !== prompt ? direct : '';
 };
-const buildTypedPrompt = (prompt, type) => {
+const isProInstructionAgent = (agent = {}) => {
+  const name = textOf(agent.name || agent.title || agent.instructionSetTitle || agent.instruction_set_name);
+  const type = textOf(agent.type?.value || agent.type || agent.instructionSetType || agent.instruction_set_type);
+  const suffixSource = `${name} ${type}`.toLowerCase();
+  return /(?:^|[\s_-])pro$|pro(?:\s|$)|专业版|高阶/.test(suffixSource);
+};
+const buildTypedPrompt = (prompt, type, agent = {}) => {
   if (normalizeInstructionType(type).value === '音乐创作') {
     return [
       '请根据用户需求创作一首可直接进入歌曲制作的歌词方案。',
       '请严格按“歌名：”“风格：”“歌词：”三个段落输出。',
       '不要输出 JSON、代码块、花括号或字段引号。',
+      '',
+      `用户需求：${prompt}`,
+    ].join('\n');
+  }
+  if (isProInstructionAgent(agent)) {
+    return [
+      '请根据用户需求生成可直接进入 Pro 视频制作的内容。',
+      '请严格按“标题：”“话题：”“文案：”“分镜1：”“分镜2：”这样的纯文本段落输出。',
+      '话题使用简短主题或标签；文案段落可以留空，正文必须拆成连续分镜。',
+      '每个分镜是一句可直接作为字幕的完整内容，不要输出 JSON、代码块、花括号或字段引号。',
       '',
       `用户需求：${prompt}`,
     ].join('\n');
@@ -6463,23 +6518,44 @@ const cleanGeneratedContent = (value) => textOf(value)
   .replace(/^\*{1,2}|\*{1,2}$/g, '')
   .replace(/^[\s"'“”]+|[\s"'“”]+$/g, '')
   .trim();
+const GENERATED_SCENE_REGEX = /(?:^|\n)\s*(?:#{1,6}\s*)?(?:[*`_\-\s]*)?(?:分镜|镜头|场景|片段)\s*[第]?\s*([0-9０-９一二三四五六七八九十百]+)?\s*[）).、:：-]?\s*/g;
+const cleanGeneratedScene = (value) => cleanGeneratedContent(value)
+  .replace(/^[\s"'“”*`_-]+/, '')
+  .replace(/^[，,。；;：:、-]+/, '')
+  .trim();
+const parseGeneratedScenes = (value) => {
+  const text = normalizeGeneratedText(value);
+  if (!text) return [];
+  const matches = Array.from(text.matchAll(GENERATED_SCENE_REGEX));
+  if (!matches.length) return [];
+  return matches
+    .map((match, index) => {
+      const start = match.index + match[0].length;
+      const end = index + 1 < matches.length ? matches[index + 1].index : text.length;
+      return cleanGeneratedScene(text.slice(start, end));
+    })
+    .filter(Boolean);
+};
 const parseGeneratedResult = (value) => {
   const text = normalizeGeneratedText(value);
-  if (!text) return { title: '', topic: '', content: '' };
+  if (!text) return { title: '', topic: '', content: '', scenes: [] };
   const title = findGeneratedSection(text, GENERATED_TITLE_MARKERS, GENERATED_TOPIC_MARKERS.concat(GENERATED_CONTENT_MARKERS)).split('\n')[0];
   const topic = findGeneratedSection(text, GENERATED_TOPIC_MARKERS, GENERATED_CONTENT_MARKERS).split('\n')[0];
-  const content = findGeneratedSection(text, GENERATED_CONTENT_MARKERS);
+  const contentSection = findGeneratedSection(text, GENERATED_CONTENT_MARKERS);
+  const scenes = parseGeneratedScenes(contentSection || text);
+  const content = scenes.length ? scenes.join('\n\n') : contentSection;
   const firstLine = text.split(/\n+/).map(cleanGeneratedTitle).find(Boolean) || 'AI 生成内容';
   return {
     title: cleanGeneratedTitle(title || firstLine),
     topic: cleanGeneratedTopic(topic),
     content: cleanGeneratedContent(content || text),
+    scenes,
   };
 };
 async function requestGeneratedCopy({ prompt, agent, messages, signal, onProgress }) {
   const token = getAccessToken();
   const body = {
-    content: buildTypedPrompt(prompt, agent?.type?.value),
+    content: buildTypedPrompt(prompt, agent?.type?.value, agent),
     ...(agent?.id ? { instruction_set_id: agent.id } : {}),
     messages: messages
       .filter((item) => item.role !== 'pending')
@@ -6671,6 +6747,7 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
     const result = message.script || parseGeneratedResult(message.text);
     const title = result.title || flow?.title || flow?.topic || 'AI 生成内容';
     const topic = result.topic || flow?.topic || '';
+    const scenes = Array.isArray(result.scenes) ? result.scenes.filter(Boolean).map((content) => ({ content })) : [];
     window.localStorage.setItem(VIDEO_PREFILL_KEY, JSON.stringify({
       productionType,
       source: 'videoChat',
@@ -6681,6 +6758,7 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
       topic,
       script: result.content,
       content: result.content,
+      scenes,
       createdAt: Date.now(),
     }));
     onMakeVideo();
@@ -6700,6 +6778,7 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
     onMakeMusic();
   };
   const isMusicAgent = normalizeInstructionType(agent?.type?.value || agent?.type).value === '音乐创作';
+  const isProAgent = isProInstructionAgent(agent);
   const agentName = textOf(agent?.name) || '创作助手';
   const agentInitials = Array.from(agentName).slice(0, 2).join('');
 
@@ -6744,6 +6823,11 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
                 <div className="copy-message-actions">
                   {isMusicAgent ? (
                     <button className="is-music" onClick={() => makeMusic(message)}><Music2 size={16} />去制作音乐</button>
+                  ) : isProAgent ? (
+                    <>
+                      <button className="is-pro-broadcast" onClick={() => makeVideo(message, 'professional')}><GalleryVerticalEnd size={16} />形象播报 Pro</button>
+                      <button className="is-pro-material" onClick={() => makeVideo(message, 'materialPackage')}><Layers3 size={16} />素材成片 Pro</button>
+                    </>
                   ) : (
                     <>
                       <button className="is-smart" onClick={() => makeVideo(message, 'mix')}><Clapperboard size={16} />智能成片</button>

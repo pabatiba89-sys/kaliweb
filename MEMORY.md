@@ -105,6 +105,7 @@
 - 2026-07-15：海外 Billing 页不能复用通用 `ResourcePage` 资源列表；套餐/账单应使用专用页面展示当前套餐、额度卡和可购买套餐，隐藏后台状态如 `Draft`，并直接兼容对象型 `/api/plan/user-plan` 返回。中文 `zh-CN`/`zh-TW` 继续走小程序码支付页。
 - 2026-07-15：用户再次确认后续本项目代码更改完成并通过必要检查后直接提交和推送到远端；除非存在真实风险、改动范围不清或需要用户决策，不再反复询问是否推送。
 - 2026-07-16：Video Studio 的原“数字人口播”和原“混剪视频”入口不能被新包装混剪改动；新能力必须作为独立板块和独立制作界面接入。“数字人包装混剪”对应闪剪 OpenAPI `POST /v1/clip/video/custom_virtualman_broadcast`，提交优先走后端 `/api/video/custom-virtualman-broadcast/create`，兼容 `/api/video/production/custom-virtualman-broadcast/create` 和旧 `/api/video/production/create + endpoint=custom_virtualman_broadcast`；“素材包装混剪”优先走 `/api/video-mix/custom-broadcast-mixcut/create`，旧 `/api/video-mix/create` 仅作为 `endpoint=custom_broadcast_mixcut` 兜底。两者都需构造 `scenes/packRules/processRules/structLayers`，数字人包装混剪额外带 `virtualmanId/introduceCard`。
-- 2026-07-16：新增两个包装混剪入口在界面上命名为“数字人 Pro”和“素材 Pro”；核心交互是文案分镜和每个分镜单独选择图片/视频素材。Pro 提交以 `scenes[].captions.content` 和 `scenes[].materials[].fileUrl/soundSwitch` 为准，字幕最少 3 个字符；原“数字人口播”和原“混剪视频”仍保持旧接口、旧素材选择方式不变。
+- 2026-07-16：新增两个包装混剪入口在界面上命名为“形象播报 Pro”和“素材成片 Pro”；核心交互是文案分镜和每个分镜单独选择图片/视频素材。Pro 提交以 `scenes[].captions.content` 和 `scenes[].materials[].fileUrl/soundSwitch` 为准，字幕最少 3 个字符；原“数字人口播”和原“混剪视频”仍保持旧接口、旧素材选择方式不变。
 - 2026-07-16：Pro 制作页的封面图片属于“选择配置/封面包装”区域，不放在“文案分镜”区域；文案分镜区域只承载分镜字幕与每个分镜的素材选择。
 - 2026-07-16：Pro 制作页不展示“包装参数”板块；界面只保留基础内容、选择配置和文案分镜，包装相关提交字段使用系统默认值在后台构造。
+- 2026-07-16：带 `Pro/pro` 后缀的文案助手生成结果应输出并解析“标题 / 话题 / 文案 / 分镜1...”；生成结果下方只显示“形象播报 Pro”和“素材成片 Pro”两个制作入口，进入后必须把标题、话题、总文案和 `scenes` 分镜自动预填到对应 Pro 制作页。
