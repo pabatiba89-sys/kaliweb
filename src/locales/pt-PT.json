@@ -1552,5 +1552,19 @@
   "included": "incluídos",
   "Not included": "Não incluído",
   "One-time quota": "Quota única",
-  "Quota package": "Pacote de quota"
+  "Quota package": "Pacote de quota",
+  "One-time payment": "Pagamento único",
+  "Loading secure checkout...": "A carregar checkout seguro...",
+  "Complete the one-time payment in the secure checkout.": "Conclua o pagamento único no checkout seguro.",
+  "Payment successful. Your plan will update after confirmation.": "Pagamento bem-sucedido. O seu plano será atualizado após confirmação.",
+  "Payment cancelled.": "Pagamento cancelado.",
+  "Payment not completed. Please try again.": "Pagamento não concluído. Tente novamente.",
+  "Payment failed. Please try again.": "Pagamento falhou. Tente novamente.",
+  "Payment checkout failed to load.": "Falha ao carregar o checkout de pagamento.",
+  "Close checkout": "Fechar checkout",
+  "Starting": "A iniciar",
+  "Sign in before starting checkout.": "Inicie sessão antes de começar o checkout.",
+  "Payment checkout is not available yet.": "O checkout de pagamento ainda não está disponível.",
+  "Payment session was not returned by the server.": "O servidor não devolveu a sessão de pagamento.",
+  "Payment result could not be recorded.": "Não foi possível registar o resultado do pagamento."
 }

@@ -1523,5 +1523,19 @@
   "included": "включено",
   "Not included": "Не включено",
   "One-time quota": "Разовая квота",
-  "Quota package": "Пакет квоты"
+  "Quota package": "Пакет квоты",
+  "One-time payment": "Разовый платеж",
+  "Loading secure checkout...": "Загрузка защищенной оплаты...",
+  "Complete the one-time payment in the secure checkout.": "Завершите разовый платеж в защищенной форме оплаты.",
+  "Payment successful. Your plan will update after confirmation.": "Платеж успешен. Тариф обновится после подтверждения.",
+  "Payment cancelled.": "Платеж отменен.",
+  "Payment not completed. Please try again.": "Платеж не завершен. Попробуйте еще раз.",
+  "Payment failed. Please try again.": "Платеж не прошел. Попробуйте еще раз.",
+  "Payment checkout failed to load.": "Не удалось загрузить форму оплаты.",
+  "Close checkout": "Закрыть оплату",
+  "Starting": "Запуск",
+  "Sign in before starting checkout.": "Войдите в аккаунт перед началом оплаты.",
+  "Payment checkout is not available yet.": "Оплата пока недоступна.",
+  "Payment session was not returned by the server.": "Сервер не вернул платежную сессию.",
+  "Payment result could not be recorded.": "Не удалось записать результат платежа."
 }

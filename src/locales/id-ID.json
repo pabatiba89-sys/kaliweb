@@ -1557,5 +1557,19 @@
   "included": "termasuk",
   "Not included": "Tidak termasuk",
   "One-time quota": "Kuota sekali pakai",
-  "Quota package": "Paket kuota"
+  "Quota package": "Paket kuota",
+  "One-time payment": "Pembayaran satu kali",
+  "Loading secure checkout...": "Memuat checkout aman...",
+  "Complete the one-time payment in the secure checkout.": "Selesaikan pembayaran satu kali di checkout aman.",
+  "Payment successful. Your plan will update after confirmation.": "Pembayaran berhasil. Paket Anda akan diperbarui setelah konfirmasi.",
+  "Payment cancelled.": "Pembayaran dibatalkan.",
+  "Payment not completed. Please try again.": "Pembayaran belum selesai. Coba lagi.",
+  "Payment failed. Please try again.": "Pembayaran gagal. Coba lagi.",
+  "Payment checkout failed to load.": "Checkout pembayaran gagal dimuat.",
+  "Close checkout": "Tutup checkout",
+  "Starting": "Memulai",
+  "Sign in before starting checkout.": "Masuk sebelum memulai checkout.",
+  "Payment checkout is not available yet.": "Checkout pembayaran belum tersedia.",
+  "Payment session was not returned by the server.": "Server tidak mengembalikan sesi pembayaran.",
+  "Payment result could not be recorded.": "Hasil pembayaran tidak dapat dicatat."
 }

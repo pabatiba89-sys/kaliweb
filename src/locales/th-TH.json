@@ -1625,5 +1625,19 @@
   "included": "รวมอยู่",
   "Not included": "ไม่รวม",
   "One-time quota": "โควตาใช้ครั้งเดียว",
-  "Quota package": "แพ็กเกจโควตา"
+  "Quota package": "แพ็กเกจโควตา",
+  "One-time payment": "ชำระเงินครั้งเดียว",
+  "Loading secure checkout...": "กำลังโหลดหน้าชำระเงินที่ปลอดภัย...",
+  "Complete the one-time payment in the secure checkout.": "ชำระเงินครั้งเดียวให้เสร็จในหน้าชำระเงินที่ปลอดภัย",
+  "Payment successful. Your plan will update after confirmation.": "ชำระเงินสำเร็จ แพ็กเกจของคุณจะอัปเดตหลังยืนยัน",
+  "Payment cancelled.": "ยกเลิกการชำระเงินแล้ว",
+  "Payment not completed. Please try again.": "ยังชำระเงินไม่เสร็จ โปรดลองอีกครั้ง",
+  "Payment failed. Please try again.": "ชำระเงินไม่สำเร็จ โปรดลองอีกครั้ง",
+  "Payment checkout failed to load.": "โหลดหน้าชำระเงินไม่สำเร็จ",
+  "Close checkout": "ปิดหน้าชำระเงิน",
+  "Starting": "กำลังเริ่ม",
+  "Sign in before starting checkout.": "เข้าสู่ระบบก่อนเริ่มชำระเงิน",
+  "Payment checkout is not available yet.": "ยังไม่สามารถใช้หน้าชำระเงินได้",
+  "Payment session was not returned by the server.": "เซิร์ฟเวอร์ไม่ได้ส่งคืนเซสชันการชำระเงิน",
+  "Payment result could not be recorded.": "ไม่สามารถบันทึกผลการชำระเงินได้"
 }

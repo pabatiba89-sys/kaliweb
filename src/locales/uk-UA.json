@@ -1538,5 +1538,19 @@
   "included": "включено",
   "Not included": "Не включено",
   "One-time quota": "Разова квота",
-  "Quota package": "Пакет квоти"
+  "Quota package": "Пакет квоти",
+  "One-time payment": "Разовий платіж",
+  "Loading secure checkout...": "Завантаження безпечної оплати...",
+  "Complete the one-time payment in the secure checkout.": "Завершіть разовий платіж у безпечній формі оплати.",
+  "Payment successful. Your plan will update after confirmation.": "Платіж успішний. Ваш тариф оновиться після підтвердження.",
+  "Payment cancelled.": "Платіж скасовано.",
+  "Payment not completed. Please try again.": "Платіж не завершено. Спробуйте ще раз.",
+  "Payment failed. Please try again.": "Платіж не вдався. Спробуйте ще раз.",
+  "Payment checkout failed to load.": "Не вдалося завантажити оплату.",
+  "Close checkout": "Закрити оплату",
+  "Starting": "Запуск",
+  "Sign in before starting checkout.": "Увійдіть перед початком оплати.",
+  "Payment checkout is not available yet.": "Оплата ще недоступна.",
+  "Payment session was not returned by the server.": "Сервер не повернув платіжну сесію.",
+  "Payment result could not be recorded.": "Не вдалося записати результат платежу."
 }

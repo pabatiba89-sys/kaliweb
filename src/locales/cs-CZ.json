@@ -1525,5 +1525,19 @@
   "included": "zahrnuto",
   "Not included": "Není zahrnuto",
   "One-time quota": "Jednorázová kvóta",
-  "Quota package": "Balíček kvóty"
+  "Quota package": "Balíček kvóty",
+  "One-time payment": "Jednorázová platba",
+  "Loading secure checkout...": "Načítá se bezpečná platba...",
+  "Complete the one-time payment in the secure checkout.": "Dokončete jednorázovou platbu v bezpečném checkoutu.",
+  "Payment successful. Your plan will update after confirmation.": "Platba proběhla úspěšně. Váš tarif se aktualizuje po potvrzení.",
+  "Payment cancelled.": "Platba byla zrušena.",
+  "Payment not completed. Please try again.": "Platba nebyla dokončena. Zkuste to znovu.",
+  "Payment failed. Please try again.": "Platba selhala. Zkuste to znovu.",
+  "Payment checkout failed to load.": "Checkout platby se nepodařilo načíst.",
+  "Close checkout": "Zavřít checkout",
+  "Starting": "Spouštění",
+  "Sign in before starting checkout.": "Před zahájením checkoutu se přihlaste.",
+  "Payment checkout is not available yet.": "Checkout platby zatím není dostupný.",
+  "Payment session was not returned by the server.": "Server nevrátil platební relaci.",
+  "Payment result could not be recorded.": "Výsledek platby se nepodařilo zaznamenat."
 }

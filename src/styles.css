@@ -5330,6 +5330,12 @@ video.media-preview {
   color: #a93228;
 }
 
+.billing-message.is-success {
+  border-color: #b8ead6;
+  background: #f1fbf7;
+  color: #167355;
+}
+
 .billing-summary-grid {
   display: grid;
   grid-template-columns: minmax(280px, 0.82fr) minmax(0, 1.18fr);
@@ -5483,7 +5489,7 @@ video.media-preview {
 }
 
 .billing-section-head a,
-.billing-plan-card > a {
+.billing-plan-card > button {
   color: var(--green-dark);
   font-size: 13px;
   font-weight: 850;
@@ -5542,14 +5548,22 @@ video.media-preview {
   font-size: 18px;
 }
 
-.billing-plan-card > a {
+.billing-plan-card > button {
   min-height: 36px;
   padding: 0 14px;
+  border: 0;
   border-radius: 12px;
   background: #e7f8f3;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.billing-plan-card > button:disabled {
+  cursor: wait;
+  opacity: 0.72;
 }
 
 .billing-empty {
@@ -5563,6 +5577,93 @@ video.media-preview {
   place-items: center;
   font-size: 13px;
   font-weight: 760;
+}
+
+.payment-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  padding: 24px;
+  background: rgba(14, 29, 26, 0.52);
+  display: grid;
+  place-items: center;
+}
+
+.payment-modal {
+  width: min(720px, 100%);
+  max-height: min(760px, calc(100vh - 48px));
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: #ffffff;
+  box-shadow: 0 26px 80px rgba(15, 35, 31, 0.28);
+}
+
+.payment-modal header {
+  padding: 18px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.payment-modal header small,
+.payment-modal-summary small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 820;
+}
+
+.payment-modal header h2 {
+  margin: 4px 0 0;
+  color: var(--ink);
+  font-size: 22px;
+  line-height: 1.2;
+}
+
+.payment-modal-summary {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--line);
+  background: #f8fcfa;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.payment-modal-summary span {
+  color: var(--ink);
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.payment-modal-status {
+  margin: 14px 18px 0;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: #f3faf7;
+  color: #31564e;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 760;
+}
+
+.payment-modal-status.is-success {
+  background: #edf9f3;
+  color: #167355;
+}
+
+.payment-modal-status.is-error {
+  background: #fff5f3;
+  color: #a93228;
+}
+
+.payment-dropin-container {
+  min-height: 420px;
+  padding: 18px;
 }
 
 .china-billing-page {
@@ -5836,7 +5937,7 @@ video.media-preview {
     text-align: left;
   }
 
-  .billing-plan-card > a {
+  .billing-plan-card > button {
     width: 100%;
   }
 

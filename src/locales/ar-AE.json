@@ -1588,5 +1588,19 @@
   "included": "مضمنة",
   "Not included": "غير مضمن",
   "One-time quota": "حصة لمرة واحدة",
-  "Quota package": "حزمة حصة"
+  "Quota package": "حزمة حصة",
+  "One-time payment": "دفعة لمرة واحدة",
+  "Loading secure checkout...": "جارٍ تحميل صفحة الدفع الآمنة...",
+  "Complete the one-time payment in the secure checkout.": "أكمل الدفعة لمرة واحدة في صفحة الدفع الآمنة.",
+  "Payment successful. Your plan will update after confirmation.": "تم الدفع بنجاح. سيتم تحديث خطتك بعد التأكيد.",
+  "Payment cancelled.": "تم إلغاء الدفع.",
+  "Payment not completed. Please try again.": "لم يكتمل الدفع. حاول مرة أخرى.",
+  "Payment failed. Please try again.": "فشل الدفع. حاول مرة أخرى.",
+  "Payment checkout failed to load.": "تعذر تحميل صفحة الدفع.",
+  "Close checkout": "إغلاق الدفع",
+  "Starting": "جارٍ البدء",
+  "Sign in before starting checkout.": "سجّل الدخول قبل بدء الدفع.",
+  "Payment checkout is not available yet.": "صفحة الدفع غير متاحة حالياً.",
+  "Payment session was not returned by the server.": "لم يُرجع الخادم جلسة الدفع.",
+  "Payment result could not be recorded.": "تعذر تسجيل نتيجة الدفع."
 }

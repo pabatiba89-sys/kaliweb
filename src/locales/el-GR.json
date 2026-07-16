@@ -1592,5 +1592,19 @@
   "included": "περιλαμβάνονται",
   "Not included": "Δεν περιλαμβάνεται",
   "One-time quota": "Εφάπαξ όριο",
-  "Quota package": "Πακέτο ορίου"
+  "Quota package": "Πακέτο ορίου",
+  "One-time payment": "Εφάπαξ πληρωμή",
+  "Loading secure checkout...": "Φόρτωση ασφαλούς πληρωμής...",
+  "Complete the one-time payment in the secure checkout.": "Ολοκληρώστε την εφάπαξ πληρωμή στο ασφαλές checkout.",
+  "Payment successful. Your plan will update after confirmation.": "Η πληρωμή ήταν επιτυχής. Το πρόγραμμά σας θα ενημερωθεί μετά την επιβεβαίωση.",
+  "Payment cancelled.": "Η πληρωμή ακυρώθηκε.",
+  "Payment not completed. Please try again.": "Η πληρωμή δεν ολοκληρώθηκε. Δοκιμάστε ξανά.",
+  "Payment failed. Please try again.": "Η πληρωμή απέτυχε. Δοκιμάστε ξανά.",
+  "Payment checkout failed to load.": "Το checkout πληρωμής δεν φορτώθηκε.",
+  "Close checkout": "Κλείσιμο checkout",
+  "Starting": "Εκκίνηση",
+  "Sign in before starting checkout.": "Συνδεθείτε πριν ξεκινήσετε το checkout.",
+  "Payment checkout is not available yet.": "Το checkout πληρωμής δεν είναι ακόμη διαθέσιμο.",
+  "Payment session was not returned by the server.": "Ο διακομιστής δεν επέστρεψε συνεδρία πληρωμής.",
+  "Payment result could not be recorded.": "Δεν ήταν δυνατή η καταγραφή του αποτελέσματος πληρωμής."
 }

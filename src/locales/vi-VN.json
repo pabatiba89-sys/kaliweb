@@ -1594,5 +1594,19 @@
   "included": "bao gồm",
   "Not included": "Không bao gồm",
   "One-time quota": "Hạn mức một lần",
-  "Quota package": "Gói hạn mức"
+  "Quota package": "Gói hạn mức",
+  "One-time payment": "Thanh toán một lần",
+  "Loading secure checkout...": "Đang tải thanh toán an toàn...",
+  "Complete the one-time payment in the secure checkout.": "Hoàn tất thanh toán một lần trong trang thanh toán an toàn.",
+  "Payment successful. Your plan will update after confirmation.": "Thanh toán thành công. Gói của bạn sẽ được cập nhật sau khi xác nhận.",
+  "Payment cancelled.": "Đã hủy thanh toán.",
+  "Payment not completed. Please try again.": "Thanh toán chưa hoàn tất. Vui lòng thử lại.",
+  "Payment failed. Please try again.": "Thanh toán thất bại. Vui lòng thử lại.",
+  "Payment checkout failed to load.": "Không tải được trang thanh toán.",
+  "Close checkout": "Đóng thanh toán",
+  "Starting": "Đang bắt đầu",
+  "Sign in before starting checkout.": "Đăng nhập trước khi bắt đầu thanh toán.",
+  "Payment checkout is not available yet.": "Thanh toán chưa khả dụng.",
+  "Payment session was not returned by the server.": "Máy chủ chưa trả về phiên thanh toán.",
+  "Payment result could not be recorded.": "Không thể ghi nhận kết quả thanh toán."
 }

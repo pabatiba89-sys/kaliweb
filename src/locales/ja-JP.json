@@ -1569,5 +1569,19 @@
   "included": "含む",
   "Not included": "含まれません",
   "One-time quota": "一回限りの枠",
-  "Quota package": "クォータパッケージ"
+  "Quota package": "クォータパッケージ",
+  "One-time payment": "一回限りの支払い",
+  "Loading secure checkout...": "安全な決済を読み込み中...",
+  "Complete the one-time payment in the secure checkout.": "安全な決済画面で一回限りの支払いを完了してください。",
+  "Payment successful. Your plan will update after confirmation.": "支払いが完了しました。確認後にプランが更新されます。",
+  "Payment cancelled.": "支払いはキャンセルされました。",
+  "Payment not completed. Please try again.": "支払いが完了していません。もう一度お試しください。",
+  "Payment failed. Please try again.": "支払いに失敗しました。もう一度お試しください。",
+  "Payment checkout failed to load.": "決済画面を読み込めませんでした。",
+  "Close checkout": "決済を閉じる",
+  "Starting": "開始中",
+  "Sign in before starting checkout.": "決済を開始する前にログインしてください。",
+  "Payment checkout is not available yet.": "決済はまだ利用できません。",
+  "Payment session was not returned by the server.": "サーバーから支払いセッションが返されませんでした。",
+  "Payment result could not be recorded.": "支払い結果を記録できませんでした。"
 }

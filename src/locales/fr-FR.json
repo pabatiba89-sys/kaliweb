@@ -1550,5 +1550,19 @@
   "included": "inclus",
   "Not included": "Non inclus",
   "One-time quota": "Quota ponctuel",
-  "Quota package": "Pack de quota"
+  "Quota package": "Pack de quota",
+  "One-time payment": "Paiement ponctuel",
+  "Loading secure checkout...": "Chargement du paiement sécurisé...",
+  "Complete the one-time payment in the secure checkout.": "Terminez le paiement ponctuel dans le module sécurisé.",
+  "Payment successful. Your plan will update after confirmation.": "Paiement réussi. Votre offre sera mise à jour après confirmation.",
+  "Payment cancelled.": "Paiement annulé.",
+  "Payment not completed. Please try again.": "Paiement non terminé. Réessayez.",
+  "Payment failed. Please try again.": "Paiement échoué. Réessayez.",
+  "Payment checkout failed to load.": "Le module de paiement n’a pas pu se charger.",
+  "Close checkout": "Fermer le paiement",
+  "Starting": "Démarrage",
+  "Sign in before starting checkout.": "Connectez-vous avant de lancer le paiement.",
+  "Payment checkout is not available yet.": "Le paiement n’est pas encore disponible.",
+  "Payment session was not returned by the server.": "La session de paiement n’a pas été renvoyée par le serveur.",
+  "Payment result could not be recorded.": "Le résultat du paiement n’a pas pu être enregistré."
 }

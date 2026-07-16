@@ -115,3 +115,4 @@
 - 2026-07-16：Pro 提交参数不带身份栏信息；数字人 Pro 只提交制作所需的 `virtualmanId/aiHumanId`，不得提交 `introduceCard.name` 或 `introduceCard.description`。
 - 2026-07-16：Pro 草稿续作和失败重做必须递归还原 `scenes` 以及 `scenes[].materials`；如果历史数据只有全局 `materials` 而分镜没有素材，则把全局素材挂到首个分镜，避免 Pro 回填后丢分镜素材。
 - 2026-07-16：海外 Billing 页套餐列表不能只依赖 DOM 静态翻译；接口返回的中文套餐名和额度单位需在显示层映射为英文源词，再用 `translateStatic` + 当前语言包本地化。新增套餐相关词条应写入 `scripts/localization-overrides.mjs` 后运行 `npm run i18n:generate -- --apply-overrides` 同步 24 个工作台语言包。
+- 2026-07-16：Evonet 支付先只接单次支付，不做订阅。前端 Billing 页只请求后端创建一次性支付 session 并用 Drop-in SDK 渲染；Evonet `KeyID`/`SignKey`、`POST /interaction`、webhook、订单落库和套餐生效都必须在后端处理。前端兼容 `/api/payment/evonet/one-time/session`、`/api/payments/evonet/one-time/session`、`/api/billing/evonet/one-time/session` 和 `/api/evonet/interaction`，支付事件回传兼容 `/api/payment/evonet/one-time/callback`、`/api/payments/evonet/one-time/callback`、`/api/billing/evonet/one-time/callback`。

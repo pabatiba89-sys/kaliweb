@@ -1529,5 +1529,19 @@
   "included": "enthalten",
   "Not included": "Nicht enthalten",
   "One-time quota": "Einmaliges Kontingent",
-  "Quota package": "Kontingentpaket"
+  "Quota package": "Kontingentpaket",
+  "One-time payment": "Einmalzahlung",
+  "Loading secure checkout...": "Sicherer Checkout wird geladen...",
+  "Complete the one-time payment in the secure checkout.": "Schließen Sie die Einmalzahlung im sicheren Checkout ab.",
+  "Payment successful. Your plan will update after confirmation.": "Zahlung erfolgreich. Ihr Tarif wird nach der Bestätigung aktualisiert.",
+  "Payment cancelled.": "Zahlung abgebrochen.",
+  "Payment not completed. Please try again.": "Zahlung nicht abgeschlossen. Bitte versuchen Sie es erneut.",
+  "Payment failed. Please try again.": "Zahlung fehlgeschlagen. Bitte versuchen Sie es erneut.",
+  "Payment checkout failed to load.": "Der Zahlungs-Checkout konnte nicht geladen werden.",
+  "Close checkout": "Checkout schließen",
+  "Starting": "Wird gestartet",
+  "Sign in before starting checkout.": "Melden Sie sich an, bevor Sie den Checkout starten.",
+  "Payment checkout is not available yet.": "Der Zahlungs-Checkout ist noch nicht verfügbar.",
+  "Payment session was not returned by the server.": "Der Server hat keine Zahlungssitzung zurückgegeben.",
+  "Payment result could not be recorded.": "Das Zahlungsergebnis konnte nicht gespeichert werden."
 }

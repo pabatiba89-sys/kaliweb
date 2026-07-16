@@ -1539,5 +1539,19 @@
   "included": "incluse",
   "Not included": "Neinclus",
   "One-time quota": "Cotă unică",
-  "Quota package": "Pachet de cotă"
+  "Quota package": "Pachet de cotă",
+  "One-time payment": "Plată unică",
+  "Loading secure checkout...": "Se încarcă plata securizată...",
+  "Complete the one-time payment in the secure checkout.": "Finalizează plata unică în checkoutul securizat.",
+  "Payment successful. Your plan will update after confirmation.": "Plata a reușit. Planul tău va fi actualizat după confirmare.",
+  "Payment cancelled.": "Plata a fost anulată.",
+  "Payment not completed. Please try again.": "Plata nu a fost finalizată. Încearcă din nou.",
+  "Payment failed. Please try again.": "Plata a eșuat. Încearcă din nou.",
+  "Payment checkout failed to load.": "Checkoutul de plată nu s-a putut încărca.",
+  "Close checkout": "Închide checkoutul",
+  "Starting": "Se pornește",
+  "Sign in before starting checkout.": "Autentifică-te înainte de a începe checkoutul.",
+  "Payment checkout is not available yet.": "Checkoutul de plată nu este încă disponibil.",
+  "Payment session was not returned by the server.": "Serverul nu a returnat sesiunea de plată.",
+  "Payment result could not be recorded.": "Rezultatul plății nu a putut fi înregistrat."
 }

@@ -712,5 +712,19 @@
   "included": "包含",
   "Not included": "不包含",
   "One-time quota": "一次性额度",
-  "Quota package": "额度包"
+  "Quota package": "额度包",
+  "One-time payment": "单次支付",
+  "Loading secure checkout...": "正在加载安全结账...",
+  "Complete the one-time payment in the secure checkout.": "请在安全结账中完成单次支付。",
+  "Payment successful. Your plan will update after confirmation.": "支付成功。确认后你的套餐会更新。",
+  "Payment cancelled.": "支付已取消。",
+  "Payment not completed. Please try again.": "支付未完成，请重试。",
+  "Payment failed. Please try again.": "支付失败，请重试。",
+  "Payment checkout failed to load.": "支付结账加载失败。",
+  "Close checkout": "关闭结账",
+  "Starting": "正在启动",
+  "Sign in before starting checkout.": "请先登录再开始结账。",
+  "Payment checkout is not available yet.": "支付结账暂不可用。",
+  "Payment session was not returned by the server.": "服务器未返回支付会话。",
+  "Payment result could not be recorded.": "支付结果未能记录。"
 }

@@ -1115,5 +1115,19 @@
   "Not included": "Not included",
   "One-time quota": "One-time quota",
   "Quota package": "Quota package",
-  "Choose": "Choose"
+  "Choose": "Choose",
+  "One-time payment": "One-time payment",
+  "Loading secure checkout...": "Loading secure checkout...",
+  "Complete the one-time payment in the secure checkout.": "Complete the one-time payment in the secure checkout.",
+  "Payment successful. Your plan will update after confirmation.": "Payment successful. Your plan will update after confirmation.",
+  "Payment cancelled.": "Payment cancelled.",
+  "Payment not completed. Please try again.": "Payment not completed. Please try again.",
+  "Payment failed. Please try again.": "Payment failed. Please try again.",
+  "Payment checkout failed to load.": "Payment checkout failed to load.",
+  "Close checkout": "Close checkout",
+  "Starting": "Starting",
+  "Sign in before starting checkout.": "Sign in before starting checkout.",
+  "Payment checkout is not available yet.": "Payment checkout is not available yet.",
+  "Payment session was not returned by the server.": "Payment session was not returned by the server.",
+  "Payment result could not be recorded.": "Payment result could not be recorded."
 }

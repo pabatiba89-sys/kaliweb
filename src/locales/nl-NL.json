@@ -1520,5 +1520,19 @@
   "included": "inbegrepen",
   "Not included": "Niet inbegrepen",
   "One-time quota": "Eenmalige quota",
-  "Quota package": "Quotapakket"
+  "Quota package": "Quotapakket",
+  "One-time payment": "Eenmalige betaling",
+  "Loading secure checkout...": "Veilige checkout laden...",
+  "Complete the one-time payment in the secure checkout.": "Rond de eenmalige betaling af in de veilige checkout.",
+  "Payment successful. Your plan will update after confirmation.": "Betaling geslaagd. Je abonnement wordt bijgewerkt na bevestiging.",
+  "Payment cancelled.": "Betaling geannuleerd.",
+  "Payment not completed. Please try again.": "Betaling niet voltooid. Probeer het opnieuw.",
+  "Payment failed. Please try again.": "Betaling mislukt. Probeer het opnieuw.",
+  "Payment checkout failed to load.": "De betaalcheckout kon niet worden geladen.",
+  "Close checkout": "Checkout sluiten",
+  "Starting": "Starten",
+  "Sign in before starting checkout.": "Log in voordat je de checkout start.",
+  "Payment checkout is not available yet.": "De betaalcheckout is nog niet beschikbaar.",
+  "Payment session was not returned by the server.": "De server heeft geen betaalsessie teruggegeven.",
+  "Payment result could not be recorded.": "Het betaalresultaat kon niet worden vastgelegd."
 }

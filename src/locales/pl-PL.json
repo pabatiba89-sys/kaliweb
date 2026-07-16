@@ -1529,5 +1529,19 @@
   "included": "wliczone",
   "Not included": "Nie wliczono",
   "One-time quota": "Jednorazowy limit",
-  "Quota package": "Pakiet limitu"
+  "Quota package": "Pakiet limitu",
+  "One-time payment": "Płatność jednorazowa",
+  "Loading secure checkout...": "Ładowanie bezpiecznej płatności...",
+  "Complete the one-time payment in the secure checkout.": "Dokończ płatność jednorazową w bezpiecznym checkoutcie.",
+  "Payment successful. Your plan will update after confirmation.": "Płatność zakończona sukcesem. Plan zostanie zaktualizowany po potwierdzeniu.",
+  "Payment cancelled.": "Płatność anulowana.",
+  "Payment not completed. Please try again.": "Płatność nie została ukończona. Spróbuj ponownie.",
+  "Payment failed. Please try again.": "Płatność nie powiodła się. Spróbuj ponownie.",
+  "Payment checkout failed to load.": "Nie udało się załadować checkoutu płatności.",
+  "Close checkout": "Zamknij checkout",
+  "Starting": "Uruchamianie",
+  "Sign in before starting checkout.": "Zaloguj się przed rozpoczęciem checkoutu.",
+  "Payment checkout is not available yet.": "Checkout płatności nie jest jeszcze dostępny.",
+  "Payment session was not returned by the server.": "Serwer nie zwrócił sesji płatności.",
+  "Payment result could not be recorded.": "Nie udało się zapisać wyniku płatności."
 }

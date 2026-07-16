@@ -1531,5 +1531,19 @@
   "included": "sisältyy",
   "Not included": "Ei sisälly",
   "One-time quota": "Kertakiintiö",
-  "Quota package": "Kiintiöpaketti"
+  "Quota package": "Kiintiöpaketti",
+  "One-time payment": "Kertamaksu",
+  "Loading secure checkout...": "Ladataan suojattua maksua...",
+  "Complete the one-time payment in the secure checkout.": "Viimeistele kertamaksu suojatussa kassassa.",
+  "Payment successful. Your plan will update after confirmation.": "Maksu onnistui. Pakettisi päivittyy vahvistuksen jälkeen.",
+  "Payment cancelled.": "Maksu peruttu.",
+  "Payment not completed. Please try again.": "Maksua ei viimeistelty. Yritä uudelleen.",
+  "Payment failed. Please try again.": "Maksu epäonnistui. Yritä uudelleen.",
+  "Payment checkout failed to load.": "Maksukassaa ei voitu ladata.",
+  "Close checkout": "Sulje kassa",
+  "Starting": "Käynnistetään",
+  "Sign in before starting checkout.": "Kirjaudu sisään ennen kassan aloittamista.",
+  "Payment checkout is not available yet.": "Maksukassa ei ole vielä saatavilla.",
+  "Payment session was not returned by the server.": "Palvelin ei palauttanut maksuistuntoa.",
+  "Payment result could not be recorded.": "Maksutulosta ei voitu tallentaa."
 }

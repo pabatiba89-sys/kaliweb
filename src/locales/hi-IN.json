@@ -1621,5 +1621,19 @@
   "included": "शामिल",
   "Not included": "शामिल नहीं",
   "One-time quota": "एक बार का कोटा",
-  "Quota package": "कोटा पैकेज"
+  "Quota package": "कोटा पैकेज",
+  "One-time payment": "एक बार का भुगतान",
+  "Loading secure checkout...": "सुरक्षित चेकआउट लोड हो रहा है...",
+  "Complete the one-time payment in the secure checkout.": "सुरक्षित चेकआउट में एक बार का भुगतान पूरा करें।",
+  "Payment successful. Your plan will update after confirmation.": "भुगतान सफल रहा। पुष्टि के बाद आपका प्लान अपडेट होगा।",
+  "Payment cancelled.": "भुगतान रद्द किया गया।",
+  "Payment not completed. Please try again.": "भुगतान पूरा नहीं हुआ। कृपया फिर प्रयास करें।",
+  "Payment failed. Please try again.": "भुगतान विफल रहा। कृपया फिर प्रयास करें।",
+  "Payment checkout failed to load.": "भुगतान चेकआउट लोड नहीं हो सका।",
+  "Close checkout": "चेकआउट बंद करें",
+  "Starting": "शुरू हो रहा है",
+  "Sign in before starting checkout.": "चेकआउट शुरू करने से पहले साइन इन करें।",
+  "Payment checkout is not available yet.": "भुगतान चेकआउट अभी उपलब्ध नहीं है।",
+  "Payment session was not returned by the server.": "सर्वर ने भुगतान सत्र वापस नहीं किया।",
+  "Payment result could not be recorded.": "भुगतान परिणाम रिकॉर्ड नहीं किया जा सका।"
 }

@@ -1527,5 +1527,19 @@
   "included": "dahil",
   "Not included": "Dahil değil",
   "One-time quota": "Tek seferlik kota",
-  "Quota package": "Kota paketi"
+  "Quota package": "Kota paketi",
+  "One-time payment": "Tek seferlik ödeme",
+  "Loading secure checkout...": "Güvenli ödeme yükleniyor...",
+  "Complete the one-time payment in the secure checkout.": "Tek seferlik ödemeyi güvenli ödeme ekranında tamamlayın.",
+  "Payment successful. Your plan will update after confirmation.": "Ödeme başarılı. Planınız onaydan sonra güncellenecek.",
+  "Payment cancelled.": "Ödeme iptal edildi.",
+  "Payment not completed. Please try again.": "Ödeme tamamlanmadı. Lütfen tekrar deneyin.",
+  "Payment failed. Please try again.": "Ödeme başarısız. Lütfen tekrar deneyin.",
+  "Payment checkout failed to load.": "Ödeme ekranı yüklenemedi.",
+  "Close checkout": "Ödemeyi kapat",
+  "Starting": "Başlatılıyor",
+  "Sign in before starting checkout.": "Ödemeye başlamadan önce giriş yapın.",
+  "Payment checkout is not available yet.": "Ödeme ekranı henüz kullanılamıyor.",
+  "Payment session was not returned by the server.": "Sunucu ödeme oturumunu döndürmedi.",
+  "Payment result could not be recorded.": "Ödeme sonucu kaydedilemedi."
 }

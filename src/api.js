@@ -8,6 +8,19 @@ const AUTH_ENDPOINTS = {
   sendPhoneCode: ['/api/user/phone/send-code', '/api/user/send-phone-code', '/api/sms/send'],
   bindPhone: ['/api/user/phone/bind', '/api/user/bind-phone', '/api/user/mobile/bind'],
 };
+const PAYMENT_ENDPOINTS = {
+  evonetOneTimeSession: [
+    '/api/payment/evonet/one-time/session',
+    '/api/payments/evonet/one-time/session',
+    '/api/billing/evonet/one-time/session',
+    '/api/evonet/interaction',
+  ],
+  evonetOneTimeCallback: [
+    '/api/payment/evonet/one-time/callback',
+    '/api/payments/evonet/one-time/callback',
+    '/api/billing/evonet/one-time/callback',
+  ],
+};
 
 export const getAccessToken = () => {
   for (const key of AUTH_KEYS) {
@@ -191,6 +204,49 @@ export async function bindPhoneNumber({ countryCode, phone, code }) {
       verification_code: code,
     },
   }, 'Phone binding is not available yet');
+}
+
+export async function createEvonetOneTimePaymentSession({ plan, locale }) {
+  const planId = plan?.id || plan?.plan_id || plan?.planId || plan?.package_id || plan?.packageId;
+  return apiFetchAny(PAYMENT_ENDPOINTS.evonetOneTimeSession, {
+    method: 'POST',
+    timeoutMs: 20000,
+    body: {
+      paymentType: 'one_time',
+      payment_type: 'one_time',
+      recurring: false,
+      locale,
+      planId,
+      plan_id: planId,
+      packageId: plan?.package_id || plan?.packageId || planId,
+      package_id: plan?.package_id || plan?.packageId || planId,
+      productName: plan?.name || plan?.title || plan?.plan_name || plan?.planName || plan?.package_name || plan?.packageName,
+      product_name: plan?.name || plan?.title || plan?.plan_name || plan?.planName || plan?.package_name || plan?.packageName,
+      amount: plan?.price ?? plan?.amount ?? plan?.sale_price ?? plan?.salePrice ?? plan?.pay_amount ?? plan?.payAmount,
+      currency: plan?.currency || plan?.currency_code || plan?.currencyCode || 'USD',
+    },
+  }, 'Payment checkout is not available yet');
+}
+
+export async function reportEvonetOneTimePaymentEvent({ session, event }) {
+  return apiFetchAny(PAYMENT_ENDPOINTS.evonetOneTimeCallback, {
+    method: 'POST',
+    timeoutMs: 12000,
+    body: {
+      paymentType: 'one_time',
+      payment_type: 'one_time',
+      sessionID: session?.sessionID || session?.sessionId || session?.session_id,
+      sessionId: session?.sessionID || session?.sessionId || session?.session_id,
+      merchantOrderID: session?.merchantOrderID || session?.merchantOrderId || session?.merchant_order_id,
+      merchantOrderId: session?.merchantOrderID || session?.merchantOrderId || session?.merchant_order_id,
+      merchantTransID: event?.merchantTransID || event?.merchantTransId || event?.merchant_trans_id,
+      merchantTransId: event?.merchantTransID || event?.merchantTransId || event?.merchant_trans_id,
+      type: event?.type,
+      code: event?.code,
+      message: event?.message,
+      event,
+    },
+  }, 'Payment result could not be recorded');
 }
 
 export function storeSession(data = {}) {

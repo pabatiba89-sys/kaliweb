@@ -1508,5 +1508,19 @@
   "included": "包含",
   "Not included": "不包含",
   "One-time quota": "一次性額度",
-  "Quota package": "額度包"
+  "Quota package": "額度包",
+  "One-time payment": "單次付款",
+  "Loading secure checkout...": "正在載入安全結帳...",
+  "Complete the one-time payment in the secure checkout.": "請在安全結帳中完成單次付款。",
+  "Payment successful. Your plan will update after confirmation.": "付款成功。確認後你的方案會更新。",
+  "Payment cancelled.": "付款已取消。",
+  "Payment not completed. Please try again.": "付款未完成，請再試一次。",
+  "Payment failed. Please try again.": "付款失敗，請再試一次。",
+  "Payment checkout failed to load.": "付款結帳載入失敗。",
+  "Close checkout": "關閉結帳",
+  "Starting": "正在啟動",
+  "Sign in before starting checkout.": "請先登入再開始結帳。",
+  "Payment checkout is not available yet.": "付款結帳暫不可用。",
+  "Payment session was not returned by the server.": "伺服器未返回付款會話。",
+  "Payment result could not be recorded.": "付款結果未能記錄。"
 }

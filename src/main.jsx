@@ -56,8 +56,10 @@ import {
   changePassword,
   clearSession,
   confirmPasswordReset,
+  createEvonetOneTimePaymentSession,
   emailLogin,
   getAccessToken,
+  reportEvonetOneTimePaymentEvent,
   requestPasswordReset,
   sendPhoneVerificationCode,
   storeSession,
@@ -5097,6 +5099,7 @@ const normalizePlanCard = (plan = {}, index = 0, locale = 'en-US', catalog = {})
 
   return {
     id: pick(plan.id, plan.plan_id, plan.planId, plan.name, `plan-${index}`),
+    raw: plan,
     title: translateBilling(rawTitle ? getBillingPlanTitleSource(rawTitle) : `Plan ${index + 1}`, locale, catalog),
     price: translateBilling(formatBillingMoney(plan), locale, catalog),
     period: translateBilling(period || 'One-time quota', locale, catalog),
@@ -5104,10 +5107,126 @@ const normalizePlanCard = (plan = {}, index = 0, locale = 'en-US', catalog = {})
   };
 };
 const getBillingResult = (results, label) => results.find((result) => result.endpoint.label === label) || {};
+const EVONET_DROPIN_CDN = 'https://cdn.jsdelivr.net/npm/cil-dropin-components@latest/dist/index.min.js';
+let evonetDropInPromise = null;
+const loadEvonetDropIn = () => {
+  if (window.DropInSDK) return Promise.resolve(window.DropInSDK);
+  if (evonetDropInPromise) return evonetDropInPromise;
+  evonetDropInPromise = new Promise((resolve, reject) => {
+    const existing = document.querySelector(`script[src="${EVONET_DROPIN_CDN}"]`);
+    if (existing) {
+      existing.addEventListener('load', () => resolve(window.DropInSDK), { once: true });
+      existing.addEventListener('error', reject, { once: true });
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = EVONET_DROPIN_CDN;
+    script.async = true;
+    script.onload = () => window.DropInSDK ? resolve(window.DropInSDK) : reject(new Error('Payment SDK did not initialize'));
+    script.onerror = () => reject(new Error('Payment SDK failed to load'));
+    document.head.appendChild(script);
+  });
+  return evonetDropInPromise;
+};
+const normalizeEvonetSession = (result = {}) => {
+  const payloads = billingPayloads(result);
+  for (const payload of payloads) {
+    const sessionID = pick(payload.sessionID, payload.sessionId, payload.session_id, payload.id);
+    if (sessionID) {
+      return {
+        ...payload,
+        sessionID,
+        merchantOrderID: pick(payload.merchantOrderID, payload.merchantOrderId, payload.merchant_order_id, payload.orderId, payload.order_id),
+        merchantTransID: pick(payload.merchantTransID, payload.merchantTransId, payload.merchant_trans_id),
+        environment: pick(payload.environment, payload.env, import.meta.env.VITE_EVONET_ENV) || 'UAT',
+      };
+    }
+  }
+  return {};
+};
+const evonetPaymentMessage = (event = {}) => {
+  if (event.type === 'payment_completed') return 'Payment successful. Your plan will update after confirmation.';
+  if (event.type === 'payment_cancelled') return 'Payment cancelled.';
+  if (event.type === 'payment_not_preformed') return event.message || 'Payment not completed. Please try again.';
+  return event.message || 'Payment failed. Please try again.';
+};
+
+function EvonetPaymentModal({ checkout, language, onClose, onEvent }) {
+  const containerId = 'evonet-dropin-app';
+  const [status, setStatus] = useState({ tone: 'loading', text: 'Loading secure checkout...' });
+
+  useEffect(() => {
+    let disposed = false;
+    let sdk = null;
+
+    const handleEvent = async (event) => {
+      if (disposed) return;
+      const tone = event.type === 'payment_completed' ? 'success' : event.type === 'payment_cancelled' ? 'idle' : 'error';
+      setStatus({ tone, text: evonetPaymentMessage(event) });
+      await onEvent(event);
+    };
+
+    loadEvonetDropIn()
+      .then((DropInSDK) => {
+        if (disposed) return;
+        setStatus({ tone: 'idle', text: 'Complete the one-time payment in the secure checkout.' });
+        sdk = new DropInSDK({
+          id: `#${containerId}`,
+          type: 'payment',
+          sessionID: checkout.session.sessionID,
+          locale: language,
+          mode: 'embedded',
+          environment: checkout.session.environment || 'UAT',
+          appearance: { colorBackground: '#ffffff' },
+          payment_completed: (event) => handleEvent(event),
+          payment_failed: (event) => handleEvent(event),
+          payment_not_preformed: (event) => handleEvent(event),
+          payment_cancelled: (event) => handleEvent(event),
+        });
+      })
+      .catch((error) => {
+        if (!disposed) setStatus({ tone: 'error', text: error.message || 'Payment checkout failed to load.' });
+      });
+
+    return () => {
+      disposed = true;
+      if (sdk && typeof sdk.destroy === 'function') sdk.destroy();
+    };
+  }, [checkout.session, language, onEvent]);
+
+  return (
+    <div className="payment-modal-backdrop" role="presentation">
+      <section className="payment-modal" role="dialog" aria-modal="true" aria-labelledby="evonet-payment-title">
+        <header>
+          <div>
+            <small>One-time payment</small>
+            <h2 id="evonet-payment-title">{checkout.plan.title}</h2>
+          </div>
+          <button type="button" className="icon-button" onClick={onClose} aria-label="Close checkout">
+            <X size={18} />
+          </button>
+        </header>
+        <div className="payment-modal-summary">
+          <span>{checkout.plan.price}</span>
+          <small>{checkout.plan.period}</small>
+        </div>
+        <div className={`payment-modal-status is-${status.tone}`}>
+          {status.tone === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
+          <span>{status.text}</span>
+        </div>
+        <div id={containerId} className="payment-dropin-container" />
+      </section>
+    </div>
+  );
+}
 
 function OverseasBillingPage({ language, authVersion }) {
   const localeCatalog = useLocaleCatalog(language);
   const config = pageConfigs.billing;
+  const [checkout, setCheckout] = useState(null);
+  const [paymentMessage, setPaymentMessage] = useState('');
+  const [paymentError, setPaymentError] = useState('');
+  const [startingPlanId, setStartingPlanId] = useState('');
   const { loading, results } = useEndpointGroup(config, authVersion);
   const currentResult = getBillingResult(results, 'Current plan');
   const planResult = getBillingResult(results, 'Plan list');
@@ -5124,6 +5243,35 @@ function OverseasBillingPage({ language, authVersion }) {
     : currentResult.ok === false && currentResult.message
       ? currentResult.message
       : '';
+  const startOneTimePayment = async (plan) => {
+    setPaymentMessage('');
+    setPaymentError('');
+    setStartingPlanId(plan.id);
+    const result = await createEvonetOneTimePaymentSession({ plan: plan.raw, locale: language });
+    setStartingPlanId('');
+    if (!result.ok) {
+      setPaymentError(result.authMissing ? 'Sign in before starting checkout.' : result.message || 'Payment checkout is not available yet.');
+      return;
+    }
+    const session = normalizeEvonetSession(result);
+    if (!session.sessionID) {
+      setPaymentError('Payment session was not returned by the server.');
+      return;
+    }
+    setCheckout({ plan, session });
+  };
+  const handlePaymentEvent = useCallback(async (event) => {
+    if (!checkout?.session) return;
+    const result = await reportEvonetOneTimePaymentEvent({ session: checkout.session, event });
+    const text = evonetPaymentMessage(event);
+    if (event.type === 'payment_completed') {
+      setPaymentMessage(text);
+      window.dispatchEvent(new Event('yixiu-auth-change'));
+    } else {
+      setPaymentError(text);
+    }
+    if (!result.ok && !result.authMissing) setPaymentError(result.message || 'Payment result could not be recorded.');
+  }, [checkout]);
 
   return (
     <div className="billing-page">
@@ -5149,6 +5297,18 @@ function OverseasBillingPage({ language, authVersion }) {
         <section className={`billing-message ${currentResult.authMissing ? '' : 'is-error'}`}>
           <AlertCircle size={18} />
           <span>{message}</span>
+        </section>
+      )}
+      {paymentMessage && (
+        <section className="billing-message is-success">
+          <CheckCircle2 size={18} />
+          <span>{paymentMessage}</span>
+        </section>
+      )}
+      {paymentError && (
+        <section className="billing-message is-error">
+          <AlertCircle size={18} />
+          <span>{paymentError}</span>
         </section>
       )}
 
@@ -5204,7 +5364,9 @@ function OverseasBillingPage({ language, authVersion }) {
                   <b>{plan.price}</b>
                   <small>{plan.period}</small>
                 </span>
-                <a href="mailto:feedback@xyaip.fun">Choose</a>
+                <button type="button" onClick={() => startOneTimePayment(plan)} disabled={Boolean(startingPlanId)}>
+                  {startingPlanId === plan.id ? 'Starting' : 'Choose'}
+                </button>
               </article>
             ))}
           </div>
@@ -5212,6 +5374,14 @@ function OverseasBillingPage({ language, authVersion }) {
           <div className="billing-empty">{planResult.ok === false ? planResult.message || 'Plan list unavailable.' : 'No plans available yet.'}</div>
         )}
       </section>
+      {checkout && (
+        <EvonetPaymentModal
+          checkout={checkout}
+          language={language}
+          onClose={() => setCheckout(null)}
+          onEvent={handlePaymentEvent}
+        />
+      )}
     </div>
   );
 }

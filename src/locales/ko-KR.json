@@ -1591,5 +1591,19 @@
   "included": "포함",
   "Not included": "포함되지 않음",
   "One-time quota": "1회성 한도",
-  "Quota package": "한도 패키지"
+  "Quota package": "한도 패키지",
+  "One-time payment": "일회성 결제",
+  "Loading secure checkout...": "보안 결제창을 불러오는 중...",
+  "Complete the one-time payment in the secure checkout.": "보안 결제창에서 일회성 결제를 완료하세요.",
+  "Payment successful. Your plan will update after confirmation.": "결제가 완료되었습니다. 확인 후 요금제가 업데이트됩니다.",
+  "Payment cancelled.": "결제가 취소되었습니다.",
+  "Payment not completed. Please try again.": "결제가 완료되지 않았습니다. 다시 시도하세요.",
+  "Payment failed. Please try again.": "결제에 실패했습니다. 다시 시도하세요.",
+  "Payment checkout failed to load.": "결제창을 불러오지 못했습니다.",
+  "Close checkout": "결제창 닫기",
+  "Starting": "시작 중",
+  "Sign in before starting checkout.": "결제를 시작하기 전에 로그인하세요.",
+  "Payment checkout is not available yet.": "결제창을 아직 사용할 수 없습니다.",
+  "Payment session was not returned by the server.": "서버가 결제 세션을 반환하지 않았습니다.",
+  "Payment result could not be recorded.": "결제 결과를 기록하지 못했습니다."
 }

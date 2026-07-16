@@ -1543,5 +1543,19 @@
   "included": "inclusi",
   "Not included": "Non incluso",
   "One-time quota": "Quota una tantum",
-  "Quota package": "Pacchetto quota"
+  "Quota package": "Pacchetto quota",
+  "One-time payment": "Pagamento una tantum",
+  "Loading secure checkout...": "Caricamento checkout sicuro...",
+  "Complete the one-time payment in the secure checkout.": "Completa il pagamento una tantum nel checkout sicuro.",
+  "Payment successful. Your plan will update after confirmation.": "Pagamento riuscito. Il piano verrà aggiornato dopo la conferma.",
+  "Payment cancelled.": "Pagamento annullato.",
+  "Payment not completed. Please try again.": "Pagamento non completato. Riprova.",
+  "Payment failed. Please try again.": "Pagamento non riuscito. Riprova.",
+  "Payment checkout failed to load.": "Impossibile caricare il checkout di pagamento.",
+  "Close checkout": "Chiudi checkout",
+  "Starting": "Avvio",
+  "Sign in before starting checkout.": "Accedi prima di avviare il checkout.",
+  "Payment checkout is not available yet.": "Il checkout di pagamento non è ancora disponibile.",
+  "Payment session was not returned by the server.": "Il server non ha restituito la sessione di pagamento.",
+  "Payment result could not be recorded.": "Impossibile registrare il risultato del pagamento."
 }
