@@ -4026,6 +4026,34 @@ const getCreatorMaterialsJsonList = (...values) => {
   return [];
 };
 
+const normalizeCreatorPrefillMaterial = (item = {}, index = 0) => {
+  if (typeof item === 'string') {
+    const url = getApiMediaUrl(item);
+    const type = getMaterialType({ url });
+    return {
+      id: url || `prefill-${index}`,
+      title: `素材 ${Number(index) + 1 || index}`,
+      type,
+      url,
+      previewUrl: type === 'video' ? getVideoFrameUrl(url) : url,
+      duration: type === 'image' ? 2 : 0,
+      origin: 'library',
+    };
+  }
+  const source = videoObject(item);
+  const url = getApiMediaUrl(getMaterialUrl(source));
+  const type = getMaterialType({ ...source, url });
+  return {
+    id: videoText(source.id, source.materialId, source.material_id, source.fileId, source.file_id, url, `prefill-${index}`),
+    title: videoText(source.title, source.name, source.fileName, source.file_name) || `素材 ${index + 1}`,
+    type,
+    url,
+    previewUrl: type === 'video' ? getVideoFrameUrl(url) : url,
+    duration: Number(source.duration || source.duration_seconds || source.durationSeconds || source.durationTime || source.duration_time) || (type === 'image' ? 2 : 0),
+    origin: 'library',
+  };
+};
+
 const getCreatorSceneDraftList = (...values) => {
   const visit = (value, depth = 0) => {
     if (value === undefined || value === null || value === '' || depth > 6) return [];
@@ -4070,30 +4098,24 @@ const getCreatorInitialState = (usePrefill) => {
     draft.materials,
     detail.materials,
     shanjian.materials,
+    draft,
+    detail,
+    shanjian,
   );
-  const materials = materialSource.map((item, index) => {
-    const source = videoObject(item);
-    const url = getApiMediaUrl(getMaterialUrl(source));
-    const type = getMaterialType({ ...source, url });
-    return {
-      id: videoText(source.id, source.materialId, source.material_id, url, `prefill-${index}`),
-      title: videoText(source.title, source.name, source.fileName, source.file_name) || `素材 ${index + 1}`,
-      type,
-      url,
-      previewUrl: type === 'video' ? getVideoFrameUrl(url) : url,
-      duration: Number(source.duration || source.duration_seconds || source.durationSeconds) || (type === 'image' ? 2 : 0),
-      origin: 'library',
-    };
-  }).filter((item) => item.url);
-  const sceneSource = getCreatorSceneDraftList(draft.scenes, draft.sceneList, detail.scenes, detail.sceneList, shanjian.scenes);
+  const materials = materialSource.map(normalizeCreatorPrefillMaterial).filter((item) => item.url);
+  const sceneSource = getCreatorSceneDraftList(draft.scenes, draft.sceneList, detail.scenes, detail.sceneList, shanjian.scenes, draft, detail, shanjian);
   const scenes = sceneSource
-    .map((item) => {
+    .map((item, index) => {
       const source = videoObject(item);
       const captions = videoObject(source.captions || source.caption);
-      const content = cleanGeneratedScene(videoText(source.content, source.text, source.script, captions.content, captions.text));
-      return content ? createCreatorScene(content) : null;
+      const content = cleanGeneratedScene(videoText(source.content, source.text, source.script, captions.content, captions.text, source.captions, source.caption));
+      const sceneMaterials = getCreatorMaterialsJsonList(source.materials, source.materialList, source.material_list, source)
+        .map((material, materialIndex) => normalizeCreatorPrefillMaterial(material, `${index}-${materialIndex}`))
+        .filter((material) => material.url);
+      return content ? createCreatorScene(content, sceneMaterials) : null;
     })
     .filter(Boolean);
+  if (scenes.length && materials.length && !getCreatorSceneMaterials(scenes).length) scenes[0].materials = materials;
   const prefillStatus = normalizeStatus(getVideoStatusValue({ ...detail, ...draft }));
   const isFailedPrefill = prefillStatus.key === 'failed' || draft.source === 'videoDetailRemake';
 
