@@ -4259,7 +4259,19 @@ const getInitialCreatorScenes = (form = {}, materials = []) => {
 
 const getCreatorSceneMaterials = (scenes = []) => scenes.flatMap((scene) => scene.materials || []);
 
-function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', backLabel = '返回视频管理', onBack, onLogin, onCreated }) {
+const VIDEO_CREATOR_MODE_KEYS = ['oral', 'mix', 'professional', 'materialPackage'];
+const mergeCreatorMaterials = (...groups) => {
+  const seen = new Set();
+  return groups.flat().filter((item) => {
+    if (!item) return false;
+    const key = String(item.id || item.url || item.previewUrl || item.title);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+};
+
+function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', backLabel = '返回视频管理', onBack, onLogin, onCreated, onChangeProductionType }) {
   const isMixed = productionType === 'mix';
   const isProfessional = productionType === 'professional';
   const isMaterialPackage = productionType === 'materialPackage';
@@ -4812,6 +4824,30 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
   const sceneScriptContent = scenes.map((scene) => scene.content.trim()).filter(Boolean).join('\n\n');
   const activeSceneMaterials = isCustomMixcut && activeSceneId ? scenes.find((scene) => scene.id === activeSceneId)?.materials || [] : materials;
   const sceneMaterialCount = getCreatorSceneMaterials(scenes).length;
+  const switchProductionType = (nextType) => {
+    if (!VIDEO_PRODUCTION_TYPES[nextType] || nextType === productionType || busy) return;
+    const nextIsCustomMixcut = nextType === 'professional' || nextType === 'materialPackage';
+    const nextTemplateScene = VIDEO_PRODUCTION_TYPES[nextType].templateScene;
+    setDialogType('');
+    setActiveSceneId('');
+    setMessage('');
+    if (nextTemplateScene !== templateScene) {
+      setSelected((current) => ({
+        ...current,
+        videoTemplate: { id: '', title: '', cover: '' },
+        coverTemplate: { id: '', title: '', cover: '' },
+      }));
+    }
+    if (nextIsCustomMixcut && !isCustomMixcut) {
+      setScenes(getInitialCreatorScenes(form, materials));
+    }
+    if (!nextIsCustomMixcut && isCustomMixcut) {
+      const sceneMaterials = getCreatorSceneMaterials(scenes);
+      setMaterials((current) => mergeCreatorMaterials(current, sceneMaterials));
+      if (sceneScriptContent) setForm((current) => ({ ...current, script: sceneScriptContent }));
+    }
+    onChangeProductionType?.(nextType);
+  };
   const coverPanel = (
     <div className="video-creator-cover">
       <h3>封面图片 <em>必填</em></h3>
@@ -4839,6 +4875,18 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
   return (
     <div className="video-creator-page">
       <header className="video-creator-header"><button className="video-back-button" onClick={onBack} disabled={Boolean(busy)}><ArrowLeft size={18} />{backLabel}</button><div><span>{creatorConfig.eyebrow}</span><h1>{usePrefill ? `继续制作${creatorConfig.title}` : `制作${creatorConfig.title}`}</h1><p>{isCustomMixcut ? '按新的包装混剪接口组合声音、分镜素材和包装规则。' : isMixed ? '填写内容并组合声音、混剪剪辑模板、封面和素材，提交后进入混剪制作队列。' : '填写内容并组合数字人、声音、包装和素材，提交后进入视频制作队列。'}</p></div><div className="video-creator-progress"><span className="is-done"><Check size={14} />内容</span><i /><span className="is-done"><Check size={14} />配置</span><i /><span>提交</span></div></header>
+      <nav className="video-creator-mode-switch" aria-label="切换视频制作模式">
+        {VIDEO_CREATOR_MODE_KEYS.map((modeKey) => {
+          const mode = VIDEO_PRODUCTION_TYPES[modeKey];
+          const Icon = mode.icon;
+          return (
+            <button key={modeKey} type="button" className={productionType === modeKey ? 'is-active' : ''} onClick={() => switchProductionType(modeKey)} disabled={Boolean(busy)}>
+              <Icon size={18} />
+              <span><strong>{mode.label}</strong><small>{mode.sectionHint}</small></span>
+            </button>
+          );
+        })}
+      </nav>
       {!token ? <div className="video-empty-state"><UserRound size={38} /><strong>登录后开始制作</strong><p>登录后才能读取数字人、声音、素材并提交制作任务。</p><button className="primary-button" onClick={onLogin}>登录</button></div> : <>
         <div className="video-creator-layout">
           <main className="video-creator-main">
@@ -7860,6 +7908,7 @@ export default function App() {
               backLabel={videoCreatorReturn.generator ? '返回文案生成' : videoCreatorReturn.active === 'assets' ? '返回资产管理' : '返回视频管理'}
               onBack={closeVideoCreator}
               onLogin={() => setLoginOpen(true)}
+              onChangeProductionType={setVideoCreatorType}
               onCreated={() => {
                 setVideoCreatorOpen(false);
                 setVideoCreatorPrefill(false);

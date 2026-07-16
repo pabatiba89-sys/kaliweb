@@ -1687,6 +1687,74 @@
   background: #bedbd1;
 }
 
+.video-creator-mode-switch {
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid rgba(185, 225, 211, 0.8);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.82);
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  box-shadow: 0 12px 30px rgba(24, 62, 53, 0.06);
+}
+
+.video-creator-mode-switch button {
+  min-width: 0;
+  min-height: 66px;
+  padding: 10px 12px;
+  border: 1px solid transparent;
+  border-radius: 15px;
+  background: transparent;
+  color: #48625a;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.video-creator-mode-switch button:disabled {
+  cursor: not-allowed;
+  opacity: 0.68;
+}
+
+.video-creator-mode-switch button.is-active {
+  border-color: rgba(0, 168, 132, 0.36);
+  background: #e2f7ef;
+  color: #073f38;
+  box-shadow: 0 8px 20px rgba(0, 168, 132, 0.12);
+}
+
+.video-creator-mode-switch svg {
+  flex: 0 0 auto;
+  color: var(--green);
+}
+
+.video-creator-mode-switch span {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.video-creator-mode-switch strong,
+.video-creator-mode-switch small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.video-creator-mode-switch strong {
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.video-creator-mode-switch small {
+  color: #6f8880;
+  font-size: 11px;
+  font-weight: 700;
+}
+
 .video-creator-layout {
   min-width: 0;
   display: grid;
@@ -2587,6 +2655,10 @@ div.video-creator-resource-more {
     grid-template-columns: minmax(0, 1fr) 280px;
   }
 
+  .video-creator-mode-switch {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .video-creator-material-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -2716,6 +2788,10 @@ div.video-creator-resource-more {
   .video-creator-progress {
     grid-column: 1;
     overflow-x: auto;
+  }
+
+  .video-creator-mode-switch {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .video-creator-section {
