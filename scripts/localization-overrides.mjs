@@ -285,6 +285,58 @@ const accountSecurityRows = {
   'hi-IN': ['पासवर्ड रीसेट करें', 'अपने खाते का ईमेल दर्ज करें, हम पासवर्ड रीसेट निर्देश भेजेंगे।', 'पासवर्ड भूल गए?', 'यदि यह ईमेल पंजीकृत है, तो पासवर्ड रीसेट निर्देश भेजे जाएँगे।', 'पासवर्ड रीसेट विफल', 'साइन इन पर वापस जाएँ', 'रीसेट ईमेल भेजें', 'भेजा जा रहा है', 'साइन इन हो रहा है', 'खाता सुरक्षा', 'खाता', 'पासवर्ड बदलें', 'वर्तमान पासवर्ड', 'नया पासवर्ड', 'नया पासवर्ड पुष्टि करें', 'पासवर्ड अपडेट करें', 'फ़ोन सत्यापन', 'देश कोड', 'फ़ोन नंबर', 'सत्यापन कोड', 'कोड भेजें', 'फ़ोन बाँधें', 'वैकल्पिक', 'सेट नहीं', 'उपलब्ध नहीं', 'खाता सुरक्षा प्रबंधित करने के लिए साइन इन करें।', 'पासवर्ड अपडेट हो गया। कृपया नया पासवर्ड सुरक्षित रखें।', 'नया पासवर्ड कम से कम 8 अक्षरों का होना चाहिए।', 'दोनों नए पासवर्ड मेल नहीं खाते।', 'सत्यापन कोड भेज दिया गया।', 'पहले फ़ोन नंबर दर्ज करें।', 'फ़ोन नंबर और सत्यापन कोड दर्ज करें।', 'फ़ोन नंबर सफलतापूर्वक बाँधा गया।', 'फ़ोन बाँधना विफल', 'सत्यापन कोड भेजना विफल', 'सेव हो रहा है', 'बाँधा जा रहा है'],
 };
 
+const billingKeys = [
+  'Available plans',
+  'packages available',
+  'No published packages returned yet',
+  'Starter trial (1 use)',
+  'Advanced trial (1 use)',
+  'Premium trial (1 use)',
+  'Pro plan',
+  'Video pack',
+  'Music pack',
+  'digital human',
+  'digital humans',
+  'voice',
+  'voices',
+  'video',
+  'videos',
+  'AI music track',
+  'AI music tracks',
+  'left',
+  'included',
+  'Not included',
+  'One-time quota',
+  'Quota package',
+  'Choose',
+];
+const billingRows = {
+  'en-US': ['Available plans', 'packages available', 'No published packages returned yet', 'Starter trial (1 use)', 'Advanced trial (1 use)', 'Premium trial (1 use)', 'Pro plan', 'Video pack', 'Music pack', 'digital human', 'digital humans', 'voice', 'voices', 'video', 'videos', 'AI music track', 'AI music tracks', 'left', 'included', 'Not included', 'One-time quota', 'Quota package', 'Choose'],
+  'zh-CN': ['可用套餐', '个套餐可用', '暂未返回已发布套餐', '初级体验版（限 1 次）', '进阶体验版（限 1 次）', '豪华体验版（限 1 次）', '专业版', '视频包', '音乐包', '个数字人', '个数字人', '个声音', '个声音', '条视频', '条视频', '首音乐', '首音乐', '剩余', '包含', '不包含', '一次性额度', '额度包', '选择'],
+  'zh-TW': ['可用方案', '個方案可用', '暫未返回已發佈方案', '初級體驗版（限 1 次）', '進階體驗版（限 1 次）', '豪華體驗版（限 1 次）', '專業版', '影片包', '音樂包', '個數位人', '個數位人', '個聲音', '個聲音', '支影片', '支影片', '首音樂', '首音樂', '剩餘', '包含', '不包含', '一次性額度', '額度包', '選擇'],
+  'es-MX': ['Planes disponibles', 'paquetes disponibles', 'Aún no se han publicado paquetes', 'Prueba inicial (1 uso)', 'Prueba avanzada (1 uso)', 'Prueba premium (1 uso)', 'Plan Pro', 'Paquete de videos', 'Paquete de música', 'humano digital', 'humanos digitales', 'voz', 'voces', 'video', 'videos', 'pista de música IA', 'pistas de música IA', 'restantes', 'incluidos', 'No incluido', 'Cuota de un solo uso', 'Paquete de cuota', 'Elegir'],
+  'fr-FR': ['Offres disponibles', 'forfaits disponibles', 'Aucun forfait publié pour le moment', 'Essai Starter (1 utilisation)', 'Essai avancé (1 utilisation)', 'Essai premium (1 utilisation)', 'Offre Pro', 'Pack vidéo', 'Pack musique', 'avatar numérique', 'avatars numériques', 'voix', 'voix', 'vidéo', 'vidéos', 'morceau de musique IA', 'morceaux de musique IA', 'restants', 'inclus', 'Non inclus', 'Quota ponctuel', 'Pack de quota', 'Choisir'],
+  'ru-RU': ['Доступные тарифы', 'пакетов доступно', 'Опубликованных пакетов пока нет', 'Стартовый пробный (1 использование)', 'Расширенный пробный (1 использование)', 'Премиум пробный (1 использование)', 'Тариф Pro', 'Пакет видео', 'Пакет музыки', 'цифровой аватар', 'цифровых аватаров', 'голос', 'голосов', 'видео', 'видео', 'трек AI-музыки', 'треков AI-музыки', 'осталось', 'включено', 'Не включено', 'Разовая квота', 'Пакет квоты', 'Выбрать'],
+  'de-DE': ['Verfügbare Tarife', 'Pakete verfügbar', 'Noch keine veröffentlichten Pakete', 'Starter-Test (1 Nutzung)', 'Advanced-Test (1 Nutzung)', 'Premium-Test (1 Nutzung)', 'Pro-Tarif', 'Videopaket', 'Musikpaket', 'digitaler Avatar', 'digitale Avatare', 'Stimme', 'Stimmen', 'Video', 'Videos', 'KI-Musiktitel', 'KI-Musiktitel', 'übrig', 'enthalten', 'Nicht enthalten', 'Einmaliges Kontingent', 'Kontingentpaket', 'Auswählen'],
+  'pt-PT': ['Planos disponíveis', 'pacotes disponíveis', 'Ainda não há pacotes publicados', 'Teste Starter (1 utilização)', 'Teste avançado (1 utilização)', 'Teste premium (1 utilização)', 'Plano Pro', 'Pacote de vídeo', 'Pacote de música', 'avatar digital', 'avatares digitais', 'voz', 'vozes', 'vídeo', 'vídeos', 'faixa de música IA', 'faixas de música IA', 'restantes', 'incluídos', 'Não incluído', 'Quota única', 'Pacote de quota', 'Escolher'],
+  'ar-AE': ['الخطط المتاحة', 'حزم متاحة', 'لا توجد حزم منشورة بعد', 'تجربة Starter (استخدام واحد)', 'تجربة Advanced (استخدام واحد)', 'تجربة Premium (استخدام واحد)', 'خطة Pro', 'حزمة فيديو', 'حزمة موسيقى', 'أفاتار رقمي', 'أفاتارات رقمية', 'صوت', 'أصوات', 'فيديو', 'فيديوهات', 'مقطع موسيقى AI', 'مقاطع موسيقى AI', 'متبقية', 'مضمنة', 'غير مضمن', 'حصة لمرة واحدة', 'حزمة حصة', 'اختيار'],
+  'it-IT': ['Piani disponibili', 'pacchetti disponibili', 'Nessun pacchetto pubblicato al momento', 'Prova Starter (1 utilizzo)', 'Prova avanzata (1 utilizzo)', 'Prova premium (1 utilizzo)', 'Piano Pro', 'Pacchetto video', 'Pacchetto musica', 'avatar digitale', 'avatar digitali', 'voce', 'voci', 'video', 'video', 'brano musicale IA', 'brani musicali IA', 'rimanenti', 'inclusi', 'Non incluso', 'Quota una tantum', 'Pacchetto quota', 'Scegli'],
+  'ja-JP': ['利用可能なプラン', '件のパッケージが利用可能', '公開済みパッケージはまだありません', 'スターター体験版（1回）', 'アドバンス体験版（1回）', 'プレミアム体験版（1回）', 'Proプラン', '動画パック', '音楽パック', 'デジタルヒューマン', 'デジタルヒューマン', '音声', '音声', '動画', '動画', 'AI音楽トラック', 'AI音楽トラック', '残り', '含む', '含まれません', '一回限りの枠', 'クォータパッケージ', '選択'],
+  'ko-KR': ['사용 가능한 요금제', '개 패키지 사용 가능', '게시된 패키지가 아직 없습니다', '스타터 체험판(1회)', '고급 체험판(1회)', '프리미엄 체험판(1회)', 'Pro 요금제', '비디오 팩', '음악 팩', '디지털 휴먼', '디지털 휴먼', '음성', '음성', '비디오', '비디오', 'AI 음악 트랙', 'AI 음악 트랙', '남음', '포함', '포함되지 않음', '1회성 한도', '한도 패키지', '선택'],
+  'id-ID': ['Paket tersedia', 'paket tersedia', 'Belum ada paket yang dipublikasikan', 'Uji coba Starter (1 penggunaan)', 'Uji coba lanjutan (1 penggunaan)', 'Uji coba premium (1 penggunaan)', 'Paket Pro', 'Paket video', 'Paket musik', 'avatar digital', 'avatar digital', 'suara', 'suara', 'video', 'video', 'trek musik AI', 'trek musik AI', 'tersisa', 'termasuk', 'Tidak termasuk', 'Kuota sekali pakai', 'Paket kuota', 'Pilih'],
+  'vi-VN': ['Gói khả dụng', 'gói khả dụng', 'Chưa có gói nào được phát hành', 'Dùng thử Starter (1 lần)', 'Dùng thử nâng cao (1 lần)', 'Dùng thử premium (1 lần)', 'Gói Pro', 'Gói video', 'Gói âm nhạc', 'avatar kỹ thuật số', 'avatar kỹ thuật số', 'giọng nói', 'giọng nói', 'video', 'video', 'bản nhạc AI', 'bản nhạc AI', 'còn lại', 'bao gồm', 'Không bao gồm', 'Hạn mức một lần', 'Gói hạn mức', 'Chọn'],
+  'tr-TR': ['Kullanılabilir planlar', 'paket mevcut', 'Henüz yayınlanmış paket yok', 'Starter denemesi (1 kullanım)', 'Gelişmiş deneme (1 kullanım)', 'Premium deneme (1 kullanım)', 'Pro plan', 'Video paketi', 'Müzik paketi', 'dijital avatar', 'dijital avatar', 'ses', 'ses', 'video', 'video', 'AI müzik parçası', 'AI müzik parçası', 'kaldı', 'dahil', 'Dahil değil', 'Tek seferlik kota', 'Kota paketi', 'Seç'],
+  'nl-NL': ['Beschikbare abonnementen', 'pakketten beschikbaar', 'Nog geen gepubliceerde pakketten', 'Starterproef (1 gebruik)', 'Geavanceerde proef (1 gebruik)', 'Premiumproef (1 gebruik)', 'Pro-abonnement', 'Videopakket', 'Muziekpakket', 'digitale avatar', 'digitale avatars', 'stem', 'stemmen', 'video', 'video’s', 'AI-muziektrack', 'AI-muziektracks', 'over', 'inbegrepen', 'Niet inbegrepen', 'Eenmalige quota', 'Quotapakket', 'Kiezen'],
+  'uk-UA': ['Доступні тарифи', 'пакетів доступно', 'Опублікованих пакетів ще немає', 'Стартова пробна версія (1 використання)', 'Розширена пробна версія (1 використання)', 'Преміум пробна версія (1 використання)', 'Тариф Pro', 'Пакет відео', 'Пакет музики', 'цифровий аватар', 'цифрові аватари', 'голос', 'голоси', 'відео', 'відео', 'трек AI-музики', 'треків AI-музики', 'залишилось', 'включено', 'Не включено', 'Разова квота', 'Пакет квоти', 'Вибрати'],
+  'th-TH': ['แพ็กเกจที่ใช้ได้', 'แพ็กเกจพร้อมใช้งาน', 'ยังไม่มีแพ็กเกจที่เผยแพร่', 'ทดลอง Starter (ใช้ได้ 1 ครั้ง)', 'ทดลองขั้นสูง (ใช้ได้ 1 ครั้ง)', 'ทดลองพรีเมียม (ใช้ได้ 1 ครั้ง)', 'แพ็กเกจ Pro', 'แพ็กวิดีโอ', 'แพ็กเพลง', 'อวาตาร์ดิจิทัล', 'อวาตาร์ดิจิทัล', 'เสียง', 'เสียง', 'วิดีโอ', 'วิดีโอ', 'แทร็กเพลง AI', 'แทร็กเพลง AI', 'คงเหลือ', 'รวมอยู่', 'ไม่รวม', 'โควตาใช้ครั้งเดียว', 'แพ็กเกจโควตา', 'เลือก'],
+  'pl-PL': ['Dostępne plany', 'pakietów dostępnych', 'Brak opublikowanych pakietów', 'Próba Starter (1 użycie)', 'Próba zaawansowana (1 użycie)', 'Próba premium (1 użycie)', 'Plan Pro', 'Pakiet wideo', 'Pakiet muzyczny', 'cyfrowy avatar', 'cyfrowe avatary', 'głos', 'głosy', 'wideo', 'wideo', 'utwór muzyki AI', 'utwory muzyki AI', 'pozostało', 'wliczone', 'Nie wliczono', 'Jednorazowy limit', 'Pakiet limitu', 'Wybierz'],
+  'ro-RO': ['Planuri disponibile', 'pachete disponibile', 'Nu există pachete publicate încă', 'Test Starter (1 utilizare)', 'Test avansat (1 utilizare)', 'Test premium (1 utilizare)', 'Plan Pro', 'Pachet video', 'Pachet muzică', 'avatar digital', 'avataruri digitale', 'voce', 'voci', 'videoclip', 'videoclipuri', 'piesă muzicală AI', 'piese muzicale AI', 'rămase', 'incluse', 'Neinclus', 'Cotă unică', 'Pachet de cotă', 'Alege'],
+  'el-GR': ['Διαθέσιμα προγράμματα', 'πακέτα διαθέσιμα', 'Δεν υπάρχουν ακόμη δημοσιευμένα πακέτα', 'Δοκιμή Starter (1 χρήση)', 'Προηγμένη δοκιμή (1 χρήση)', 'Premium δοκιμή (1 χρήση)', 'Πρόγραμμα Pro', 'Πακέτο βίντεο', 'Πακέτο μουσικής', 'ψηφιακό avatar', 'ψηφιακά avatar', 'φωνή', 'φωνές', 'βίντεο', 'βίντεο', 'κομμάτι μουσικής AI', 'κομμάτια μουσικής AI', 'απομένουν', 'περιλαμβάνονται', 'Δεν περιλαμβάνεται', 'Εφάπαξ όριο', 'Πακέτο ορίου', 'Επιλογή'],
+  'cs-CZ': ['Dostupné tarify', 'balíčků k dispozici', 'Zatím nejsou publikované žádné balíčky', 'Starter zkušební (1 použití)', 'Pokročilá zkušební verze (1 použití)', 'Premium zkušební verze (1 použití)', 'Tarif Pro', 'Video balíček', 'Hudební balíček', 'digitální avatar', 'digitální avataři', 'hlas', 'hlasy', 'video', 'videa', 'skladba AI hudby', 'skladby AI hudby', 'zbývá', 'zahrnuto', 'Není zahrnuto', 'Jednorázová kvóta', 'Balíček kvóty', 'Vybrat'],
+  'fi-FI': ['Saatavilla olevat paketit', 'pakettia saatavilla', 'Julkaistuja paketteja ei vielä ole', 'Starter-kokeilu (1 käyttö)', 'Advanced-kokeilu (1 käyttö)', 'Premium-kokeilu (1 käyttö)', 'Pro-paketti', 'Videopaketti', 'Musiikkipaketti', 'digitaalinen avatar', 'digitaaliset avatarit', 'ääni', 'äänet', 'video', 'videot', 'AI-musiikkikappale', 'AI-musiikkikappaleet', 'jäljellä', 'sisältyy', 'Ei sisälly', 'Kertakiintiö', 'Kiintiöpaketti', 'Valitse'],
+  'hi-IN': ['उपलब्ध प्लान', 'पैकेज उपलब्ध', 'अभी कोई प्रकाशित पैकेज नहीं है', 'Starter ट्रायल (1 उपयोग)', 'Advanced ट्रायल (1 उपयोग)', 'Premium ट्रायल (1 उपयोग)', 'Pro प्लान', 'वीडियो पैक', 'म्यूज़िक पैक', 'डिजिटल अवतार', 'डिजिटल अवतार', 'आवाज़', 'आवाज़ें', 'वीडियो', 'वीडियो', 'AI संगीत ट्रैक', 'AI संगीत ट्रैक', 'शेष', 'शामिल', 'शामिल नहीं', 'एक बार का कोटा', 'कोटा पैकेज', 'चुनें'],
+};
+
 export const workspaceLocalizationOverrides = Object.fromEntries(Object.entries(actionRows).map(([locale, values]) => {
   const overrides = {};
   actionKeys.forEach((key, index) => actionAliases[key].forEach((source) => { overrides[source] = values[index]; }));
@@ -292,5 +344,6 @@ export const workspaceLocalizationOverrides = Object.fromEntries(Object.entries(
   homeKeys.forEach((key, index) => { overrides[key] = homeRows[locale][index]; });
   supportKeys.forEach((key, index) => { overrides[key] = supportRows[locale][index]; });
   accountSecurityKeys.forEach((key, index) => { overrides[key] = accountSecurityRows[locale][index]; });
+  billingKeys.forEach((key, index) => { overrides[key] = billingRows[locale][index]; });
   return [locale, overrides];
 }));

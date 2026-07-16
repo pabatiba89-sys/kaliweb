@@ -114,3 +114,4 @@
 - 2026-07-16：视频制作页需要支持“数字人口播 / 混剪视频 / 形象播报 Pro / 素材成片 Pro”四种模式在同一页面内切换；切换时保留并迁移已填内容，普通模式切 Pro 自动按文案拆分分镜并把普通素材挂到首个分镜，Pro 切普通则合并分镜文案并汇总分镜素材。
 - 2026-07-16：Pro 提交参数不带身份栏信息；数字人 Pro 只提交制作所需的 `virtualmanId/aiHumanId`，不得提交 `introduceCard.name` 或 `introduceCard.description`。
 - 2026-07-16：Pro 草稿续作和失败重做必须递归还原 `scenes` 以及 `scenes[].materials`；如果历史数据只有全局 `materials` 而分镜没有素材，则把全局素材挂到首个分镜，避免 Pro 回填后丢分镜素材。
+- 2026-07-16：海外 Billing 页套餐列表不能只依赖 DOM 静态翻译；接口返回的中文套餐名和额度单位需在显示层映射为英文源词，再用 `translateStatic` + 当前语言包本地化。新增套餐相关词条应写入 `scripts/localization-overrides.mjs` 后运行 `npm run i18n:generate -- --apply-overrides` 同步 24 个工作台语言包。

@@ -5039,7 +5039,31 @@ const formatBillingMoney = (plan = {}) => {
     return `${currency} ${number}`;
   }
 };
-const normalizeBillingQuota = (source = {}, item) => {
+const translateBilling = (value, locale, catalog) => translateStatic(textOf(value), locale, catalog);
+const billingUnitLabels = {
+  digitalHumans: { singular: 'digital human', plural: 'digital humans' },
+  voices: { singular: 'voice', plural: 'voices' },
+  videos: { singular: 'video', plural: 'videos' },
+  music: { singular: 'AI music track', plural: 'AI music tracks' },
+};
+const billingPlanNameMap = {
+  '初级体验版（限 1 次）': 'Starter trial (1 use)',
+  '初级体验版（限一次）': 'Starter trial (1 use)',
+  '进阶体验版（限 1 次）': 'Advanced trial (1 use)',
+  '进阶体验版（限一次）': 'Advanced trial (1 use)',
+  '豪华体验版（限 1 次）': 'Premium trial (1 use)',
+  '豪华体验版（限一次）': 'Premium trial (1 use)',
+  专业版: 'Pro plan',
+  视频包: 'Video pack',
+  音乐包: 'Music pack',
+};
+const getBillingPlanTitleSource = (title) => billingPlanNameMap[textOf(title)] || textOf(title);
+const formatBillingCount = (count, unit, locale, catalog) => {
+  const number = Number(count);
+  const labelSource = Number.isFinite(number) && number === 1 ? unit.singular : unit.plural;
+  return `${count} ${translateBilling(labelSource, locale, catalog)}`;
+};
+const normalizeBillingQuota = (source = {}, item, locale = 'en-US', catalog = {}) => {
   const remaining = billingNumber(billingPick(source, item.remaining));
   const total = billingNumber(billingPick(source, item.total));
   const used = total !== null && remaining !== null ? Math.max(total - remaining, 0) : null;
@@ -5049,39 +5073,49 @@ const normalizeBillingQuota = (source = {}, item) => {
     ...item,
     remaining,
     total,
-    value: remaining !== null && total !== null ? `${remaining} / ${total}` : remaining !== null ? `${remaining} left` : total !== null ? `${total} included` : 'Not included',
+    label: translateBilling(item.label, locale, catalog),
+    value: remaining !== null && total !== null
+      ? `${remaining} / ${total}`
+      : remaining !== null
+        ? `${formatBillingCount(remaining, billingUnitLabels[item.key], locale, catalog)} ${translateBilling('left', locale, catalog)}`
+        : total !== null
+          ? `${formatBillingCount(total, billingUnitLabels[item.key], locale, catalog)} ${translateBilling('included', locale, catalog)}`
+          : translateBilling('Not included', locale, catalog),
     percent,
   };
 };
-const normalizePlanCard = (plan = {}, index = 0) => {
+const normalizePlanCard = (plan = {}, index = 0, locale = 'en-US', catalog = {}) => {
   const quotaText = billingQuotaMap
     .map((item) => {
       const total = billingNumber(billingPick(plan, item.total));
-      return total !== null ? `${total} ${item.label.toLowerCase()}` : '';
+      return total !== null ? formatBillingCount(total, billingUnitLabels[item.key], locale, catalog) : '';
     })
     .filter(Boolean)
     .slice(0, 3);
   const period = pick(plan.period, plan.duration, plan.valid_days && `${plan.valid_days} days`, plan.validDays && `${plan.validDays} days`, plan.cycle, plan.billing_cycle, plan.billingCycle);
+  const rawTitle = pick(plan.title, plan.name, plan.plan_name, plan.planName, plan.package_name, plan.packageName);
 
   return {
     id: pick(plan.id, plan.plan_id, plan.planId, plan.name, `plan-${index}`),
-    title: pick(plan.title, plan.name, plan.plan_name, plan.planName, plan.package_name, plan.packageName) || `Plan ${index + 1}`,
-    price: formatBillingMoney(plan),
-    period: period || 'One-time quota',
-    summary: quotaText.length ? quotaText.join(' · ') : pick(plan.description, plan.desc, plan.remark, plan.note) || 'Quota package',
+    title: translateBilling(rawTitle ? getBillingPlanTitleSource(rawTitle) : `Plan ${index + 1}`, locale, catalog),
+    price: translateBilling(formatBillingMoney(plan), locale, catalog),
+    period: translateBilling(period || 'One-time quota', locale, catalog),
+    summary: quotaText.length ? quotaText.join(' · ') : translateBilling(pick(plan.description, plan.desc, plan.remark, plan.note) || 'Quota package', locale, catalog),
   };
 };
 const getBillingResult = (results, label) => results.find((result) => result.endpoint.label === label) || {};
 
-function OverseasBillingPage({ authVersion }) {
+function OverseasBillingPage({ language, authVersion }) {
+  const localeCatalog = useLocaleCatalog(language);
   const config = pageConfigs.billing;
   const { loading, results } = useEndpointGroup(config, authVersion);
   const currentResult = getBillingResult(results, 'Current plan');
   const planResult = getBillingResult(results, 'Plan list');
   const currentPlan = findBillingPlan(currentResult);
-  const planCards = getBillingPlans(planResult).map(normalizePlanCard);
-  const quotas = billingQuotaMap.map((item) => normalizeBillingQuota(currentPlan, item));
-  const planName = pick(currentPlan.title, currentPlan.name, currentPlan.plan_name, currentPlan.planName, currentPlan.package_name, currentPlan.packageName) || (currentResult.authMissing ? 'Sign in required' : 'No active plan');
+  const planCards = getBillingPlans(planResult).map((plan, index) => normalizePlanCard(plan, index, language, localeCatalog));
+  const quotas = billingQuotaMap.map((item) => normalizeBillingQuota(currentPlan, item, language, localeCatalog));
+  const rawPlanName = pick(currentPlan.title, currentPlan.name, currentPlan.plan_name, currentPlan.planName, currentPlan.package_name, currentPlan.packageName);
+  const planName = translateBilling(rawPlanName ? getBillingPlanTitleSource(rawPlanName) : (currentResult.authMissing ? 'Sign in required' : 'No active plan'), language, localeCatalog);
   const expireText = formatBillingDate(pick(currentPlan.expire_at, currentPlan.expireAt, currentPlan.end_at, currentPlan.endAt, currentPlan.valid_until, currentPlan.validUntil));
   const updatedText = formatBillingDate(pick(currentPlan.updated_at, currentPlan.updatedAt, currentPlan.created_at, currentPlan.createdAt));
   const hasCurrentPlan = Boolean(Object.keys(currentPlan).length);
@@ -5152,7 +5186,7 @@ function OverseasBillingPage({ authVersion }) {
         <div className="billing-section-head">
           <div>
             <h2>Available plans</h2>
-            <p>{planCards.length ? `${planCards.length} packages available` : 'No published packages returned yet'}</p>
+            <p>{planCards.length ? `${planCards.length} ${translateBilling('packages available', language, localeCatalog)}` : 'No published packages returned yet'}</p>
           </div>
           <a href="mailto:feedback@xyaip.fun">View invoices <ChevronRight size={16} /></a>
         </div>
@@ -5414,7 +5448,7 @@ function BillingPage({ language, authVersion }) {
   const useChinaBilling = language === 'zh-CN' || language === 'zh-TW';
 
   if (!useChinaBilling) {
-    return <OverseasBillingPage authVersion={authVersion} />;
+    return <OverseasBillingPage language={language} authVersion={authVersion} />;
   }
 
   return (
