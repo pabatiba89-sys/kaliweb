@@ -1125,15 +1125,15 @@ const VIDEO_PRODUCTION_TYPES = {
   professional: {
     key: 'professional',
     listKey: 'professional',
-    label: '数字人包装混剪',
-    createLabel: '制作专业视频',
-    emptyLabel: '数字人包装混剪视频',
-    syncLabel: '数字人包装混剪视频',
+    label: '数字人 Pro',
+    createLabel: '制作数字人 Pro',
+    emptyLabel: '数字人 Pro 视频',
+    syncLabel: '数字人 Pro 视频',
     eyebrow: 'PROFESSIONAL BROADCAST',
     icon: GalleryVerticalEnd,
-    description: '查看自定义数字人口播混剪视频的制作记录、成片状态和发布流程。',
-    sectionHint: '数字人、声音、分镜素材与专业包装',
-    title: '专业口播混剪视频',
+    description: '查看数字人 Pro 的分镜素材视频制作记录、成片状态和发布流程。',
+    sectionHint: '数字人、声音、文案分镜与素材',
+    title: '数字人 Pro 视频',
     templateScene: 'virtualman',
     productionScene: 'custom_virtualman_broadcast',
     listPath: '/api/video-mix/list',
@@ -1145,15 +1145,15 @@ const VIDEO_PRODUCTION_TYPES = {
   materialPackage: {
     key: 'materialPackage',
     listKey: 'materialPackage',
-    label: '素材包装混剪',
-    createLabel: '制作素材包装',
-    emptyLabel: '素材包装混剪视频',
-    syncLabel: '素材包装混剪视频',
+    label: '素材 Pro',
+    createLabel: '制作素材 Pro',
+    emptyLabel: '素材 Pro 视频',
+    syncLabel: '素材 Pro 视频',
     eyebrow: 'CUSTOM BROADCAST MIXCUT',
     icon: Layers3,
-    description: '查看自定义素材包装混剪视频的制作记录、成片状态和发布流程。',
-    sectionHint: '声音、分镜素材与包装规则',
-    title: '素材包装混剪视频',
+    description: '查看素材 Pro 的分镜素材视频制作记录、成片状态和发布流程。',
+    sectionHint: '声音、文案分镜与素材',
+    title: '素材 Pro 视频',
     templateScene: 'oralMixCutting',
     productionScene: 'custom_broadcast_mixcut',
     listPath: '/api/video-mix/list',
@@ -4203,6 +4203,23 @@ function VideoCreatorDialog({ type, titleOverride, options, selected, loading, h
   );
 }
 
+const createCreatorScene = (content = '', materials = []) => ({
+  id: `scene-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+  content,
+  materials,
+});
+
+const getInitialCreatorScenes = (form = {}, materials = []) => {
+  const chunks = textOf(form.script)
+    .split(/\n{2,}|\n(?=\d+[.、])|(?=第[一二三四五六七八九十]+[个段幕镜])/)
+    .map((item) => item.replace(/^\s*\d+[.、]\s*/, '').trim())
+    .filter(Boolean);
+  if (chunks.length) return chunks.map((content, index) => createCreatorScene(content, index === 0 ? materials : []));
+  return [createCreatorScene(textOf(form.script), materials)];
+};
+
+const getCreatorSceneMaterials = (scenes = []) => scenes.flatMap((scene) => scene.materials || []);
+
 function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', backLabel = '返回视频管理', onBack, onLogin, onCreated }) {
   const isMixed = productionType === 'mix';
   const isProfessional = productionType === 'professional';
@@ -4235,6 +4252,8 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
   });
   const [cover, setCover] = useState(initial.cover);
   const [materials, setMaterials] = useState(initial.materials);
+  const [scenes, setScenes] = useState(() => getInitialCreatorScenes(initial.form, initial.materials));
+  const [activeSceneId, setActiveSceneId] = useState('');
   const [draftId, setDraftId] = useState(initial.draftId);
   const [resources, setResources] = useState({ human: [], voice: [], videoTemplate: [], coverTemplate: [], music: [], material: [], preset: [] });
   const [resourcePaging, setResourcePaging] = useState({
@@ -4249,19 +4268,25 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
   const [uploadProgress, setUploadProgress] = useState('');
   const coverRef = useRef(cover);
   const materialsRef = useRef(materials);
+  const scenesRef = useRef(scenes);
   const resourceLoadingRef = useRef({ videoTemplate: false, coverTemplate: false, material: false });
   const token = getAccessToken();
 
   const updateForm = (key, value) => setForm((current) => ({ ...current, [key]: value }));
   const updateProfessionalOption = (key, value) => setProfessionalOptions((current) => ({ ...current, [key]: value }));
-  const materialDuration = useMemo(() => materials.reduce((total, item) => total + getCreatorMaterialDuration(item), 0), [materials]);
+  const materialDuration = useMemo(() => {
+    const source = isCustomMixcut ? getCreatorSceneMaterials(scenes) : materials;
+    return source.reduce((total, item) => total + getCreatorMaterialDuration(item), 0);
+  }, [isCustomMixcut, materials, scenes]);
 
   useEffect(() => { coverRef.current = cover; }, [cover]);
   useEffect(() => { materialsRef.current = materials; }, [materials]);
+  useEffect(() => { scenesRef.current = scenes; }, [scenes]);
   useEffect(() => () => {
     const currentCover = coverRef.current;
     if (currentCover?.origin === 'local' && currentCover.previewUrl) URL.revokeObjectURL(currentCover.previewUrl);
     materialsRef.current.filter((item) => item.origin === 'local').forEach((item) => item.previewUrl && URL.revokeObjectURL(item.previewUrl));
+    getCreatorSceneMaterials(scenesRef.current).filter((item) => item.origin === 'local').forEach((item) => item.previewUrl && URL.revokeObjectURL(item.previewUrl));
   }, []);
 
   useEffect(() => {
@@ -4408,6 +4433,23 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
   const chooseResource = (type, option) => {
     if (type === 'material') {
       setMessage('');
+      if (isCustomMixcut && activeSceneId) {
+        setScenes((current) => current.map((scene) => {
+          if (scene.id !== activeSceneId) return scene;
+          const sceneMaterials = scene.materials || [];
+          const exists = sceneMaterials.some((item) => item.id === option.id);
+          const duration = Number(option.raw?.duration || option.raw?.duration_seconds) || (option.type === 'image' ? 2 : MAX_VIDEO_DURATION);
+          const nextDuration = materialDuration + (exists ? -getCreatorMaterialDuration(sceneMaterials.find((item) => item.id === option.id)) : duration);
+          if (!exists && nextDuration > 300) { setMessage('素材总时长不能超过 5 分钟'); return scene; }
+          return {
+            ...scene,
+            materials: exists
+              ? sceneMaterials.filter((item) => item.id !== option.id)
+              : sceneMaterials.concat({ ...option, title: option.title, previewUrl: option.cover, duration, origin: 'library' }),
+          };
+        }));
+        return;
+      }
       setMaterials((current) => {
         const exists = current.some((item) => item.id === option.id);
         if (exists) return current.filter((item) => item.id !== option.id);
@@ -4448,7 +4490,7 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
     setMessage('');
   };
 
-  const chooseLocalMaterials = async (event) => {
+  const chooseLocalMaterials = async (event, sceneId = '') => {
     const files = Array.from(event.target.files || []);
     event.target.value = '';
     if (!files.length) return;
@@ -4468,6 +4510,11 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
       setMessage('素材总时长不能超过 5 分钟');
       return;
     }
+    if (isCustomMixcut && sceneId) {
+      setScenes((current) => current.map((scene) => (scene.id === sceneId ? { ...scene, materials: (scene.materials || []).concat(accepted) } : scene)));
+      setMessage(failures.join('；'));
+      return;
+    }
     setMaterials((current) => current.concat(accepted));
     setMessage(failures.join('；'));
   };
@@ -4478,7 +4525,27 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
     return current.filter((item) => item.id !== id);
   });
 
-  const hasDraftContent = () => Boolean(form.title || form.topic || form.script || Object.values(selected).some((item) => item?.id || item?.audioUrl) || cover || materials.length);
+  const updateScene = (sceneId, patch) => setScenes((current) => current.map((scene) => (scene.id === sceneId ? { ...scene, ...patch } : scene)));
+  const splitScriptToScenes = () => {
+    const nextScenes = getInitialCreatorScenes(form, []);
+    setScenes((current) => nextScenes.map((scene, index) => ({ ...scene, materials: current[index]?.materials || [] })));
+    setMessage(nextScenes.length > 1 ? `已拆成 ${nextScenes.length} 个分镜` : '当前文案只有 1 个分镜');
+  };
+  const addScene = () => setScenes((current) => current.concat(createCreatorScene('')));
+  const removeScene = (sceneId) => setScenes((current) => {
+    const target = current.find((scene) => scene.id === sceneId);
+    (target?.materials || []).filter((item) => item.origin === 'local').forEach((item) => item.previewUrl && URL.revokeObjectURL(item.previewUrl));
+    const next = current.filter((scene) => scene.id !== sceneId);
+    return next.length ? next : [createCreatorScene('')];
+  });
+  const removeSceneMaterial = (sceneId, materialId) => setScenes((current) => current.map((scene) => {
+    if (scene.id !== sceneId) return scene;
+    const target = (scene.materials || []).find((item) => item.id === materialId);
+    if (target?.origin === 'local' && target.previewUrl) URL.revokeObjectURL(target.previewUrl);
+    return { ...scene, materials: (scene.materials || []).filter((item) => item.id !== materialId) };
+  }));
+
+  const hasDraftContent = () => Boolean(form.title || form.topic || form.script || scenes.some((scene) => scene.content || scene.materials?.length) || Object.values(selected).some((item) => item?.id || item?.audioUrl) || cover || materials.length);
   const validate = (isDraft) => {
     if (!token) { onLogin(); return '请先登录'; }
     if (isDraft) {
@@ -4487,12 +4554,22 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
     }
     if (!form.title.trim()) return '请填写标题';
     if (!form.topic.trim()) return '请填写话题';
-    if (!form.script.trim()) return '请填写文案';
     if (needsHuman && !selected.human.id) return '请选择数字人形象';
     if (!selected.voice.id) return '请选择声音';
     if (!selected.videoTemplate.id) return isMixed ? '请选择混剪剪辑模板' : '请选择视频包装模板';
     if (!selected.coverTemplate.id) return '请选择视频封面模板';
     if (!cover) return '请上传封面图片';
+    if (isCustomMixcut) {
+      const validScenes = scenes.filter((scene) => scene.content.trim() || scene.materials?.length);
+      if (!validScenes.length) return '请至少创建一个分镜';
+      const shortScene = validScenes.find((scene) => scene.content.trim().length < 3);
+      if (shortScene) return '每个分镜字幕不能少于 3 个字符';
+      const emptyMaterialScene = validScenes.find((scene) => !(scene.materials || []).length);
+      if (emptyMaterialScene) return '每个分镜都需要选择素材';
+      if (materialDuration > 300) return '素材总时长不能超过 5 分钟';
+      return '';
+    }
+    if (!form.script.trim()) return '请填写文案';
     if (!materials.length) return '请至少选择一个素材';
     if (materialDuration > 300) return '素材总时长不能超过 5 分钟';
     return '';
@@ -4516,10 +4593,11 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
         setCover((current) => current?.file === cover.file ? { ...current, url: coverUrl, uploaded: true } : current);
       }
       const submitMaterials = [];
-      const pendingMaterialCount = materials.filter((item) => item.file && !item.url).length;
+      const submitScenes = [];
+      const sourceMaterials = isCustomMixcut ? getCreatorSceneMaterials(scenes) : materials;
+      const pendingMaterialCount = sourceMaterials.filter((item) => item.file && !item.url).length;
       let pendingMaterialIndex = 0;
-      for (let index = 0; index < materials.length; index += 1) {
-        const material = materials[index];
+      const prepareMaterial = async (material) => {
         let url = material.url || '';
         if (material.file && !url) {
           pendingMaterialIndex += 1;
@@ -4529,11 +4607,35 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
           url = getUploadedUrl(result);
           if (!url) throw new Error(`${material.title} 上传未返回地址`);
           savedUploadCount += 1;
-          setMaterials((current) => current.map((item) => item.id === material.id ? { ...item, url, uploaded: true } : item));
+          if (isCustomMixcut) {
+            setScenes((current) => current.map((scene) => ({
+              ...scene,
+              materials: (scene.materials || []).map((item) => item.id === material.id ? { ...item, url, uploaded: true } : item),
+            })));
+          } else {
+            setMaterials((current) => current.map((item) => item.id === material.id ? { ...item, url, uploaded: true } : item));
+          }
         }
         if (!url) throw new Error(`${material.title} 上传未返回地址`);
         const submitUrl = material.type === 'image' && !url.includes('imageView2/') ? `${url}${url.includes('?') ? '&' : '?'}imageView2/0/w/1980/h/1980/format/copy/ignore-error/1` : url;
-        submitMaterials.push({ type: material.type, fileUrl: submitUrl, soundSwitch: isCustomMixcut && material.type === 'video' });
+        return { type: material.type, fileUrl: submitUrl, soundSwitch: isCustomMixcut && material.type === 'video' };
+      };
+      if (isCustomMixcut) {
+        const validScenes = scenes.filter((scene) => scene.content.trim() || scene.materials?.length);
+        for (let sceneIndex = 0; sceneIndex < validScenes.length; sceneIndex += 1) {
+          const scene = validScenes[sceneIndex];
+          const sceneMaterials = [];
+          for (let materialIndex = 0; materialIndex < (scene.materials || []).length; materialIndex += 1) {
+            const prepared = await prepareMaterial(scene.materials[materialIndex]);
+            sceneMaterials.push({ fileUrl: prepared.fileUrl, soundSwitch: Boolean(prepared.soundSwitch) });
+            submitMaterials.push(prepared);
+          }
+          submitScenes.push({ captions: { content: scene.content.trim() }, materials: sceneMaterials });
+        }
+      } else {
+        for (let index = 0; index < materials.length; index += 1) {
+          submitMaterials.push(await prepareMaterial(materials[index]));
+        }
       }
       if (coverUrl && !coverUrl.includes('imageView2/')) coverUrl = `${coverUrl}${coverUrl.includes('?') ? '&' : '?'}imageView2/0/w/1980/h/1980/format/copy/ignore-error/1`;
       const speakerExtra = {
@@ -4542,7 +4644,8 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
       };
       const musicVolume = Math.min(2, Math.max(0, Number(professionalOptions.bgmVolume) || 1));
       const backgroundMusic = { audioSwitch: Boolean(selected.music.audioUrl), audioUrl: selected.music.audioUrl || '', url: selected.music.audioUrl || '', volume: musicVolume };
-      const customMixcutScenes = [{ captions: { content: form.script.trim() }, materials: submitMaterials.map((item) => ({ fileUrl: item.fileUrl, soundSwitch: Boolean(item.soundSwitch) })) }];
+      const customMixcutScenes = submitScenes;
+      const scriptContent = isCustomMixcut ? (form.script.trim() || sceneScriptContent) : form.script.trim();
       const customMixcutPackRules = {
         headerSwitch: professionalOptions.headerSwitch,
         materialSwitch: professionalOptions.materialSwitch,
@@ -4566,7 +4669,7 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
         styleId: selected.videoTemplate.id,
         speakerId: selected.voice.id,
         speakerExtra,
-        content: form.script.trim(),
+        content: scriptContent,
         title: form.title.trim(),
         topic: form.topic.trim(),
         tags: form.topic.trim(),
@@ -4599,7 +4702,7 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
         });
       }
       const payload = {
-        title: form.title.trim(), topic: form.topic.trim(), tags: form.topic.trim(), script: form.script.trim(), content: form.script.trim(),
+        title: form.title.trim(), topic: form.topic.trim(), tags: form.topic.trim(), script: scriptContent, content: scriptContent,
         cover: coverUrl, coverUrl, voiceId: selected.voice.id, voiceName: selected.voice.title, speakerId: selected.voice.id,
         speakerExtra, speaker_extra: speakerExtra, coverTemplateId: selected.coverTemplate.id, coverTemplateName: selected.coverTemplate.title,
         videoTemplateId: selected.videoTemplate.id, videoTemplateName: selected.videoTemplate.title, scene: productionScene, templateScene,
@@ -4668,6 +4771,9 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
     { key: 'coverTemplate', label: '视频封面模板', hint: '请选择视频封面模板', icon: Image },
     { key: 'music', label: '背景音乐', hint: '可选，不选则不添加音乐', icon: Music2 },
   ];
+  const sceneScriptContent = scenes.map((scene) => scene.content.trim()).filter(Boolean).join('\n\n');
+  const activeSceneMaterials = isCustomMixcut && activeSceneId ? scenes.find((scene) => scene.id === activeSceneId)?.materials || [] : materials;
+  const sceneMaterialCount = getCreatorSceneMaterials(scenes).length;
 
   return (
     <div className="video-creator-page">
@@ -4675,15 +4781,15 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
       {!token ? <div className="video-empty-state"><UserRound size={38} /><strong>登录后开始制作</strong><p>登录后才能读取数字人、声音、素材并提交制作任务。</p><button className="primary-button" onClick={onLogin}>登录</button></div> : <>
         <div className="video-creator-layout">
           <main className="video-creator-main">
-            <section className="video-creator-section"><div className="video-creator-section__head"><span>01</span><div><h2>基础内容</h2><p>{isMixed || isMaterialPackage ? '标题和话题用于成片包装，文案用于字幕、关键词和素材编排。' : '标题和话题用于成片包装，文案会由数字人朗读。'}</p></div></div><div className="video-creator-fields"><label><span>标题 <em>必填</em></span><input maxLength={80} value={form.title} onChange={(event) => updateForm('title', event.target.value)} placeholder="请输入视频标题" /><small>{form.title.length}/80</small></label><label><span>话题 <em>必填</em></span><input value={form.topic} onChange={(event) => updateForm('topic', event.target.value)} placeholder="例如：同城获客、门店活动" /></label><label className="is-wide"><span>文案 <em>必填</em></span><textarea maxLength={2000} value={form.script} onChange={(event) => updateForm('script', event.target.value)} placeholder={isMixed || isMaterialPackage ? '请输入混剪视频文案' : '请输入数字人口播文案'} /><small>{form.script.length}/2000</small></label></div></section>
+            <section className="video-creator-section"><div className="video-creator-section__head"><span>01</span><div><h2>基础内容</h2><p>{isCustomMixcut ? '标题和话题用于成片包装，总文案可一键拆成分镜。' : isMixed ? '标题和话题用于成片包装，文案用于字幕、关键词和素材编排。' : '标题和话题用于成片包装，文案会由数字人朗读。'}</p></div></div><div className="video-creator-fields"><label><span>标题 <em>必填</em></span><input maxLength={80} value={form.title} onChange={(event) => updateForm('title', event.target.value)} placeholder="请输入视频标题" /><small>{form.title.length}/80</small></label><label><span>话题 <em>必填</em></span><input value={form.topic} onChange={(event) => updateForm('topic', event.target.value)} placeholder="例如：同城获客、门店活动" /></label><label className="is-wide"><span>{isCustomMixcut ? '总文案' : '文案'} {!isCustomMixcut && <em>必填</em>}</span><textarea maxLength={2000} value={form.script} onChange={(event) => updateForm('script', event.target.value)} placeholder={isCustomMixcut ? '可先输入完整文案，再点击按文案拆分' : isMixed ? '请输入混剪视频文案' : '请输入数字人口播文案'} /><small>{form.script.length}/2000</small></label></div></section>
             <section className="video-creator-section"><div className="video-creator-section__head"><span>02</span><div><h2>选择配置</h2><p>{isCustomMixcut ? '选择声音、包装混剪模板、封面包装和背景音乐。' : isMixed ? '选择声音、混剪剪辑模板、封面包装和背景音乐。' : '使用已有资源，也可以一键应用团队预设。'}</p></div>{needsHuman && resources.preset.length > 0 && <button className="video-creator-preset-button" onClick={() => setDialogType('preset')}><Layers3 size={16} />选择已配置</button>}</div><div className="video-creator-select-list">{selectorRows.map(({ key, label, hint, icon: Icon }) => { const value = selected[key]; const preview = value.cover; return <button key={key} onClick={() => setDialogType(key)}><i><Icon size={19} /></i><span><strong>{label}</strong><small>{value.title || hint}</small></span>{preview && <img src={preview} alt="" />}{key === 'music' && value.audioUrl && <audio src={value.audioUrl} controls onClick={(event) => event.stopPropagation()} />}<ChevronRight size={18} /></button>; })}</div></section>
             {isCustomMixcut && <section className="video-creator-section"><div className="video-creator-section__head"><span>03</span><div><h2>包装参数</h2><p>{isProfessional ? '介绍卡会写入 introduceCard，其他字段写入 packRules、processRules 和 structLayers。' : '这些字段会写入 packRules、processRules 和 structLayers。'}</p></div></div><div className="video-creator-fields video-creator-fields--compact">{isProfessional && <><label><span>出镜人姓名</span><input value={professionalOptions.presenterName} onChange={(event) => updateProfessionalOption('presenterName', event.target.value)} placeholder="默认使用数字人名称" /></label><label><span>出镜人介绍</span><input value={professionalOptions.presenterDescription} onChange={(event) => updateProfessionalOption('presenterDescription', event.target.value)} placeholder="例如：品牌主理人" /></label></>}<label><span>声音语种</span><select value={professionalOptions.language} onChange={(event) => updateProfessionalOption('language', event.target.value)}><option value="zh-CN">中文</option><option value="en-US">English</option><option value="ja-JP">日本語</option><option value="ko-KR">한국어</option></select></label><label><span>素材编排</span><select value={professionalOptions.materialComposition} onChange={(event) => updateProfessionalOption('materialComposition', event.target.value)}><option value="random">随机</option><option value="sequence">顺序</option></select></label><label><span>片头显示秒数</span><input type="number" min="0" max="10" step="0.5" value={professionalOptions.headerShowTime} onChange={(event) => updateProfessionalOption('headerShowTime', event.target.value)} /></label><label><span>音乐音量</span><input type="number" min="0" max="2" step="0.1" value={professionalOptions.bgmVolume} onChange={(event) => updateProfessionalOption('bgmVolume', event.target.value)} /></label></div><div className="video-professional-switches">{[['headerSwitch', '片头'], ['materialSwitch', '素材'], ['subtitleSwitch', '字幕'], ['keywordSwitch', '关键词'], ['headerLayer', '片头图层'], ['showWatermark', '水印']].map(([key, label]) => <label key={key}><input type="checkbox" checked={Boolean(professionalOptions[key])} onChange={(event) => updateProfessionalOption(key, event.target.checked)} /><span>{label}</span></label>)}</div></section>}
-            <section className="video-creator-section"><div className="video-creator-section__head"><span>{isCustomMixcut ? '04' : '03'}</span><div><h2>封面与素材</h2><p>图片按 2 秒计，单个视频小于 60 秒，总时长不超过 5 分钟。</p></div></div><div className="video-creator-upload-grid"><div className="video-creator-cover"><h3>封面图片 <em>必填</em></h3>{cover ? <div className="video-creator-cover-preview"><img src={cover.previewUrl || cover.url} alt="" /><span><strong>{cover.title}</strong><button onClick={() => { if (cover.origin === 'local') URL.revokeObjectURL(cover.previewUrl); setCover(null); }}><Trash2 size={15} />删除</button></span></div> : <label className="video-creator-dropzone"><Image size={26} /><strong>上传封面图片</strong><small>jpg / png / webp</small><input type="file" accept="image/jpeg,image/png,image/webp" onChange={chooseCover} /></label>}</div><div className="video-creator-material-actions"><h3>视频素材 <em>必填</em></h3><div><button onClick={() => setDialogType('material')}><Library size={18} />从素材库选择</button><label><Upload size={18} />本地上传<input type="file" multiple accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime" onChange={chooseLocalMaterials} /></label></div><small>已选 {materials.length} 个 · 总时长 {formatDuration(materialDuration)}</small></div></div>{materials.length > 0 && <div className="video-creator-material-grid">{materials.map((material) => <article key={material.id}><span>{material.type === 'video' && material.file ? <video src={material.previewUrl} muted playsInline /> : material.previewUrl ? <img src={material.previewUrl} alt="" /> : <Video size={24} />}</span><div><strong>{material.title}</strong><small>{material.type === 'video' ? `视频 · ${formatDuration(material.duration)}` : '图片 · 2 秒'}</small></div><button onClick={() => removeMaterial(material.id)} aria-label="删除素材"><X size={16} /></button></article>)}</div>}</section>
+            <section className="video-creator-section"><div className="video-creator-section__head"><span>{isCustomMixcut ? '04' : '03'}</span><div><h2>{isCustomMixcut ? '文案分镜' : '封面与素材'}</h2><p>{isCustomMixcut ? '每个分镜需要字幕文本和对应素材，素材只支持图片和视频。' : '图片按 2 秒计，单个视频小于 60 秒，总时长不超过 5 分钟。'}</p></div></div><div className="video-creator-upload-grid"><div className="video-creator-cover"><h3>封面图片 <em>必填</em></h3>{cover ? <div className="video-creator-cover-preview"><img src={cover.previewUrl || cover.url} alt="" /><span><strong>{cover.title}</strong><button onClick={() => { if (cover.origin === 'local') URL.revokeObjectURL(cover.previewUrl); setCover(null); }}><Trash2 size={15} />删除</button></span></div> : <label className="video-creator-dropzone"><Image size={26} /><strong>上传封面图片</strong><small>jpg / png / webp</small><input type="file" accept="image/jpeg,image/png,image/webp" onChange={chooseCover} /></label>}</div>{!isCustomMixcut && <div className="video-creator-material-actions"><h3>视频素材 <em>必填</em></h3><div><button onClick={() => setDialogType('material')}><Library size={18} />从素材库选择</button><label><Upload size={18} />本地上传<input type="file" multiple accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime" onChange={chooseLocalMaterials} /></label></div><small>已选 {materials.length} 个 · 总时长 {formatDuration(materialDuration)}</small></div>}</div>{isCustomMixcut ? <div className="video-scene-builder"><div className="video-scene-builder__toolbar"><button onClick={splitScriptToScenes}><Sparkles size={16} />按文案拆分</button><button onClick={addScene}><Plus size={16} />新增分镜</button><span>{scenes.length} 个分镜 · {sceneMaterialCount} 个素材 · {formatDuration(materialDuration)}</span></div><div className="video-scene-list">{scenes.map((scene, index) => <article className="video-scene-card" key={scene.id}><header><span>分镜 {index + 1}</span><button onClick={() => removeScene(scene.id)} disabled={scenes.length <= 1} aria-label="删除分镜"><Trash2 size={15} /></button></header><label><span>字幕文本 <em>必填</em></span><textarea value={scene.content} onChange={(event) => updateScene(scene.id, { content: event.target.value })} placeholder="单个分镜字幕文本不能少于 3 个字符" /></label><div className="video-scene-actions"><button onClick={() => { setActiveSceneId(scene.id); setDialogType('material'); }}><Library size={16} />从素材库选择</button><label><Upload size={16} />本地上传<input type="file" multiple accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime" onChange={(event) => chooseLocalMaterials(event, scene.id)} /></label><small>{(scene.materials || []).length} 个素材</small></div>{(scene.materials || []).length > 0 && <div className="video-creator-material-grid video-scene-material-grid">{scene.materials.map((material) => <article key={`${scene.id}-${material.id}`}><span>{material.type === 'video' && material.file ? <video src={material.previewUrl} muted playsInline /> : material.previewUrl ? <img src={material.previewUrl} alt="" /> : <Video size={24} />}</span><div><strong>{material.title}</strong><small>{material.type === 'video' ? `视频 · ${formatDuration(material.duration)}` : '图片 · 2 秒'}</small></div><button onClick={() => removeSceneMaterial(scene.id, material.id)} aria-label="删除素材"><X size={16} /></button></article>)}</div>}</article>)}</div></div> : materials.length > 0 && <div className="video-creator-material-grid">{materials.map((material) => <article key={material.id}><span>{material.type === 'video' && material.file ? <video src={material.previewUrl} muted playsInline /> : material.previewUrl ? <img src={material.previewUrl} alt="" /> : <Video size={24} />}</span><div><strong>{material.title}</strong><small>{material.type === 'video' ? `视频 · ${formatDuration(material.duration)}` : '图片 · 2 秒'}</small></div><button onClick={() => removeMaterial(material.id)} aria-label="删除素材"><X size={16} /></button></article>)}</div>}</section>
           </main>
-          <aside className="video-creator-summary"><span>PRODUCTION SUMMARY</span><h2>制作确认</h2><dl><div><dt>标题</dt><dd>{form.title || '未填写'}</dd></div>{needsHuman && <div><dt>数字人</dt><dd>{selected.human.title || '未选择'}</dd></div>}<div><dt>声音</dt><dd>{selected.voice.title || '未选择'}</dd></div><div><dt>{isMixed ? '混剪模板' : isCustomMixcut ? '包装模板' : '视频包装'}</dt><dd>{selected.videoTemplate.title || '未选择'}</dd></div><div><dt>封面包装</dt><dd>{selected.coverTemplate.title || '未选择'}</dd></div><div><dt>背景音乐</dt><dd>{selected.music.title || '未选择'}</dd></div>{isCustomMixcut && <div><dt>编排</dt><dd>{professionalOptions.materialComposition === 'random' ? '随机' : '顺序'}</dd></div>}<div><dt>素材</dt><dd>{materials.length} 个 / {formatDuration(materialDuration)}</dd></div></dl>{uploadProgress && <div className="video-creator-uploading"><RefreshCw className="is-spinning" size={17} />{uploadProgress}</div>}{message && <div className={`video-list-message ${/失败|请|不能|未返回|最多/.test(message) ? 'is-error' : ''}`}>{message}</div>}<div className="video-creator-submit"><button className="outline-button" onClick={() => submit(true)} disabled={Boolean(busy)}>{busy === 'draft' ? '暂存中…' : '暂存'}</button><button className="primary-button" onClick={() => submit(false)} disabled={Boolean(busy)}><Sparkles size={17} />{busy === 'submit' ? '提交中…' : '提交制作'}</button></div><p>提交后会进入制作队列，可在 Video Studio 查看进度。</p></aside>
+          <aside className="video-creator-summary"><span>PRODUCTION SUMMARY</span><h2>制作确认</h2><dl><div><dt>标题</dt><dd>{form.title || '未填写'}</dd></div>{needsHuman && <div><dt>数字人</dt><dd>{selected.human.title || '未选择'}</dd></div>}<div><dt>声音</dt><dd>{selected.voice.title || '未选择'}</dd></div><div><dt>{isMixed ? '混剪模板' : isCustomMixcut ? '包装模板' : '视频包装'}</dt><dd>{selected.videoTemplate.title || '未选择'}</dd></div><div><dt>封面包装</dt><dd>{selected.coverTemplate.title || '未选择'}</dd></div><div><dt>背景音乐</dt><dd>{selected.music.title || '未选择'}</dd></div>{isCustomMixcut && <div><dt>分镜</dt><dd>{scenes.length} 个</dd></div>}{isCustomMixcut && <div><dt>编排</dt><dd>{professionalOptions.materialComposition === 'random' ? '随机' : '顺序'}</dd></div>}<div><dt>素材</dt><dd>{isCustomMixcut ? sceneMaterialCount : materials.length} 个 / {formatDuration(materialDuration)}</dd></div></dl>{uploadProgress && <div className="video-creator-uploading"><RefreshCw className="is-spinning" size={17} />{uploadProgress}</div>}{message && <div className={`video-list-message ${/失败|请|不能|未返回|最多/.test(message) ? 'is-error' : ''}`}>{message}</div>}<div className="video-creator-submit"><button className="outline-button" onClick={() => submit(true)} disabled={Boolean(busy)}>{busy === 'draft' ? '暂存中…' : '暂存'}</button><button className="primary-button" onClick={() => submit(false)} disabled={Boolean(busy)}><Sparkles size={17} />{busy === 'submit' ? '提交中…' : '提交制作'}</button></div><p>提交后会进入制作队列，可在 Video Studio 查看进度。</p></aside>
         </div>
       </>}
-      {dialogType && <VideoCreatorDialog type={dialogType} titleOverride={isMixed && dialogType === 'videoTemplate' ? '选择混剪剪辑模板' : isCustomMixcut && dialogType === 'videoTemplate' ? '选择包装混剪模板' : ''} options={resources[dialogType] || []} selected={dialogType === 'material' ? materials : selected[dialogType]} loading={loadingResources} hasMore={resourcePaging[dialogType]?.hasMore || false} loadingMore={resourcePaging[dialogType]?.loadingMore || false} loadMessage={resourcePaging[dialogType]?.message || ''} onClose={() => setDialogType('')} onSelect={(option) => chooseResource(dialogType, option)} onLoadMore={() => loadMoreCreatorResources(dialogType)} />}
+      {dialogType && <VideoCreatorDialog type={dialogType} titleOverride={isMixed && dialogType === 'videoTemplate' ? '选择混剪剪辑模板' : isCustomMixcut && dialogType === 'videoTemplate' ? '选择包装混剪模板' : ''} options={resources[dialogType] || []} selected={dialogType === 'material' ? activeSceneMaterials : selected[dialogType]} loading={loadingResources} hasMore={resourcePaging[dialogType]?.hasMore || false} loadingMore={resourcePaging[dialogType]?.loadingMore || false} loadMessage={resourcePaging[dialogType]?.message || ''} onClose={() => { setDialogType(''); setActiveSceneId(''); }} onSelect={(option) => chooseResource(dialogType, option)} onLoadMore={() => loadMoreCreatorResources(dialogType)} />}
     </div>
   );
 }
