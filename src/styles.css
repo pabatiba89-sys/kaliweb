@@ -883,7 +883,7 @@
 
 .video-studio-sections {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
   margin-bottom: 14px;
 }
@@ -1796,6 +1796,7 @@
 }
 
 .video-creator-fields input,
+.video-creator-fields select,
 .video-creator-fields textarea {
   width: 100%;
   min-width: 0;
@@ -1812,6 +1813,12 @@
   padding: 0 12px;
 }
 
+.video-creator-fields select {
+  min-height: 45px;
+  padding: 0 12px;
+  appearance: none;
+}
+
 .video-creator-fields textarea {
   min-height: 180px;
   padding: 12px;
@@ -1821,6 +1828,7 @@
 }
 
 .video-creator-fields input:focus,
+.video-creator-fields select:focus,
 .video-creator-fields textarea:focus {
   border-color: #7dd3b7;
   box-shadow: 0 0 0 3px rgba(64, 190, 151, 0.12);
@@ -1836,6 +1844,37 @@
 
 .video-creator-fields label:not(.is-wide) > small {
   bottom: 14px;
+}
+
+.video-creator-fields--compact textarea {
+  min-height: 96px;
+}
+
+.video-professional-switches {
+  margin-top: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.video-professional-switches label {
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #f9fcfb;
+  color: #426158;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 760;
+}
+
+.video-professional-switches input {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--green);
 }
 
 .video-creator-select-list {
