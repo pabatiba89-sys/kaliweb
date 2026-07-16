@@ -1121,6 +1121,8 @@ const VIDEO_PRODUCTION_TYPES = {
     productionScene: 'oralMixCutting',
     listPath: '/api/video-mix/list',
     createPath: '/api/video-mix/create',
+    createPaths: ['/api/video-mix/custom-broadcast-mixcut/create', '/api/video-mix/create'],
+    endpoint: 'custom_broadcast_mixcut',
   },
   professional: {
     key: 'professional',
@@ -1137,7 +1139,9 @@ const VIDEO_PRODUCTION_TYPES = {
     templateScene: 'virtualman',
     productionScene: 'custom_virtualman_broadcast',
     listPath: '/api/video-mix/list',
-    createPath: '/api/video-mix/create',
+    createPath: '/api/video/custom-virtualman-broadcast/create',
+    createPaths: ['/api/video/custom-virtualman-broadcast/create', '/api/video/production/custom-virtualman-broadcast/create', '/api/video/production/create'],
+    endpoint: 'custom_virtualman_broadcast',
     openapiPath: '/v1/clip/video/custom_virtualman_broadcast',
   },
 };
@@ -4185,6 +4189,7 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
   const isMixed = productionType === 'mix';
   const isProfessional = productionType === 'professional';
   const creatorConfig = VIDEO_PRODUCTION_TYPES[isProfessional ? 'professional' : isMixed ? 'mix' : 'oral'];
+  const isCustomMixcut = isMixed || isProfessional;
   const needsHuman = !isMixed;
   const templateScene = creatorConfig.templateScene;
   const productionScene = creatorConfig.productionScene;
@@ -4509,29 +4514,29 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
         }
         if (!url) throw new Error(`${material.title} 上传未返回地址`);
         const submitUrl = material.type === 'image' && !url.includes('imageView2/') ? `${url}${url.includes('?') ? '&' : '?'}imageView2/0/w/1980/h/1980/format/copy/ignore-error/1` : url;
-        submitMaterials.push({ type: material.type, fileUrl: submitUrl, soundSwitch: isProfessional && material.type === 'video' });
+        submitMaterials.push({ type: material.type, fileUrl: submitUrl, soundSwitch: isCustomMixcut && material.type === 'video' });
       }
       if (coverUrl && !coverUrl.includes('imageView2/')) coverUrl = `${coverUrl}${coverUrl.includes('?') ? '&' : '?'}imageView2/0/w/1980/h/1980/format/copy/ignore-error/1`;
       const speakerExtra = {
         speedRatio: Math.min(2, Math.max(0.5, Number(selected.voice.speed) || 1)),
-        ...(isProfessional ? { language: professionalOptions.language || 'zh-CN' } : {}),
+        ...(isCustomMixcut ? { language: professionalOptions.language || 'zh-CN' } : {}),
       };
       const musicVolume = Math.min(2, Math.max(0, Number(professionalOptions.bgmVolume) || 1));
       const backgroundMusic = { audioSwitch: Boolean(selected.music.audioUrl), audioUrl: selected.music.audioUrl || '', url: selected.music.audioUrl || '', volume: musicVolume };
-      const professionalScenes = [{ captions: { content: form.script.trim() }, materials: submitMaterials.map((item) => ({ fileUrl: item.fileUrl, soundSwitch: Boolean(item.soundSwitch) })) }];
-      const professionalPackRules = {
+      const customMixcutScenes = [{ captions: { content: form.script.trim() }, materials: submitMaterials.map((item) => ({ fileUrl: item.fileUrl, soundSwitch: Boolean(item.soundSwitch) })) }];
+      const customMixcutPackRules = {
         headerSwitch: professionalOptions.headerSwitch,
         materialSwitch: professionalOptions.materialSwitch,
         subtitleSwitch: professionalOptions.subtitleSwitch,
         keywordSwitch: professionalOptions.keywordSwitch,
-        backgroundMusic,
+        ...(selected.music.audioUrl ? { backgroundMusic } : {}),
       };
-      const professionalProcessRules = {
+      const customMixcutProcessRules = {
         materialComposition: professionalOptions.materialComposition,
         watermarkShow: professionalOptions.showWatermark,
         firstFrameCover: { coverSwitch: true, templateId: selected.coverTemplate.id, imageUrl: coverUrl },
       };
-      const professionalStructLayers = [{
+      const customMixcutStructLayers = [{
         markCode: 'headerLayer',
         show: professionalOptions.headerLayer,
         showMode: 'customize',
@@ -4553,20 +4558,25 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
         processRules: { watermarkShow: true, firstFrameCover: { coverSwitch: true, templateId: selected.coverTemplate.id, imageUrl: coverUrl } },
         bgmusic: { url: selected.music.audioUrl || '' },
       };
+      if (isCustomMixcut) {
+        Object.assign(shanjianData, {
+          endpoint: creatorConfig.endpoint,
+          scenes: customMixcutScenes,
+          packRules: customMixcutPackRules,
+          processRules: customMixcutProcessRules,
+          structLayers: customMixcutStructLayers,
+        });
+      }
       if (isProfessional) {
         Object.assign(shanjianData, {
           openapiPath: creatorConfig.openapiPath,
           shanjianEndpoint: creatorConfig.openapiPath,
           virtualmanId: selected.human.id,
           aiHumanId: selected.human.id,
-          scenes: professionalScenes,
           introduceCard: omitEmpty({
             name: professionalOptions.presenterName.trim() || selected.human.title,
             description: professionalOptions.presenterDescription.trim(),
           }),
-          packRules: professionalPackRules,
-          processRules: professionalProcessRules,
-          structLayers: professionalStructLayers,
         });
       }
       const payload = {
@@ -4574,19 +4584,22 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
         cover: coverUrl, coverUrl, voiceId: selected.voice.id, voiceName: selected.voice.title, speakerId: selected.voice.id,
         speakerExtra, speaker_extra: speakerExtra, coverTemplateId: selected.coverTemplate.id, coverTemplateName: selected.coverTemplate.title,
         videoTemplateId: selected.videoTemplate.id, videoTemplateName: selected.videoTemplate.title, scene: productionScene, templateScene,
-        materials: submitMaterials, is_draft: Boolean(isDraft), bgmusic: { url: selected.music.audioUrl || '' }, shanjianData,
+        materials: submitMaterials, isDraft: Boolean(isDraft), is_draft: Boolean(isDraft), saveDraft: Boolean(isDraft), draft: Boolean(isDraft), bgmusic: { url: selected.music.audioUrl || '' }, bgMusic: { url: selected.music.audioUrl || '' }, musicUrl: selected.music.audioUrl || '', shanjianData,
+        ...(creatorConfig.endpoint ? { endpoint: creatorConfig.endpoint } : {}),
+        ...(draftId ? { id: draftId, draft_id: draftId, draftId } : {}),
+        ...(isCustomMixcut ? {
+          productionType: creatorConfig.key,
+          production_type: creatorConfig.key,
+          scenes: customMixcutScenes,
+          packRules: customMixcutPackRules,
+          processRules: customMixcutProcessRules,
+          structLayers: customMixcutStructLayers,
+        } : {}),
         ...(isProfessional ? {
-          productionType: 'professional',
-          production_type: 'professional',
           openapiPath: creatorConfig.openapiPath,
           shanjianEndpoint: creatorConfig.openapiPath,
-          scenes: professionalScenes,
           introduceCard: shanjianData.introduceCard,
-          packRules: professionalPackRules,
-          processRules: professionalProcessRules,
-          structLayers: professionalStructLayers,
         } : {}),
-        ...(draftId ? { id: draftId, draft_id: draftId } : {}),
       };
       if (needsHuman) {
         shanjianData.aiHumanId = selected.human.id;
@@ -4599,7 +4612,12 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
         });
       }
       setUploadProgress(isDraft ? '正在暂存…' : '正在提交制作任务…');
-      const result = await apiFetch(creatorConfig.createPath, { method: 'POST', body: payload, timeoutMs: 180000 });
+      const createPaths = creatorConfig.createPaths || [creatorConfig.createPath];
+      let result = null;
+      for (const path of createPaths) {
+        result = await apiFetch(path, { method: 'POST', body: payload, timeoutMs: 180000 });
+        if (result.ok || result.authMissing || ![404, 405].includes(result.status)) break;
+      }
       if (!result.ok) throw new Error(getResultMessage(result, isDraft ? '暂存失败' : '视频任务提交失败'));
       if (isDraft) {
         const detail = getVideoDetailRecord(result);
