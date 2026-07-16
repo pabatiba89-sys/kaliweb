@@ -104,7 +104,7 @@
 - 2026-07-14：AI 助手列表的滚动发生在整页，不能依赖 `.agent-grid` 的 `onScroll`；应使用页底 `IntersectionObserver` 触发分页，并保留“加载更多/重试”按钮。接口未返回分页元数据时，不能仅用“本页是否正好 20 条”判断结束；应继续探测下一页，直到空页或全部重复。
 - 2026-07-15：海外 Billing 页不能复用通用 `ResourcePage` 资源列表；套餐/账单应使用专用页面展示当前套餐、额度卡和可购买套餐，隐藏后台状态如 `Draft`，并直接兼容对象型 `/api/plan/user-plan` 返回。中文 `zh-CN`/`zh-TW` 继续走小程序码支付页。
 - 2026-07-15：用户再次确认后续本项目代码更改完成并通过必要检查后直接提交和推送到远端；除非存在真实风险、改动范围不清或需要用户决策，不再反复询问是否推送。
-- 2026-07-16：Video Studio 的原“数字人口播”和原“混剪视频”入口不能被新包装混剪改动；新能力必须作为独立板块和独立制作界面接入。“数字人包装混剪”对应闪剪 OpenAPI `POST /v1/clip/video/custom_virtualman_broadcast`，提交优先走后端 `/api/video/custom-virtualman-broadcast/create`，兼容 `/api/video/production/custom-virtualman-broadcast/create` 和旧 `/api/video/production/create + endpoint=custom_virtualman_broadcast`；“素材包装混剪”优先走 `/api/video-mix/custom-broadcast-mixcut/create`，旧 `/api/video-mix/create` 仅作为 `endpoint=custom_broadcast_mixcut` 兜底。两者都需构造 `scenes/packRules/processRules/structLayers`，数字人包装混剪额外带 `virtualmanId/introduceCard`。
+- 2026-07-16：Video Studio 的原“数字人口播”和原“混剪视频”入口不能被新包装混剪改动；新能力必须作为独立板块和独立制作界面接入。“数字人包装混剪”对应闪剪 OpenAPI `POST /v1/clip/video/custom_virtualman_broadcast`，提交优先走后端 `/api/video/custom-virtualman-broadcast/create`，兼容 `/api/video/production/custom-virtualman-broadcast/create` 和旧 `/api/video/production/create + endpoint=custom_virtualman_broadcast`；“素材包装混剪”优先走 `/api/video-mix/custom-broadcast-mixcut/create`，旧 `/api/video-mix/create` 仅作为 `endpoint=custom_broadcast_mixcut` 兜底。两者都需构造 `scenes/packRules/processRules/structLayers`，数字人包装混剪额外带 `virtualmanId`，不带身份栏 `introduceCard`。
 - 2026-07-16：新增两个包装混剪入口在界面上命名为“形象播报 Pro”和“素材成片 Pro”；核心交互是文案分镜和每个分镜单独选择图片/视频素材。Pro 提交以 `scenes[].captions.content` 和 `scenes[].materials[].fileUrl/soundSwitch` 为准，字幕最少 3 个字符；原“数字人口播”和原“混剪视频”仍保持旧接口、旧素材选择方式不变。
 - 2026-07-16：Pro 制作页的封面图片属于“选择配置/封面包装”区域，不放在“文案分镜”区域；文案分镜区域只承载分镜字幕与每个分镜的素材选择。
 - 2026-07-16：Pro 制作页不展示“包装参数”板块；界面只保留基础内容、选择配置和文案分镜，包装相关提交字段使用系统默认值在后台构造。
@@ -112,3 +112,4 @@
 - 2026-07-16：Pro 文案分镜解析不能假设每个 `分镜N：` 都在新行；生成结果可能把 `分镜1：... 分镜2：...` 放在同一行，解析器需按行首、空白或常见中文标点后的分镜标记拆成多个制作页分镜框。
 - 2026-07-16：Pro 视频制作的素材校验是“全局至少 1 个素材”，不是“每个分镜都必填素材”；分镜只强制字幕文本，素材可挂在任意一个或多个分镜。
 - 2026-07-16：视频制作页需要支持“数字人口播 / 混剪视频 / 形象播报 Pro / 素材成片 Pro”四种模式在同一页面内切换；切换时保留并迁移已填内容，普通模式切 Pro 自动按文案拆分分镜并把普通素材挂到首个分镜，Pro 切普通则合并分镜文案并汇总分镜素材。
+- 2026-07-16：Pro 提交参数不带身份栏信息；数字人 Pro 只提交制作所需的 `virtualmanId/aiHumanId`，不得提交 `introduceCard.name` 或 `introduceCard.description`。

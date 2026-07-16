@@ -4287,9 +4287,7 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
   }, [usePrefill, needsHuman]);
   const [form, setForm] = useState(initial.form);
   const [selected, setSelected] = useState(initial.selected);
-  const [professionalOptions, setProfessionalOptions] = useState({
-    presenterName: '',
-    presenterDescription: '',
+  const [professionalOptions] = useState({
     language: 'zh-CN',
     materialComposition: 'random',
     showWatermark: true,
@@ -4324,7 +4322,6 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
   const token = getAccessToken();
 
   const updateForm = (key, value) => setForm((current) => ({ ...current, [key]: value }));
-  const updateProfessionalOption = (key, value) => setProfessionalOptions((current) => ({ ...current, [key]: value }));
   const materialDuration = useMemo(() => {
     const source = isCustomMixcut ? getCreatorSceneMaterials(scenes) : materials;
     return source.reduce((total, item) => total + getCreatorMaterialDuration(item), 0);
@@ -4745,10 +4742,6 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
           shanjianEndpoint: creatorConfig.openapiPath,
           virtualmanId: selected.human.id,
           aiHumanId: selected.human.id,
-          introduceCard: omitEmpty({
-            name: professionalOptions.presenterName.trim() || selected.human.title,
-            description: professionalOptions.presenterDescription.trim(),
-          }),
         });
       }
       const payload = {
@@ -4775,7 +4768,6 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
         ...(isProfessional ? {
           openapiPath: creatorConfig.openapiPath,
           shanjianEndpoint: creatorConfig.openapiPath,
-          introduceCard: shanjianData.introduceCard,
         } : {}),
       };
       if (needsHuman) {
