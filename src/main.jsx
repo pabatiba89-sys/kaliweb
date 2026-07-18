@@ -4395,9 +4395,13 @@ const mergeCreatorMaterials = (...groups) => {
 };
 
 function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', backLabel = '返回视频管理', onBack, onLogin, onCreated, onChangeProductionType }) {
-  const isMixed = productionType === 'mix';
-  const isProfessional = productionType === 'professional';
-  const isMaterialPackage = productionType === 'materialPackage';
+  const [currentProductionType, setCurrentProductionType] = useState(VIDEO_PRODUCTION_TYPES[productionType] ? productionType : 'oral');
+  useEffect(() => {
+    if (VIDEO_PRODUCTION_TYPES[productionType] && productionType !== currentProductionType) setCurrentProductionType(productionType);
+  }, [productionType]);
+  const isMixed = currentProductionType === 'mix';
+  const isProfessional = currentProductionType === 'professional';
+  const isMaterialPackage = currentProductionType === 'materialPackage';
   const creatorConfig = VIDEO_PRODUCTION_TYPES[isProfessional ? 'professional' : isMaterialPackage ? 'materialPackage' : isMixed ? 'mix' : 'oral'];
   const isCustomMixcut = isProfessional || isMaterialPackage;
   const needsHuman = !isMixed && !isMaterialPackage;
@@ -4964,7 +4968,7 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
   const activeSceneMaterials = isCustomMixcut && activeSceneId ? scenes.find((scene) => scene.id === activeSceneId)?.materials || [] : materials;
   const sceneMaterialCount = getCreatorSceneMaterials(scenes).length;
   const switchProductionType = (nextType) => {
-    if (!VIDEO_PRODUCTION_TYPES[nextType] || nextType === productionType || busy) return;
+    if (!VIDEO_PRODUCTION_TYPES[nextType] || nextType === currentProductionType || busy) return;
     const nextIsCustomMixcut = nextType === 'professional' || nextType === 'materialPackage';
     const nextTemplateScene = VIDEO_PRODUCTION_TYPES[nextType].templateScene;
     setDialogType('');
@@ -4985,6 +4989,7 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
       setMaterials((current) => mergeCreatorMaterials(current, sceneMaterials));
       if (sceneScriptContent) setForm((current) => ({ ...current, script: sceneScriptContent }));
     }
+    setCurrentProductionType(nextType);
     onChangeProductionType?.(nextType);
   };
   const coverPanel = (
@@ -5019,7 +5024,7 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
           const mode = VIDEO_PRODUCTION_TYPES[modeKey];
           const Icon = mode.icon;
           return (
-            <button key={modeKey} type="button" className={productionType === modeKey ? 'is-active' : ''} onClick={() => switchProductionType(modeKey)} disabled={Boolean(busy)}>
+            <button key={modeKey} type="button" className={currentProductionType === modeKey ? 'is-active' : ''} onClick={() => switchProductionType(modeKey)} disabled={Boolean(busy)}>
               <Icon size={18} />
               <span><strong>{mode.label}</strong><small>{mode.sectionHint}</small></span>
             </button>
