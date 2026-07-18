@@ -1259,11 +1259,58 @@ const getUploadedUrl = (result = {}) => {
 };
 const omitEmpty = (payload = {}) =>
   Object.fromEntries(Object.entries(payload).filter(([, value]) => value !== undefined && value !== null && value !== ''));
-const getMaterialId = (item = {}) => pick(item.materialId, item.material_id, item.id, item.value, item.code, item.key);
-const getMaterialUrl = (item = {}) => pick(item.url, item.fileUrl, item.file_url, item.filepath, item.path, item.videoUrl, item.imageUrl);
+const getMaterialSourceObject = (item = {}) => {
+  if (typeof item === 'string') return { url: item };
+  const source = videoObject(item);
+  const nested = ['material', 'media', 'file', 'resource', 'asset', 'item', 'data']
+    .map((key) => videoObject(source[key]))
+    .find((value) => Object.keys(value).length);
+  if (!nested) return source;
+  return {
+    ...nested,
+    ...source,
+    url: videoText(source.url, source.fileUrl, source.file_url, source.mediaUrl, source.media_url, nested.url, nested.fileUrl, nested.file_url, nested.mediaUrl, nested.media_url),
+  };
+};
+const getMaterialId = (item = {}) => {
+  const source = getMaterialSourceObject(item);
+  return pick(source.materialId, source.material_id, source.fileId, source.file_id, source.assetId, source.asset_id, source.id, source.value, source.code, source.key);
+};
+const getMaterialUrl = (item = {}) => {
+  const source = getMaterialSourceObject(item);
+  return pick(
+    source.fileUrl,
+    source.file_url,
+    source.url,
+    source.mediaUrl,
+    source.media_url,
+    source.materialUrl,
+    source.material_url,
+    source.sourceUrl,
+    source.source_url,
+    source.resourceUrl,
+    source.resource_url,
+    source.assetUrl,
+    source.asset_url,
+    source.downloadUrl,
+    source.download_url,
+    source.ossUrl,
+    source.oss_url,
+    source.fullPath,
+    source.full_path,
+    source.filepath,
+    source.src,
+    source.path,
+    source.videoUrl,
+    source.video_url,
+    source.imageUrl,
+    source.image_url,
+  );
+};
 const getMaterialType = (item = {}) => {
-  const type = pick(item.type, item.mediaType, item.media_type, item.fileType, item.file_type).toLowerCase();
-  const url = getMaterialUrl(item).toLowerCase();
+  const source = getMaterialSourceObject(item);
+  const type = pick(source.type, source.materialType, source.material_type, source.mediaType, source.media_type, source.fileType, source.file_type).toLowerCase();
+  const url = getMaterialUrl(source).toLowerCase();
   if (type.includes('video') || type === '视频' || /\.(mp4|mov|webm|m3u8)(\?|#|$)/i.test(url)) return 'video';
   return 'image';
 };
@@ -4161,7 +4208,7 @@ const getCreatorInitialState = (usePrefill) => {
       const sceneMaterials = getCreatorMaterialsJsonList(source.materials, source.materialList, source.material_list, source.items, source.mediaList, source.media_list, source.resources, source)
         .map((material, materialIndex) => normalizeCreatorPrefillMaterial(material, `${index}-${materialIndex}`))
         .filter((material) => material.url);
-      return content ? createCreatorScene(content, sceneMaterials) : null;
+      return content || sceneMaterials.length ? createCreatorScene(content || `分镜 ${index + 1}`, sceneMaterials) : null;
     })
     .filter(Boolean);
   if (scenes.length && materials.length && !getCreatorSceneMaterials(scenes).length) scenes[0].materials = materials;
