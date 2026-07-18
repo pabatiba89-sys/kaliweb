@@ -92,6 +92,7 @@ export const publicUiStrings = [
   'START HERE', 'Guides grouped by the production path', 'BATCH PLAN', 'Build the help center in useful layers',
   'STEP BY STEP', 'Follow the workflow in order', 'CHECK BEFORE YOU SUBMIT', 'IF SOMETHING GOES WRONG',
   'RELATED GUIDES', 'Continue with the next useful article',
+  'IN THIS GUIDE', 'USE THIS WHEN', 'BEFORE YOU START', 'COMMON MISTAKES', 'Back to help center',
 ];
 
 export const localeMeta = Object.fromEntries(localeDefinitions.map((definition) => [definition.route, {

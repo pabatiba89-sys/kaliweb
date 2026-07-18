@@ -122,5 +122,6 @@
 - 2026-07-18：视频制作页四种模式切换后，提交校验、payload 和接口路径必须以页面当前模式为准；从 Pro 切回普通模式时不得继续使用 Pro 的 `creatorConfig.endpoint/createPaths`。
 - 2026-07-18：素材库批量上传必须逐文件展示上传队列、进度、完成和失败状态；单个文件失败不得中断后续文件上传，失败原因要保留在对应文件和失败列表中。
 - 2026-07-18：帮助中心按批次制作，第一批聚焦新用户完成第一条视频和故障自救：帮助目录、从热点生成视频、用文案制作视频、四种视频模式区别、视频失败处理、草稿续作。公开帮助内容使用 `src/site/help.js` 管理，路由接入 `src/site/content.js`；多语言本地化必须保留 `slug/contentType/links/related/image` 等内部字段原值，避免翻译后路由或页面类型错乱。
+- 2026-07-18：帮助中心页面风格应偏“操作手册”，不要像营销页；首屏压缩、结构干净，文章必须包含适用场景、开始前准备、细分步骤、提交前检查、常见错误和出错恢复。中文高曝光术语需人工覆盖，例如数字人口播、混剪视频、形象播报 Pro、素材成片 Pro、热点到视频流程，避免机器翻译成“数字人力/数字人文”等不专业词。
 - 2026-07-16：海外 Billing 页套餐列表不能只依赖 DOM 静态翻译；接口返回的中文套餐名和额度单位需在显示层映射为英文源词，再用 `translateStatic` + 当前语言包本地化。新增套餐相关词条应写入 `scripts/localization-overrides.mjs` 后运行 `npm run i18n:generate -- --apply-overrides` 同步 24 个工作台语言包。
 - 2026-07-16：Evonet 支付先只接单次支付，不做订阅。前端 Billing 页通过 `POST /api/pay/evonet/create_session` 创建 Drop-in session，请求体为 `plan_id`、可选 `email`、`currency`；响应从 `data.pay_params.sessionID/sessionID` 和 `data.sdk_environment/pay_params.environment` 初始化 Drop-in。Drop-in 回调只调用 `POST /api/pay/evonet/sync`，提交 `order_no + payload`。`POST /api/pay/evonet/webhook` 只给 Evonet 调用，成功返回纯文本 `SUCCESS`，只有 webhook 会把订单改成已支付并发放套餐；Evonet `KeyID`/`SignKey`、`POST /interaction`、订单落库和套餐生效都必须在后端处理。

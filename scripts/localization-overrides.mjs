@@ -59,10 +59,81 @@ const marketingRows = {
   hi: ['हर कंटेंट आइडिया को प्रकाशित करने के लिए तैयार वीडियो में बदलें', 'पूरे कंटेंट प्रोडक्शन वर्कफ़्लो के लिए एक जुड़ा हुआ सिस्टम', 'एक बार सेट करें। हर बाज़ार के लिए बनाएँ।', 'हर वीडियो में दोबारा इस्तेमाल होने वाला डिजिटल प्रस्तुतकर्ता बनाएँ', 'अपने प्रोडक्शन वॉल्यूम के अनुसार प्लान चुनें'],
 };
 
+const helpRows = {
+  'zh-cn': {
+    'Kali Help Center': '喀理帮助中心',
+    'Help for finishing the next video': '帮你把下一条视频做完',
+    'Make the first video': '制作第一条视频',
+    'Fix and continue work': '修复并继续',
+    'Next batches': '后续批次',
+    'Create a Digital-Human Video from a Trend': '从热点创建数字人口播视频',
+    'Turn a trend into a digital-human video': '把热点转成数字人口播视频',
+    'Trend-to-video path': '热点到视频流程',
+    'Create a Video from Your Own Script': '用自己的文案制作视频',
+    'Create a video from a script you already have': '用已有文案制作视频',
+    'Script-to-video path': '文案到视频流程',
+    'Choose Between Digital-Human, Mixed Video, and Pro Modes': '选择数字人口播、混剪和 Pro 模式',
+    'Choose the video mode before choosing assets': '先选视频模式，再选素材',
+    'Four production modes': '四种制作模式',
+    'Digital Human': '数字人口播',
+    'Mixed Video': '混剪视频',
+    'Image Broadcast Pro': '形象播报 Pro',
+    'Material Video Pro': '素材成片 Pro',
+    'What to Do When Video Production Fails': '视频制作失败时怎么处理',
+    'Recover a failed video task cleanly': '干净地恢复失败任务',
+    'Failure recovery path': '失败恢复流程',
+    'Save, Continue, and Reuse Video Drafts': '保存、续作和复用视频草稿',
+    'Use drafts when a video is not ready to submit': '视频还没准备好时先存草稿',
+    'Draft lifecycle': '草稿流程',
+    'USE THIS WHEN': '适用场景',
+    'BEFORE YOU START': '开始前准备',
+    'STEP BY STEP': '操作步骤',
+    'CHECK BEFORE YOU SUBMIT': '提交前检查',
+    'COMMON MISTAKES': '常见错误',
+    'IF SOMETHING GOES WRONG': '出错时处理',
+    'RELATED GUIDES': '相关指南',
+    'Back to help center': '返回帮助中心',
+  },
+  'zh-tw': {
+    'Kali Help Center': '喀理幫助中心',
+    'Help for finishing the next video': '幫你把下一支影片完成',
+    'Make the first video': '製作第一支影片',
+    'Fix and continue work': '修復並繼續',
+    'Next batches': '後續批次',
+    'Create a Digital-Human Video from a Trend': '從熱點建立數位人口播影片',
+    'Turn a trend into a digital-human video': '把熱點轉成數位人口播影片',
+    'Trend-to-video path': '熱點到影片流程',
+    'Create a Video from Your Own Script': '用自己的文案製作影片',
+    'Create a video from a script you already have': '用已有文案製作影片',
+    'Script-to-video path': '文案到影片流程',
+    'Choose Between Digital-Human, Mixed Video, and Pro Modes': '選擇數位人口播、混剪和 Pro 模式',
+    'Choose the video mode before choosing assets': '先選影片模式，再選素材',
+    'Four production modes': '四種製作模式',
+    'Digital Human': '數位人口播',
+    'Mixed Video': '混剪影片',
+    'Image Broadcast Pro': '形象播報 Pro',
+    'Material Video Pro': '素材成片 Pro',
+    'What to Do When Video Production Fails': '影片製作失敗時怎麼處理',
+    'Recover a failed video task cleanly': '乾淨地恢復失敗任務',
+    'Failure recovery path': '失敗恢復流程',
+    'Save, Continue, and Reuse Video Drafts': '儲存、續作和重用影片草稿',
+    'Use drafts when a video is not ready to submit': '影片還沒準備好時先存草稿',
+    'Draft lifecycle': '草稿流程',
+    'USE THIS WHEN': '適用場景',
+    'BEFORE YOU START': '開始前準備',
+    'STEP BY STEP': '操作步驟',
+    'CHECK BEFORE YOU SUBMIT': '提交前檢查',
+    'COMMON MISTAKES': '常見錯誤',
+    'IF SOMETHING GOES WRONG': '出錯時處理',
+    'RELATED GUIDES': '相關指南',
+    'Back to help center': '返回幫助中心',
+  },
+};
+
 export const siteLocalizationOverrides = Object.fromEntries(Object.keys(siteRows).map((locale) => {
   const cta = Object.fromEntries(siteKeys.map((key, index) => [key, siteRows[locale][index]]));
   const marketing = Object.fromEntries(marketingKeys.map((key, index) => [key, marketingRows[locale][index]]));
-  return [locale, { ...cta, ...marketing }];
+  return [locale, { ...cta, ...marketing, ...(helpRows[locale] || {}) }];
 }));
 
 const actionKeys = ['Cancel', 'Close', 'Delete', 'Upload', 'Refresh', 'Load more', 'Download', 'Save', 'Edit', 'Publish', 'Retry', 'Back', 'Loading', 'Success', 'Failed', 'Processing', 'Draft', 'Ready'];
