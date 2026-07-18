@@ -4136,57 +4136,6 @@ const normalizeCreatorPrefillMaterial = (item = {}, index = 0) => {
   };
 };
 
-const getCreatorMaterialReferenceValues = (...values) =>
-  values.flatMap((value) => {
-    if (value === undefined || value === null || value === '') return [];
-    if (Array.isArray(value)) return getCreatorMaterialReferenceValues(...value);
-    if (typeof value === 'object') {
-      const source = getMaterialSourceObject(value);
-      return [
-        source.id,
-        source.materialId,
-        source.material_id,
-        source.fileId,
-        source.file_id,
-        source.assetId,
-        source.asset_id,
-        getMaterialUrl(source),
-      ].filter(Boolean).map(String);
-    }
-    return String(value)
-      .split(/[,，、;\s]+/)
-      .map((item) => item.trim())
-      .filter(Boolean);
-  });
-
-const getCreatorMaterialLookupKey = (value) => String(value || '').trim().toLowerCase();
-
-const getCreatorMaterialsBySceneReference = (scene = {}, materials = []) => {
-  const source = videoObject(scene);
-  const refs = getCreatorMaterialReferenceValues(
-    source.material,
-    source.materialId,
-    source.material_id,
-    source.materialIds,
-    source.material_ids,
-    source.media,
-    source.mediaId,
-    source.media_id,
-    source.file,
-    source.fileId,
-    source.file_id,
-    source.resource,
-    source.resourceId,
-    source.resource_id,
-    source.asset,
-    source.assetId,
-    source.asset_id,
-  ).map(getCreatorMaterialLookupKey);
-  if (!refs.length) return [];
-  const refSet = new Set(refs);
-  return materials.filter((material) => getCreatorMaterialReferenceValues(material).some((value) => refSet.has(getCreatorMaterialLookupKey(value))));
-};
-
 const getCreatorSceneDraftList = (...values) => {
   const visit = (value, depth = 0) => {
     if (value === undefined || value === null || value === '' || depth > 6) return [];
@@ -4261,10 +4210,9 @@ const getCreatorInitialState = (usePrefill) => {
       const source = videoObject(item);
       const captions = videoObject(source.captions || source.caption);
       const content = cleanGeneratedScene(videoText(source.content, source.text, source.script, captions.content, captions.text, source.captions, source.caption));
-      const directSceneMaterials = getCreatorMaterialsJsonList(source.materials, source.materialList, source.material_list, source.materialsJson, source.materials_json, source.selectedMaterials, source.selected_materials, source.clipMaterials, source.clip_materials, source.items, source.mediaList, source.media_list, source.resources, source.material, source.media, source.file, source.resource, source.asset, source)
+      const sceneMaterials = getCreatorMaterialsJsonList(source.materials, source.materialList, source.material_list, source.materialsJson, source.materials_json, source.selectedMaterials, source.selected_materials, source.clipMaterials, source.clip_materials, source.items, source.mediaList, source.media_list, source.resources, source.material, source.media, source.file, source.resource, source.asset)
         .map((material, materialIndex) => normalizeCreatorPrefillMaterial(material, `${index}-${materialIndex}`))
         .filter((material) => material.url);
-      const sceneMaterials = directSceneMaterials.length ? directSceneMaterials : getCreatorMaterialsBySceneReference(source, materials);
       return content || sceneMaterials.length ? createCreatorScene(content || `分镜 ${index + 1}`, sceneMaterials) : null;
     })
     .filter(Boolean);
