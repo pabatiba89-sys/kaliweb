@@ -3999,6 +3999,37 @@ const getCreatorRawDraft = (usePrefill) => {
   }
 };
 
+const getCreatorJsonObject = (value, depth = 0) => {
+  if (value === undefined || value === null || value === '' || depth > 5) return {};
+  if (typeof value === 'string') {
+    try {
+      return getCreatorJsonObject(JSON.parse(value), depth + 1);
+    } catch {
+      return {};
+    }
+  }
+  return videoObject(value);
+};
+
+const getCreatorPayloadObject = (...values) => {
+  const keys = ['payload_json', 'payloadJson', 'request_payload', 'requestPayload', 'draft_payload', 'draftPayload', 'requestData', 'request_data', 'shanjianData', 'shanjian_data', 'body', 'params', 'input', 'payload'];
+  const unwrap = (value, depth = 0) => {
+    const source = getCreatorJsonObject(value, depth);
+    if (!Object.keys(source).length || depth > 5) return {};
+    if (source.scenes || source.sceneList || source.scene_list || source.materials || source.materialList || source.material_list) return source;
+    for (const key of keys) {
+      const nested = unwrap(source[key], depth + 1);
+      if (Object.keys(nested).length) return nested;
+    }
+    return source;
+  };
+  for (const value of values) {
+    const payload = unwrap(value);
+    if (Object.keys(payload).length) return payload;
+  }
+  return {};
+};
+
 const getCreatorMaterialsJsonList = (...values) => {
   const visit = (value, depth = 0) => {
     if (value === undefined || value === null || value === '' || depth > 6) return [];
@@ -4015,7 +4046,7 @@ const getCreatorMaterialsJsonList = (...values) => {
       const nested = visit(value[key], depth + 1);
       if (nested.length) return nested;
     }
-    for (const key of ['draft_payload', 'draftPayload', 'shanjianData', 'shanjian_data', 'data', 'payload']) {
+    for (const key of ['payload_json', 'payloadJson', 'request_payload', 'requestPayload', 'draft_payload', 'draftPayload', 'requestData', 'request_data', 'shanjianData', 'shanjian_data', 'body', 'params', 'input', 'data', 'payload']) {
       const nested = visit(value[key], depth + 1);
       if (nested.length) return nested;
     }
@@ -4072,7 +4103,7 @@ const getCreatorSceneDraftList = (...values) => {
       const nested = visit(value[key], depth + 1);
       if (nested.length) return nested;
     }
-    for (const key of ['draft_payload', 'draftPayload', 'shanjianData', 'shanjian_data', 'data', 'payload']) {
+    for (const key of ['payload_json', 'payloadJson', 'request_payload', 'requestPayload', 'draft_payload', 'draftPayload', 'requestData', 'request_data', 'shanjianData', 'shanjian_data', 'body', 'params', 'input', 'data', 'payload']) {
       const nested = visit(value[key], depth + 1);
       if (nested.length) return nested;
     }
@@ -4088,9 +4119,21 @@ const getCreatorSceneDraftList = (...values) => {
 const getCreatorInitialState = (usePrefill) => {
   const draft = getCreatorRawDraft(usePrefill);
   const detail = videoObject(draft.detail || draft.raw || draft);
-  const shanjian = videoObject(detail.shanjianData || detail.shanjian_data || draft.shanjianData || draft.shanjian_data);
+  const payload = getCreatorPayloadObject(
+    draft.payload_json,
+    draft.payloadJson,
+    detail.payload_json,
+    detail.payloadJson,
+    draft.request_payload,
+    draft.requestPayload,
+    detail.request_payload,
+    detail.requestPayload,
+    draft.payload,
+    detail.payload,
+  );
+  const shanjian = videoObject(detail.shanjianData || detail.shanjian_data || draft.shanjianData || draft.shanjian_data || payload.shanjianData || payload.shanjian_data);
   const speakerExtra = videoObject(detail.speakerExtra || detail.speaker_extra || shanjian.speakerExtra || shanjian.speaker_extra);
-  const coverUrl = getApiMediaUrl(videoText(draft.coverUrl, draft.cover, detail.coverUrl, detail.cover_url, detail.cover));
+  const coverUrl = getApiMediaUrl(videoText(draft.coverUrl, draft.cover, detail.coverUrl, detail.cover_url, detail.cover, payload.coverUrl, payload.cover_url, payload.cover));
   const humanPreviewUrl = getApiMediaUrl(videoText(draft.humanPreviewUrl, detail.humanPreviewUrl, detail.human_preview_url));
   const materialSource = getCreatorMaterialsJsonList(
     draft.materials_json,
@@ -4100,12 +4143,16 @@ const getCreatorInitialState = (usePrefill) => {
     draft.materials,
     detail.materials,
     shanjian.materials,
+    payload.materials,
+    payload.materialList,
+    payload.material_list,
+    payload,
     draft,
     detail,
     shanjian,
   );
   const materials = materialSource.map(normalizeCreatorPrefillMaterial).filter((item) => item.url);
-  const sceneSource = getCreatorSceneDraftList(draft.scenes, draft.sceneList, detail.scenes, detail.sceneList, shanjian.scenes, draft, detail, shanjian);
+  const sceneSource = getCreatorSceneDraftList(draft.scenes, draft.sceneList, detail.scenes, detail.sceneList, shanjian.scenes, payload.scenes, payload.sceneList, payload.scene_list, draft, detail, shanjian, payload);
   const scenes = sceneSource
     .map((item, index) => {
       const source = videoObject(item);
@@ -4123,35 +4170,35 @@ const getCreatorInitialState = (usePrefill) => {
 
   return {
     form: {
-      title: videoText(draft.title, draft.formTitle, detail.title),
-      topic: videoText(draft.topic, draft.tags, detail.topic, detail.tags),
-      script: videoText(draft.script, draft.content, detail.script, detail.content, shanjian.content),
+      title: videoText(draft.title, draft.formTitle, detail.title, payload.title),
+      topic: videoText(draft.topic, draft.tags, detail.topic, detail.tags, payload.topic, payload.tags),
+      script: videoText(draft.script, draft.content, detail.script, detail.content, payload.script, payload.content, shanjian.content),
     },
     selected: {
       human: {
-        id: videoText(draft.humanId, draft.aiHumanId, draft.virtualmanId, detail.aiHumanId, detail.ai_human_id, detail.virtualmanId, shanjian.aiHumanId, shanjian.virtualmanId),
+        id: videoText(draft.humanId, draft.aiHumanId, draft.virtualmanId, detail.aiHumanId, detail.ai_human_id, detail.virtualmanId, payload.aiHumanId, payload.ai_human_id, payload.virtualmanId, payload.virtualman_id, shanjian.aiHumanId, shanjian.virtualmanId),
         title: videoText(draft.humanName, draft.aiHumanName, draft.virtualmanName, detail.aiHumanName, detail.ai_human_name, detail.virtualmanName),
         cover: humanPreviewUrl,
       },
       voice: {
-        id: videoText(draft.voiceId, draft.speakerId, detail.voiceId, detail.voice_id, detail.speakerId, shanjian.speakerId),
+        id: videoText(draft.voiceId, draft.speakerId, detail.voiceId, detail.voice_id, detail.speakerId, payload.voiceId, payload.voice_id, payload.speakerId, payload.speaker_id, shanjian.speakerId),
         title: videoText(draft.voiceName, draft.speakerName, detail.voiceName, detail.voice_name, detail.speakerName),
         speed: Number(draft.voiceSpeedRatio || detail.voiceSpeedRatio || speakerExtra.speedRatio) || 1,
       },
       videoTemplate: {
-        id: videoText(draft.videoTemplateId, draft.styleId, detail.videoTemplateId, detail.video_template_id, shanjian.styleId),
+        id: videoText(draft.videoTemplateId, draft.styleId, detail.videoTemplateId, detail.video_template_id, payload.videoTemplateId, payload.video_template_id, payload.styleId, payload.style_id, shanjian.styleId),
         title: videoText(draft.videoTemplateName, draft.styleName, detail.videoTemplateName, detail.video_template_name),
         cover: getApiMediaUrl(videoText(draft.videoTemplatePreviewUrl, detail.videoTemplatePreviewUrl)),
       },
       coverTemplate: {
-        id: videoText(draft.coverTemplateId, detail.coverTemplateId, detail.cover_template_id),
+        id: videoText(draft.coverTemplateId, detail.coverTemplateId, detail.cover_template_id, payload.coverTemplateId, payload.cover_template_id),
         title: videoText(draft.coverTemplateName, detail.coverTemplateName, detail.cover_template_name),
         cover: getApiMediaUrl(videoText(draft.coverTemplatePreviewUrl, detail.coverTemplatePreviewUrl)),
       },
       music: {
-        id: videoText(draft.musicId, detail.musicId),
+        id: videoText(draft.musicId, detail.musicId, payload.musicId, payload.music_id),
         title: videoText(draft.musicName, detail.musicName),
-        audioUrl: getApiMediaUrl(videoText(draft.bgmusic, draft.bgMusic, detail.bgmusic?.url, detail.bgMusic, shanjian.bgmusic?.url)),
+        audioUrl: getApiMediaUrl(videoText(draft.bgmusic, draft.bgMusic, detail.bgmusic?.url, detail.bgMusic, payload.bgmusic?.url, payload.bgMusic, shanjian.bgmusic?.url)),
       },
     },
     cover: coverUrl ? { title: '当前封面', url: coverUrl, previewUrl: coverUrl, origin: coverUrl === humanPreviewUrl ? 'human' : 'remote' } : null,
