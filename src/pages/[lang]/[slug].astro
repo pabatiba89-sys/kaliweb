@@ -44,6 +44,29 @@ const faqSchema = {
 
   {isHelpIndex && (
     <>
+      <section class="help-demo-showcase">
+        <div class="demo-copy">
+          <p class="eyebrow">{t('SMART VIDEO DEMO')}</p>
+          <h2>{t('One path from script to finished video')}</h2>
+          <p>{t('Use the same four-step rhythm in the product and in the help center: write the script, add materials, choose the presenter and style, then review the generated video.')}</p>
+        </div>
+        <div class="demo-stage">
+          <div class="demo-phone" aria-label={t('Smart video workflow preview')}>
+            <div class="demo-phone-top"><span></span><b>{t('Smart video')}</b><em>{t('Ready')}</em></div>
+            <div class="demo-editor">
+              <div class="demo-script"><small>{t('SCRIPT')}</small><strong>{t('Three short scenes about a trending topic')}</strong><p>{t('Opening hook, key point, final call to action.')}</p></div>
+              <div class="demo-assets"><img src="/yixiu-assets/hot-aggregate.png" alt={t('Trend discovery')} /><img src="/yixiu-assets/digital-human.png" alt={t('Digital Human')} /><img src="/yixiu-assets/smart-video.png" alt={t('Smart video')} /></div>
+              <div class="demo-result"><span>{t('Digital Human')}</span><span>{t('Template')}</span><span>{t('Cover')}</span><b>{t('Generate video')}</b></div>
+            </div>
+          </div>
+          <ol class="demo-flow-list">
+            <li><span>01</span><div><strong>{t('Write the script')}</strong><p>{t('Start with a topic, a pasted script, or assistant output.')}</p></div></li>
+            <li><span>02</span><div><strong>{t('Add materials')}</strong><p>{t('Attach images, video clips, covers, or product media where needed.')}</p></div></li>
+            <li><span>03</span><div><strong>{t('Choose presenter and style')}</strong><p>{t('Select the digital human, voice, template, cover style, and music.')}</p></div></li>
+            <li><span>04</span><div><strong>{t('Generate and review')}</strong><p>{t('Submit, track the task, then download or publish after review.')}</p></div></li>
+          </ol>
+        </div>
+      </section>
       <section class="help-groups">
         <div class="section-heading"><p class="eyebrow">{t('START HERE')}</p><h2>{t('Guides grouped by the production path')}</h2></div>
         <div class="help-group-grid">
@@ -81,12 +104,17 @@ const faqSchema = {
         </article>
       </section>
       <section class="guide-visual-section">
-        <div class="guide-visual-card">
-          <div>
+        <div class="guide-visual-card guide-demo-card">
+          <div class="guide-demo-flow">
             <p class="eyebrow">{page.visual.label}</p>
             <ol>{page.visual.stages.map((stage, index) => <li><span>{String(index + 1).padStart(2, '0')}</span><strong>{stage}</strong></li>)}</ol>
           </div>
-          <img src={page.visual.image} alt={page.visual.label} loading="lazy" />
+          <div class="guide-demo-board" aria-label={page.visual.label}>
+            <div class="board-panel board-script"><small>{t('SCRIPT')}</small><strong>{page.headline}</strong><p>{page.lead}</p></div>
+            <div class="board-panel board-media"><img src={page.visual.image} alt={page.visual.label} loading="lazy" /><span>{t('Materials ready')}</span></div>
+            <div class="board-panel board-options"><span>{t('Digital Human')}</span><span>{t('Voice')}</span><span>{t('Template')}</span><span>{t('Cover')}</span></div>
+            <div class="board-panel board-status"><b>{t('Ready to submit')}</b><i></i></div>
+          </div>
         </div>
       </section>
       <section class="guide-steps">

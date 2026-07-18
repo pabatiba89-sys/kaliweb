@@ -93,6 +93,15 @@ export const publicUiStrings = [
   'STEP BY STEP', 'Follow the workflow in order', 'CHECK BEFORE YOU SUBMIT', 'IF SOMETHING GOES WRONG',
   'RELATED GUIDES', 'Continue with the next useful article',
   'IN THIS GUIDE', 'USE THIS WHEN', 'BEFORE YOU START', 'COMMON MISTAKES', 'Back to help center',
+  'SMART VIDEO DEMO', 'One path from script to finished video',
+  'Use the same four-step rhythm in the product and in the help center: write the script, add materials, choose the presenter and style, then review the generated video.',
+  'Smart video workflow preview', 'Smart video', 'SCRIPT', 'Three short scenes about a trending topic',
+  'Opening hook, key point, final call to action.', 'Template', 'Cover', 'Generate video',
+  'Write the script', 'Start with a topic, a pasted script, or assistant output.',
+  'Add materials', 'Attach images, video clips, covers, or product media where needed.',
+  'Choose presenter and style', 'Select the digital human, voice, template, cover style, and music.',
+  'Generate and review', 'Submit, track the task, then download or publish after review.',
+  'Materials ready', 'Voice', 'Ready to submit',
 ];
 
 export const localeMeta = Object.fromEntries(localeDefinitions.map((definition) => [definition.route, {
