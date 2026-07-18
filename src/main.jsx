@@ -4042,7 +4042,7 @@ const getCreatorMaterialsJsonList = (...values) => {
     }
     if (Array.isArray(value)) return value;
     if (typeof value !== 'object') return [];
-    for (const key of ['materials', 'materialList', 'material_list']) {
+    for (const key of ['materials', 'materialList', 'material_list', 'items', 'mediaList', 'media_list', 'resources']) {
       const nested = visit(value[key], depth + 1);
       if (nested.length) return nested;
     }
@@ -4099,7 +4099,7 @@ const getCreatorSceneDraftList = (...values) => {
     }
     if (Array.isArray(value)) return value;
     if (typeof value !== 'object') return [];
-    for (const key of ['scenes', 'sceneList', 'scene_list', 'storyboards', 'shots']) {
+    for (const key of ['sceneList', 'scene_list', 'scenes', 'storyboards', 'shots']) {
       const nested = visit(value[key], depth + 1);
       if (nested.length) return nested;
     }
@@ -4152,13 +4152,13 @@ const getCreatorInitialState = (usePrefill) => {
     shanjian,
   );
   const materials = materialSource.map(normalizeCreatorPrefillMaterial).filter((item) => item.url);
-  const sceneSource = getCreatorSceneDraftList(draft.scenes, draft.sceneList, detail.scenes, detail.sceneList, shanjian.scenes, payload.scenes, payload.sceneList, payload.scene_list, draft, detail, shanjian, payload);
+  const sceneSource = getCreatorSceneDraftList(payload.sceneList, payload.scene_list, payload, draft.sceneList, draft.scene_list, detail.sceneList, detail.scene_list, shanjian.sceneList, shanjian.scene_list, draft.scenes, detail.scenes, shanjian.scenes, draft, detail, shanjian);
   const scenes = sceneSource
     .map((item, index) => {
       const source = videoObject(item);
       const captions = videoObject(source.captions || source.caption);
       const content = cleanGeneratedScene(videoText(source.content, source.text, source.script, captions.content, captions.text, source.captions, source.caption));
-      const sceneMaterials = getCreatorMaterialsJsonList(source.materials, source.materialList, source.material_list, source)
+      const sceneMaterials = getCreatorMaterialsJsonList(source.materials, source.materialList, source.material_list, source.items, source.mediaList, source.media_list, source.resources, source)
         .map((material, materialIndex) => normalizeCreatorPrefillMaterial(material, `${index}-${materialIndex}`))
         .filter((material) => material.url);
       return content ? createCreatorScene(content, sceneMaterials) : null;
