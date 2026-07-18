@@ -4059,15 +4059,16 @@ const getCreatorJsonObject = (value, depth = 0) => {
 };
 
 const getCreatorPayloadObject = (...values) => {
-  const keys = ['payload_json', 'payloadJson', 'request_payload', 'requestPayload', 'draft_payload', 'draftPayload', 'requestData', 'request_data', 'shanjianData', 'shanjian_data', 'body', 'params', 'input', 'payload'];
+  const keys = ['payload_json', 'payloadJson', 'productionPayload', 'production_payload', 'draft_payload', 'draftPayload', 'request_payload', 'requestPayload', 'createPayload', 'create_payload', 'jsonPayload', 'json_payload', 'requestData', 'request_data', 'shanjianData', 'shanjian_data', 'body', 'params', 'input', 'data', 'payload'];
   const unwrap = (value, depth = 0) => {
     const source = getCreatorJsonObject(value, depth);
     if (!Object.keys(source).length || depth > 5) return {};
-    if (source.scenes || source.sceneList || source.scene_list || source.materials || source.materialList || source.material_list) return source;
+    if (source.sceneList || source.scene_list || source.scenes) return source;
     for (const key of keys) {
       const nested = unwrap(source[key], depth + 1);
       if (Object.keys(nested).length) return nested;
     }
+    if (source.materials || source.materialList || source.material_list) return source;
     return source;
   };
   for (const value of values) {
@@ -4094,7 +4095,7 @@ const getCreatorMaterialsJsonList = (...values) => {
       if (nested.length) return nested;
     }
     if (value.material || value.media || value.file || value.resource || value.asset || value.item) return [value];
-    for (const key of ['payload_json', 'payloadJson', 'request_payload', 'requestPayload', 'draft_payload', 'draftPayload', 'requestData', 'request_data', 'shanjianData', 'shanjian_data', 'body', 'params', 'input', 'data', 'payload']) {
+    for (const key of ['payload_json', 'payloadJson', 'productionPayload', 'production_payload', 'draft_payload', 'draftPayload', 'request_payload', 'requestPayload', 'createPayload', 'create_payload', 'jsonPayload', 'json_payload', 'requestData', 'request_data', 'shanjianData', 'shanjian_data', 'body', 'params', 'input', 'data', 'payload']) {
       const nested = visit(value[key], depth + 1);
       if (nested.length) return nested;
     }
@@ -4135,6 +4136,57 @@ const normalizeCreatorPrefillMaterial = (item = {}, index = 0) => {
   };
 };
 
+const getCreatorMaterialReferenceValues = (...values) =>
+  values.flatMap((value) => {
+    if (value === undefined || value === null || value === '') return [];
+    if (Array.isArray(value)) return getCreatorMaterialReferenceValues(...value);
+    if (typeof value === 'object') {
+      const source = getMaterialSourceObject(value);
+      return [
+        source.id,
+        source.materialId,
+        source.material_id,
+        source.fileId,
+        source.file_id,
+        source.assetId,
+        source.asset_id,
+        getMaterialUrl(source),
+      ].filter(Boolean).map(String);
+    }
+    return String(value)
+      .split(/[,，、;\s]+/)
+      .map((item) => item.trim())
+      .filter(Boolean);
+  });
+
+const getCreatorMaterialLookupKey = (value) => String(value || '').trim().toLowerCase();
+
+const getCreatorMaterialsBySceneReference = (scene = {}, materials = []) => {
+  const source = videoObject(scene);
+  const refs = getCreatorMaterialReferenceValues(
+    source.material,
+    source.materialId,
+    source.material_id,
+    source.materialIds,
+    source.material_ids,
+    source.media,
+    source.mediaId,
+    source.media_id,
+    source.file,
+    source.fileId,
+    source.file_id,
+    source.resource,
+    source.resourceId,
+    source.resource_id,
+    source.asset,
+    source.assetId,
+    source.asset_id,
+  ).map(getCreatorMaterialLookupKey);
+  if (!refs.length) return [];
+  const refSet = new Set(refs);
+  return materials.filter((material) => getCreatorMaterialReferenceValues(material).some((value) => refSet.has(getCreatorMaterialLookupKey(value))));
+};
+
 const getCreatorSceneDraftList = (...values) => {
   const visit = (value, depth = 0) => {
     if (value === undefined || value === null || value === '' || depth > 6) return [];
@@ -4151,7 +4203,7 @@ const getCreatorSceneDraftList = (...values) => {
       const nested = visit(value[key], depth + 1);
       if (nested.length) return nested;
     }
-    for (const key of ['payload_json', 'payloadJson', 'request_payload', 'requestPayload', 'draft_payload', 'draftPayload', 'requestData', 'request_data', 'shanjianData', 'shanjian_data', 'body', 'params', 'input', 'data', 'payload']) {
+    for (const key of ['payload_json', 'payloadJson', 'productionPayload', 'production_payload', 'draft_payload', 'draftPayload', 'request_payload', 'requestPayload', 'createPayload', 'create_payload', 'jsonPayload', 'json_payload', 'requestData', 'request_data', 'shanjianData', 'shanjian_data', 'body', 'params', 'input', 'data', 'payload']) {
       const nested = visit(value[key], depth + 1);
       if (nested.length) return nested;
     }
@@ -4200,7 +4252,7 @@ const getCreatorInitialState = (usePrefill) => {
     shanjian,
   );
   const materials = materialSource.map(normalizeCreatorPrefillMaterial).filter((item) => item.url);
-  const payloadSceneSource = getCreatorSceneDraftList(payload.sceneList, payload.scene_list);
+  const payloadSceneSource = getCreatorSceneDraftList(payload.sceneList, payload.scene_list, payload);
   const sceneSource = payloadSceneSource.length
     ? payloadSceneSource
     : getCreatorSceneDraftList(draft.sceneList, draft.scene_list, detail.sceneList, detail.scene_list, shanjian.sceneList, shanjian.scene_list, draft.scenes, detail.scenes, shanjian.scenes, draft, detail, shanjian, payload);
@@ -4209,9 +4261,10 @@ const getCreatorInitialState = (usePrefill) => {
       const source = videoObject(item);
       const captions = videoObject(source.captions || source.caption);
       const content = cleanGeneratedScene(videoText(source.content, source.text, source.script, captions.content, captions.text, source.captions, source.caption));
-      const sceneMaterials = getCreatorMaterialsJsonList(source.materials, source.materialList, source.material_list, source.materialsJson, source.materials_json, source.selectedMaterials, source.selected_materials, source.clipMaterials, source.clip_materials, source.items, source.mediaList, source.media_list, source.resources, source.material, source.media, source.file, source.resource, source.asset, source)
+      const directSceneMaterials = getCreatorMaterialsJsonList(source.materials, source.materialList, source.material_list, source.materialsJson, source.materials_json, source.selectedMaterials, source.selected_materials, source.clipMaterials, source.clip_materials, source.items, source.mediaList, source.media_list, source.resources, source.material, source.media, source.file, source.resource, source.asset, source)
         .map((material, materialIndex) => normalizeCreatorPrefillMaterial(material, `${index}-${materialIndex}`))
         .filter((material) => material.url);
+      const sceneMaterials = directSceneMaterials.length ? directSceneMaterials : getCreatorMaterialsBySceneReference(source, materials);
       return content || sceneMaterials.length ? createCreatorScene(content || `分镜 ${index + 1}`, sceneMaterials) : null;
     })
     .filter(Boolean);
