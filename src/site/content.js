@@ -1,4 +1,5 @@
 import { localeMeta, localize, supportedLocales } from './localization.js';
+import { helpPages } from './help.js';
 
 export const siteName = 'Kali';
 export { localeMeta, supportedLocales };
@@ -117,6 +118,7 @@ export const basePages = [
       sections: [['Product and business', 'Send product feedback, partnership questions, and general enquiries to feedback@xyaip.fun.'], ['Privacy requests', 'Send access, correction, deletion, account cancellation, and consent-withdrawal requests to privacy@xyaip.fun.'], ['What to include', 'Provide the relevant account identifier, task time, feature name, and a concise description. Never include your password or one-time verification code.']],
       faq: [['Which address handles privacy requests?', 'Use privacy@xyaip.fun for personal-information rights, deletion, account cancellation, and withdrawal of authorization.'], ['How should I report a production problem?', 'Include the approximate time, feature, task identifier if available, and what you expected to happen.'], ['Will the team ask for my password?', 'No. Do not send passwords, verification codes, or other authentication secrets.']],
     },
+  ...helpPages,
 ];
 
 export const pagesByLocale = Object.fromEntries(supportedLocales.map((locale) => [locale, localize(basePages, locale)]));

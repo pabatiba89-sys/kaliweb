@@ -46,9 +46,12 @@ export function translateText(value, locale) {
   return applyProductNames(translated, locale);
 }
 
-export function localize(value, locale) {
+const rawContentKeys = new Set(['slug', 'contentType', 'links', 'related', 'image']);
+
+export function localize(value, locale, key = '') {
+  if (rawContentKeys.has(key)) return value;
   if (Array.isArray(value)) return value.map((entry) => localize(entry, locale));
-  if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([key, entry]) => [key, localize(entry, locale)]));
+  if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([entryKey, entry]) => [entryKey, localize(entry, locale, entryKey)]));
   return typeof value === 'string' ? translateText(value, locale) : value;
 }
 
@@ -56,6 +59,7 @@ const navigation = {
   home: 'Home',
   product: 'Product',
   pricing: 'Pricing',
+  help: 'Help',
   about: 'About',
   contact: 'Contact',
   workspace: 'Open the workspace',
@@ -70,7 +74,7 @@ export const publicUiStrings = [
   'Skip to content', 'Primary navigation', 'Content production workspace',
   'From trend discovery to publish-ready media.', 'Product', 'Company', 'Workspace',
   'AI video', 'Digital humans', 'Voice cloning', 'AI music', 'Product feedback',
-  'Open Kali', 'Privacy requests', 'Kali · Yixiu',
+  'Open Kali', 'Help center', 'Privacy requests', 'Kali · Yixiu',
   'Payment policy', 'Refund policy',
   'Open the workspace', 'See the production flow', 'Product capabilities',
   'Trend discovery', 'Script generation', 'Digital humans', 'Voice cloning', 'AI music', 'Video publishing',
@@ -85,6 +89,9 @@ export const publicUiStrings = [
   'Bring your next idea to life.', 'Create with Kali',
   'Production overview', 'Ready', 'CONTENT PIPELINE', 'Turn today’s idea into a finished video', 'New video',
   'Discover', 'Trend selected', 'Write', 'Script ready', 'Produce', 'Assets linked', 'Digital human', 'Approved asset', 'Voice ready',
+  'START HERE', 'Guides grouped by the production path', 'BATCH PLAN', 'Build the help center in useful layers',
+  'STEP BY STEP', 'Follow the workflow in order', 'CHECK BEFORE YOU SUBMIT', 'IF SOMETHING GOES WRONG',
+  'RELATED GUIDES', 'Continue with the next useful article',
 ];
 
 export const localeMeta = Object.fromEntries(localeDefinitions.map((definition) => [definition.route, {

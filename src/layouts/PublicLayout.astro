@@ -80,6 +80,7 @@ const jsonLd = {
         <a href={pagePath(locale)}>{copy.home}</a>
         <a href={pagePath(locale, 'ai-video-generator')}>{copy.product}</a>
         <a href={pagePath(locale, 'pricing')}>{copy.pricing}</a>
+        <a href={pagePath(locale, 'help')}>{copy.help}</a>
         <a href={pagePath(locale, 'about')}>{copy.about}</a>
         <a href={pagePath(locale, 'contact')}>{copy.contact}</a>
       </nav>
@@ -104,7 +105,7 @@ const jsonLd = {
       <div class="footer-links">
         <div><strong>{t('Product')}</strong><a href={pagePath(locale, 'ai-video-generator')}>{t('AI video')}</a><a href={pagePath(locale, 'digital-human')}>{t('Digital humans')}</a><a href={pagePath(locale, 'voice-cloning')}>{t('Voice cloning')}</a><a href={pagePath(locale, 'ai-music-generator')}>{t('AI music')}</a></div>
         <div><strong>{t('Company')}</strong><a href={pagePath(locale, 'about')}>{copy.about}</a><a href={pagePath(locale, 'contact')}>{copy.contact}</a><a href="mailto:feedback@xyaip.fun">{t('Product feedback')}</a></div>
-        <div><strong>{t('Workspace')}</strong><a href="/app/">{t('Open Kali')}</a><a href={pagePath(locale, 'payment-policy')}>{t('Payment policy')}</a><a href={pagePath(locale, 'refund-policy')}>{t('Refund policy')}</a><a href="mailto:privacy@xyaip.fun">{t('Privacy requests')}</a></div>
+        <div><strong>{t('Workspace')}</strong><a href="/app/">{t('Open Kali')}</a><a href={pagePath(locale, 'help')}>{t('Help center')}</a><a href={pagePath(locale, 'payment-policy')}>{t('Payment policy')}</a><a href={pagePath(locale, 'refund-policy')}>{t('Refund policy')}</a><a href="mailto:privacy@xyaip.fun">{t('Privacy requests')}</a></div>
       </div>
       <div class="footer-bottom"><span>© 2026 {brandName(locale)}</span><span>{eyebrow || t('Kali · Yixiu')}</span></div>
     </footer>

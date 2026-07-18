@@ -10,6 +10,11 @@ export function getStaticPaths() {
 
 const { lang, page } = Astro.props;
 const t = (value) => translateText(value, lang);
+const allPages = pagesByLocale[lang] || [];
+const findPage = (slug) => allPages.find((item) => item.slug === slug);
+const isHelpIndex = page.contentType === 'helpIndex';
+const isGuide = page.contentType === 'guide';
+const relatedPages = (page.related || []).map(findPage).filter(Boolean);
 const pageSchema = {
   '@type': 'WebPage',
   name: page.title,
@@ -19,20 +24,92 @@ const pageSchema = {
   about: { '@id': `${Astro.site}#organization` },
   inLanguage: lang,
 };
+const howToSchema = isGuide ? {
+  '@type': 'HowTo',
+  name: page.title,
+  description: page.description,
+  step: page.steps.map(([name, text]) => ({ '@type': 'HowToStep', name, text })),
+  inLanguage: lang,
+} : null;
 const faqSchema = {
   '@type': 'FAQPage',
   mainEntity: page.faq.map(([question, answer]) => ({ '@type': 'Question', name: question, acceptedAnswer: { '@type': 'Answer', text: answer } })),
 };
 ---
-<PublicLayout locale={lang} slug={page.slug} title={`${page.title} | ${brandName(lang)}`} description={page.description} eyebrow={page.eyebrow} schema={[pageSchema, faqSchema]}>
+<PublicLayout locale={lang} slug={page.slug} title={`${page.title} | ${brandName(lang)}`} description={page.description} eyebrow={page.eyebrow} schema={[pageSchema, howToSchema, faqSchema].filter(Boolean)}>
   <section class="page-hero">
     <div><p class="eyebrow">{page.eyebrow}</p><h1>{page.headline}</h1><p class="hero-lead">{page.lead}</p><div class="hero-actions"><a class="primary-cta" href="/app/">{t('Open the workspace')} <span>↗</span></a><a class="text-cta" href={pagePath(lang, 'contact')}>{t('Talk to the team')} <span>→</span></a></div></div>
     <aside><p>{t('WHAT YOU CAN DO')}</p><ul>{page.bullets.map((bullet) => <li><span>✓</span>{bullet}</li>)}</ul></aside>
   </section>
-  <section class="detail-section">
-    <div class="section-heading"><p class="eyebrow">{t('HOW IT FITS TOGETHER')}</p><h2>{t('A clear path from setup to repeatable output')}</h2></div>
-    <div class="detail-grid">{page.sections.map(([heading, body], index) => <article><span>0{index + 1}</span><h3>{heading}</h3><p>{body}</p></article>)}</div>
-  </section>
+
+  {isHelpIndex && (
+    <>
+      <section class="help-groups">
+        <div class="section-heading"><p class="eyebrow">{t('START HERE')}</p><h2>{t('Guides grouped by the production path')}</h2></div>
+        <div class="help-group-grid">
+          {page.groups.map((group) => (
+            <article class="help-group-card">
+              <h3>{group.title}</h3>
+              <p>{group.description}</p>
+              <div>
+                {group.links.map((slug) => {
+                  const item = findPage(slug);
+                  return item && <a href={pagePath(lang, item.slug)}><span>{item.eyebrow}</span><strong>{item.headline}</strong></a>;
+                })}
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+      <section class="help-roadmap">
+        <div class="section-heading"><p class="eyebrow">{t('BATCH PLAN')}</p><h2>{t('Build the help center in useful layers')}</h2></div>
+        <ol>{page.roadmap.map(([label, body]) => <li><span>{label}</span><p>{body}</p></li>)}</ol>
+      </section>
+    </>
+  )}
+
+  {isGuide && (
+    <>
+      <section class="guide-visual-section">
+        <div class="guide-visual-card">
+          <div>
+            <p class="eyebrow">{page.visual.label}</p>
+            <ol>{page.visual.stages.map((stage, index) => <li><span>{String(index + 1).padStart(2, '0')}</span><strong>{stage}</strong></li>)}</ol>
+          </div>
+          <img src={page.visual.image} alt={page.visual.label} loading="lazy" />
+        </div>
+      </section>
+      <section class="guide-steps">
+        <div class="section-heading"><p class="eyebrow">{t('STEP BY STEP')}</p><h2>{t('Follow the workflow in order')}</h2></div>
+        <div class="guide-step-list">
+          {page.steps.map(([heading, body], index) => <article><span>{String(index + 1).padStart(2, '0')}</span><div><h3>{heading}</h3><p>{body}</p></div></article>)}
+        </div>
+      </section>
+      <section class="guide-checks">
+        <article>
+          <p class="eyebrow">{t('CHECK BEFORE YOU SUBMIT')}</p>
+          <ul>{page.checkpoints.map((item) => <li>{item}</li>)}</ul>
+        </article>
+        <article>
+          <p class="eyebrow">{t('IF SOMETHING GOES WRONG')}</p>
+          <ul>{page.recovery.map((item) => <li>{item}</li>)}</ul>
+        </article>
+      </section>
+      {relatedPages.length > 0 && (
+        <section class="related-guides">
+          <div class="section-heading"><p class="eyebrow">{t('RELATED GUIDES')}</p><h2>{t('Continue with the next useful article')}</h2></div>
+          <div>{relatedPages.map((item) => <a href={pagePath(lang, item.slug)}><span>{item.eyebrow}</span><strong>{item.headline}</strong><p>{item.description}</p></a>)}</div>
+        </section>
+      )}
+    </>
+  )}
+
+  {!isHelpIndex && !isGuide && (
+    <section class="detail-section">
+      <div class="section-heading"><p class="eyebrow">{t('HOW IT FITS TOGETHER')}</p><h2>{t('A clear path from setup to repeatable output')}</h2></div>
+      <div class="detail-grid">{page.sections.map(([heading, body], index) => <article><span>0{index + 1}</span><h3>{heading}</h3><p>{body}</p></article>)}</div>
+    </section>
+  )}
   <section class="faq-section">
     <div class="section-heading"><p class="eyebrow">{t('COMMON QUESTIONS')}</p><h2>{t('Answers before you start')}</h2></div>
     <div class="faq-list">{page.faq.map(([question, answer]) => <details><summary>{question}<span>+</span></summary><p>{answer}</p></details>)}</div>

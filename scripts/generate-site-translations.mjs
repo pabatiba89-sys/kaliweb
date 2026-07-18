@@ -16,10 +16,11 @@ const activeTargets = requestedLocale ? { [requestedLocale]: targets[requestedLo
 
 const strings = new Set(publicUiStrings);
 const incremental = process.argv.includes('--incremental');
+const rawContentKeys = new Set(['slug', 'contentType', 'links', 'related', 'image']);
 const collect = (value) => {
   if (Array.isArray(value)) return value.forEach(collect);
   if (value && typeof value === 'object') return Object.entries(value).forEach(([key, entry]) => {
-    if (key !== 'slug') collect(entry);
+    if (!rawContentKeys.has(key)) collect(entry);
   });
   if (typeof value === 'string' && value.trim()) strings.add(value.trim());
 };
