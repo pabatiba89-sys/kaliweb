@@ -120,5 +120,6 @@
 - 2026-07-18：当 `payload_json.sceneList` 存在时，Pro 回填不得再把全局 `materials/materialsJson` 兜底挂到分镜 1；否则会把原本属于后续分镜的素材显示到首个分镜。
 - 2026-07-18：解析 `payload_json` 时不能因为顶层有全局 `materials` 就停止下钻，必须先查找嵌套 `productionPayload/draftPayload/requestPayload/createPayload/jsonPayload.sceneList`；Pro 分镜回填只读取当前分镜对象自带的素材数组/素材对象，不能用全局素材按 ID/URL 猜测匹配到分镜。
 - 2026-07-18：视频制作页四种模式切换后，提交校验、payload 和接口路径必须以页面当前模式为准；从 Pro 切回普通模式时不得继续使用 Pro 的 `creatorConfig.endpoint/createPaths`。
+- 2026-07-18：素材库批量上传必须逐文件展示上传队列、进度、完成和失败状态；单个文件失败不得中断后续文件上传，失败原因要保留在对应文件和失败列表中。
 - 2026-07-16：海外 Billing 页套餐列表不能只依赖 DOM 静态翻译；接口返回的中文套餐名和额度单位需在显示层映射为英文源词，再用 `translateStatic` + 当前语言包本地化。新增套餐相关词条应写入 `scripts/localization-overrides.mjs` 后运行 `npm run i18n:generate -- --apply-overrides` 同步 24 个工作台语言包。
 - 2026-07-16：Evonet 支付先只接单次支付，不做订阅。前端 Billing 页通过 `POST /api/pay/evonet/create_session` 创建 Drop-in session，请求体为 `plan_id`、可选 `email`、`currency`；响应从 `data.pay_params.sessionID/sessionID` 和 `data.sdk_environment/pay_params.environment` 初始化 Drop-in。Drop-in 回调只调用 `POST /api/pay/evonet/sync`，提交 `order_no + payload`。`POST /api/pay/evonet/webhook` 只给 Evonet 调用，成功返回纯文本 `SUCCESS`，只有 webhook 会把订单改成已支付并发放套餐；Evonet `KeyID`/`SignKey`、`POST /interaction`、订单落库和套餐生效都必须在后端处理。

@@ -76,7 +76,7 @@ export async function apiFetch(path, { method = 'GET', body, auth = true, params
   }
 }
 
-export async function uploadFile(file, { source = 'material', timeoutMs = 180000 } = {}) {
+export async function uploadFile(file, { source = 'material', timeoutMs = 180000, onProgress } = {}) {
   const token = getAccessToken();
 
   if (!token) {
@@ -90,6 +90,49 @@ export async function uploadFile(file, { source = 'material', timeoutMs = 180000
   formData.append('name', file.name);
   formData.append('source', source);
   formData.append('data_size', String(file.size || 0));
+
+  if (typeof onProgress === 'function' && typeof XMLHttpRequest !== 'undefined') {
+    return new Promise((resolve) => {
+      const xhr = new XMLHttpRequest();
+      const timer = window.setTimeout(() => xhr.abort(), timeoutMs);
+      const url = new URL(normalizeUrl('/api/file/upload'), window.location.origin);
+
+      xhr.upload.onprogress = (event) => {
+        if (!event.lengthComputable) return;
+        onProgress(Math.max(0, Math.min(100, Math.round((event.loaded / event.total) * 100))));
+      };
+      xhr.onload = () => {
+        window.clearTimeout(timer);
+        const payload = (() => {
+          try {
+            return JSON.parse(xhr.responseText || '{}');
+          } catch {
+            return {};
+          }
+        })();
+        const code = payload?.code;
+        const businessOk = code === undefined || code === null || code === 0 || code === 200 || code === '0' || code === '200';
+        resolve({
+          ok: xhr.status >= 200 && xhr.status < 300 && businessOk,
+          status: xhr.status,
+          message: payload?.message || payload?.msg || payload?.error || xhr.statusText,
+          data: unwrapPayload(payload),
+          raw: payload,
+        });
+      };
+      xhr.onerror = () => {
+        window.clearTimeout(timer);
+        resolve({ ok: false, status: 0, message: 'Network request failed', data: null });
+      };
+      xhr.onabort = () => {
+        window.clearTimeout(timer);
+        resolve({ ok: false, status: 0, message: 'Request timed out', data: null });
+      };
+      xhr.open('POST', url.toString());
+      xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+      xhr.send(formData);
+    });
+  }
 
   return apiFetch('/api/file/upload', {
     method: 'POST',

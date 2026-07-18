@@ -1673,7 +1673,7 @@ function MaterialsPage({ authVersion, onLogin }) {
   const [selecting, setSelecting] = useState(false);
   const [selected, setSelected] = useState({});
   const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState('');
+  const [uploadQueue, setUploadQueue] = useState([]);
   const [uploadFailures, setUploadFailures] = useState([]);
   const [deleting, setDeleting] = useState(false);
   const [message, setMessage] = useState('');
@@ -1749,6 +1749,9 @@ function MaterialsPage({ authVersion, onLogin }) {
     }
     if (material.url) window.open(material.url, '_blank', 'noopener,noreferrer');
   };
+  const updateUploadItem = (id, patch) => {
+    setUploadQueue((current) => current.map((item) => (item.id === id ? { ...item, ...patch } : item)));
+  };
   const uploadPickedFiles = async (event) => {
     const files = Array.from(event.target.files || []).slice(0, MAX_MATERIAL_COUNT);
     event.target.value = '';
@@ -1760,20 +1763,34 @@ function MaterialsPage({ authVersion, onLogin }) {
 
     const failures = [];
     const created = [];
+    const queue = files.map((file, index) => ({
+      id: `${Date.now()}-${index}-${file.name || 'material'}`,
+      name: file.name || `素材 ${index + 1}`,
+      progress: 0,
+      status: 'pending',
+      message: '等待上传',
+    }));
     setUploading(true);
+    setUploadQueue(queue);
     setUploadFailures([]);
     setMessage('');
 
     for (let index = 0; index < files.length; index += 1) {
       const file = files[index];
-      setUploadProgress(`正在上传 ${index + 1}/${files.length}`);
+      const queueItem = queue[index];
       try {
+        updateUploadItem(queueItem.id, { progress: 5, status: 'validating', message: '检查文件' });
         const info = await validateMaterialFile(file);
-        const uploadResult = await uploadFile(file, { source: 'material' });
+        updateUploadItem(queueItem.id, { progress: 10, status: 'uploading', message: '上传中' });
+        const uploadResult = await uploadFile(file, {
+          source: 'material',
+          onProgress: (progress) => updateUploadItem(queueItem.id, { progress: Math.min(90, Math.max(10, progress)), status: 'uploading', message: '上传中' }),
+        });
         if (!uploadResult.ok) throw new Error(getResultMessage(uploadResult, '素材上传失败'));
         const url = getUploadedUrl(uploadResult);
         if (!url) throw new Error('素材上传未返回 URL');
 
+        updateUploadItem(queueItem.id, { progress: 95, status: 'saving', message: '保存素材' });
         const payload = {
           name: file.name,
           type: info.type,
@@ -1788,14 +1805,16 @@ function MaterialsPage({ authVersion, onLogin }) {
         const addResult = await apiFetch('/api/material/add', { method: 'POST', body: payload, timeoutMs: 12000 });
         if (!addResult.ok) throw new Error(getResultMessage(addResult, '素材保存失败'));
         created.push(normalizeMaterial({ ...payload, ...(addResult.data || {}) }, index));
+        updateUploadItem(queueItem.id, { progress: 100, status: 'done', message: '已完成' });
       } catch (error) {
-        failures.push({ id: `${file.name}-${index}`, name: file.name || `素材 ${index + 1}`, reason: error.message || '素材上传失败' });
+        const reason = error.message || '素材上传失败';
+        failures.push({ id: queueItem.id, name: queueItem.name, reason });
         setUploadFailures(failures.slice());
+        updateUploadItem(queueItem.id, { progress: 100, status: 'failed', message: reason });
       }
     }
 
     setUploading(false);
-    setUploadProgress('');
     setUploadFailures(failures);
     if (created.length) {
       setMaterials((current) => created.concat(current));
@@ -1863,11 +1882,32 @@ function MaterialsPage({ authVersion, onLogin }) {
         <strong>视频</strong>
         <span>mp4 / mov，时长 &lt; 60 秒，单边 &lt; 2000px，单个 &lt; 500MB</span>
       </section>
-      {uploadProgress && (
-        <div className="material-progress">
-          <Upload size={18} />
-          <span>{uploadProgress}</span>
-        </div>
+      {uploadQueue.length > 0 && (
+        <section className="material-upload-queue">
+          <div className="material-upload-queue__head">
+            <strong>上传队列</strong>
+            <span>{uploadQueue.filter((item) => item.status === 'done').length}/{uploadQueue.length} 已完成</span>
+          </div>
+          <div className="material-upload-list">
+            {uploadQueue.map((item) => (
+              <div className={`material-upload-item is-${item.status}`} key={item.id}>
+                <span className="material-upload-item__icon">
+                  {item.status === 'done' ? <CheckCircle2 size={18} /> : item.status === 'failed' ? <AlertCircle size={18} /> : uploading ? <RefreshCw className="is-spinning" size={18} /> : <Upload size={18} />}
+                </span>
+                <span className="material-upload-item__body">
+                  <span className="material-upload-item__meta">
+                    <strong>{item.name}</strong>
+                    <small>{item.message}</small>
+                  </span>
+                  <span className="material-upload-item__bar">
+                    <i style={{ width: `${item.progress}%` }} />
+                  </span>
+                </span>
+                <em>{item.progress}%</em>
+              </div>
+            ))}
+          </div>
+        </section>
       )}
       {uploadFailures.length > 0 && (
         <section className="material-failures">
