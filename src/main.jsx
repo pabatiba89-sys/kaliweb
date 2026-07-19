@@ -4176,6 +4176,41 @@ const normalizeCreatorPrefillMaterial = (item = {}, index = 0) => {
   };
 };
 
+const getCreatorDirectSceneMaterials = (scene = {}) => {
+  const source = videoObject(scene);
+  const materialKeys = ['materials', 'materialList', 'material_list', 'materialsJson', 'materials_json', 'selectedMaterials', 'selected_materials', 'clipMaterials', 'clip_materials', 'items', 'mediaList', 'media_list', 'resources'];
+  const listKeys = ['list', 'items', 'records', 'rows', 'data', 'materials', 'materialList', 'material_list'];
+  const readValue = (value, depth = 0) => {
+    if (value === undefined || value === null || value === '' || depth > 4) return [];
+    if (typeof value === 'string') {
+      try {
+        return readValue(JSON.parse(value), depth + 1);
+      } catch {
+        const url = getApiMediaUrl(value);
+        return url ? [value] : [];
+      }
+    }
+    if (Array.isArray(value)) return value;
+    if (typeof value !== 'object') return [];
+
+    const materialUrl = getApiMediaUrl(getMaterialUrl(value));
+    if (materialUrl) return [value];
+
+    for (const key of listKeys) {
+      const nested = readValue(value[key], depth + 1);
+      if (nested.length) return nested;
+    }
+    return [];
+  };
+
+  for (const key of materialKeys) {
+    const list = readValue(source[key]);
+    if (list.length) return list;
+  }
+
+  return readValue(source.material || source.media || source.file || source.resource || source.asset);
+};
+
 const getCreatorSceneDraftList = (...values) => {
   const visit = (value, depth = 0) => {
     if (value === undefined || value === null || value === '' || depth > 6) return [];
@@ -4250,7 +4285,7 @@ const getCreatorInitialState = (usePrefill) => {
       const source = videoObject(item);
       const captions = videoObject(source.captions || source.caption);
       const content = cleanGeneratedScene(videoText(source.content, source.text, source.script, captions.content, captions.text, source.captions, source.caption));
-      const sceneMaterials = getCreatorMaterialsJsonList(source.materials, source.materialList, source.material_list, source.materialsJson, source.materials_json, source.selectedMaterials, source.selected_materials, source.clipMaterials, source.clip_materials, source.items, source.mediaList, source.media_list, source.resources, source.material, source.media, source.file, source.resource, source.asset)
+      const sceneMaterials = getCreatorDirectSceneMaterials(source)
         .map((material, materialIndex) => normalizeCreatorPrefillMaterial(material, `${index}-${materialIndex}`))
         .filter((material) => material.url);
       return content || sceneMaterials.length ? createCreatorScene(content || `分镜 ${index + 1}`, sceneMaterials) : null;
