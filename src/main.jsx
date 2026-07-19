@@ -4513,9 +4513,32 @@ const mergeCreatorMaterials = (...groups) => {
 
 function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', backLabel = '返回视频管理', onBack, onLogin, onCreated, onChangeProductionType }) {
   const [currentProductionType, setCurrentProductionType] = useState(VIDEO_PRODUCTION_TYPES[productionType] ? productionType : 'oral');
+  const currentProductionTypeRef = useRef(currentProductionType);
+  const getProductionModeSnapshot = useCallback((mode = currentProductionTypeRef.current) => {
+    const key = VIDEO_PRODUCTION_TYPES[mode] ? mode : 'oral';
+    const config = VIDEO_PRODUCTION_TYPES[key];
+    const isMixedMode = key === 'mix';
+    const isProfessionalMode = key === 'professional';
+    const isMaterialPackageMode = key === 'materialPackage';
+    return {
+      key,
+      config,
+      isMixed: isMixedMode,
+      isProfessional: isProfessionalMode,
+      isMaterialPackage: isMaterialPackageMode,
+      isCustomMixcut: isProfessionalMode || isMaterialPackageMode,
+      needsHuman: !isMixedMode && !isMaterialPackageMode,
+      templateScene: config.templateScene,
+      productionScene: config.productionScene,
+    };
+  }, []);
   useEffect(() => {
-    if (VIDEO_PRODUCTION_TYPES[productionType] && productionType !== currentProductionType) setCurrentProductionType(productionType);
+    if (VIDEO_PRODUCTION_TYPES[productionType] && productionType !== currentProductionType) {
+      currentProductionTypeRef.current = productionType;
+      setCurrentProductionType(productionType);
+    }
   }, [productionType]);
+  useEffect(() => { currentProductionTypeRef.current = currentProductionType; }, [currentProductionType]);
   const isMixed = currentProductionType === 'mix';
   const isProfessional = currentProductionType === 'professional';
   const isMaterialPackage = currentProductionType === 'materialPackage';
@@ -4559,6 +4582,7 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState('');
   const [uploadProgress, setUploadProgress] = useState('');
+  const draftIdRef = useRef(draftId);
   const coverRef = useRef(cover);
   const materialsRef = useRef(materials);
   const scenesRef = useRef(scenes);
@@ -4574,6 +4598,7 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
   useEffect(() => { coverRef.current = cover; }, [cover]);
   useEffect(() => { materialsRef.current = materials; }, [materials]);
   useEffect(() => { scenesRef.current = scenes; }, [scenes]);
+  useEffect(() => { draftIdRef.current = draftId; }, [draftId]);
   useEffect(() => () => {
     const currentCover = coverRef.current;
     if (currentCover?.origin === 'local' && currentCover.previewUrl) URL.revokeObjectURL(currentCover.previewUrl);
@@ -4862,36 +4887,50 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
   }));
 
   const hasDraftContent = () => Boolean(form.title || form.topic || form.script || scenes.some((scene) => scene.content || scene.materials?.length) || Object.values(selected).some((item) => item?.id || item?.audioUrl) || cover || materials.length);
-  const validate = (isDraft) => {
+  const validate = (isDraft, mode = currentProductionTypeRef.current) => {
+    const modeSnapshot = getProductionModeSnapshot(mode);
+    const validationMaterials = modeSnapshot.isCustomMixcut ? getCreatorSceneMaterials(scenes) : materials;
+    const validationDuration = validationMaterials.reduce((total, item) => total + getCreatorMaterialDuration(item), 0);
     if (!token) { onLogin(); return '请先登录'; }
     if (isDraft) {
       if (!hasDraftContent()) return '请先填写或选择内容';
-      return materialDuration > 300 ? '素材总时长不能超过 5 分钟' : '';
+      return validationDuration > 300 ? '素材总时长不能超过 5 分钟' : '';
     }
     if (!form.title.trim()) return '请填写标题';
     if (!form.topic.trim()) return '请填写话题';
-    if (needsHuman && !selected.human.id) return '请选择数字人形象';
+    if (modeSnapshot.needsHuman && !selected.human.id) return '请选择数字人形象';
     if (!selected.voice.id) return '请选择声音';
-    if (!selected.videoTemplate.id) return isMixed ? '请选择混剪剪辑模板' : '请选择视频包装模板';
+    if (!selected.videoTemplate.id) return modeSnapshot.isMixed ? '请选择混剪剪辑模板' : '请选择视频包装模板';
     if (!selected.coverTemplate.id) return '请选择视频封面模板';
     if (!cover) return '请上传封面图片';
-    if (isCustomMixcut) {
+    if (modeSnapshot.isCustomMixcut) {
       const validScenes = scenes.filter((scene) => scene.content.trim() || scene.materials?.length);
       if (!validScenes.length) return '请至少创建一个分镜';
       const shortScene = validScenes.find((scene) => scene.content.trim().length < 3);
       if (shortScene) return '每个分镜字幕不能少于 3 个字符';
       if (!getCreatorSceneMaterials(validScenes).length) return '请至少选择一个素材';
-      if (materialDuration > 300) return '素材总时长不能超过 5 分钟';
+      if (validationDuration > 300) return '素材总时长不能超过 5 分钟';
       return '';
     }
     if (!form.script.trim()) return '请填写文案';
     if (!materials.length) return '请至少选择一个素材';
-    if (materialDuration > 300) return '素材总时长不能超过 5 分钟';
+    if (validationDuration > 300) return '素材总时长不能超过 5 分钟';
     return '';
   };
 
   const submit = async (isDraft = false) => {
-    const validation = validate(isDraft);
+    const {
+      key: submitProductionType,
+      config: creatorConfig,
+      isMixed,
+      isProfessional,
+      isCustomMixcut,
+      needsHuman,
+      templateScene,
+      productionScene,
+    } = getProductionModeSnapshot();
+    const activeDraftId = draftIdRef.current;
+    const validation = validate(isDraft, submitProductionType);
     if (validation) { setMessage(validation); return; }
     setBusy(isDraft ? 'draft' : 'submit');
     setMessage('');
@@ -5019,7 +5058,7 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
         videoTemplateId: selected.videoTemplate.id, videoTemplateName: selected.videoTemplate.title, scene: productionScene, templateScene,
         materials: submitMaterials, is_draft: Boolean(isDraft), bgmusic: { url: selected.music.audioUrl || '' }, shanjianData,
         ...(creatorConfig.endpoint ? { endpoint: creatorConfig.endpoint } : {}),
-        ...(draftId ? { id: draftId, draft_id: draftId, ...(isCustomMixcut ? { draftId } : {}) } : {}),
+        ...(activeDraftId ? { id: activeDraftId, draft_id: activeDraftId, ...(isCustomMixcut ? { draftId: activeDraftId } : {}) } : {}),
         ...(isCustomMixcut ? {
           isDraft: Boolean(isDraft),
           saveDraft: Boolean(isDraft),
@@ -5058,7 +5097,9 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
       if (!result.ok) throw new Error(getResultMessage(result, isDraft ? '暂存失败' : '视频任务提交失败'));
       if (isDraft) {
         const detail = getVideoDetailRecord(result);
-        setDraftId(videoText(detail.id, detail.draftId, detail.draft_id, result.data?.id, draftId));
+        const nextDraftId = videoText(detail.id, detail.draftId, detail.draft_id, result.data?.id, activeDraftId);
+        draftIdRef.current = nextDraftId;
+        setDraftId(nextDraftId);
         setMessage('已暂存，可继续编辑');
       } else {
         window.localStorage.removeItem(VIDEO_PREFILL_KEY);
@@ -5091,6 +5132,11 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
     setDialogType('');
     setActiveSceneId('');
     setMessage('');
+    currentProductionTypeRef.current = nextType;
+    if (nextIsCustomMixcut !== isCustomMixcut) {
+      draftIdRef.current = '';
+      setDraftId('');
+    }
     if (nextTemplateScene !== templateScene) {
       setSelected((current) => ({
         ...current,
