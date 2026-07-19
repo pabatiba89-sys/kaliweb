@@ -4118,6 +4118,18 @@ const getCreatorPayloadObject = (...values) => {
   return {};
 };
 
+const inferCreatorProductionType = (...values) => {
+  const payload = getCreatorPayloadObject(...values);
+  const rawType = videoText(payload.productionType, payload.production_type, payload.type, payload.mode);
+  if (VIDEO_PRODUCTION_TYPES[rawType]) return rawType;
+
+  const endpoint = videoText(payload.endpoint, payload.shanjianEndpoint, payload.shanjian_endpoint, payload.scene, payload.productionScene, payload.production_scene, payload.openapiPath, payload.openapi_path);
+  if (endpoint.includes('custom_virtualman_broadcast')) return 'professional';
+  if (endpoint.includes('custom_broadcast_mixcut')) return 'materialPackage';
+  if (endpoint.includes('oralMixCutting')) return 'mix';
+  return '';
+};
+
 const getCreatorMaterialsJsonList = (...values) => {
   const visit = (value, depth = 0) => {
     if (value === undefined || value === null || value === '' || depth > 6) return [];
@@ -5057,7 +5069,7 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
       }));
     }
     if (nextIsCustomMixcut && !isCustomMixcut) {
-      setScenes(getInitialCreatorScenes(form, materials));
+      setScenes((current) => current.some((scene) => scene.content?.trim() || scene.materials?.length) ? current : getInitialCreatorScenes(form, materials));
     }
     if (!nextIsCustomMixcut && isCustomMixcut) {
       const sceneMaterials = getCreatorSceneMaterials(scenes);
@@ -8200,14 +8212,27 @@ export default function App() {
     if (prefill) {
       try {
         const draft = JSON.parse(window.localStorage.getItem(VIDEO_PREFILL_KEY) || '{}');
-        storedProductionType = draft.productionType || draft.production_type || draft.detail?.productionType || draft.detail?.production_type || '';
+        storedProductionType = inferCreatorProductionType(
+          draft.payload_json,
+          draft.payloadJson,
+          draft.detail?.payload_json,
+          draft.detail?.payloadJson,
+          draft.materials_json,
+          draft.materialsJson,
+          draft.detail?.materials_json,
+          draft.detail?.materialsJson,
+          draft,
+          draft.detail,
+        ) || draft.productionType || draft.production_type || draft.detail?.productionType || draft.detail?.production_type || '';
       } catch {
         storedProductionType = '';
       }
     }
-    const nextProductionType = VIDEO_PRODUCTION_TYPES[productionType]
-      ? productionType
-      : VIDEO_PRODUCTION_TYPES[storedProductionType] ? storedProductionType : 'oral';
+    const nextProductionType = prefill && VIDEO_PRODUCTION_TYPES[storedProductionType]
+      ? storedProductionType
+      : VIDEO_PRODUCTION_TYPES[productionType]
+        ? productionType
+        : VIDEO_PRODUCTION_TYPES[storedProductionType] ? storedProductionType : 'oral';
     syncWorkspacePageQuery('video');
     setVideoCreatorReturn({
       active: returnTo === 'generator' ? 'assistant' : returnTo,
