@@ -4118,6 +4118,34 @@ const getCreatorPayloadObject = (...values) => {
   return {};
 };
 
+const hasCreatorHumanId = (value, depth = 0) => {
+  const source = getCreatorJsonObject(value, depth);
+  if (!Object.keys(source).length || depth > 5) return false;
+  const id = videoText(
+    source.aiHumanId,
+    source.ai_human_id,
+    source.aihumanId,
+    source.aihuman_id,
+    source.virtualmanId,
+    source.virtualman_id,
+    source.humanId,
+    source.human_id,
+    source.digitalHumanId,
+    source.digital_human_id,
+    videoObject(source.human).id,
+    videoObject(source.aiHuman).id,
+    videoObject(source.ai_human).id,
+    videoObject(source.virtualman).id,
+    videoObject(source.digitalHuman).id,
+    videoObject(source.digital_human).id,
+  );
+  if (id) return true;
+  for (const key of ['payload_json', 'payloadJson', 'productionPayload', 'production_payload', 'draft_payload', 'draftPayload', 'detail', 'raw', 'payload', 'data']) {
+    if (hasCreatorHumanId(source[key], depth + 1)) return true;
+  }
+  return false;
+};
+
 const inferCreatorProductionType = (...values) => {
   const payload = getCreatorPayloadObject(...values);
   const rawType = videoText(payload.productionType, payload.production_type, payload.type, payload.mode);
@@ -4127,6 +4155,8 @@ const inferCreatorProductionType = (...values) => {
   if (endpoint.includes('custom_virtualman_broadcast')) return 'professional';
   if (endpoint.includes('custom_broadcast_mixcut')) return 'materialPackage';
   if (endpoint.includes('oralMixCutting')) return 'mix';
+  const hasScenes = getCreatorSceneDraftList(payload.sceneList, payload.scene_list, payload.scenes, payload, ...values).length > 0;
+  if (hasScenes) return [payload, ...values].some((value) => hasCreatorHumanId(value)) ? 'professional' : 'materialPackage';
   return '';
 };
 

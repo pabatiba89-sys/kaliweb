@@ -121,6 +121,7 @@
 - 2026-07-18：解析 `payload_json` 时不能因为顶层有全局 `materials` 就停止下钻，必须先查找嵌套 `productionPayload/draftPayload/requestPayload/createPayload/jsonPayload.sceneList`；Pro 分镜回填只读取当前分镜对象自带的素材数组/素材对象，不能用全局素材按 ID/URL 猜测匹配到分镜。
 - 2026-07-19：Pro 详情回填读取分镜素材时必须使用专用“当前分镜直属素材”解析，禁止复用会递归到 `payload_json.materials`、`draftPayload.materials` 等顶层素材的通用素材解析函数；否则会把属于后续分镜的素材错放到分镜 1。
 - 2026-07-19：从视频详情继续制作/重新制作时，`prefill` 模式必须优先从详情 `payload_json/materials_json` 的 `productionType/endpoint/scene/openapiPath` 推断制作类型；按钮传入的列表板块只作兜底。若 Pro 详情误以普通模式打开，切到 Pro 会把顶层素材重新迁移到分镜 1。
+- 2026-07-19：草稿/失败详情进入制作页时，若没有明确 `endpoint/productionType`，但存在 `sceneList/scenes`，则按是否存在数字人 ID 判断模式：有 `aiHumanId/ai_human_id/virtualmanId/humanId/digitalHumanId` 进入“形象播报 Pro”，没有数字人 ID 进入“素材成片 Pro”。
 - 2026-07-18：视频制作页四种模式切换后，提交校验、payload 和接口路径必须以页面当前模式为准；从 Pro 切回普通模式时不得继续使用 Pro 的 `creatorConfig.endpoint/createPaths`。
 - 2026-07-18：素材库批量上传必须逐文件展示上传队列、进度、完成和失败状态；单个文件失败不得中断后续文件上传，失败原因要保留在对应文件和失败列表中。
 - 2026-07-18：帮助中心按批次制作，第一批聚焦新用户完成第一条视频和故障自救：帮助目录、从热点生成视频、用文案制作视频、四种视频模式区别、视频失败处理、草稿续作。公开帮助内容使用 `src/site/help.js` 管理，路由接入 `src/site/content.js`；多语言本地化必须保留 `slug/contentType/links/related/image` 等内部字段原值，避免翻译后路由或页面类型错乱。
