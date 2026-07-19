@@ -2908,6 +2908,11 @@ img {
   display: none;
 }
 
+.sidebar.is-collapsed .sidebar__version {
+  justify-content: center;
+  padding-inline: 0;
+}
+
 .sidebar__brand {
   display: flex;
   align-items: center;
@@ -2990,6 +2995,17 @@ img {
 .sidebar__toggle span {
   font-size: 14px;
   font-weight: 650;
+  white-space: nowrap;
+}
+
+.sidebar__version {
+  display: flex;
+  align-items: center;
+  padding: 2px 12px 0;
+  color: #8aa098;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0;
   white-space: nowrap;
 }
 

@@ -68,7 +68,10 @@ import {
 } from './api';
 import { getInitialLocale, languages, translateStatic, useAutoTranslate, useLocaleCatalog } from './i18n';
 import { pageConfigs } from './pageConfig';
+import packageJson from '../package.json';
 import './styles.css';
+
+const APP_VERSION = `v${packageJson.version}`;
 
 const copy = {
   en: {
@@ -462,6 +465,9 @@ function Sidebar({ active, collapsed, onSelect, onToggle }) {
           );
         })}
       </nav>
+      <div className="sidebar__version" aria-label={`Version ${APP_VERSION}`}>
+        <span>{APP_VERSION}</span>
+      </div>
       <button className="sidebar__toggle" onClick={onToggle}>
         <PanelLeftClose size={18} />
         <span>Collapse</span>
