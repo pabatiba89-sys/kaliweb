@@ -4569,7 +4569,6 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
     subtitleSwitch: true,
     keywordSwitch: true,
     headerLayer: true,
-    headerShowTime: '2',
     bgmVolume: '1',
   });
   const [cover, setCover] = useState(initial.cover);
@@ -5023,8 +5022,8 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
         markCode: 'headerLayer',
         show: professionalOptions.headerLayer,
         showMode: 'customize',
-        showTime: Math.max(0, Number(professionalOptions.headerShowTime) || 0),
-        layer: { transform: { position: [0, 0, 0] } },
+        showTime: 20,
+        layer: {},
       }];
       const shanjianData = {
         styleId: selected.videoTemplate.id,
