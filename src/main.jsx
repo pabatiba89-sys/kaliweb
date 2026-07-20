@@ -5023,7 +5023,6 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
         show: professionalOptions.headerLayer,
         showMode: 'customize',
         showTime: 20,
-        layer: {},
       }];
       const shanjianData = {
         styleId: selected.videoTemplate.id,

@@ -125,7 +125,7 @@
 - 2026-07-19：草稿/失败详情进入制作页时，若没有明确 `endpoint/productionType`，但存在 `sceneList/scenes`，则按是否存在数字人 ID 判断模式：有 `aiHumanId/ai_human_id/virtualmanId/humanId/digitalHumanId` 进入“形象播报 Pro”，没有数字人 ID 进入“素材成片 Pro”。
 - 2026-07-18：视频制作页四种模式切换后，提交校验、payload 和接口路径必须以页面当前模式为准；从 Pro 切回普通模式时不得继续使用 Pro 的 `creatorConfig.endpoint/createPaths`。
 - 2026-07-19：视频制作页从 Pro 和普通模式之间切换时必须清空当前草稿 ID，并在提交点击瞬间快照当前模式；否则普通模式提交可能带着 Pro 草稿上下文，后端继续按 Pro 接口校验并报 `scenes` 缺失。
-- 2026-07-20：Pro 视频提交的 `structLayers` 中 `headerLayer` 固定提交 `showTime: 20`，`layer` 必须为空对象；不要再带默认 `transform.position`。
+- 2026-07-20：Pro 视频提交的 `structLayers` 中 `headerLayer` 固定提交 `showTime: 20`，不要提交 `layer` 字段；空 `layer` 仍可能触发后端 `transform` 非空校验。
 - 2026-07-18：素材库批量上传必须逐文件展示上传队列、进度、完成和失败状态；单个文件失败不得中断后续文件上传，失败原因要保留在对应文件和失败列表中。
 - 2026-07-18：帮助中心按批次制作，第一批聚焦新用户完成第一条视频和故障自救：帮助目录、从热点生成视频、用文案制作视频、四种视频模式区别、视频失败处理、草稿续作。公开帮助内容使用 `src/site/help.js` 管理，路由接入 `src/site/content.js`；多语言本地化必须保留 `slug/contentType/links/related/image` 等内部字段原值，避免翻译后路由或页面类型错乱。
 - 2026-07-18：帮助中心页面风格应偏“操作手册”，不要像营销页；首屏压缩、结构干净，文章必须包含适用场景、开始前准备、细分步骤、提交前检查、常见错误和出错恢复。中文高曝光术语需人工覆盖，例如数字人口播、混剪视频、形象播报 Pro、素材成片 Pro、热点到视频流程，避免机器翻译成“数字人力/数字人文”等不专业词。
