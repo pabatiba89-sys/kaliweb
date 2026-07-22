@@ -408,12 +408,31 @@ const PAGE_SIZE = 20;
 const HOT_PAGE_SIZE = 100;
 const MATERIAL_PAGE_SIZE = 48;
 const MATERIAL_MIN_PAGE_SIZE_FOR_MORE = 20;
+const MATERIAL_UPLOAD_CONCURRENCY = 4;
 const TEMPLATE_PAGE_SIZE = 100;
 const HOT_TOPIC_FLOW_KEY = 'hot_topic_script_flow';
 const AGENT_CONTEXT_KEY = 'video_chat_agent_context';
 const MUSIC_PREFILL_KEY = 'music_production_prefill_draft';
 const VIDEO_PREFILL_KEY = 'mix_video_production_prefill_draft';
 const DEFAULT_IMAGE_SCENE_PROMPT = '请保持人物五官和身份特征，参考场景图片的空间布局、光线与氛围，将人物自然融入场景，画面真实自然。';
+const runConcurrentTasks = async (items, concurrency, task) => {
+  if (!items.length) return;
+  let nextIndex = 0;
+  const workerCount = Math.min(Math.max(1, concurrency), items.length);
+  const takeNextIndex = () => {
+    const index = nextIndex;
+    nextIndex += 1;
+    return index;
+  };
+
+  await Promise.all(Array.from({ length: workerCount }, async () => {
+    while (true) {
+      const index = takeNextIndex();
+      if (index >= items.length) return;
+      await task(items[index], index);
+    }
+  }));
+};
 const IMAGE_GENERATION_SCENES = [
   { id: 'business_studio', name: '商务演播厅', desc: '柔光棚拍 · 企业口播', prompt: '保持人物身份和五官特征，置于现代商务演播厅，背景有简洁屏幕与品牌级空间层次，使用柔和三点布光，适合专业企业口播，写实摄影' },
   { id: 'modern_office', name: '高管办公室', desc: '城市窗景 · 管理者形象', prompt: '保持人物身份和五官特征，置于现代高管办公室，落地窗外有城市建筑，空间简洁克制，日光与室内柔光平衡，呈现专业管理者形象，写实摄影' },
@@ -1767,7 +1786,7 @@ function MaterialsPage({ authVersion, onLogin }) {
     }
 
     const failures = [];
-    const created = [];
+    const uploaded = new Array(files.length).fill(null);
     const queue = files.map((file, index) => ({
       id: `${Date.now()}-${index}-${file.name || 'material'}`,
       name: file.name || `素材 ${index + 1}`,
@@ -1780,7 +1799,7 @@ function MaterialsPage({ authVersion, onLogin }) {
     setUploadFailures([]);
     setMessage('');
 
-    for (let index = 0; index < files.length; index += 1) {
+    const uploadOne = async (index) => {
       const file = files[index];
       const queueItem = queue[index];
       try {
@@ -1809,7 +1828,7 @@ function MaterialsPage({ authVersion, onLogin }) {
         };
         const addResult = await apiFetch('/api/material/add', { method: 'POST', body: payload, timeoutMs: 12000 });
         if (!addResult.ok) throw new Error(getResultMessage(addResult, '素材保存失败'));
-        created.push(normalizeMaterial({ ...payload, ...(addResult.data || {}) }, index));
+        uploaded[index] = normalizeMaterial({ ...payload, ...(addResult.data || {}) }, index);
         updateUploadItem(queueItem.id, { progress: 100, status: 'done', message: '已完成' });
       } catch (error) {
         const reason = error.message || '素材上传失败';
@@ -1817,10 +1836,13 @@ function MaterialsPage({ authVersion, onLogin }) {
         setUploadFailures(failures.slice());
         updateUploadItem(queueItem.id, { progress: 100, status: 'failed', message: reason });
       }
-    }
+    };
+
+    await runConcurrentTasks(files, MATERIAL_UPLOAD_CONCURRENCY, (_, index) => uploadOne(index));
 
     setUploading(false);
     setUploadFailures(failures);
+    const created = uploaded.filter(Boolean);
     if (created.length) {
       setMaterials((current) => created.concat(current));
       loadMaterials({ nextPage: 1, append: false });
@@ -4945,30 +4967,41 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
       const submitScenes = [];
       const sourceMaterials = isCustomMixcut ? getCreatorSceneMaterials(scenes) : materials;
       const pendingMaterialCount = sourceMaterials.filter((item) => item.file && !item.url).length;
-      let pendingMaterialIndex = 0;
+      const materialPreparationCache = new Map();
+      let startedMaterialUploads = 0;
+      let completedMaterialUploads = 0;
       const prepareMaterial = async (material) => {
-        let url = material.url || '';
-        if (material.file && !url) {
-          pendingMaterialIndex += 1;
-          setUploadProgress(`正在上传未完成素材 ${pendingMaterialIndex}/${pendingMaterialCount}…`);
-          const result = await uploadFile(material.file, { source: 'material' });
-          if (!result.ok) throw new Error(`${material.title}：${getResultMessage(result, '上传失败')}`);
-          url = getUploadedUrl(result);
-          if (!url) throw new Error(`${material.title} 上传未返回地址`);
-          savedUploadCount += 1;
-          if (isCustomMixcut) {
-            setScenes((current) => current.map((scene) => ({
-              ...scene,
-              materials: (scene.materials || []).map((item) => item.id === material.id ? { ...item, url, uploaded: true } : item),
-            })));
-          } else {
-            setMaterials((current) => current.map((item) => item.id === material.id ? { ...item, url, uploaded: true } : item));
+        const cacheKey = material.id || material.url || material;
+        if (materialPreparationCache.has(cacheKey)) return materialPreparationCache.get(cacheKey);
+        const preparation = (async () => {
+          let url = material.url || '';
+          if (material.file && !url) {
+            startedMaterialUploads += 1;
+            setUploadProgress(`正在上传未完成素材 ${startedMaterialUploads}/${pendingMaterialCount}…`);
+            const result = await uploadFile(material.file, { source: 'material' });
+            if (!result.ok) throw new Error(`${material.title}：${getResultMessage(result, '上传失败')}`);
+            url = getUploadedUrl(result);
+            if (!url) throw new Error(`${material.title} 上传未返回地址`);
+            completedMaterialUploads += 1;
+            savedUploadCount += 1;
+            setUploadProgress(`已上传素材 ${completedMaterialUploads}/${pendingMaterialCount}…`);
+            if (isCustomMixcut) {
+              setScenes((current) => current.map((scene) => ({
+                ...scene,
+                materials: (scene.materials || []).map((item) => item.id === material.id ? { ...item, url, uploaded: true } : item),
+              })));
+            } else {
+              setMaterials((current) => current.map((item) => item.id === material.id ? { ...item, url, uploaded: true } : item));
+            }
           }
-        }
-        if (!url) throw new Error(`${material.title} 上传未返回地址`);
-        const submitUrl = material.type === 'image' && !url.includes('imageView2/') ? `${url}${url.includes('?') ? '&' : '?'}imageView2/0/w/1980/h/1980/format/copy/ignore-error/1` : url;
-        return { type: material.type, fileUrl: submitUrl, soundSwitch: isCustomMixcut && material.type === 'video' };
+          if (!url) throw new Error(`${material.title} 上传未返回地址`);
+          const submitUrl = material.type === 'image' && !url.includes('imageView2/') ? `${url}${url.includes('?') ? '&' : '?'}imageView2/0/w/1980/h/1980/format/copy/ignore-error/1` : url;
+          return { type: material.type, fileUrl: submitUrl, soundSwitch: isCustomMixcut && material.type === 'video' };
+        })();
+        materialPreparationCache.set(cacheKey, preparation);
+        return preparation;
       };
+      await runConcurrentTasks(sourceMaterials, MATERIAL_UPLOAD_CONCURRENCY, (material) => prepareMaterial(material));
       if (isCustomMixcut) {
         const validScenes = scenes.filter((scene) => scene.content.trim() || scene.materials?.length);
         for (let sceneIndex = 0; sceneIndex < validScenes.length; sceneIndex += 1) {
