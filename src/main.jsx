@@ -4516,12 +4516,15 @@ const createCreatorScene = (content = '', materials = []) => ({
 });
 
 const getInitialCreatorScenes = (form = {}, materials = []) => {
-  const chunks = textOf(form.script)
-    .split(/\n{2,}|\n(?=\d+[.、])|(?=\s*(?:分镜|镜头|场景|片段)\s*[第]?\s*[0-9０-９一二三四五六七八九十百]*\s*[）).、:：-]?)|(?=第[一二三四五六七八九十]+[个段幕镜])/)
-    .map((item) => cleanGeneratedScene(item.replace(/^\s*\d+[.、]\s*/, '').replace(GENERATED_SCENE_REGEX, '')))
+  const script = textOf(form.script);
+  const explicitScenes = parseGeneratedScenes(script);
+  const chunks = (explicitScenes.length ? explicitScenes : script
+    .split(/\n{2,}|\n(?=\d+[.、]\s*)|(?=第[一二三四五六七八九十]+[个段幕镜])/)
+    .map((item) => item.replace(/^\s*\d+[.、]\s*/, '')))
+    .map((item) => cleanGeneratedScene(item))
     .filter(Boolean);
   if (chunks.length) return chunks.map((content, index) => createCreatorScene(content, index === 0 ? materials : []));
-  return [createCreatorScene(textOf(form.script), materials)];
+  return [createCreatorScene(script, materials)];
 };
 
 const getCreatorSceneMaterials = (scenes = []) => scenes.flatMap((scene) => scene.materials || []);
@@ -4873,9 +4876,8 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
   const splitSceneAtCursor = (sceneId, textarea) => {
     const content = String(textarea?.value || '');
     const selectionStart = textarea?.selectionStart ?? content.length;
-    const selectionEnd = textarea?.selectionEnd ?? selectionStart;
     const before = content.slice(0, selectionStart);
-    const after = content.slice(selectionEnd);
+    const after = content.slice(selectionStart);
     setScenes((current) => {
       const sceneIndex = current.findIndex((scene) => scene.id === sceneId);
       if (sceneIndex < 0) return current;
@@ -7106,7 +7108,7 @@ const cleanGeneratedContent = (value) => textOf(value)
   .replace(/^\*{1,2}|\*{1,2}$/g, '')
   .replace(/^[\s"'“”]+|[\s"'“”]+$/g, '')
   .trim();
-const GENERATED_SCENE_REGEX = /(?:^|[\n\r]+|[\s。！？!?；;，,]+)(?:#{1,6}\s*)?(?:[*`_\-\s]*)?(?:分镜|镜头|场景|片段)\s*[第]?\s*([0-9０-９一二三四五六七八九十百]+)?\s*[）).、:：-]?\s*/g;
+const GENERATED_SCENE_REGEX = /(^|[\n\r]+|[\s。！？!?；;，,]+)((?:#{1,6}\s*)?(?:[*`_\-\s]*)?(?:分镜|镜头|场景|片段)\s*(?:第\s*)?(?:(?:[0-9０-９一二三四五六七八九十百]+)\s*(?:[）).、:：-]\s*|\s+)|[）).、:：-]\s*))/g;
 const cleanGeneratedScene = (value) => cleanGeneratedContent(value)
   .replace(/^[\s"'“”*`_-]+/, '')
   .replace(/^[，,。；;：:、-]+/, '')
@@ -7119,7 +7121,7 @@ const parseGeneratedScenes = (value) => {
   return matches
     .map((match, index) => {
       const start = match.index + match[0].length;
-      const end = index + 1 < matches.length ? matches[index + 1].index : text.length;
+      const end = index + 1 < matches.length ? matches[index + 1].index + (matches[index + 1][1] || '').length : text.length;
       return cleanGeneratedScene(text.slice(start, end));
     })
     .filter(Boolean);
