@@ -1089,7 +1089,6 @@ const normalizeTemplate = (item = {}, index = 0, group = '') => {
 
 const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp'];
 const VIDEO_EXTENSIONS = ['mp4', 'mov'];
-const MAX_MATERIAL_COUNT = 9;
 const MAX_VIDEO_DURATION = 60;
 const MAX_TRAINING_VIDEO_DURATION = 120;
 const MAX_VOICE_DURATION = 120;
@@ -1759,7 +1758,7 @@ function MaterialsPage({ authVersion, onLogin }) {
     setUploadQueue((current) => current.map((item) => (item.id === id ? { ...item, ...patch } : item)));
   };
   const uploadPickedFiles = async (event) => {
-    const files = Array.from(event.target.files || []).slice(0, MAX_MATERIAL_COUNT);
+    const files = Array.from(event.target.files || []);
     event.target.value = '';
     if (!files.length) return;
     if (!authed) {
