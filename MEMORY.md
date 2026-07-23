@@ -122,6 +122,7 @@
 - 2026-07-18：当 `payload_json.sceneList` 存在时，Pro 回填不得再把全局 `materials/materialsJson` 兜底挂到分镜 1；否则会把原本属于后续分镜的素材显示到首个分镜。
 - 2026-07-18：解析 `payload_json` 时不能因为顶层有全局 `materials` 就停止下钻，必须先查找嵌套 `productionPayload/draftPayload/requestPayload/createPayload/jsonPayload.sceneList`；Pro 分镜回填只读取当前分镜对象自带的素材数组/素材对象，不能用全局素材按 ID/URL 猜测匹配到分镜。
 - 2026-07-19：Pro 详情回填读取分镜素材时必须使用专用“当前分镜直属素材”解析，禁止复用会递归到 `payload_json.materials`、`draftPayload.materials` 等顶层素材的通用素材解析函数；否则会把属于后续分镜的素材错放到分镜 1。
+- 2026-07-23：视频详情页必须渲染制作素材；普通任务从 `materials_json/materialsJson/materials` 等顶层素材读取，Pro 任务优先按 `sceneList/scenes[].materials` 显示分镜直属素材，并标注所属分镜，避免把后续分镜素材兜底到分镜 1。
 - 2026-07-19：从视频详情继续制作/重新制作时，`prefill` 模式必须优先从详情 `payload_json/materials_json` 的 `productionType/endpoint/scene/openapiPath` 推断制作类型；按钮传入的列表板块只作兜底。若 Pro 详情误以普通模式打开，切到 Pro 会把顶层素材重新迁移到分镜 1。
 - 2026-07-19：草稿/失败详情进入制作页时，若没有明确 `endpoint/productionType`，但存在 `sceneList/scenes`，则按是否存在数字人 ID 判断模式：有 `aiHumanId/ai_human_id/virtualmanId/humanId/digitalHumanId` 进入“形象播报 Pro”，没有数字人 ID 进入“素材成片 Pro”。
 - 2026-07-18：视频制作页四种模式切换后，提交校验、payload 和接口路径必须以页面当前模式为准；从 Pro 切回普通模式时不得继续使用 Pro 的 `creatorConfig.endpoint/createPaths`。

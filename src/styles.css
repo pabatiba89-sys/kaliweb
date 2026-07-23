@@ -1388,6 +1388,115 @@
   white-space: pre-wrap;
 }
 
+.video-detail-materials {
+  margin-top: 18px;
+  padding: 18px;
+  border: 1px solid #d8ebe4;
+  border-radius: 18px;
+  background: #fbfefd;
+}
+
+.video-detail-section-head {
+  margin-bottom: 13px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.video-detail-section-head span {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.video-detail-section-head h2 {
+  margin: 4px 0 0;
+  font-size: 17px;
+}
+
+.video-detail-section-head em {
+  flex: none;
+  color: var(--muted);
+  font-size: 12px;
+  font-style: normal;
+}
+
+.video-detail-material-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+  gap: 10px;
+}
+
+.video-detail-material-card {
+  min-width: 0;
+  padding: 0;
+  border: 1px solid #dcebe5;
+  border-radius: 14px;
+  background: #fff;
+  overflow: hidden;
+  text-align: left;
+  cursor: pointer;
+}
+
+.video-detail-material-card__media {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  display: grid;
+  place-items: center;
+  background: #edf6f2;
+  color: #6b8981;
+  overflow: hidden;
+}
+
+.video-detail-material-card__media img,
+.video-detail-material-card__media video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.video-detail-material-card__media em {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: rgba(7, 27, 23, 0.76);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-style: normal;
+}
+
+.video-detail-material-card__body {
+  min-width: 0;
+  padding: 10px 11px 12px;
+  display: grid;
+  gap: 4px;
+}
+
+.video-detail-material-card__body strong,
+.video-detail-material-card__body small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.video-detail-material-card__body strong {
+  color: var(--ink);
+  font-size: 13px;
+}
+
+.video-detail-material-card__body small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
 .video-action-layer {
   position: fixed;
   inset: 0;

@@ -3690,8 +3690,81 @@ const normalizeVideoRecord = (item = {}, index = 0) => {
     canAssignTeam: successful && Boolean(videoUrl),
     canRemake: status.key === 'failed',
     canContinueDraft: status.key === 'draft',
+    detailMaterials: getVideoDetailMaterials(video),
     raw: video,
   };
+};
+
+const normalizeVideoDetailMaterial = (item = {}, index = 0, sceneIndex = -1) => {
+  const source = getMaterialSourceObject(item);
+  const url = getApiMediaUrl(getMaterialUrl(source));
+  const type = getMaterialType({ ...source, url });
+  const title = videoText(source.title, source.name, source.fileName, source.file_name) || `素材 ${index + 1}`;
+  const duration = Number(source.duration || source.duration_seconds || source.durationSeconds || source.durationTime || source.duration_time) || 0;
+  const size = Number(source.size || source.fileSize || source.file_size || source.data_size) || 0;
+  const meta = [
+    sceneIndex >= 0 ? `分镜 ${sceneIndex + 1}` : '',
+    type === 'video' ? `视频${duration ? ` · ${formatDuration(duration)}` : ''}` : '图片',
+    size ? formatFileSize(size) : '',
+  ].filter(Boolean).join(' · ');
+
+  return {
+    id: videoText(source.id, source.materialId, source.material_id, source.fileId, source.file_id, url, `detail-material-${sceneIndex}-${index}`),
+    title,
+    type,
+    url,
+    previewUrl: type === 'video' ? getVideoFrameUrl(url) : url,
+    meta,
+  };
+};
+
+const getVideoDetailMaterials = (video = {}) => {
+  const payload = getCreatorPayloadObject(
+    video.payload_json,
+    video.payloadJson,
+    video.productionPayload,
+    video.production_payload,
+    video.draft_payload,
+    video.draftPayload,
+    video.request_payload,
+    video.requestPayload,
+    video.shanjianData,
+    video.shanjian_data,
+    video.payload,
+    video,
+  );
+  const scenes = getCreatorSceneDraftList(payload.sceneList, payload.scene_list, payload.scenes, payload);
+  const sceneMaterials = scenes.flatMap((scene, sceneIndex) =>
+    getCreatorDirectSceneMaterials(scene)
+      .map((material, materialIndex) => normalizeVideoDetailMaterial(material, materialIndex, sceneIndex))
+      .filter((material) => material.url),
+  );
+  const source = sceneMaterials.length ? [] : getCreatorMaterialsJsonList(
+    video.materials_json,
+    video.materialsJson,
+    video.materials,
+    video.materialList,
+    video.material_list,
+    video.selectedMaterials,
+    video.selected_materials,
+    video.clipMaterials,
+    video.clip_materials,
+    payload.materials,
+    payload.materialList,
+    payload.material_list,
+    payload,
+    video,
+  );
+  const directMaterials = source
+    .map((material, index) => normalizeVideoDetailMaterial(material, index))
+    .filter((material) => material.url);
+  const seen = new Set();
+  return [...sceneMaterials, ...directMaterials].filter((material) => {
+    const key = `${material.type}:${material.url}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 };
 
 const getVideoHasMore = (result, page, list) => {
@@ -3973,6 +4046,7 @@ function VideoStudioPage({ authVersion, onLogin, onNewVideo }) {
 
   if (view === 'detail') {
     const video = selectedVideo;
+    const detailMaterials = video?.detailMaterials || [];
     return (
       <div className="video-studio-page video-detail-page">
         <header className="video-detail-toolbar">
@@ -4005,6 +4079,27 @@ function VideoStudioPage({ authVersion, onLogin, onNewVideo }) {
               </dl>
               {video.failureReason && <div className="video-failure"><strong>制作失败</strong><p>{video.failureReason}</p></div>}
               <section className="video-script-card"><span>VIDEO SCRIPT</span><h2>文案</h2><p>{video.script || '暂无文案'}</p></section>
+              {detailMaterials.length > 0 && <section className="video-detail-materials">
+                <div className="video-detail-section-head"><span>VIDEO MATERIALS</span><h2>素材</h2><em>{detailMaterials.length} 个</em></div>
+                <div className="video-detail-material-grid">
+                  {detailMaterials.map((material) => (
+                    <button type="button" key={material.id} className="video-detail-material-card" onClick={() => window.open(material.url, '_blank', 'noopener,noreferrer')}>
+                      <span className="video-detail-material-card__media">
+                        {material.previewUrl ? (
+                          material.type === 'video' ? <video src={material.url} poster={material.previewUrl} muted playsInline preload="metadata" /> : <img src={material.previewUrl} alt="" loading="lazy" />
+                        ) : (
+                          material.type === 'video' ? <Play size={24} /> : <Image size={24} />
+                        )}
+                        {material.type === 'video' && <em><Play size={14} fill="currentColor" /></em>}
+                      </span>
+                      <span className="video-detail-material-card__body">
+                        <strong>{material.title}</strong>
+                        <small>{material.meta}</small>
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </section>}
             </div>
           </section>
         ) : <div className="video-empty-state"><Video size={38} /><strong>没有找到视频详情</strong><button className="primary-button" onClick={() => setView('list')}>返回视频列表</button></div>}
