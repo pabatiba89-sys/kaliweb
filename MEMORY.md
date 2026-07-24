@@ -135,3 +135,4 @@
 - 2026-07-18：帮助中心视觉可参考闪剪智能成片 demo 的“文案 -> 素材 -> 数字人/样式 -> 生成检查”流程演示节奏，但不要默认直接复制对方视频或素材；未确认授权时使用项目自有素材和重新设计的 UI 演示块。
 - 2026-07-16：海外 Billing 页套餐列表不能只依赖 DOM 静态翻译；接口返回的中文套餐名和额度单位需在显示层映射为英文源词，再用 `translateStatic` + 当前语言包本地化。新增套餐相关词条应写入 `scripts/localization-overrides.mjs` 后运行 `npm run i18n:generate -- --apply-overrides` 同步 24 个工作台语言包。
 - 2026-07-16：Evonet 支付先只接单次支付，不做订阅。前端 Billing 页通过 `POST /api/pay/evonet/create_session` 创建 Drop-in session，请求体为 `plan_id`、可选 `email`、`currency`；响应从 `data.pay_params.sessionID/sessionID` 和 `data.sdk_environment/pay_params.environment` 初始化 Drop-in。Drop-in 回调只调用 `POST /api/pay/evonet/sync`，提交 `order_no + payload`。`POST /api/pay/evonet/webhook` 只给 Evonet 调用，成功返回纯文本 `SUCCESS`，只有 webhook 会把订单改成已支付并发放套餐；Evonet `KeyID`/`SignKey`、`POST /interaction`、订单落库和套餐生效都必须在后端处理。
+- 2026-07-24：文案生成结果进入视频制作时必须新开工作台页面；点击制作按钮先写入 `mix_video_production_prefill_draft`，再打开 `/app/?page=video&creator=prefill`，新页面启动时读取本地预填草稿并自动进入对应制作模式。

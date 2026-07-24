@@ -8119,7 +8119,37 @@ const NOTIFICATION_POLL_MS = 60 * 1000;
 const getInitialWorkspacePage = () => {
   if (typeof window === 'undefined') return 'home';
   const page = new URLSearchParams(window.location.search).get('page');
-  return page === 'password-reset' ? 'password-reset' : 'home';
+  if (page === 'password-reset') return 'password-reset';
+  if (page === 'video') return 'video';
+  return 'home';
+};
+
+const isInitialVideoCreatorRequest = () => {
+  if (typeof window === 'undefined') return false;
+  const params = new URLSearchParams(window.location.search);
+  return params.get('page') === 'video' && params.get('creator') === 'prefill';
+};
+
+const getStoredVideoCreatorType = () => {
+  if (typeof window === 'undefined') return 'oral';
+  try {
+    const draft = JSON.parse(window.localStorage.getItem(VIDEO_PREFILL_KEY) || '{}');
+    const storedProductionType = inferCreatorProductionType(
+      draft.payload_json,
+      draft.payloadJson,
+      draft.detail?.payload_json,
+      draft.detail?.payloadJson,
+      draft.materials_json,
+      draft.materialsJson,
+      draft.detail?.materials_json,
+      draft.detail?.materialsJson,
+      draft,
+      draft.detail,
+    ) || draft.productionType || draft.production_type || draft.detail?.productionType || draft.detail?.production_type || '';
+    return VIDEO_PRODUCTION_TYPES[storedProductionType] ? storedProductionType : 'oral';
+  } catch {
+    return 'oral';
+  }
 };
 
 const getNotificationDateValue = (raw = {}) => pick(
@@ -8341,13 +8371,14 @@ function useTaskNotifications({ authed, authVersion }) {
 }
 
 export default function App() {
+  const initialVideoCreatorOpen = isInitialVideoCreatorRequest();
   const [language, setLanguage] = useState(getInitialLocale);
-  const [active, setActive] = useState(getInitialWorkspacePage);
+  const [active, setActive] = useState(() => (initialVideoCreatorOpen ? 'video' : getInitialWorkspacePage()));
   const [collapsed, setCollapsed] = useState(false);
   const [mobileNav, setMobileNav] = useState(false);
-  const [videoCreatorOpen, setVideoCreatorOpen] = useState(false);
-  const [videoCreatorPrefill, setVideoCreatorPrefill] = useState(false);
-  const [videoCreatorType, setVideoCreatorType] = useState('oral');
+  const [videoCreatorOpen, setVideoCreatorOpen] = useState(initialVideoCreatorOpen);
+  const [videoCreatorPrefill, setVideoCreatorPrefill] = useState(initialVideoCreatorOpen);
+  const [videoCreatorType, setVideoCreatorType] = useState(() => (initialVideoCreatorOpen ? getStoredVideoCreatorType() : 'oral'));
   const [videoCreatorReturn, setVideoCreatorReturn] = useState({ active: 'video', generator: null });
   const [loginOpen, setLoginOpen] = useState(false);
   const [passwordResetEmail, setPasswordResetEmail] = useState('');
@@ -8431,6 +8462,12 @@ export default function App() {
     setVideoCreatorOpen(true);
     setActive('video');
     setMobileNav(false);
+  };
+  const openVideoCreatorPage = () => {
+    const url = new URL(window.location.href);
+    url.searchParams.set('page', 'video');
+    url.searchParams.set('creator', 'prefill');
+    window.open(url.toString(), '_blank', 'noopener,noreferrer');
   };
   const closeVideoCreator = () => {
     setVideoCreatorOpen(false);
@@ -8520,7 +8557,7 @@ export default function App() {
                 useHotTopicFlow={assistantUsesHotTopic}
                 onBack={() => setGeneratorAgent(null)}
                 onLogin={() => setLoginOpen(true)}
-                onMakeVideo={() => openVideoCreator({ prefill: true, returnTo: 'generator' })}
+                onMakeVideo={openVideoCreatorPage}
                 onMakeMusic={() => {
                   setGeneratorAgent(null);
                   setActive('music');
