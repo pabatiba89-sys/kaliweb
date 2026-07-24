@@ -1475,8 +1475,13 @@ const normalizeHuman = (item = {}, index = 0) => {
   const status = normalizeStatus(pick(item.statusText, item.status_text, item.status, item.train_status, item.trainStatus, item.task_status, item.taskStatus, item.state));
   const createdAt = pick(item.created_at, item.createdAt, item.create_time, item.createTime);
   const greenScreen = item.isGreenBg ?? item.is_green_bg;
+  const aihumanId = pick(item.aihuman_id, item.aihumanId, item.ai_human_id);
   return {
-    id: pick(item.aihumanId, item.aihuman_id, item.ai_human_id, item.humanId, item.human_id, item.taskId, item.task_id, item.id, `${index}`),
+    id: pick(aihumanId, item.humanId, item.human_id, item.taskId, item.task_id, item.id, `${index}`),
+    aihumanId,
+    aihuman_id: aihumanId,
+    aiHumanId: aihumanId,
+    ai_human_id: aihumanId,
     title: pick(item.custom_tag, item.name, item.title, item.aihumanName, item.aihuman_name, item.ai_human_name, item.humanName, item.human_name, item.virtualmanName, item.virtualman_name) || `数字人 ${index + 1}`,
     meta: [pick(item.gender, item.sex), greenScreen === true || greenScreen === 1 || greenScreen === '1' ? '绿幕形象' : '', createdAt].filter(Boolean).join(' · ') || (video ? '形象视频已上传' : '数字人形象'),
     cover,
@@ -4490,6 +4495,27 @@ const getCreatorObject = (value) => {
 
 const getCreatorFlag = (value) => value === true || value === 1 || ['1', 'true', 'yes', 'y'].includes(String(value || '').toLowerCase());
 
+const getCreatorHumanAihumanId = (human = {}) => {
+  const raw = videoObject(human.raw);
+  return videoText(
+    human.aihuman_id,
+    human.aihumanId,
+    human.aiHumanId,
+    human.ai_human_id,
+    raw.aihuman_id,
+    raw.aihumanId,
+    raw.aiHumanId,
+    raw.ai_human_id,
+    videoObject(raw.aihuman).aihuman_id,
+    videoObject(raw.aihuman).id,
+    videoObject(raw.aiHuman).aihuman_id,
+    videoObject(raw.aiHuman).id,
+    videoObject(raw.ai_human).aihuman_id,
+    videoObject(raw.ai_human).id,
+    human.id,
+  );
+};
+
 const normalizeCreatorPreset = (item = {}, index = 0) => {
   const voiceId = videoText(item.voiceId, item.voice_id, item.speakerId, item.speaker_id);
   const voiceTitle = videoText(item.voiceName, item.voice_name, item.speakerName, item.speaker_name);
@@ -5098,6 +5124,7 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
       };
       const musicVolume = Math.min(2, Math.max(0, Number(professionalOptions.bgmVolume) || 1));
       const backgroundMusic = { audioSwitch: Boolean(selected.music.audioUrl), audioUrl: selected.music.audioUrl || '', url: selected.music.audioUrl || '', volume: musicVolume };
+      const humanAihumanId = needsHuman ? getCreatorHumanAihumanId(selected.human) : '';
       const customMixcutScenes = submitScenes;
       const scriptContent = isCustomMixcut ? (form.script.trim() || sceneScriptContent) : form.script.trim();
       const customMixcutPackRules = {
@@ -5146,8 +5173,11 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
         Object.assign(shanjianData, {
           openapiPath: creatorConfig.openapiPath,
           shanjianEndpoint: creatorConfig.openapiPath,
-          virtualmanId: selected.human.id,
-          aiHumanId: selected.human.id,
+          virtualmanId: humanAihumanId,
+          aiHumanId: humanAihumanId,
+          aihumanId: humanAihumanId,
+          aihuman_id: humanAihumanId,
+          ai_human_id: humanAihumanId,
         });
       }
       const activeDraftPayload = activeDraftId ? {
@@ -5190,12 +5220,18 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
         } : {}),
       };
       if (needsHuman) {
-        shanjianData.aiHumanId = selected.human.id;
-        shanjianData.virtualmanId = selected.human.id;
+        shanjianData.aiHumanId = humanAihumanId;
+        shanjianData.aihumanId = humanAihumanId;
+        shanjianData.aihuman_id = humanAihumanId;
+        shanjianData.ai_human_id = humanAihumanId;
+        shanjianData.virtualmanId = humanAihumanId;
         Object.assign(payload, {
-          aiHumanId: selected.human.id,
+          aiHumanId: humanAihumanId,
+          aihumanId: humanAihumanId,
+          aihuman_id: humanAihumanId,
+          ai_human_id: humanAihumanId,
           aiHumanName: selected.human.title,
-          virtualmanId: selected.human.id,
+          virtualmanId: humanAihumanId,
           virtualmanName: selected.human.title,
         });
       }
