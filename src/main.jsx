@@ -7224,8 +7224,9 @@ const buildTypedPrompt = (prompt, type, agent = {}) => {
   }
   return [
     '请根据用户需求生成可直接进入视频制作的内容。',
-    '请严格按“标题：”“话题：”“文案：”三个段落输出。',
-    '话题使用简短主题或标签；文案给出可直接使用的完整正文。',
+    '请严格按“标题：”“话题：”“文案：”“分镜1：”“分镜2：”这样的纯文本段落输出。',
+    '话题使用简短主题或标签；文案可以是完整正文，正文必须同时拆成连续分镜。',
+    '每个分镜是一句可直接作为字幕的完整内容。',
     '不要输出 JSON、代码块、花括号或字段引号。',
     '',
     `用户需求：${prompt}`,
@@ -7489,7 +7490,7 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
       setLoading(false);
     }
   };
-  const makeVideo = (message, productionType) => {
+  const makeVideo = (message, productionType = 'professional') => {
     const result = message.script || parseGeneratedResult(message.text);
     const title = result.title || flow?.title || flow?.topic || 'AI 生成内容';
     const topic = result.topic || flow?.topic || '';
@@ -7576,8 +7577,7 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
                     </>
                   ) : (
                     <>
-                      <button className="is-smart" onClick={() => makeVideo(message, 'mix')}><Clapperboard size={16} />智能成片</button>
-                      <button className="is-oral" onClick={() => makeVideo(message, 'oral')}><UserRound size={16} />数字人口播</button>
+                      <button className="is-pro-broadcast" onClick={() => makeVideo(message)}><GalleryVerticalEnd size={16} />分镜制作</button>
                     </>
                   )}
                 </div>
