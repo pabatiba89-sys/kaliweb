@@ -5079,6 +5079,7 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
       let pendingMaterialIndex = 0;
       const prepareMaterial = async (material) => {
         let url = material.url || '';
+        const duration = Math.ceil(getCreatorMaterialDuration(material));
         if (material.file && !url) {
           pendingMaterialIndex += 1;
           setUploadProgress(`正在上传未完成素材 ${pendingMaterialIndex}/${pendingMaterialCount}…`);
@@ -5098,7 +5099,7 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
         }
         if (!url) throw new Error(`${material.title} 上传未返回地址`);
         const submitUrl = material.type === 'image' && !url.includes('imageView2/') ? `${url}${url.includes('?') ? '&' : '?'}imageView2/0/w/1980/h/1980/format/copy/ignore-error/1` : url;
-        return { type: material.type, fileUrl: submitUrl, soundSwitch: isCustomMixcut && material.type === 'video' };
+        return { type: material.type, fileUrl: submitUrl, duration, durationSeconds: duration, duration_seconds: duration, soundSwitch: isCustomMixcut && material.type === 'video' };
       };
       if (isCustomMixcut) {
         const validScenes = scenes.filter((scene) => scene.content.trim() || scene.materials?.length);
@@ -5107,7 +5108,7 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
           const sceneMaterials = [];
           for (let materialIndex = 0; materialIndex < (scene.materials || []).length; materialIndex += 1) {
             const prepared = await prepareMaterial(scene.materials[materialIndex]);
-            sceneMaterials.push({ fileUrl: prepared.fileUrl, soundSwitch: Boolean(prepared.soundSwitch) });
+            sceneMaterials.push({ fileUrl: prepared.fileUrl, duration: prepared.duration, durationSeconds: prepared.duration, duration_seconds: prepared.duration, soundSwitch: Boolean(prepared.soundSwitch) });
             submitMaterials.push(prepared);
           }
           submitScenes.push({ captions: { content: scene.content.trim() }, materials: sceneMaterials });
