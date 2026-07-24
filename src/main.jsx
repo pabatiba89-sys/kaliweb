@@ -3547,26 +3547,45 @@ const hasVideoAssignmentAccess = (data = {}) => {
 };
 
 const videoFailureReason = (...values) => {
-  for (const value of values) {
-    if (!value) continue;
-    if (typeof value === 'object') {
-      const nested = videoFailureReason(
-        value.failureReason,
-        value.failure_reason,
-        value.failReason,
-        value.fail_reason,
-        value.errorMessage,
-        value.error_message,
-        value.message,
-        value.msg,
-        value.detail,
-        value.error,
-      );
-      if (nested) return nested;
-      continue;
+  const read = (value, depth = 0) => {
+    if (!value || depth > 6) return '';
+    if (typeof value !== 'object') {
+      const text = String(value).trim();
+      return text && text !== '[object Object]' ? text : '';
     }
-    const text = String(value).trim();
-    if (text && text !== '[object Object]') return text;
+
+    const source = videoObject(value);
+    const direct = videoFailureReason(
+      source.failureReason,
+      source.failure_reason,
+      source.failReason,
+      source.fail_reason,
+      source.errorMessage,
+      source.error_message,
+      source.errorMsg,
+      source.error_msg,
+      source.errMsg,
+      source.reason,
+      source.reasonText,
+      source.reason_text,
+      source.statusReason,
+      source.status_reason,
+      source.remark,
+      source.note,
+    );
+    if (direct) return direct;
+
+    for (const key of ['error', 'detail', 'data', 'payload', 'response', 'result', 'raw', 'task', 'record', 'video', 'shanjianData', 'shanjian_data', 'callbackPayload', 'callback_payload']) {
+      const nested = read(source[key], depth + 1);
+      if (nested) return nested;
+    }
+
+    return videoFailureReason(source.message, source.msg);
+  };
+
+  for (const value of values) {
+    const reason = read(value);
+    if (reason) return reason;
   }
   return '';
 };
@@ -3941,7 +3960,7 @@ function VideoStudioPage({ authVersion, onLogin, onNewVideo }) {
     const result = await apiFetch('/api/video-mix/detail', { params: { id: detailId }, timeoutMs: 12000 });
     if (result.ok) {
       const detail = getVideoDetailRecord(result);
-      const normalized = normalizeVideoRecord({ ...video.raw, ...detail, id: detail.id || video.id, taskId: detail.taskId || detail.task_id || video.taskId, title: detail.title || video.title });
+      const normalized = normalizeVideoRecord({ ...video.raw, ...detail, response: result.data || result.raw, id: detail.id || video.id, taskId: detail.taskId || detail.task_id || video.taskId, title: detail.title || video.title });
       setSelectedVideo(normalized);
       setVideos((current) => current.map((item) => (item.id === video.id ? normalized : item)));
       if (refresh) setActionMessage('详情已刷新');

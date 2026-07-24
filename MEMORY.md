@@ -138,3 +138,4 @@
 - 2026-07-24：文案生成结果进入视频制作时必须新开工作台页面；点击制作按钮先写入 `mix_video_production_prefill_draft`，再打开 `/app/?page=video&creator=prefill`，新页面启动时读取本地预填草稿并自动进入对应制作模式。
 - 2026-07-24：视频制作页重新选择数字人后，提交给后端的数字人业务 ID 必须优先使用资源返回的 `virtualman_id`（兼容 `virtualmanId`），为空时再使用 `aihuman_id`（兼容 `aihumanId/ai_human_id`）；不能用列表通用 `id` 或训练任务 ID 代替。提交体需同时带 `virtualmanId/aiHumanId/aihuman_id/ai_human_id` 别名。
 - 2026-07-24：视频制作提交素材时必须把素材时长一起传给后端；普通 `materials[]` 和 Pro `scenes[].materials[]` 都应包含秒数 `duration`，并兼容 `durationSeconds/duration_seconds` 别名。图片按 2 秒计，未知视频沿用当前校验兜底时长。
+- 2026-07-24：Video Studio 展示失败原因时要兼容后端任务字段 `remark/error_msg/errorMsg/reason/status_reason`，并下钻详情接口的 `data/payload/response/result/shanjianData`；不要只读 `fail_reason/failureReason/message`。
