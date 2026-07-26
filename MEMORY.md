@@ -140,3 +140,4 @@
 - 2026-07-24：视频制作提交素材时必须把素材时长一起传给后端；普通 `materials[]` 和 Pro `scenes[].materials[]` 都应包含秒数 `duration`，并兼容 `durationSeconds/duration_seconds` 别名。图片按 2 秒计，未知视频沿用当前校验兜底时长。
 - 2026-07-24：Video Studio 展示失败原因时要兼容后端任务字段 `remark/error_msg/errorMsg/reason/status_reason`，并下钻详情接口的 `data/payload/response/result/shanjianData`；不要只读 `fail_reason/failureReason/message`。
 - 2026-07-24：文案生成结果跳转视频制作时，普通非音乐文案默认进入分镜制作（形象播报 Pro / `productionType=professional`），提示词也应输出“分镜1/分镜2”以便预填分镜；不要默认跳旧的数字人口播或智能成片。
+- 2026-07-26：视频制作素材时长必须出现在所有可能被后端保存的字段中：顶层 `materials/materialList/materialsJson`、`shanjianData.materials`、Pro `scenes/sceneList/scene_list[].materials`，且每个素材同时带 `duration/durationSeconds/duration_seconds`；只放顶层 `materials` 可能被后端清洗或落库路径丢掉。

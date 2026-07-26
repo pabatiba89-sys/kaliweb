@@ -4602,6 +4602,16 @@ const hydrateCreatorPresetVoice = (preset, voices) => {
 
 const getCreatorMaterialDuration = (item = {}) => item.type === 'image' ? 2 : Number(item.duration) || MAX_VIDEO_DURATION;
 
+const withCreatorMaterialDurationFields = (material = {}) => {
+  const duration = Math.ceil(Number(material.duration || material.durationSeconds || material.duration_seconds) || 0);
+  return {
+    ...material,
+    duration,
+    durationSeconds: duration,
+    duration_seconds: duration,
+  };
+};
+
 function VideoCreatorDialog({ type, titleOverride, options, selected, loading, hasMore, loadingMore, loadMessage, onClose, onSelect, onLoadMore }) {
   const config = VIDEO_CREATOR_RESOURCE_CONFIG[type];
   const title = titleOverride || config?.title;
@@ -5135,7 +5145,7 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
         }
         if (!url) throw new Error(`${material.title} 上传未返回地址`);
         const submitUrl = material.type === 'image' && !url.includes('imageView2/') ? `${url}${url.includes('?') ? '&' : '?'}imageView2/0/w/1980/h/1980/format/copy/ignore-error/1` : url;
-        return { type: material.type, fileUrl: submitUrl, duration, durationSeconds: duration, duration_seconds: duration, soundSwitch: isCustomMixcut && material.type === 'video' };
+        return withCreatorMaterialDurationFields({ type: material.type, fileUrl: submitUrl, url: submitUrl, duration, soundSwitch: isCustomMixcut && material.type === 'video' });
       };
       if (isCustomMixcut) {
         const validScenes = scenes.filter((scene) => scene.content.trim() || scene.materials?.length);
@@ -5144,7 +5154,7 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
           const sceneMaterials = [];
           for (let materialIndex = 0; materialIndex < (scene.materials || []).length; materialIndex += 1) {
             const prepared = await prepareMaterial(scene.materials[materialIndex]);
-            sceneMaterials.push({ fileUrl: prepared.fileUrl, duration: prepared.duration, durationSeconds: prepared.duration, duration_seconds: prepared.duration, soundSwitch: Boolean(prepared.soundSwitch) });
+            sceneMaterials.push(withCreatorMaterialDurationFields({ fileUrl: prepared.fileUrl, url: prepared.fileUrl, type: prepared.type, soundSwitch: Boolean(prepared.soundSwitch), duration: prepared.duration }));
             submitMaterials.push(prepared);
           }
           submitScenes.push({ captions: { content: scene.content.trim() }, materials: sceneMaterials });
@@ -5201,6 +5211,8 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
         Object.assign(shanjianData, {
           endpoint: creatorConfig.endpoint,
           scenes: customMixcutScenes,
+          sceneList: customMixcutScenes,
+          scene_list: customMixcutScenes,
           packRules: customMixcutPackRules,
           processRules: customMixcutProcessRules,
           structLayers: customMixcutStructLayers,
@@ -5235,7 +5247,8 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
         cover: coverUrl, coverUrl, voiceId: selected.voice.id, voiceName: selected.voice.title, speakerId: selected.voice.id,
         speakerExtra, speaker_extra: speakerExtra, coverTemplateId: selected.coverTemplate.id, coverTemplateName: selected.coverTemplate.title,
         videoTemplateId: selected.videoTemplate.id, videoTemplateName: selected.videoTemplate.title, scene: productionScene, templateScene,
-        materials: submitMaterials, is_draft: Boolean(isDraft), bgmusic: { url: selected.music.audioUrl || '' }, shanjianData,
+        materials: submitMaterials, materialList: submitMaterials, material_list: submitMaterials, materialsJson: submitMaterials, materials_json: submitMaterials,
+        is_draft: Boolean(isDraft), bgmusic: { url: selected.music.audioUrl || '' }, shanjianData,
         ...(creatorConfig.endpoint ? { endpoint: creatorConfig.endpoint } : {}),
         ...activeDraftPayload,
         ...(isCustomMixcut ? {
@@ -5247,6 +5260,8 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
           productionType: creatorConfig.key,
           production_type: creatorConfig.key,
           scenes: customMixcutScenes,
+          sceneList: customMixcutScenes,
+          scene_list: customMixcutScenes,
           packRules: customMixcutPackRules,
           processRules: customMixcutProcessRules,
           structLayers: customMixcutStructLayers,
