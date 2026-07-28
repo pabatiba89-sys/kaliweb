@@ -1758,5 +1758,21 @@
   "Use WeChat to scan the code and select the credit package in the Mini Program.": "Χρησιμοποιήστε το WeChat για να σαρώσετε τον κωδικό και να επιλέξετε το πακέτο πίστωσης στο Μίνι Πρόγραμμα.",
   "WeChat Mini Program": "Πρόγραμμα WeChat Mini",
   "WeChat Mini Program code": "Κωδικός προγράμματος WeChat Mini",
-  "About {{count}} 30-second videos": "Σχετικά με {{count}} βίντεο 30 δευτερολέπτων"
+  "About {{count}} 30-second videos": "Σχετικά με {{count}} βίντεο 30 δευτερολέπτων",
+  "&body=": "&σώμα=",
+  "Amount:": "Ποσό:",
+  "Hello Kali support,": "Γεια Kali υποστήριξη,",
+  "I would like to request a refund review.": "Θα ήθελα να ζητήσω επανεξέταση επιστροφής χρημάτων.",
+  "Opens your email app with the order details filled in.": "Ανοίγει την εφαρμογή email με συμπληρωμένα τα στοιχεία της παραγγελίας.",
+  "Order number:": "Κωδικός αριθμός:",
+  "Payment channel:": "Κανάλι πληρωμής:",
+  "Payment date:": "Ημερομηνία πληρωμής:",
+  "Please review this request against the payment and usage records.": "Ελέγξτε αυτό το αίτημα σε σχέση με τα αρχεία πληρωμής και χρήσης.",
+  "Reason:": "Αιτιολόγηση:",
+  "Refund available until": "Η επιστροφή χρημάτων είναι διαθέσιμη μέχρι",
+  "Refund request -": "Αίτημα επιστροφής χρημάτων -",
+  "Refund request period ended": "Η περίοδος αιτήματος επιστροφής χρημάτων έληξε",
+  "Refund requests are available within one month of payment and are reviewed before approval.": "Τα αιτήματα επιστροφής χρημάτων είναι διαθέσιμα εντός ενός μηνός από την πληρωμή και εξετάζονται πριν από την έγκριση.",
+  "Request refund": "Αίτημα επιστροφής χρημάτων",
+  "This order is outside the one-month refund request window.": "Αυτή η παραγγελία βρίσκεται εκτός του παραθύρου αιτήματος επιστροφής χρημάτων ενός μήνα."
 }

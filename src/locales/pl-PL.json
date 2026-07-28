@@ -1690,5 +1690,20 @@
   "The package and price shown in the Mini Program are final.": "Pakiet i cena pokazane w Mini Programie są ostateczne.",
   "Use WeChat to scan the code and select the credit package in the Mini Program.": "Użyj WeChat, aby zeskanować kod i wybrać pakiet kredytowy w Mini Programie.",
   "WeChat Mini Program code": "Kod programu WeChat Mini",
-  "About {{count}} 30-second videos": "Około {{count}} 30-sekundowych filmów"
+  "About {{count}} 30-second videos": "Około {{count}} 30-sekundowych filmów",
+  "Amount:": "Ilość:",
+  "Hello Kali support,": "Witam Kali wsparcie,",
+  "I would like to request a refund review.": "Chciałbym poprosić o przegląd zwrotu pieniędzy.",
+  "Opens your email app with the order details filled in.": "Otwiera aplikację mailową z wypełnionymi szczegółami zamówienia.",
+  "Order number:": "Numer zamówienia:",
+  "Payment channel:": "Kanał płatności:",
+  "Payment date:": "Data płatności:",
+  "Please review this request against the payment and usage records.": "Prosimy o przejrzenie tego wniosku w porównaniu z dokumentacją płatności i użytkowania.",
+  "Reason:": "Powód:",
+  "Refund available until": "Zwrot jest dostępny do czasu",
+  "Refund request -": "Prośba o zwrot pieniędzy -",
+  "Refund request period ended": "Okres wniosków o zwrot pieniędzy zakończył się",
+  "Refund requests are available within one month of payment and are reviewed before approval.": "Wnioski o zwrot są dostępne w ciągu miesiąca od płatności i są rozpatrywane przed zatwierdzeniem.",
+  "Request refund": "Prośba o zwrot pieniędzy",
+  "This order is outside the one-month refund request window.": "To zamówienie jest poza miesięcznym okresem wniosku o zwrot pieniędzy."
 }

@@ -1734,5 +1734,20 @@
   "WeChat Mini Program": "WeChatミニプログラム",
   "WeChat Mini Program code": "WeChat ミニプログラムコード",
   "zh-TW": "ツッ・トゥ",
-  "About {{count}} 30-second videos": "約{{count}} 30秒の動画"
+  "About {{count}} 30-second videos": "約{{count}} 30秒の動画",
+  "Amount:": "金額:",
+  "Hello Kali support,": "サポートKali皆さん、こんにちは。",
+  "I would like to request a refund review.": "返金の審査をお願いしたいです。",
+  "Opens your email app with the order details filled in.": "注文情報を入力したメールアプリを開きます。",
+  "Order number:": "注文番号:",
+  "Payment channel:": "支払いチャネル:",
+  "Payment date:": "支払い日:",
+  "Please review this request against the payment and usage records.": "このリクエストは支払いおよび使用記録と照合してご確認ください。",
+  "Reason:": "理由:",
+  "Refund available until": "返金は",
+  "Refund request -": "返金申請 -",
+  "Refund request period ended": "返金申請期間終了",
+  "Refund requests are available within one month of payment and are reviewed before approval.": "返金申請は支払い後1か月以内に受け付け、承認前に審査されます。",
+  "Request refund": "返金を申請する",
+  "This order is outside the one-month refund request window.": "この注文は1か月の返金申請期間外です。"
 }

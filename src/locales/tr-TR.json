@@ -1691,5 +1691,20 @@
   "Use WeChat to scan the code and select the credit package in the Mini Program.": "Mini Program'da kodu taramak ve kredi paketini seçmek için WeChat kullanın.",
   "WeChat Mini Program": "WeChat Mini Programı",
   "WeChat Mini Program code": "WeChat Mini Program Kodu",
-  "About {{count}} 30-second videos": "30 saniyelik {{count}} video hakkında"
+  "About {{count}} 30-second videos": "30 saniyelik {{count}} video hakkında",
+  "Amount:": "Miktar:",
+  "Hello Kali support,": "Merhaba Kali destek,",
+  "I would like to request a refund review.": "Geri ödeme incelemesi talep etmek istiyorum.",
+  "Opens your email app with the order details filled in.": "Sipariş bilgilerini doldurarak e-posta uygulamanızı açar.",
+  "Order number:": "Sipariş numarası:",
+  "Payment channel:": "Ödeme kanalı:",
+  "Payment date:": "Ödeme tarihi:",
+  "Please review this request against the payment and usage records.": "Lütfen bu talebi ödeme ve kullanım kayıtlarıyla karşılaştırın.",
+  "Reason:": "Sebep:",
+  "Refund available until": "İade mevcut",
+  "Refund request -": "İade talebi -",
+  "Refund request period ended": "İade talebi süresi sona erdi",
+  "Refund requests are available within one month of payment and are reviewed before approval.": "İade talepleri ödemeden sonraki bir ay içinde sunulur ve onaydan önce incelenir.",
+  "Request refund": "İade talebinde bulun",
+  "This order is outside the one-month refund request window.": "Bu sipariş, bir aylık iade talebi süresinin dışında."
 }

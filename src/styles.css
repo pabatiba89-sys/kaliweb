@@ -6159,6 +6159,66 @@ video.media-preview {
   text-align: right;
 }
 
+.billing-refund-panel {
+  margin-top: 16px;
+  padding: 14px;
+  border: 1px solid #bfe5d8;
+  border-radius: 14px;
+  background: #f0faf6;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.billing-refund-panel > div {
+  min-width: 0;
+}
+
+.billing-refund-panel strong {
+  color: var(--green-dark);
+  font-size: 14px;
+}
+
+.billing-refund-panel p {
+  margin: 5px 0 0;
+  color: var(--ink-soft);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.billing-refund-panel small {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.billing-refund-panel > a {
+  flex: 0 0 auto;
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 11px;
+  background: var(--green);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 850;
+  text-decoration: none;
+}
+
+.billing-refund-panel.is-expired {
+  border-color: #e2e9e7;
+  background: #f7f9f8;
+}
+
+.billing-refund-panel.is-expired strong,
+.billing-refund-panel.is-expired p {
+  color: var(--muted);
+}
+
 .payment-modal-backdrop {
   position: fixed;
   inset: 0;
@@ -6706,6 +6766,15 @@ video.media-preview {
   }
 
   .billing-record-filters > button {
+    width: 100%;
+  }
+
+  .billing-refund-panel {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .billing-refund-panel > a {
     width: 100%;
   }
 

@@ -1674,5 +1674,20 @@
   "Use WeChat to scan the code and select the credit package in the Mini Program.": "Gebruik WeChat om de code te scannen en selecteer het kredietpakket in het Mini-programma.",
   "WeChat Mini Program": "WeChat Mini-programma",
   "WeChat Mini Program code": "WeChat Mini Programcode",
-  "About {{count}} 30-second videos": "Ongeveer {{count}} video's van 30 seconden"
+  "About {{count}} 30-second videos": "Ongeveer {{count}} video's van 30 seconden",
+  "Amount:": "Hoeveelheid:",
+  "Hello Kali support,": "Hallo Kali support,",
+  "I would like to request a refund review.": "Ik wil graag een herziening van mijn terugbetaling aanvragen.",
+  "Opens your email app with the order details filled in.": "Opent je e-mailapp met de bestelgegevens ingevuld.",
+  "Order number:": "Bestelnummer:",
+  "Payment channel:": "Betalingskanaal:",
+  "Payment date:": "Betaaldatum:",
+  "Please review this request against the payment and usage records.": "Controleer dit verzoek alstublieft aan de hand van de betalings- en gebruiksgegevens.",
+  "Reason:": "Reden:",
+  "Refund available until": "Terugbetaling beschikbaar tot",
+  "Refund request -": "Verzoek tot terugbetaling -",
+  "Refund request period ended": "Periode voor terugbetalingsaanvraag beëindigd",
+  "Refund requests are available within one month of payment and are reviewed before approval.": "Terugbetalingsverzoeken zijn binnen een maand na betaling beschikbaar en worden beoordeeld voordat goedkeuring wordt goedgekeurd.",
+  "Request refund": "Verzoek om terugbetaling",
+  "This order is outside the one-month refund request window.": "Deze bestelling valt buiten het termijn van een maand voor terugbetalingsaanvraag."
 }

@@ -878,5 +878,20 @@
   "WeChat Mini Program": "微信小程序",
   "WeChat Mini Program code": "微信小程序码",
   "zh-TW": "真是太棒了",
-  "About {{count}} 30-second videos": "约可制作 {{count}} 条 30 秒视频"
+  "About {{count}} 30-second videos": "约可制作 {{count}} 条 30 秒视频",
+  "Amount:": "数量：",
+  "Hello Kali support,": "你好，Kali客服，",
+  "I would like to request a refund review.": "我想申请退款审核。",
+  "Opens your email app with the order details filled in.": "将打开邮箱，并自动填入订单信息。",
+  "Order number:": "订单编号：",
+  "Payment channel:": "支付渠道：",
+  "Payment date:": "付款日期：",
+  "Please review this request against the payment and usage records.": "请将此请求与支付和使用记录进行核对。",
+  "Reason:": "原因：",
+  "Refund available until": "可申请退款至",
+  "Refund request -": "退款申请 -",
+  "Refund request period ended": "退款申请期已结束",
+  "Refund requests are available within one month of payment and are reviewed before approval.": "支付后一个月内可提交退款申请，申请需审核后确认。",
+  "Request refund": "申请退款",
+  "This order is outside the one-month refund request window.": "该订单已超过一个月退款申请期限。"
 }

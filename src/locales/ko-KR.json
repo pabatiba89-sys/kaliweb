@@ -1758,5 +1758,20 @@
   "WeChat Mini Program": "위챗 미니프로그램",
   "WeChat Mini Program code": "위챗 미니 프로그램 코드",
   "zh-TW": "zh-tw",
-  "About {{count}} 30-second videos": "약 {{count}} 개의 30초 영상"
+  "About {{count}} 30-second videos": "약 {{count}} 개의 30초 영상",
+  "Amount:": "양:",
+  "Hello Kali support,": "안녕하세요, Kali 지원팀 여러분,",
+  "I would like to request a refund review.": "환불 검토를 요청하고 싶습니다.",
+  "Opens your email app with the order details filled in.": "주문 정보를 입력한 이메일 앱을 열면 됩니다.",
+  "Order number:": "주문 번호:",
+  "Payment channel:": "결제 채널:",
+  "Payment date:": "결제 날짜:",
+  "Please review this request against the payment and usage records.": "이 요청을 결제 및 사용 기록과 대조해 검토해 주시기 바랍니다.",
+  "Reason:": "이유:",
+  "Refund available until": "환불은 언제까지 가능합니다",
+  "Refund request -": "환불 요청 -",
+  "Refund request period ended": "환불 요청 기간이 종료되었습니다",
+  "Refund requests are available within one month of payment and are reviewed before approval.": "환불 요청은 결제 후 한 달 이내에 가능하며, 승인 전에 검토를 거칩니다.",
+  "Request refund": "환불 요청",
+  "This order is outside the one-month refund request window.": "이 주문은 한 달 환불 요청 기간을 초과한 것입니다."
 }

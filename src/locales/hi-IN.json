@@ -1788,5 +1788,21 @@
   "WeChat Mini Program": "WeChat मिनी प्रोग्राम",
   "WeChat Mini Program code": "WeChat मिनी प्रोग्राम कोड",
   "zh-TW": "जेड-टीडब्ल्यू",
-  "About {{count}} 30-second videos": "लगभग {{count}} 30 सेकंड के वीडियो"
+  "About {{count}} 30-second videos": "लगभग {{count}} 30 सेकंड के वीडियो",
+  "&body=": "&शरीर =",
+  "Amount:": "कुल धनराशि:",
+  "Hello Kali support,": "समर्थन Kali नमस्ते,",
+  "I would like to request a refund review.": "मैं धनवापसी समीक्षा का अनुरोध करना चाहता हूं।",
+  "Opens your email app with the order details filled in.": "भरे गए ऑर्डर विवरण के साथ अपना ईमेल ऐप खोलता है।",
+  "Order number:": "आदेश संख्या:",
+  "Payment channel:": "भुगतान चैनल:",
+  "Payment date:": "भुगतान तिथि:",
+  "Please review this request against the payment and usage records.": "कृपया भुगतान और उपयोग रिकॉर्ड के विरुद्ध इस अनुरोध की समीक्षा करें।",
+  "Reason:": "कारण:",
+  "Refund available until": "धनवापसी तब तक उपलब्ध है जब तक",
+  "Refund request -": "धनवापसी अनुरोध -",
+  "Refund request period ended": "धनवापसी अनुरोध अवधि समाप्त हो गई",
+  "Refund requests are available within one month of payment and are reviewed before approval.": "धनवापसी अनुरोध भुगतान के एक महीने के भीतर उपलब्ध होते हैं और अनुमोदन से पहले उनकी समीक्षा की जाती है।",
+  "Request refund": "धनवापसी का अनुरोध करें",
+  "This order is outside the one-month refund request window.": "यह आदेश एक महीने की धनवापसी अनुरोध विंडो के बाहर है।"
 }

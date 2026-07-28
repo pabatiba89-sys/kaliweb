@@ -1702,5 +1702,20 @@
   "Use WeChat to scan the code and select the credit package in the Mini Program.": "Використовуйте WeChat, щоб відсканувати код і вибрати кредитний пакет у Mini Program.",
   "WeChat Mini Program": "Міні-програма WeChat",
   "WeChat Mini Program code": "Код програми WeChat Mini",
-  "About {{count}} 30-second videos": "Близько {{count}} 30-секундних відео"
+  "About {{count}} 30-second videos": "Близько {{count}} 30-секундних відео",
+  "Amount:": "Кількість:",
+  "Hello Kali support,": "Вітаю Kali підтримку,",
+  "I would like to request a refund review.": "Я хотів би попросити перевірку повернення коштів.",
+  "Opens your email app with the order details filled in.": "Відкриває додаток для електронної пошти з заповненими деталями замовлення.",
+  "Order number:": "Номер замовлення:",
+  "Payment channel:": "Платіжний канал:",
+  "Payment date:": "Дата оплати:",
+  "Please review this request against the payment and usage records.": "Будь ласка, перегляньте цей запит із записами про оплату та використання.",
+  "Reason:": "Причина:",
+  "Refund available until": "Повернення коштів доступне до",
+  "Refund request -": "Запит на повернення коштів -",
+  "Refund request period ended": "Період запиту на повернення коштів закінчився",
+  "Refund requests are available within one month of payment and are reviewed before approval.": "Запити на повернення коштів доступні протягом одного місяця після оплати і переглядаються перед затвердженням.",
+  "Request refund": "Запитати повернення коштів",
+  "This order is outside the one-month refund request window.": "Це замовлення виходить за межі місячного вікна запиту на повернення коштів."
 }

@@ -1713,5 +1713,21 @@
   "Use WeChat to scan the code and select the credit package in the Mini Program.": "Usa WeChat para escanear el código y seleccionar el paquete de créditos en el Mini Programa.",
   "WeChat Mini Program": "Programa Mini de WeChat",
   "WeChat Mini Program code": "Código del programa WeChat Mini",
-  "About {{count}} 30-second videos": "Unos {{count}} vídeos de 30 segundos"
+  "About {{count}} 30-second videos": "Unos {{count}} vídeos de 30 segundos",
+  "&body=": "&cuerpo=",
+  "Amount:": "Importe:",
+  "Hello Kali support,": "Hola Kali soporte,",
+  "I would like to request a refund review.": "Quisiera solicitar una revisión de reembolso.",
+  "Opens your email app with the order details filled in.": "Abre tu aplicación de correo electrónico con los detalles del pedido rellenados.",
+  "Order number:": "Número de pedido:",
+  "Payment channel:": "Canal de pago:",
+  "Payment date:": "Fecha de pago:",
+  "Please review this request against the payment and usage records.": "Por favor, revisa esta solicitud en relación con los registros de pago y uso.",
+  "Reason:": "Motivo:",
+  "Refund available until": "Reembolso disponible hasta",
+  "Refund request -": "Solicitud de reembolso -",
+  "Refund request period ended": "Finalizado el periodo de solicitud de reembolso",
+  "Refund requests are available within one month of payment and are reviewed before approval.": "Las solicitudes de reembolso están disponibles dentro del mes siguiente al pago y se revisan antes de la aprobación.",
+  "Request refund": "Solicitar reembolso",
+  "This order is outside the one-month refund request window.": "Este pedido está fuera del plazo de solicitud de reembolso de un mes."
 }

@@ -1758,5 +1758,20 @@
   "Use WeChat to scan the code and select the credit package in the Mini Program.": "Sử dụng WeChat để quét mã và chọn gói tín dụng trong Chương trình Mini.",
   "WeChat Mini Program": "Chương trình WeChat Mini",
   "WeChat Mini Program code": "Mã WeChat Mini Program",
-  "About {{count}} 30-second videos": "Khoảng {{count}} video 30 giây"
+  "About {{count}} 30-second videos": "Khoảng {{count}} video 30 giây",
+  "Amount:": "Số tiền:",
+  "Hello Kali support,": "Xin chào Kali hỗ trợ,",
+  "I would like to request a refund review.": "Tôi muốn yêu cầu xem xét hoàn tiền.",
+  "Opens your email app with the order details filled in.": "Mở ứng dụng email của bạn với thông tin đơn hàng đã được điền.",
+  "Order number:": "Số đơn hàng:",
+  "Payment channel:": "Kênh thanh toán:",
+  "Payment date:": "Ngày thanh toán:",
+  "Please review this request against the payment and usage records.": "Vui lòng xem xét yêu cầu này so với hồ sơ thanh toán và sử dụng.",
+  "Reason:": "Lý do:",
+  "Refund available until": "Hoàn tiền có thể áp dụng cho đến khi",
+  "Refund request -": "Yêu cầu hoàn tiền -",
+  "Refund request period ended": "Thời gian yêu cầu hoàn tiền đã kết thúc",
+  "Refund requests are available within one month of payment and are reviewed before approval.": "Yêu cầu hoàn tiền có thể thực hiện trong vòng một tháng kể từ khi thanh toán và sẽ được xem xét trước khi được phê duyệt.",
+  "Request refund": "Yêu cầu hoàn tiền",
+  "This order is outside the one-month refund request window.": "Đơn hàng này nằm ngoài khung thời gian yêu cầu hoàn tiền trong một tháng."
 }

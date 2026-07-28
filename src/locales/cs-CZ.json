@@ -1687,5 +1687,20 @@
   "The package and price shown in the Mini Program are final.": "Balíček a cena uvedené v Mini programu jsou konečné.",
   "Use WeChat to scan the code and select the credit package in the Mini Program.": "Použijte WeChat ke skenování kódu a výběru kreditního balíčku v Mini programu.",
   "WeChat Mini Program code": "Kód programu WeChat Mini",
-  "About {{count}} 30-second videos": "Asi {{count}} 30sekundových videí"
+  "About {{count}} 30-second videos": "Asi {{count}} 30sekundových videí",
+  "Amount:": "Množství:",
+  "Hello Kali support,": "Dobrý den Kali podpora,",
+  "I would like to request a refund review.": "Chtěl bych požádat o přezkoumání refundace.",
+  "Opens your email app with the order details filled in.": "Otevře si e-mailovou aplikaci s vyplněnými detaily objednávky.",
+  "Order number:": "Číslo objednávky:",
+  "Payment channel:": "Platební kanál:",
+  "Payment date:": "Datum platby:",
+  "Please review this request against the payment and usage records.": "Prosím, zkontrolujte tuto žádost ve srovnání s platbami a záznamy o používání.",
+  "Reason:": "Důvod:",
+  "Refund available until": "Vrácení peněz je možné do té doby",
+  "Refund request -": "Žádost o vrácení peněz –",
+  "Refund request period ended": "Období žádostí o vrácení peněz skončilo",
+  "Refund requests are available within one month of payment and are reviewed before approval.": "Žádosti o vrácení peněz jsou dostupné do jednoho měsíce od platby a jsou před schválením přezkoumávány.",
+  "Request refund": "Požádat o vrácení peněz",
+  "This order is outside the one-month refund request window.": "Tato objednávka je mimo měsíční lhůtu pro žádost o vrácení peněz."
 }

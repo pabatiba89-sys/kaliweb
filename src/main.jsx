@@ -5485,11 +5485,19 @@ const getBillingPlans = (result = {}) => {
   }
   return [];
 };
+const parseBillingDate = (value) => {
+  if (!value) return null;
+  const numeric = Number(value);
+  const normalized = typeof value === 'string' && /^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}/.test(value)
+    ? value.replace(/\s+/, 'T')
+    : value;
+  const date = new Date(Number.isFinite(numeric) && numeric > 0 && numeric < 1000000000000 ? numeric * 1000 : normalized);
+  return Number.isNaN(date.getTime()) ? null : date;
+};
 const formatBillingDate = (value, locale = 'en-US') => {
   if (!value) return '';
-  const numeric = Number(value);
-  const date = new Date(Number.isFinite(numeric) && numeric > 0 && numeric < 1000000000000 ? numeric * 1000 : value);
-  if (Number.isNaN(date.getTime())) return textOf(value);
+  const date = parseBillingDate(value);
+  if (!date) return textOf(value);
   try {
     return new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'short', day: '2-digit' }).format(date);
   } catch {
@@ -5498,9 +5506,8 @@ const formatBillingDate = (value, locale = 'en-US') => {
 };
 const formatBillingDateTime = (value, locale = 'en-US') => {
   if (!value) return '';
-  const numeric = Number(value);
-  const date = new Date(Number.isFinite(numeric) && numeric > 0 && numeric < 1000000000000 ? numeric * 1000 : value);
-  if (Number.isNaN(date.getTime())) return textOf(value);
+  const date = parseBillingDate(value);
+  if (!date) return textOf(value);
   const options = { year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' };
   try {
     return new Intl.DateTimeFormat(locale, options).format(date);
@@ -5530,6 +5537,17 @@ const billingPlanNameMap = {
   企业版: 'Enterprise credits',
 };
 const getBillingPlanTitleSource = (title) => billingPlanNameMap[textOf(title)] || textOf(title);
+const getRefundDeadline = (value) => {
+  const paidAt = parseBillingDate(value);
+  if (!paidAt) return null;
+  const day = paidAt.getDate();
+  const deadline = new Date(paidAt);
+  deadline.setDate(1);
+  deadline.setMonth(deadline.getMonth() + 1);
+  const lastDay = new Date(deadline.getFullYear(), deadline.getMonth() + 1, 0).getDate();
+  deadline.setDate(Math.min(day, lastDay));
+  return deadline;
+};
 const formatCreditNumber = (value, locale = 'en-US') => {
   const number = billingNumber(value) || 0;
   try {
@@ -5612,9 +5630,11 @@ const normalizeBillingOrder = (record = {}, index = 0, plans = [], locale = 'en-
   const relatedPlan = plans.find((plan) => String(pick(plan.id, plan.plan_id, plan.planId)) === String(planId)) || embeddedPlan;
   const statusValue = pick(record.status, record.pay_status, record.payStatus, record.order_status, record.orderStatus);
   const refundValue = pick(record.refund_status, record.refundStatus);
-  const status = refundValue === 1 || refundValue === '1'
+  const isRefunded = refundValue === 1 || refundValue === '1' || /refunded|refund success|已退款/i.test(textOf(refundValue));
+  const isPaid = statusValue === 1 || statusValue === '1' || /paid|success|completed|已支付/i.test(textOf(statusValue));
+  const status = isRefunded
     ? 'Refunded'
-    : statusValue === 1 || statusValue === '1' || /paid|success|completed/i.test(textOf(statusValue))
+    : isPaid
       ? 'Completed'
       : statusValue === 2 || statusValue === '2' || /fail|cancel|closed/i.test(textOf(statusValue))
         ? 'Failed'
@@ -5640,6 +5660,9 @@ const normalizeBillingOrder = (record = {}, index = 0, plans = [], locale = 'en-
   };
   const channelSource = pick(record.pay_type_name, record.payTypeName, record.payment_channel, record.paymentChannel, record.channel, record.provider);
   const channel = channelMap[channelSource] || channelMap[payType] || channelSource || 'Other payment';
+  const paidAtValue = pick(record.pay_time, record.payTime, record.purchased_at, record.purchasedAt, record.created_at, record.createdAt);
+  const refundDeadline = getRefundDeadline(paidAtValue);
+  const canRequestRefund = Boolean(isPaid && !isRefunded && refundDeadline && refundDeadline.getTime() > Date.now());
 
   return {
     id: pick(record.id, record.order_id, record.orderId, record.order_no, record.orderNo, `order-${index}`),
@@ -5648,7 +5671,7 @@ const normalizeBillingOrder = (record = {}, index = 0, plans = [], locale = 'en-
     title: translateBilling(rawTitle ? getBillingPlanTitleSource(rawTitle) : 'Credit purchase', locale, catalog),
     credits: `${formatCreditNumber(credits, locale)} ${translateBilling('credits', locale, catalog)}`,
     amount: hasAmount ? formatBillingMoney(record, orderAmountKeys) : '—',
-    date: formatBillingDateTime(pick(record.pay_time, record.payTime, record.purchased_at, record.purchasedAt, record.created_at, record.createdAt), locale),
+    date: formatBillingDateTime(paidAtValue, locale),
     createdAt: formatBillingDateTime(pick(record.created_at, record.createdAt), locale),
     paidAt: formatBillingDateTime(pick(record.pay_time, record.payTime), locale),
     channel: translateBilling(channel, locale, catalog),
@@ -5660,6 +5683,9 @@ const normalizeBillingOrder = (record = {}, index = 0, plans = [], locale = 'en-
     description: pick(record.body, record.detail, record.description),
     statusKey: status.toLowerCase(),
     status: translateBilling(status, locale, catalog),
+    canRequestRefund,
+    refundDeadline: refundDeadline ? formatBillingDate(refundDeadline, locale) : '',
+    refundWindowExpired: Boolean(isPaid && !isRefunded && refundDeadline && !canRequestRefund),
     raw: record,
   };
 };
@@ -6060,6 +6086,25 @@ function OverseasBillingPage({ language, authVersion }) {
   const closeRecordDetail = () => {
     recordDetailRequestRef.current += 1;
     setRecordDetail(null);
+  };
+  const getRefundRequestLink = (order) => {
+    const refundText = (value) => translateBilling(value, language, localeCatalog);
+    const subject = `${refundText('Refund request -')} ${order.orderNo || order.id}`;
+    const body = [
+      refundText('Hello Kali support,'),
+      '',
+      refundText('I would like to request a refund review.'),
+      '',
+      `${refundText('Order number:')} ${order.orderNo || order.id}`,
+      `${refundText('Payment date:')} ${order.paidAt || order.date || refundText('Not available')}`,
+      `${refundText('Amount:')} ${order.amount || refundText('Not available')}`,
+      `${refundText('Payment channel:')} ${order.channel || refundText('Not available')}`,
+      '',
+      refundText('Reason:'),
+      '',
+      refundText('Please review this request against the payment and usage records.'),
+    ].join('\n');
+    return `mailto:feedback@xyaip.fun?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   };
   const openRecordDetail = async (kind, item) => {
     if (!item.detailId) return;
@@ -6474,11 +6519,31 @@ function OverseasBillingPage({ language, authVersion }) {
             ) : recordDetail.error ? (
               <div className="billing-message is-error"><AlertCircle size={18} /><span>{recordDetail.error}</span></div>
             ) : (
-              <dl className="billing-record-detail-list">
-                {detailRows.filter(([, value]) => value !== undefined && value !== null && value !== '').map(([label, value]) => (
-                  <div key={label}><dt>{label}</dt><dd>{value}</dd></div>
-                ))}
-              </dl>
+              <>
+                <dl className="billing-record-detail-list">
+                  {detailRows.filter(([, value]) => value !== undefined && value !== null && value !== '').map(([label, value]) => (
+                    <div key={label}><dt>{label}</dt><dd>{value}</dd></div>
+                  ))}
+                </dl>
+                {recordDetail.kind === 'payment' && recordDetail.item.canRequestRefund && (
+                  <section className="billing-refund-panel">
+                    <div>
+                      <strong>Refund available until {recordDetail.item.refundDeadline}</strong>
+                      <p>Refund requests are available within one month of payment and are reviewed before approval.</p>
+                      <small>Opens your email app with the order details filled in.</small>
+                    </div>
+                    <a href={getRefundRequestLink(recordDetail.item)}>Request refund</a>
+                  </section>
+                )}
+                {recordDetail.kind === 'payment' && recordDetail.item.refundWindowExpired && (
+                  <section className="billing-refund-panel is-expired">
+                    <div>
+                      <strong>Refund request period ended</strong>
+                      <p>This order is outside the one-month refund request window.</p>
+                    </div>
+                  </section>
+                )}
+              </>
             )}
           </section>
         </div>

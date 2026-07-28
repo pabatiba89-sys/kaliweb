@@ -1754,5 +1754,20 @@
   "Use WeChat to scan the code and select the credit package in the Mini Program.": "استخدم وي شات لمسح الرمز واختيار حزمة الائتمان في البرنامج المصغر.",
   "WeChat Mini Program": "برنامج وي تشات المصغر",
   "WeChat Mini Program code": "رمز برنامج WeChat المصغر",
-  "About {{count}} 30-second videos": "حوالي {{count}} فيديوهات مدتها 30 ثانية"
+  "About {{count}} 30-second videos": "حوالي {{count}} فيديوهات مدتها 30 ثانية",
+  "Amount:": "المبلغ:",
+  "Hello Kali support,": "مرحبا Kali الدعم،",
+  "I would like to request a refund review.": "أود طلب مراجعة استرداد المبلغ.",
+  "Opens your email app with the order details filled in.": "يفتح تطبيق البريد الإلكتروني الخاص بك مع تعبئة تفاصيل الطلب.",
+  "Order number:": "رقم الطلب:",
+  "Payment channel:": "قناة الدفع:",
+  "Payment date:": "تاريخ الدفع:",
+  "Please review this request against the payment and usage records.": "يرجى مراجعة هذا الطلب مقابل سجلات الدفع والاستخدام.",
+  "Reason:": "السبب:",
+  "Refund available until": "الاسترداد متاح حتى",
+  "Refund request -": "طلب استرداد -",
+  "Refund request period ended": "انتهت فترة طلب الاسترداد",
+  "Refund requests are available within one month of payment and are reviewed before approval.": "طلبات الاسترداد متاحة خلال شهر واحد من تاريخ الدفع ويتم مراجعتها قبل الموافقة.",
+  "Request refund": "طلب استرداد المبلغ",
+  "This order is outside the one-month refund request window.": "هذا الطلب خارج نافذة طلب استرداد المبلغ التي تستمر شهرا."
 }

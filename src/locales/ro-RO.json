@@ -1702,5 +1702,21 @@
   "Use WeChat to scan the code and select the credit package in the Mini Program.": "Folosește WeChat pentru a scana codul și a selecta pachetul de credit în Mini Program.",
   "WeChat Mini Program": "Programul Mini WeChat",
   "WeChat Mini Program code": "Codul programului WeChat Mini",
-  "About {{count}} 30-second videos": "Aproximativ {{count}} videoclipuri de 30 de secunde"
+  "About {{count}} 30-second videos": "Aproximativ {{count}} videoclipuri de 30 de secunde",
+  "&body=": "&corp=",
+  "Amount:": "Sumă:",
+  "Hello Kali support,": "Salut Kali suport,",
+  "I would like to request a refund review.": "Aș dori să solicit o revizuire a rambursării.",
+  "Opens your email app with the order details filled in.": "Deschide aplicația ta de email cu detaliile comenzii completate.",
+  "Order number:": "Numărul comenzii:",
+  "Payment channel:": "Canal de plată:",
+  "Payment date:": "Data plății:",
+  "Please review this request against the payment and usage records.": "Vă rugăm să revizuiți această cerere în raport cu înregistrările de plată și utilizare.",
+  "Reason:": "Motiv:",
+  "Refund available until": "Rambursarea este disponibilă până",
+  "Refund request -": "Cerere de rambursare -",
+  "Refund request period ended": "Perioada de solicitare a rambursării s-a încheiat",
+  "Refund requests are available within one month of payment and are reviewed before approval.": "Cererile de rambursare sunt disponibile în termen de o lună de la plată și sunt analizate înainte de aprobare.",
+  "Request refund": "Solicită rambursare",
+  "This order is outside the one-month refund request window.": "Această comandă este în afara perioadei de o lună pentru cererea de rambursare."
 }
