@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
 import https from 'node:https';
+import { execFileSync } from 'node:child_process';
 import { parse } from '@babel/parser';
 import traverseModule from '@babel/traverse';
 import { workspaceLocalizationOverrides } from './localization-overrides.mjs';
@@ -81,6 +82,70 @@ const localeOverrides = {
     'MAIN FLOW': '主流程',
     'HOT TOPIC TO VIDEO': '热点到视频',
     'Workflow essentials': '工作流要点',
+    'CREDITS & ORDERS': '积分与订单',
+    'Creator credits': '创作积分',
+    'Credits & orders': '积分与订单',
+    'All creation tools use one credit balance. Buy credits when you need them and review every purchase in one place.': '所有创作工具统一消耗积分。可按需购买积分，并在这里查看全部购买记录。',
+    'Buy credits': '购买积分',
+    Orders: '订单',
+    'Credit billing': '积分与订单',
+    'Sign in to view your credits and purchase orders.': '登录后查看积分余额和购买订单。',
+    'Available credits': '可用积分',
+    'Total credits': '累计积分',
+    'Used credits': '已用积分',
+    'Credit usage': '积分使用情况',
+    'Credit costs': '积分消耗',
+    'Credit package': '积分包',
+    'How credits are used': '积分消耗规则',
+    'Script generation': '文案生成',
+    'Image generation': '图片生成',
+    'Music generation': '音乐生成',
+    'Digital human training': '数字人训练',
+    'Image digital human': '图片数字人训练',
+    'Voice training': '声音训练',
+    'Video production': '视频制作',
+    'Video cover': '视频封面',
+    credit: '积分',
+    credits: '积分',
+    '1 credit': '1 积分',
+    '2 credits': '2 积分',
+    '10 credits': '10 积分',
+    '200 credits': '200 积分',
+    '500 credits': '500 积分',
+    '1 credit / second': '1 积分 / 秒',
+    'Credit packages': '积分包',
+    'Trial credits': '体验积分包',
+    'Starter credits': '入门积分包',
+    'Standard credits': '标准积分包',
+    'Professional credits': '专业积分包',
+    'Enterprise credits': '企业积分包',
+    'Check your credit balance, buy credit packages, and review purchase orders.': '查看积分余额、购买积分包并管理购买订单。',
+    'Credit balance': '积分余额',
+    'No credit packages available yet': '暂无可购买的积分包',
+    'View orders': '查看订单',
+    'Loading credit packages...': '正在加载积分包...',
+    'One-time credit purchase': '一次性购买积分',
+    off: '优惠',
+    'One-time purchase': '单次购买',
+    Purchased: '已购买',
+    'Credit packages unavailable.': '积分包暂不可用。',
+    'No credit packages available yet.': '暂无可购买的积分包。',
+    'Purchase orders': '购买订单',
+    'Review credit purchases and payment status.': '查看积分购买记录和支付状态。',
+    'Loading purchase orders...': '正在加载购买订单...',
+    'Last updated': '最后更新',
+    Order: '订单',
+    Credits: '积分',
+    Amount: '金额',
+    Date: '日期',
+    Status: '状态',
+    'Credit purchase': '积分购买',
+    Completed: '已完成',
+    Pending: '待支付',
+    Refunded: '已退款',
+    'Purchase orders unavailable.': '购买订单暂不可用。',
+    'No purchase orders yet.': '暂无购买订单。',
+    'Payment successful. Your credits will update after confirmation.': '支付成功，确认后积分余额将自动更新。',
     '从热点到发布': '从热点到发布',
     '环节拆解': '环节拆解',
     '当前推进': '当前推进',
@@ -108,6 +173,70 @@ const localeOverrides = {
     'MAIN FLOW': '主流程',
     'HOT TOPIC TO VIDEO': '熱點到影片',
     'Workflow essentials': '工作流要點',
+    'CREDITS & ORDERS': '積分與訂單',
+    'Creator credits': '創作積分',
+    'Credits & orders': '積分與訂單',
+    'All creation tools use one credit balance. Buy credits when you need them and review every purchase in one place.': '所有創作工具統一消耗積分。可按需購買積分，並在此查看全部購買記錄。',
+    'Buy credits': '購買積分',
+    Orders: '訂單',
+    'Credit billing': '積分與訂單',
+    'Sign in to view your credits and purchase orders.': '登入後查看積分餘額和購買訂單。',
+    'Available credits': '可用積分',
+    'Total credits': '累計積分',
+    'Used credits': '已用積分',
+    'Credit usage': '積分使用情況',
+    'Credit costs': '積分消耗',
+    'Credit package': '積分包',
+    'How credits are used': '積分消耗規則',
+    'Script generation': '文案生成',
+    'Image generation': '圖片生成',
+    'Music generation': '音樂生成',
+    'Digital human training': '數位人訓練',
+    'Image digital human': '圖片數位人訓練',
+    'Voice training': '聲音訓練',
+    'Video production': '影片製作',
+    'Video cover': '影片封面',
+    credit: '積分',
+    credits: '積分',
+    '1 credit': '1 積分',
+    '2 credits': '2 積分',
+    '10 credits': '10 積分',
+    '200 credits': '200 積分',
+    '500 credits': '500 積分',
+    '1 credit / second': '1 積分 / 秒',
+    'Credit packages': '積分包',
+    'Trial credits': '體驗積分包',
+    'Starter credits': '入門積分包',
+    'Standard credits': '標準積分包',
+    'Professional credits': '專業積分包',
+    'Enterprise credits': '企業積分包',
+    'Check your credit balance, buy credit packages, and review purchase orders.': '查看積分餘額、購買積分包並管理購買訂單。',
+    'Credit balance': '積分餘額',
+    'No credit packages available yet': '暫無可購買的積分包',
+    'View orders': '查看訂單',
+    'Loading credit packages...': '正在載入積分包...',
+    'One-time credit purchase': '一次性購買積分',
+    off: '優惠',
+    'One-time purchase': '單次購買',
+    Purchased: '已購買',
+    'Credit packages unavailable.': '積分包暫不可用。',
+    'No credit packages available yet.': '暫無可購買的積分包。',
+    'Purchase orders': '購買訂單',
+    'Review credit purchases and payment status.': '查看積分購買記錄和付款狀態。',
+    'Loading purchase orders...': '正在載入購買訂單...',
+    'Last updated': '最後更新',
+    Order: '訂單',
+    Credits: '積分',
+    Amount: '金額',
+    Date: '日期',
+    Status: '狀態',
+    'Credit purchase': '積分購買',
+    Completed: '已完成',
+    Pending: '待付款',
+    Refunded: '已退款',
+    'Purchase orders unavailable.': '購買訂單暫不可用。',
+    'No purchase orders yet.': '暫無購買訂單。',
+    'Payment successful. Your credits will update after confirmation.': '付款成功，確認後積分餘額將自動更新。',
     '从热点到发布': '從熱點到發佈',
     '环节拆解': '環節拆解',
     '当前推进': '目前推進',
@@ -186,12 +315,20 @@ Object.entries(digitalHumanAssetManagementOverrides).forEach(([locale, translati
 Object.entries(workspaceLocalizationOverrides).forEach(([locale, overrides]) => {
   localeOverrides[locale] = { ...(localeOverrides[locale] || {}), ...overrides };
 });
+localeOverrides['nl-NL'] = {
+  ...(localeOverrides['nl-NL'] || {}),
+  'Creator credits': 'Creatiecredits',
+  Orders: 'Bestellingen',
+};
 
 const normalize = (value) => String(value || '').replace(/\s+/g, ' ').trim();
+const shortUiWords = new Set(['credit', 'credits', 'off']);
 const looksUserFacing = (value) => {
   if (!value || value.length > 900 || !/[A-Za-z\u00c0-\u024f\u0370-\u03ff\u0400-\u04ff\u0600-\u06ff\u0900-\u097f\u0e00-\u0e7f\u3040-\u30ff\u3400-\u9fff\uac00-\ud7af]/u.test(value)) return false;
-  if (/^(https?:|\/api\/|mailto:|[.#][\w-]+$)/i.test(value)) return false;
+  if (/^(https?:|\/|mailto:|[.#][\w-]+$)/i.test(value)) return false;
   if (/^[a-z]+(?:_[a-z0-9]+){1,}$/i.test(value)) return false;
+  if (/^[a-z][A-Za-z0-9]*$/.test(value) && !shortUiWords.has(value)) return false;
+  if (/^[a-z][a-z0-9]*(?:-[a-z0-9]*)+$/.test(value)) return false;
   if (/^(GET|POST|PUT|DELETE|PATCH|OPTIONS|HEAD)$/i.test(value)) return false;
   if (/^[\w-]+\/(?:[\w.-]+\/)*[\w.-]+$/.test(value)) return false;
   return true;
@@ -223,6 +360,78 @@ for (const sourcePath of sourcePaths) {
 }
 
 const texts = [...phrases].sort((a, b) => a.localeCompare(b, 'en'));
+const missingOnly = process.argv.includes('--missing-only');
+const changedOnly = process.argv.includes('--changed-only');
+const requestedScope = process.argv.find((argument) => argument.startsWith('--scope='))?.split('=')[1];
+const translationScopes = {
+  credits: new Set([
+    '1 credit',
+    '1 credit / second',
+    '10 credits',
+    '2 credits',
+    '200 credits',
+    '500 credits',
+    'All creation tools use one credit balance. Buy credits when you need them and review every purchase in one place.',
+    'Amount',
+    'Available credits',
+    'Buy credits',
+    'Check your credit balance, buy credit packages, and review purchase orders.',
+    'Completed',
+    'Creator credits',
+    'Credits & orders',
+    'credit',
+    'Credit balance',
+    'Credit billing',
+    'Credit costs',
+    'Credit package',
+    'Credit packages',
+    'Credit packages unavailable.',
+    'Credit purchase',
+    'Credit usage',
+    'credits',
+    'Credits',
+    'CREDITS & ORDERS',
+    'Date',
+    'Digital human training',
+    'Enterprise credits',
+    'How credits are used',
+    'Image digital human',
+    'Image generation',
+    'Loading credit packages...',
+    'Loading purchase orders...',
+    'Last updated',
+    'Music generation',
+    'No credit packages available yet',
+    'No credit packages available yet.',
+    'No purchase orders yet.',
+    'off',
+    'One-time credit purchase',
+    'One-time purchase',
+    'Order',
+    'Orders',
+    'Payment successful. Your credits will update after confirmation.',
+    'Pending',
+    'Professional credits',
+    'Purchase orders',
+    'Purchase orders unavailable.',
+    'Purchased',
+    'Refunded',
+    'Review credit purchases and payment status.',
+    'Script generation',
+    'Sign in to view your credits and purchase orders.',
+    'Standard credits',
+    'Starter credits',
+    'Status',
+    'Total credits',
+    'Trial credits',
+    'Used credits',
+    'Video cover',
+    'Video production',
+    'View orders',
+    'Voice training',
+  ]),
+};
+if (requestedScope && !translationScopes[requestedScope]) throw new Error(`Unsupported translation scope: ${requestedScope}`);
 
 if (process.argv.includes('--apply-overrides')) {
   await Promise.all(Object.entries(localeOverrides).map(async ([locale, overrides]) => {
@@ -281,7 +490,23 @@ const requestedLocale = process.argv.find((argument) => argument.startsWith('--l
 if (requestedLocale && !localeTargets[requestedLocale]) throw new Error(`Unsupported locale: ${requestedLocale}`);
 const activeLocaleTargets = requestedLocale ? { [requestedLocale]: localeTargets[requestedLocale] } : localeTargets;
 let token = await getToken();
-const catalogs = Object.fromEntries(Object.keys(activeLocaleTargets).map((locale) => [locale, {}]));
+const catalogs = Object.fromEntries(await Promise.all(Object.keys(activeLocaleTargets).map(async (locale) => {
+  if (!missingOnly) return [locale, {}];
+  try {
+    const catalog = JSON.parse(await fs.readFile(new URL(`${locale}.json`, outputDirectory), 'utf8'));
+    return [locale, catalog];
+  } catch {
+    return [locale, {}];
+  }
+})));
+const changedSource = changedOnly
+  ? execFileSync('git', ['diff', '--unified=0', '--', 'src/main.jsx', 'src/pageConfig.js', 'src/api.js'], { encoding: 'utf8' })
+  : '';
+const scopedTexts = requestedScope ? texts.filter((source) => translationScopes[requestedScope].has(source)) : texts;
+const candidateTexts = changedOnly ? scopedTexts.filter((source) => changedSource.includes(source)) : scopedTexts;
+const translationTexts = missingOnly
+  ? candidateTexts.filter((source) => Object.keys(activeLocaleTargets).some((locale) => !catalogs[locale][source]))
+  : candidateTexts;
 const targetEntries = Object.entries(activeLocaleTargets);
 const targetGroups = [];
 for (let index = 0; index < targetEntries.length; index += 8) targetGroups.push(targetEntries.slice(index, index + 8));
@@ -311,7 +536,7 @@ const translateBatch = async (batch, group, retries = 3) => {
 };
 
 const batches = [];
-for (let index = 0; index < texts.length; index += 80) batches.push(texts.slice(index, index + 80));
+for (let index = 0; index < translationTexts.length; index += 80) batches.push(translationTexts.slice(index, index + 80));
 let completed = 0;
 for (const batch of batches) {
   for (const group of targetGroups) {
@@ -320,7 +545,14 @@ for (const batch of batches) {
       row.translations.forEach((translation) => {
         const locale = group.find(([, target]) => target.toLowerCase() === translation.to.toLowerCase())?.[0];
         const translatedText = restoreBrand(translation.text || '');
-        if (locale && translatedText && translatedText !== batch[rowIndex]) catalogs[locale][batch[rowIndex]] = translatedText;
+        if (
+          locale
+          && translatedText
+          && translatedText !== batch[rowIndex]
+          && (!missingOnly || !catalogs[locale][batch[rowIndex]])
+        ) {
+          catalogs[locale][batch[rowIndex]] = translatedText;
+        }
       });
     });
     completed += 1;
@@ -333,4 +565,4 @@ Object.entries(localeOverrides).forEach(([locale, overrides]) => {
 });
 await fs.mkdir(outputDirectory, { recursive: true });
 await Promise.all(Object.entries(catalogs).map(([locale, catalog]) => fs.writeFile(new URL(`${locale}.json`, outputDirectory), `${JSON.stringify(catalog, null, 2)}\n`)));
-console.log(`Generated ${texts.length} source phrases for ${Object.keys(activeLocaleTargets).length} locale(s).`);
+console.log(`${missingOnly ? 'Added missing translations for' : 'Generated'} ${translationTexts.length} source phrases across ${Object.keys(activeLocaleTargets).length} locale(s).`);

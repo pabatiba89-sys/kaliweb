@@ -67,13 +67,14 @@ export const pageConfigs = {
     actions: ['Use template', 'Set default preset', 'Create preset'],
   },
   billing: {
-    title: 'Billing',
-    description: 'Check quotas and plans for digital humans, voices, videos, and AI music.',
+    title: 'Credits',
+    description: 'Check your credit balance, buy credit packages, and review purchase orders.',
     endpoints: [
-      { label: 'Current plan', path: '/api/plan/user-plan' },
-      { label: 'Plan list', path: '/api/plan/list', auth: false },
+      { label: 'Credit balance', path: '/api/plan/user-plan' },
+      { label: 'Credit packages', path: '/api/plan/list' },
+      { label: 'Purchase orders', path: '/api/plan/purchase-history' },
     ],
-    actions: ['Upgrade plan', 'Refresh quota', 'View invoices'],
+    actions: ['Buy credits', 'Refresh balance', 'View orders'],
   },
   settings: {
     title: 'Settings',

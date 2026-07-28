@@ -14,6 +14,7 @@ import {
   CheckCircle2,
   Clapperboard,
   Clock3,
+  Coins,
   Cuboid,
   Download,
   Edit3,
@@ -36,6 +37,7 @@ import {
   Play,
   Plus,
   RefreshCw,
+  ReceiptText,
   Search,
   Send,
   Settings,
@@ -155,7 +157,7 @@ const navItems = [
   { id: 'image', label: 'Image Studio', icon: Image },
   { id: 'materials', label: 'Materials', icon: Library },
   { id: 'templates', label: 'Templates', icon: GalleryVerticalEnd },
-  { id: 'billing', label: 'Billing', icon: CircleDollarSign },
+  { id: 'billing', label: 'Credits & orders', icon: CircleDollarSign },
   { id: 'settings', label: 'Settings', icon: Settings },
 ];
 
@@ -5449,37 +5451,6 @@ function ResourcePage({ active, language, onNewVideo, authVersion }) {
   );
 }
 
-const billingQuotaMap = [
-  {
-    key: 'digitalHumans',
-    label: 'Digital humans',
-    icon: UserRound,
-    remaining: ['digital_human_remaining', 'digitalHumanRemaining', 'aihuman_remaining', 'aiHumanRemaining', 'human_remaining', 'humanRemaining'],
-    total: ['digital_human_total', 'digitalHumanTotal', 'aihuman_total', 'aiHumanTotal', 'human_total', 'humanTotal', 'digital_human_quota', 'digitalHumanQuota'],
-  },
-  {
-    key: 'voices',
-    label: 'Voices',
-    icon: Mic2,
-    remaining: ['voice_remaining', 'voiceRemaining', 'ai_voice_remaining', 'aiVoiceRemaining'],
-    total: ['voice_total', 'voiceTotal', 'ai_voice_total', 'aiVoiceTotal', 'voice_quota', 'voiceQuota'],
-  },
-  {
-    key: 'videos',
-    label: 'Videos',
-    icon: Video,
-    remaining: ['video_remaining', 'videoRemaining', 'video_count_remaining', 'videoCountRemaining', 'production_remaining', 'productionRemaining'],
-    total: ['video_total', 'videoTotal', 'video_quota', 'videoQuota', 'production_total', 'productionTotal'],
-  },
-  {
-    key: 'music',
-    label: 'AI music',
-    icon: Music2,
-    remaining: ['music_remaining', 'musicRemaining', 'ai_music_remaining', 'aiMusicRemaining'],
-    total: ['music_total', 'musicTotal', 'music_quota', 'musicQuota', 'ai_music_total', 'aiMusicTotal'],
-  },
-];
-
 const billingPick = (source = {}, keys = []) => {
   for (const key of keys) {
     const value = source[key];
@@ -5514,15 +5485,19 @@ const getBillingPlans = (result = {}) => {
   }
   return [];
 };
-const formatBillingDate = (value) => {
+const formatBillingDate = (value, locale = 'en-US') => {
   if (!value) return '';
   const numeric = Number(value);
   const date = new Date(Number.isFinite(numeric) && numeric > 0 && numeric < 1000000000000 ? numeric * 1000 : value);
   if (Number.isNaN(date.getTime())) return textOf(value);
-  return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(date);
+  try {
+    return new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'short', day: '2-digit' }).format(date);
+  } catch {
+    return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(date);
+  }
 };
-const formatBillingMoney = (plan = {}) => {
-  const amount = billingPick(plan, ['price', 'amount', 'sale_price', 'salePrice', 'pay_amount', 'payAmount']);
+const formatBillingMoney = (plan = {}, amountKeys = ['price', 'amount', 'sale_price', 'salePrice', 'pay_amount', 'payAmount', 'total_amount', 'totalAmount']) => {
+  const amount = billingPick(plan, amountKeys);
   const number = billingNumber(amount);
   if (number === null) return pick(plan.price_text, plan.priceText, plan.display_price, plan.displayPrice, plan.billingText, plan.billing_text) || 'Contact sales';
   const currency = pick(plan.currency, plan.currency_code, plan.currencyCode) || 'USD';
@@ -5533,70 +5508,106 @@ const formatBillingMoney = (plan = {}) => {
   }
 };
 const translateBilling = (value, locale, catalog) => translateStatic(textOf(value), locale, catalog);
-const billingUnitLabels = {
-  digitalHumans: { singular: 'digital human', plural: 'digital humans' },
-  voices: { singular: 'voice', plural: 'voices' },
-  videos: { singular: 'video', plural: 'videos' },
-  music: { singular: 'AI music track', plural: 'AI music tracks' },
-};
 const billingPlanNameMap = {
-  '初级体验版（限 1 次）': 'Starter trial (1 use)',
-  '初级体验版（限一次）': 'Starter trial (1 use)',
-  '进阶体验版（限 1 次）': 'Advanced trial (1 use)',
-  '进阶体验版（限一次）': 'Advanced trial (1 use)',
-  '豪华体验版（限 1 次）': 'Premium trial (1 use)',
-  '豪华体验版（限一次）': 'Premium trial (1 use)',
-  专业版: 'Pro plan',
-  视频包: 'Video pack',
-  音乐包: 'Music pack',
+  体验包: 'Trial credits',
+  入门包: 'Starter credits',
+  标准包: 'Standard credits',
+  专业包: 'Professional credits',
+  企业包: 'Enterprise credits',
+  专业版: 'Professional credits',
+  企业版: 'Enterprise credits',
 };
 const getBillingPlanTitleSource = (title) => billingPlanNameMap[textOf(title)] || textOf(title);
-const formatBillingCount = (count, unit, locale, catalog) => {
-  const number = Number(count);
-  const labelSource = Number.isFinite(number) && number === 1 ? unit.singular : unit.plural;
-  return `${count} ${translateBilling(labelSource, locale, catalog)}`;
+const formatCreditNumber = (value, locale = 'en-US') => {
+  const number = billingNumber(value) || 0;
+  try {
+    return new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }).format(number);
+  } catch {
+    return new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(number);
+  }
 };
-const normalizeBillingQuota = (source = {}, item, locale = 'en-US', catalog = {}) => {
-  const remaining = billingNumber(billingPick(source, item.remaining));
-  const total = billingNumber(billingPick(source, item.total));
-  const used = total !== null && remaining !== null ? Math.max(total - remaining, 0) : null;
-  const percent = total && used !== null ? Math.min(Math.max((used / total) * 100, 0), 100) : 0;
-
+const getCreditCount = (source = {}) => billingNumber(billingPick(source, [
+  'credits_count', 'creditsCount', 'credit_count', 'creditCount', 'points_count', 'pointsCount',
+  'points', 'credits', 'point_total', 'pointTotal', 'points_total', 'pointsTotal',
+])) || 0;
+const getCreditBalance = (source = {}) => {
+  const total = billingNumber(billingPick(source, ['credits_total', 'creditsTotal', 'points_total', 'pointsTotal', 'credit_total', 'creditTotal'])) || 0;
+  const remaining = billingNumber(billingPick(source, ['credits_remaining', 'creditsRemaining', 'points_remaining', 'pointsRemaining', 'credit_balance', 'creditBalance', 'balance'])) || 0;
+  const used = Math.max(total - remaining, 0);
   return {
-    ...item,
-    remaining,
     total,
-    label: translateBilling(item.label, locale, catalog),
-    value: remaining !== null && total !== null
-      ? `${remaining} / ${total}`
-      : remaining !== null
-        ? `${formatBillingCount(remaining, billingUnitLabels[item.key], locale, catalog)} ${translateBilling('left', locale, catalog)}`
-        : total !== null
-          ? `${formatBillingCount(total, billingUnitLabels[item.key], locale, catalog)} ${translateBilling('included', locale, catalog)}`
-          : translateBilling('Not included', locale, catalog),
-    percent,
+    remaining,
+    used,
+    percent: total > 0 ? Math.min(Math.max((used / total) * 100, 0), 100) : 0,
   };
 };
 const normalizePlanCard = (plan = {}, index = 0, locale = 'en-US', catalog = {}) => {
-  const quotaText = billingQuotaMap
-    .map((item) => {
-      const total = billingNumber(billingPick(plan, item.total));
-      return total !== null ? formatBillingCount(total, billingUnitLabels[item.key], locale, catalog) : '';
-    })
-    .filter(Boolean)
-    .slice(0, 3);
-  const period = pick(plan.period, plan.duration, plan.valid_days && `${plan.valid_days} days`, plan.validDays && `${plan.validDays} days`, plan.cycle, plan.billing_cycle, plan.billingCycle);
+  const credits = getCreditCount(plan);
   const rawTitle = pick(plan.title, plan.name, plan.plan_name, plan.planName, plan.package_name, plan.packageName);
+  const price = billingNumber(billingPick(plan, ['price', 'amount', 'sale_price', 'salePrice', 'pay_amount', 'payAmount']));
+  const originalPrice = billingNumber(billingPick(plan, ['original_price', 'originalPrice', 'list_price', 'listPrice']));
+  const explicitUnitPrice = billingNumber(billingPick(plan, ['credit_unit_price', 'creditUnitPrice', 'point_unit_price', 'pointUnitPrice']));
+  const unitPrice = explicitUnitPrice ?? (credits > 0 && price !== null ? price / credits : null);
+  const explicitDiscount = billingNumber(billingPick(plan, ['discount_percent', 'discountPercent']));
+  const discountPercent = explicitDiscount ?? (price !== null && originalPrice ? Math.max(0, (1 - price / originalPrice) * 100) : 0);
 
   return {
     id: pick(plan.id, plan.plan_id, plan.planId, plan.name, `plan-${index}`),
     raw: plan,
-    title: translateBilling(rawTitle ? getBillingPlanTitleSource(rawTitle) : `Plan ${index + 1}`, locale, catalog),
+    title: translateBilling(rawTitle ? getBillingPlanTitleSource(rawTitle) : `Credit package ${index + 1}`, locale, catalog),
+    credits,
+    creditsText: `${formatCreditNumber(credits, locale)} ${translateBilling('credits', locale, catalog)}`,
     price: translateBilling(formatBillingMoney(plan), locale, catalog),
-    period: translateBilling(period || 'One-time quota', locale, catalog),
-    summary: quotaText.length ? quotaText.join(' · ') : translateBilling(pick(plan.description, plan.desc, plan.remark, plan.note) || 'Quota package', locale, catalog),
+    originalPrice: originalPrice && price !== null && originalPrice > price
+      ? translateBilling(formatBillingMoney({ ...plan, original_price: originalPrice }, ['original_price']), locale, catalog)
+      : '',
+    unitPrice: unitPrice !== null
+      ? `${formatBillingMoney({ ...plan, credit_unit_price: unitPrice }, ['credit_unit_price'])} / ${translateBilling('credit', locale, catalog)}`
+      : '',
+    discount: discountPercent > 0 ? `${formatCreditNumber(discountPercent, locale)}% ${translateBilling('off', locale, catalog)}` : '',
+    purchased: Boolean(plan.purchased || plan.is_purchased || plan.isPurchased),
   };
 };
+const normalizeBillingOrder = (record = {}, index = 0, plans = [], locale = 'en-US', catalog = {}) => {
+  const planId = pick(record.plan_id, record.planId, record.package_id, record.packageId);
+  const relatedPlan = plans.find((plan) => String(pick(plan.id, plan.plan_id, plan.planId)) === String(planId)) || {};
+  const statusValue = pick(record.status, record.pay_status, record.payStatus, record.order_status, record.orderStatus);
+  const refundValue = pick(record.refund_status, record.refundStatus);
+  const status = refundValue === 1 || refundValue === '1'
+    ? 'Refunded'
+    : statusValue === 1 || statusValue === '1' || /paid|success|completed/i.test(textOf(statusValue))
+      ? 'Completed'
+      : statusValue === 2 || statusValue === '2' || /fail|cancel|closed/i.test(textOf(statusValue))
+        ? 'Failed'
+        : statusValue === '' || statusValue === undefined
+          ? 'Completed'
+          : 'Pending';
+  const rawTitle = pick(record.plan_name, record.planName, record.package_name, record.packageName, relatedPlan.name, relatedPlan.title);
+  const credits = getCreditCount(record) || getCreditCount(relatedPlan)
+    || billingNumber(billingPick(record, ['credits_total', 'creditsTotal'])) || 0;
+  const hasAmount = billingNumber(billingPick(record, ['price', 'amount', 'sale_price', 'salePrice', 'pay_amount', 'payAmount', 'total_amount', 'totalAmount'])) !== null;
+
+  return {
+    id: pick(record.id, record.order_id, record.orderId, record.order_no, record.orderNo, `order-${index}`),
+    orderNo: pick(record.order_no, record.orderNo, record.trade_no, record.tradeNo),
+    title: translateBilling(rawTitle ? getBillingPlanTitleSource(rawTitle) : 'Credit purchase', locale, catalog),
+    credits: `${formatCreditNumber(credits, locale)} ${translateBilling('credits', locale, catalog)}`,
+    amount: hasAmount ? formatBillingMoney(record) : '—',
+    date: formatBillingDate(pick(record.pay_time, record.payTime, record.purchased_at, record.purchasedAt, record.created_at, record.createdAt), locale),
+    statusKey: status.toLowerCase(),
+    status: translateBilling(status, locale, catalog),
+  };
+};
+const creditUsageRules = [
+  ['Script generation', '1 credit'],
+  ['Image generation', '2 credits'],
+  ['Music generation', '10 credits'],
+  ['Digital human training', '500 credits'],
+  ['Image digital human', '200 credits'],
+  ['Voice training', '500 credits'],
+  ['Video production', '1 credit / second'],
+  ['Video cover', '2 credits'],
+];
 const getBillingResult = (results, label) => results.find((result) => result.endpoint.label === label) || {};
 const EVONET_DROPIN_CDN = 'https://cdn.jsdelivr.net/npm/cil-dropin-components@latest/dist/index.min.js';
 let evonetDropInPromise = null;
@@ -5641,7 +5652,7 @@ const normalizeEvonetSession = (result = {}) => {
   return {};
 };
 const evonetPaymentMessage = (event = {}) => {
-  if (event.type === 'payment_completed') return 'Payment successful. Your plan will update after confirmation.';
+  if (event.type === 'payment_completed') return 'Payment successful. Your credits will update after confirmation.';
   if (event.type === 'payment_cancelled') return 'Payment cancelled.';
   if (event.type === 'payment_not_preformed') return event.message || 'Payment not completed. Please try again.';
   return event.message || 'Payment failed. Please try again.';
@@ -5695,7 +5706,7 @@ function EvonetPaymentModal({ checkout, language, onClose, onEvent }) {
       <section className="payment-modal" role="dialog" aria-modal="true" aria-labelledby="evonet-payment-title">
         <header>
           <div>
-            <small>One-time payment</small>
+            <small>One-time credit purchase</small>
             <h2 id="evonet-payment-title">{checkout.plan.title}</h2>
           </div>
           <button type="button" className="icon-button" onClick={onClose} aria-label="Close checkout">
@@ -5703,8 +5714,8 @@ function EvonetPaymentModal({ checkout, language, onClose, onEvent }) {
           </button>
         </header>
         <div className="payment-modal-summary">
-          <span>{checkout.plan.price}</span>
-          <small>{checkout.plan.period}</small>
+          <span>{checkout.plan.creditsText}</span>
+          <small>{checkout.plan.price}</small>
         </div>
         <div className={`payment-modal-status is-${status.tone}`}>
           {status.tone === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
@@ -5719,23 +5730,23 @@ function EvonetPaymentModal({ checkout, language, onClose, onEvent }) {
 function OverseasBillingPage({ language, authVersion }) {
   const localeCatalog = useLocaleCatalog(language);
   const config = pageConfigs.billing;
+  const [activeTab, setActiveTab] = useState('purchase');
   const [checkout, setCheckout] = useState(null);
   const [paymentMessage, setPaymentMessage] = useState('');
   const [paymentError, setPaymentError] = useState('');
   const [startingPlanId, setStartingPlanId] = useState('');
   const { loading, results } = useEndpointGroup(config, authVersion);
-  const currentResult = getBillingResult(results, 'Current plan');
-  const planResult = getBillingResult(results, 'Plan list');
+  const currentResult = getBillingResult(results, 'Credit balance');
+  const planResult = getBillingResult(results, 'Credit packages');
+  const orderResult = getBillingResult(results, 'Purchase orders');
   const currentPlan = findBillingPlan(currentResult);
-  const planCards = getBillingPlans(planResult).map((plan, index) => normalizePlanCard(plan, index, language, localeCatalog));
-  const quotas = billingQuotaMap.map((item) => normalizeBillingQuota(currentPlan, item, language, localeCatalog));
-  const rawPlanName = pick(currentPlan.title, currentPlan.name, currentPlan.plan_name, currentPlan.planName, currentPlan.package_name, currentPlan.packageName);
-  const planName = translateBilling(rawPlanName ? getBillingPlanTitleSource(rawPlanName) : (currentResult.authMissing ? 'Sign in required' : 'No active plan'), language, localeCatalog);
-  const expireText = formatBillingDate(pick(currentPlan.expire_at, currentPlan.expireAt, currentPlan.end_at, currentPlan.endAt, currentPlan.valid_until, currentPlan.validUntil));
-  const updatedText = formatBillingDate(pick(currentPlan.updated_at, currentPlan.updatedAt, currentPlan.created_at, currentPlan.createdAt));
-  const hasCurrentPlan = Boolean(Object.keys(currentPlan).length);
+  const rawPlans = getBillingPlans(planResult);
+  const planCards = rawPlans.map((plan, index) => normalizePlanCard(plan, index, language, localeCatalog));
+  const orders = getBillingPlans(orderResult).map((record, index) => normalizeBillingOrder(record, index, rawPlans, language, localeCatalog));
+  const balance = getCreditBalance(currentPlan);
+  const updatedText = formatBillingDate(pick(currentPlan.updated_at, currentPlan.updatedAt, currentPlan.purchased_at, currentPlan.purchasedAt, currentPlan.created_at, currentPlan.createdAt), language);
   const message = currentResult.authMissing
-    ? 'Sign in to view your quota and current plan.'
+    ? 'Sign in to view your credits and purchase orders.'
     : currentResult.ok === false && currentResult.message
       ? currentResult.message
       : '';
@@ -5762,6 +5773,7 @@ function OverseasBillingPage({ language, authVersion }) {
     const text = evonetPaymentMessage(event);
     if (event.type === 'payment_completed') {
       setPaymentMessage(text);
+      setCheckout(null);
       window.dispatchEvent(new Event('yixiu-auth-change'));
     } else {
       setPaymentError(text);
@@ -5773,19 +5785,27 @@ function OverseasBillingPage({ language, authVersion }) {
     <div className="billing-page">
       <section className="billing-hero">
         <div>
-          <span className="billing-eyebrow">PLANS & BILLING</span>
-          <h1>Plans & billing</h1>
-          <p>Review your active plan, remaining production quota, and available packages.</p>
+          <span className="billing-eyebrow">CREDITS & ORDERS</span>
+          <h1>Creator credits</h1>
+          <p>All creation tools use one credit balance. Buy credits when you need them and review every purchase in one place.</p>
         </div>
         <div className="billing-hero-actions">
           <button className="outline-button" onClick={() => window.location.reload()} disabled={loading}>
             <RefreshCw size={17} />
             {loading ? 'Refreshing' : 'Refresh'}
           </button>
-          <a className="primary-button" href="mailto:feedback@xyaip.fun">
-            <CircleDollarSign size={17} />
-            Upgrade
-          </a>
+          <button className="primary-button" type="button" onClick={() => setActiveTab('purchase')}>
+            <Coins size={17} />
+            Buy credits
+          </button>
+        </div>
+        <div className="billing-tabs" role="tablist" aria-label="Credit billing">
+          <button type="button" role="tab" aria-selected={activeTab === 'purchase'} className={activeTab === 'purchase' ? 'is-active' : ''} onClick={() => setActiveTab('purchase')}>
+            <Coins size={17} /> Buy credits
+          </button>
+          <button type="button" role="tab" aria-selected={activeTab === 'orders'} className={activeTab === 'orders' ? 'is-active' : ''} onClick={() => setActiveTab('orders')}>
+            <ReceiptText size={17} /> Orders
+          </button>
         </div>
       </section>
 
@@ -5811,65 +5831,117 @@ function OverseasBillingPage({ language, authVersion }) {
       <section className="billing-summary-grid" aria-busy={loading}>
         <article className="billing-current-card">
           <div className="billing-card-head">
-            <span><CircleDollarSign size={20} /></span>
+            <span><Coins size={20} /></span>
             <div>
-              <small>Current plan</small>
-              <h2>{planName}</h2>
+              <small>Available credits</small>
+              <h2>{currentResult.authMissing ? '—' : formatCreditNumber(balance.remaining, language)}</h2>
             </div>
           </div>
           <dl className="billing-current-meta">
-            <div><dt>Status</dt><dd>{hasCurrentPlan ? 'Active' : currentResult.authMissing ? 'Locked' : 'Not started'}</dd></div>
-            <div><dt>Renews / expires</dt><dd>{expireText || 'Not set'}</dd></div>
+            <div><dt>Total credits</dt><dd>{currentResult.authMissing ? '—' : formatCreditNumber(balance.total, language)}</dd></div>
+            <div><dt>Used credits</dt><dd>{currentResult.authMissing ? '—' : formatCreditNumber(balance.used, language)}</dd></div>
             <div><dt>Last updated</dt><dd>{updatedText || 'Not available'}</dd></div>
           </dl>
+          <div className="billing-credit-progress" aria-label="Credit usage">
+            <i><em style={{ width: `${balance.percent}%` }} /></i>
+            <span><strong>{formatCreditNumber(balance.percent, language)}%</strong> Used credits</span>
+          </div>
         </article>
 
-        <div className="billing-quota-grid">
-          {quotas.map(({ key, label, icon: Icon, value, percent }) => (
-            <article className="billing-quota-card" key={key}>
-              <div>
-                <span><Icon size={18} /></span>
-                <strong>{label}</strong>
-              </div>
-              <b>{value}</b>
-              <i><em style={{ width: `${percent}%` }} /></i>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="billing-plans-panel">
-        <div className="billing-section-head">
-          <div>
-            <h2>Available plans</h2>
-            <p>{planCards.length ? `${planCards.length} ${translateBilling('packages available', language, localeCatalog)}` : 'No published packages returned yet'}</p>
+        <article className="billing-usage-panel">
+          <div className="billing-card-head">
+            <span><Sparkles size={20} /></span>
+            <div>
+              <small>Credit costs</small>
+              <h2>How credits are used</h2>
+            </div>
           </div>
-          <a href="mailto:feedback@xyaip.fun">View invoices <ChevronRight size={16} /></a>
-        </div>
-        {loading ? (
-          <div className="billing-empty">Loading billing data...</div>
-        ) : planCards.length ? (
-          <div className="billing-plan-list">
-            {planCards.map((plan) => (
-              <article className="billing-plan-card" key={plan.id}>
-                <div>
-                  <strong>{plan.title}</strong>
-                  <small>{plan.summary}</small>
-                </div>
-                <span>
-                  <b>{plan.price}</b>
-                  <small>{plan.period}</small>
-                </span>
-                <button type="button" onClick={() => startOneTimePayment(plan)} disabled={Boolean(startingPlanId)}>
-                  {startingPlanId === plan.id ? 'Starting' : 'Choose'}
-                </button>
-              </article>
+          <div className="billing-usage-grid">
+            {creditUsageRules.map(([label, cost]) => (
+              <div key={label}>
+                <span>{label}</span>
+                <strong>{cost}</strong>
+              </div>
             ))}
           </div>
-        ) : (
-          <div className="billing-empty">{planResult.ok === false ? planResult.message || 'Plan list unavailable.' : 'No plans available yet.'}</div>
-        )}
+        </article>
       </section>
+
+      {activeTab === 'purchase' ? (
+        <section className="billing-plans-panel">
+          <div className="billing-section-head">
+            <div>
+              <h2>Credit packages</h2>
+              <p>{planCards.length ? `${planCards.length} ${translateBilling('packages available', language, localeCatalog)}` : 'No credit packages available yet'}</p>
+            </div>
+            <button type="button" className="billing-text-button" onClick={() => setActiveTab('orders')}>View orders <ChevronRight size={16} /></button>
+          </div>
+          {loading ? (
+            <div className="billing-empty">Loading credit packages...</div>
+          ) : planCards.length ? (
+            <div className="billing-plan-list">
+              {planCards.map((plan) => (
+                <article className="billing-plan-card" key={plan.id}>
+                  <div>
+                    <strong>{plan.title}</strong>
+                    <small>{plan.unitPrice || 'One-time credit purchase'}</small>
+                  </div>
+                  <span className="billing-plan-credits">
+                    <b>{plan.creditsText}</b>
+                    <small>
+                      {plan.originalPrice && <s>{plan.originalPrice}</s>}
+                      {plan.discount && <em>{plan.discount}</em>}
+                    </small>
+                  </span>
+                  <span className="billing-plan-price">
+                    <b>{plan.price}</b>
+                    <small>One-time purchase</small>
+                  </span>
+                  <button type="button" onClick={() => startOneTimePayment(plan)} disabled={Boolean(startingPlanId) || plan.purchased}>
+                    {plan.purchased ? 'Purchased' : startingPlanId === plan.id ? 'Starting' : 'Buy credits'}
+                  </button>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="billing-empty">
+              {planResult.authMissing ? 'Sign in to view your credits and purchase orders.' : planResult.ok === false ? planResult.message || 'Credit packages unavailable.' : 'No credit packages available yet.'}
+            </div>
+          )}
+        </section>
+      ) : (
+        <section className="billing-plans-panel">
+          <div className="billing-section-head">
+            <div>
+              <h2>Purchase orders</h2>
+              <p>Review credit purchases and payment status.</p>
+            </div>
+            <button type="button" className="billing-text-button" onClick={() => setActiveTab('purchase')}>Buy credits <ChevronRight size={16} /></button>
+          </div>
+          {loading ? (
+            <div className="billing-empty">Loading purchase orders...</div>
+          ) : orders.length ? (
+            <div className="billing-orders" role="table" aria-label="Purchase orders">
+              <div className="billing-order-head" role="row">
+                <span>Order</span><span>Credits</span><span>Amount</span><span>Date</span><span>Status</span>
+              </div>
+              {orders.map((order) => (
+                <article className="billing-order-row" role="row" key={order.id}>
+                  <span><strong>{order.title}</strong><small>{order.orderNo || 'Credit purchase'}</small></span>
+                  <b>{order.credits}</b>
+                  <span>{order.amount}</span>
+                  <time>{order.date || 'Not available'}</time>
+                  <em className={`is-${order.statusKey}`}>{order.status}</em>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="billing-empty">
+              {orderResult.authMissing ? 'Sign in to view your credits and purchase orders.' : orderResult.ok === false ? orderResult.message || 'Purchase orders unavailable.' : 'No purchase orders yet.'}
+            </div>
+          )}
+        </section>
+      )}
       {checkout && (
         <EvonetPaymentModal
           checkout={checkout}
@@ -6111,39 +6183,7 @@ function SettingsPage({ authVersion, onLogin, onLogout }) {
 }
 
 function BillingPage({ language, authVersion }) {
-  const useChinaBilling = language === 'zh-CN' || language === 'zh-TW';
-
-  if (!useChinaBilling) {
-    return <OverseasBillingPage language={language} authVersion={authVersion} />;
-  }
-
-  return (
-    <div className="china-billing-page">
-      <section className="china-billing-hero">
-        <div className="china-billing-copy">
-          <span className="china-billing-eyebrow">中文服务区</span>
-          <h1>账单与套餐</h1>
-          <p>中文界面的套餐购买、续费和账单服务统一在喀理小程序中完成。</p>
-          <ol>
-            <li><span>1</span><div><strong>打开微信扫一扫</strong><small>扫描右侧小程序码进入喀理小程序</small></div></li>
-            <li><span>2</span><div><strong>登录同一账号</strong><small>使用与当前工作台一致的账号，确保套餐正确到账</small></div></li>
-            <li><span>3</span><div><strong>选择套餐并完成支付</strong><small>支付成功后返回工作台刷新，即可查看最新额度</small></div></li>
-          </ol>
-          <div className="china-billing-note"><ShieldCheck size={18} /><span>请勿通过私人转账购买套餐，以小程序内展示的订单和支付结果为准。</span></div>
-        </div>
-        <aside className="china-billing-qr">
-          <span>微信扫码进入小程序</span>
-          <div><img src="/payments/kali-mini-program.png" alt="喀理小程序码" /></div>
-          <strong>喀理小程序</strong>
-          <small>套餐购买 · 续费 · 账单查询</small>
-        </aside>
-      </section>
-      <section className="china-billing-help">
-        <div><CircleDollarSign size={20} /><span><strong>支付后没有到账？</strong><small>请先返回工作台刷新套餐额度；仍未更新时，保留小程序订单号并联系客服。</small></span></div>
-        <a href="mailto:feedback@xyaip.fun">联系支持 <ChevronRight size={16} /></a>
-      </section>
-    </div>
-  );
+  return <OverseasBillingPage language={language} authVersion={authVersion} />;
 }
 
 function TemplatesPage({ authVersion }) {

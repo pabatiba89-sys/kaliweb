@@ -9,6 +9,7 @@
     "build": "astro build",
     "preview": "astro preview --host 127.0.0.1",
     "i18n:generate": "node scripts/generate-translations.mjs",
+    "i18n:update": "node scripts/generate-translations.mjs --missing-only --changed-only --scope=credits",
     "site:i18n:generate": "node scripts/generate-site-translations.mjs",
     "check": "astro check"
   },

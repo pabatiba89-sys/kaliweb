@@ -141,3 +141,4 @@
 - 2026-07-24：Video Studio 展示失败原因时要兼容后端任务字段 `remark/error_msg/errorMsg/reason/status_reason`，并下钻详情接口的 `data/payload/response/result/shanjianData`；不要只读 `fail_reason/failureReason/message`。
 - 2026-07-24：文案生成结果跳转视频制作时，普通非音乐文案默认进入分镜制作（形象播报 Pro / `productionType=professional`），提示词也应输出“分镜1/分镜2”以便预填分镜；不要默认跳旧的数字人口播或智能成片。
 - 2026-07-26：视频制作素材时长必须出现在所有可能被后端保存的字段中：顶层 `materials/materialList/materialsJson`、`shanjianData.materials`、Pro `scenes/sceneList/scene_list[].materials`，且每个素材同时带 `duration/durationSeconds/duration_seconds`；只放顶层 `materials` 可能被后端清洗或落库路径丢掉。
+- 2026-07-28：工作台购买与订单统一改为积分模式：主余额只展示 `credits_total/credits_remaining`，积分包读取套餐接口的 `credits_count/credit_unit_price/original_price/price/discount_percent`，订单页兼容购买历史和订单字段；中文不再跳小程序，24 种界面语言共用同一积分购买与订单页面。
