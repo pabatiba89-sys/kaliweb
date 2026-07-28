@@ -6194,10 +6194,11 @@ video.media-preview {
   font-size: 11px;
 }
 
-.billing-refund-panel > a {
+.billing-refund-panel > button {
   flex: 0 0 auto;
   min-height: 40px;
   padding: 0 16px;
+  border: 0;
   border-radius: 11px;
   background: var(--green);
   color: #fff;
@@ -6206,7 +6207,7 @@ video.media-preview {
   justify-content: center;
   font-size: 12px;
   font-weight: 850;
-  text-decoration: none;
+  cursor: pointer;
 }
 
 .billing-refund-panel.is-expired {
@@ -6217,6 +6218,128 @@ video.media-preview {
 .billing-refund-panel.is-expired strong,
 .billing-refund-panel.is-expired p {
   color: var(--muted);
+}
+
+.billing-refund-panel.is-review {
+  border-color: #b9d8ee;
+  background: #f1f8fd;
+}
+
+.billing-refund-panel.is-review strong {
+  color: #236a98;
+}
+
+.billing-refund-form {
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px solid #bfe5d8;
+  border-radius: 16px;
+  background: #f7fcfa;
+  display: grid;
+  gap: 14px;
+}
+
+.billing-refund-form > header strong {
+  color: var(--green-dark);
+  font-size: 16px;
+}
+
+.billing-refund-form > header p {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.billing-refund-form > label {
+  display: grid;
+  gap: 6px;
+}
+
+.billing-refund-form > label > span {
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 820;
+}
+
+.billing-refund-form input,
+.billing-refund-form textarea {
+  width: 100%;
+  border: 1px solid #cfe2dc;
+  border-radius: 11px;
+  outline: none;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+}
+
+.billing-refund-form input {
+  height: 42px;
+  padding: 0 12px;
+}
+
+.billing-refund-form textarea {
+  min-height: 108px;
+  padding: 11px 12px;
+  resize: vertical;
+}
+
+.billing-refund-form input:focus,
+.billing-refund-form textarea:focus {
+  border-color: #65af99;
+  box-shadow: 0 0 0 3px rgba(34, 156, 118, 0.1);
+}
+
+.billing-refund-form label small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.billing-refund-form label:last-of-type small {
+  text-align: right;
+}
+
+.billing-refund-error {
+  padding: 10px 11px;
+  border-radius: 10px;
+  background: #fff0ed;
+  color: #a93228;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 760;
+}
+
+.billing-refund-form > footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.billing-refund-form > footer button {
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid #cfe2dc;
+  border-radius: 11px;
+  background: #fff;
+  color: var(--green-dark);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.billing-refund-form > footer button[type="submit"] {
+  border-color: var(--green);
+  background: var(--green);
+  color: #fff;
+}
+
+.billing-refund-form > footer button:disabled {
+  cursor: default;
+  opacity: 0.6;
 }
 
 .payment-modal-backdrop {
@@ -6774,8 +6897,13 @@ video.media-preview {
     flex-direction: column;
   }
 
-  .billing-refund-panel > a {
+  .billing-refund-panel > button {
     width: 100%;
+  }
+
+  .billing-refund-form > footer {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
   }
 
   .billing-orders {

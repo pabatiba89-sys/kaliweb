@@ -5629,18 +5629,39 @@ const normalizeBillingOrder = (record = {}, index = 0, plans = [], locale = 'en-
   const embeddedPlan = record.plan && typeof record.plan === 'object' ? record.plan : {};
   const relatedPlan = plans.find((plan) => String(pick(plan.id, plan.plan_id, plan.planId)) === String(planId)) || embeddedPlan;
   const statusValue = pick(record.status, record.pay_status, record.payStatus, record.order_status, record.orderStatus);
-  const refundValue = pick(record.refund_status, record.refundStatus);
-  const isRefunded = refundValue === 1 || refundValue === '1' || /refunded|refund success|已退款/i.test(textOf(refundValue));
+  const refundValue = billingPick(record, ['refund_status', 'refundStatus']);
+  const refundName = pick(record.refund_status_name, record.refundStatusName);
+  const refundCode = billingNumber(refundValue);
+  const refundText = `${textOf(refundValue)} ${refundName}`.trim();
+  const refundStatusKey = refundCode === 1 || /refunded|refund success|已退款/i.test(refundText)
+    ? 'refunded'
+    : refundCode === 2 || /under review|reviewing|审核中|審核中/i.test(refundText)
+      ? 'review'
+      : refundCode === 3 || /rejected|declined|已拒绝|已拒絕/i.test(refundText)
+        ? 'rejected'
+        : 'none';
+  const refundStatusSource = {
+    refunded: 'Refunded',
+    review: 'Refund under review',
+    rejected: 'Refund rejected',
+    none: 'No refund requested',
+  }[refundStatusKey];
+  const isRefunded = refundStatusKey === 'refunded';
+  const isRefundPending = refundStatusKey === 'review';
   const isPaid = statusValue === 1 || statusValue === '1' || /paid|success|completed|已支付/i.test(textOf(statusValue));
   const status = isRefunded
     ? 'Refunded'
-    : isPaid
-      ? 'Completed'
-      : statusValue === 2 || statusValue === '2' || /fail|cancel|closed/i.test(textOf(statusValue))
-        ? 'Failed'
-        : statusValue === '' || statusValue === undefined
-        ? 'Completed'
-        : 'Pending';
+    : isRefundPending
+      ? 'Refund under review'
+      : refundStatusKey === 'rejected'
+        ? 'Refund rejected'
+        : isPaid
+          ? 'Completed'
+          : statusValue === 2 || statusValue === '2' || /fail|cancel|closed/i.test(textOf(statusValue))
+            ? 'Failed'
+            : statusValue === '' || statusValue === undefined
+              ? 'Completed'
+              : 'Pending';
   const rawTitle = pick(record.plan_name, record.planName, record.package_name, record.packageName, embeddedPlan.name, embeddedPlan.title, relatedPlan.name, relatedPlan.title);
   const credits = getCreditCount(record) || getCreditCount(relatedPlan)
     || billingNumber(billingPick(record, ['credits_total', 'creditsTotal'])) || 0;
@@ -5648,7 +5669,8 @@ const normalizeBillingOrder = (record = {}, index = 0, plans = [], locale = 'en-
     'discount_price', 'discountPrice', 'price', 'amount', 'sale_price', 'salePrice',
     'pay_amount', 'payAmount', 'total_amount', 'totalAmount',
   ];
-  const hasAmount = billingNumber(billingPick(record, orderAmountKeys)) !== null;
+  const amountValue = billingNumber(billingPick(record, orderAmountKeys));
+  const hasAmount = amountValue !== null;
   const payType = billingNumber(pick(record.pay_type, record.payType));
   const channelMap = {
     1: 'WeChat Pay',
@@ -5662,7 +5684,13 @@ const normalizeBillingOrder = (record = {}, index = 0, plans = [], locale = 'en-
   const channel = channelMap[channelSource] || channelMap[payType] || channelSource || 'Other payment';
   const paidAtValue = pick(record.pay_time, record.payTime, record.purchased_at, record.purchasedAt, record.created_at, record.createdAt);
   const refundDeadline = getRefundDeadline(paidAtValue);
-  const canRequestRefund = Boolean(isPaid && !isRefunded && refundDeadline && refundDeadline.getTime() > Date.now());
+  const canRequestRefund = Boolean(
+    isPaid
+    && refundStatusKey !== 'refunded'
+    && refundStatusKey !== 'review'
+    && refundDeadline
+    && refundDeadline.getTime() > Date.now()
+  );
 
   return {
     id: pick(record.id, record.order_id, record.orderId, record.order_no, record.orderNo, `order-${index}`),
@@ -5671,6 +5699,7 @@ const normalizeBillingOrder = (record = {}, index = 0, plans = [], locale = 'en-
     title: translateBilling(rawTitle ? getBillingPlanTitleSource(rawTitle) : 'Credit purchase', locale, catalog),
     credits: `${formatCreditNumber(credits, locale)} ${translateBilling('credits', locale, catalog)}`,
     amount: hasAmount ? formatBillingMoney(record, orderAmountKeys) : '—',
+    amountValue,
     date: formatBillingDateTime(paidAtValue, locale),
     createdAt: formatBillingDateTime(pick(record.created_at, record.createdAt), locale),
     paidAt: formatBillingDateTime(pick(record.pay_time, record.payTime), locale),
@@ -5679,13 +5708,23 @@ const normalizeBillingOrder = (record = {}, index = 0, plans = [], locale = 'en-
     refundAmount: billingNumber(billingPick(record, ['refund_amount', 'refundAmount'])) > 0
       ? formatBillingMoney(record, ['refund_amount', 'refundAmount'])
       : '',
+    refundStatusKey,
+    refundStatus: translateBilling(refundStatusSource, locale, catalog),
+    refundAppliedAt: formatBillingDateTime(pick(record.refund_apply_time, record.refundApplyTime), locale),
+    refundReason: pick(record.refund_reason, record.refundReason),
     refundedAt: formatBillingDateTime(pick(record.refund_time, record.refundTime), locale),
     description: pick(record.body, record.detail, record.description),
     statusKey: status.toLowerCase(),
     status: translateBilling(status, locale, catalog),
     canRequestRefund,
     refundDeadline: refundDeadline ? formatBillingDate(refundDeadline, locale) : '',
-    refundWindowExpired: Boolean(isPaid && !isRefunded && refundDeadline && !canRequestRefund),
+    refundWindowExpired: Boolean(
+      isPaid
+      && refundStatusKey !== 'refunded'
+      && refundStatusKey !== 'review'
+      && refundDeadline
+      && refundDeadline.getTime() <= Date.now()
+    ),
     raw: record,
   };
 };
@@ -6035,6 +6074,7 @@ function OverseasBillingPage({ language, authVersion }) {
   const [consumptionDraft, setConsumptionDraft] = useState({ recordType: '', resourceType: '', source: '', orderId: '' });
   const [consumptionParams, setConsumptionParams] = useState({});
   const [recordDetail, setRecordDetail] = useState(null);
+  const [refundRequest, setRefundRequest] = useState(null);
   const recordDetailRequestRef = useRef(0);
   const { loading, results } = useEndpointGroup(billingBaseConfig, authVersion);
   const paymentHistory = useBillingHistory('/api/pay/orders', paymentPage, paymentParams, authVersion);
@@ -6085,29 +6125,76 @@ function OverseasBillingPage({ language, authVersion }) {
   };
   const closeRecordDetail = () => {
     recordDetailRequestRef.current += 1;
+    setRefundRequest(null);
     setRecordDetail(null);
   };
-  const getRefundRequestLink = (order) => {
-    const refundText = (value) => translateBilling(value, language, localeCatalog);
-    const subject = `${refundText('Refund request -')} ${order.orderNo || order.id}`;
-    const body = [
-      refundText('Hello Kali support,'),
-      '',
-      refundText('I would like to request a refund review.'),
-      '',
-      `${refundText('Order number:')} ${order.orderNo || order.id}`,
-      `${refundText('Payment date:')} ${order.paidAt || order.date || refundText('Not available')}`,
-      `${refundText('Amount:')} ${order.amount || refundText('Not available')}`,
-      `${refundText('Payment channel:')} ${order.channel || refundText('Not available')}`,
-      '',
-      refundText('Reason:'),
-      '',
-      refundText('Please review this request against the payment and usage records.'),
-    ].join('\n');
-    return `mailto:feedback@xyaip.fun?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  const openRefundRequest = (order) => {
+    const amount = billingNumber(order.amountValue);
+    setRefundRequest({
+      order,
+      amount: amount !== null ? amount.toFixed(2) : '',
+      reason: '',
+      submitting: false,
+      error: '',
+    });
+  };
+  const submitRefundRequest = async (event) => {
+    event.preventDefault();
+    if (!refundRequest?.order) return;
+    const amount = billingNumber(refundRequest.amount);
+    const paidAmount = billingNumber(refundRequest.order.amountValue);
+    const reason = refundRequest.reason.trim();
+    if (amount === null || amount <= 0) {
+      setRefundRequest((current) => ({ ...current, error: 'Enter a valid refund amount.' }));
+      return;
+    }
+    if (paidAmount !== null && amount > paidAmount) {
+      setRefundRequest((current) => ({ ...current, error: 'Refund amount cannot exceed the paid amount.' }));
+      return;
+    }
+    if (!reason) {
+      setRefundRequest((current) => ({ ...current, error: 'Enter a refund reason.' }));
+      return;
+    }
+    if (reason.length > 500) {
+      setRefundRequest((current) => ({ ...current, error: 'Refund reason cannot exceed 500 characters.' }));
+      return;
+    }
+
+    setRefundRequest((current) => ({ ...current, submitting: true, error: '' }));
+    const result = await apiFetch('/api/pay/refund/apply', {
+      method: 'POST',
+      timeoutMs: 10000,
+      body: {
+        order_id: refundRequest.order.detailId,
+        refund_amount: Number(amount.toFixed(2)),
+        refund_reason: reason,
+      },
+    });
+    if (!result.ok) {
+      setRefundRequest((current) => ({
+        ...current,
+        submitting: false,
+        error: result.message || 'Refund request could not be submitted.',
+      }));
+      return;
+    }
+
+    const normalized = normalizeBillingOrder(
+      getBillingDetailRecord(result),
+      0,
+      rawPlans,
+      language,
+      localeCatalog,
+    );
+    setRecordDetail({ kind: 'payment', item: normalized, loading: false, error: '' });
+    setRefundRequest(null);
+    setPaymentMessage('Refund request submitted.');
+    setPaymentParams((current) => ({ ...current }));
   };
   const openRecordDetail = async (kind, item) => {
     if (!item.detailId) return;
+    setRefundRequest(null);
     const requestId = recordDetailRequestRef.current + 1;
     recordDetailRequestRef.current = requestId;
     setRecordDetail({ kind, item, loading: true, error: '' });
@@ -6137,7 +6224,10 @@ function OverseasBillingPage({ language, authVersion }) {
         ['Created at', recordDetail.item.createdAt],
         ['Paid at', recordDetail.item.paidAt],
         ['Transaction number', recordDetail.item.tradeNo],
+        ['Refund status', recordDetail.item.refundStatusKey !== 'none' ? recordDetail.item.refundStatus : ''],
         ['Refund amount', recordDetail.item.refundAmount],
+        ['Refund requested at', recordDetail.item.refundAppliedAt],
+        ['Refund reason', recordDetail.item.refundReason],
         ['Refunded at', recordDetail.item.refundedAt],
         ['Description', recordDetail.item.description],
       ]
@@ -6526,13 +6616,66 @@ function OverseasBillingPage({ language, authVersion }) {
                   ))}
                 </dl>
                 {recordDetail.kind === 'payment' && recordDetail.item.canRequestRefund && (
-                  <section className="billing-refund-panel">
+                  refundRequest ? (
+                    <form className="billing-refund-form" onSubmit={submitRefundRequest}>
+                      <header>
+                        <div>
+                          <strong>Submit refund request</strong>
+                          <p>Refund requests are available within one month of payment and are reviewed before approval.</p>
+                        </div>
+                      </header>
+                      <label>
+                        <span>Refund amount</span>
+                        <input
+                          type="number"
+                          min="0.01"
+                          max={refundRequest.order.amountValue ?? undefined}
+                          step="0.01"
+                          value={refundRequest.amount}
+                          onChange={(event) => setRefundRequest((current) => ({ ...current, amount: event.target.value, error: '' }))}
+                          disabled={refundRequest.submitting}
+                          required
+                        />
+                        <small>Maximum refundable amount: {refundRequest.order.amount}</small>
+                      </label>
+                      <label>
+                        <span>Reason for refund</span>
+                        <textarea
+                          maxLength={500}
+                          value={refundRequest.reason}
+                          onChange={(event) => setRefundRequest((current) => ({ ...current, reason: event.target.value, error: '' }))}
+                          placeholder="Tell us why you are requesting a refund."
+                          disabled={refundRequest.submitting}
+                          required
+                        />
+                        <small>{refundRequest.reason.length} / 500</small>
+                      </label>
+                      {refundRequest.error && (
+                        <div className="billing-refund-error"><AlertCircle size={16} /><span>{refundRequest.error}</span></div>
+                      )}
+                      <footer>
+                        <button type="button" onClick={() => setRefundRequest(null)} disabled={refundRequest.submitting}>Cancel</button>
+                        <button type="submit" disabled={refundRequest.submitting}>
+                          {refundRequest.submitting ? 'Submitting' : 'Submit application'}
+                        </button>
+                      </footer>
+                    </form>
+                  ) : (
+                    <section className="billing-refund-panel">
+                      <div>
+                        <strong>Refund available until {recordDetail.item.refundDeadline}</strong>
+                        <p>Refund requests are available within one month of payment and are reviewed before approval.</p>
+                      </div>
+                      <button type="button" onClick={() => openRefundRequest(recordDetail.item)}>Request refund</button>
+                    </section>
+                  )
+                )}
+                {recordDetail.kind === 'payment' && recordDetail.item.refundStatusKey === 'review' && (
+                  <section className="billing-refund-panel is-review">
                     <div>
-                      <strong>Refund available until {recordDetail.item.refundDeadline}</strong>
-                      <p>Refund requests are available within one month of payment and are reviewed before approval.</p>
-                      <small>Opens your email app with the order details filled in.</small>
+                      <strong>Refund request under review</strong>
+                      <p>We received your refund request and will review it against payment and usage records.</p>
                     </div>
-                    <a href={getRefundRequestLink(recordDetail.item)}>Request refund</a>
                   </section>
                 )}
                 {recordDetail.kind === 'payment' && recordDetail.item.refundWindowExpired && (
