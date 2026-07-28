@@ -145,3 +145,4 @@
 - 2026-07-28：积分套餐折扣展示以 `discount_price` 为实际支付价，结合 `original_price/discount_rate/discount_percent/has_discount` 判断优惠；折扣套餐卡集中展示折扣角标、划线原价和节省金额，订单金额也优先读取折后价。
 - 2026-07-28：Billing 页的记录区统一使用正式接口：支付记录读取 `/api/pay/orders`，按 `status/pay_type/plan_id/order_no` 筛选；消耗记录读取 `/api/plan/points-records`，按 `record_type/resource_type/source/order_id` 筛选，并用接口 `summary` 回显剩余、累计发放、累计消耗和累计退回积分；两类列表均支持分页和独立详情接口。
 - 2026-07-28：用户明确恢复中文购买分流：`zh-CN`/`zh-TW` 继续共用积分与订单页面，但点击具体积分包的“购买积分”时不启动 Evonet，改为弹出 `public/payments/kali-mini-program.png` 小程序码并提示在微信小程序内完成购买；其他语言保持 Evonet 单次支付。
+- 2026-07-28：积分包卡片不展示每积分单价，改为展示“约可制作 N 条 30 秒视频”；优先读取套餐 `description` 中的数量，缺失时按 `ceil(credits_count / 30)` 计算。

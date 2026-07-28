@@ -1693,5 +1693,6 @@
   "The package and price shown in the Mini Program are final.": "Mini-ohjelmassa esitetty paketti ja hinta ovat lopullisia.",
   "Use WeChat to scan the code and select the credit package in the Mini Program.": "Käytä WeChatia skannataksesi koodin ja valitaksesi luottopaketin Mini-ohjelmassa.",
   "WeChat Mini Program": "WeChat-miniohjelma",
-  "WeChat Mini Program code": "WeChat Mini -ohjelman koodi"
+  "WeChat Mini Program code": "WeChat Mini -ohjelman koodi",
+  "About {{count}} 30-second videos": "Noin {{count}} 30 sekunnin videoita"
 }

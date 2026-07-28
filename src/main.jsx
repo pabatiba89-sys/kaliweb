@@ -5553,6 +5553,14 @@ const getCreditBalance = (source = {}) => {
     percent: total > 0 ? Math.min(Math.max((used / total) * 100, 0), 100) : 0,
   };
 };
+const getPlanContentEstimate = (plan = {}, credits = 0, locale = 'en-US', catalog = {}) => {
+  const description = textOf(billingPick(plan, ['description', 'desc', 'summary', 'remark']));
+  const describedCount = description.match(/(\d[\d,]*)\s*(?:条|條)?\s*30\s*秒/i)?.[1]?.replaceAll(',', '');
+  const contentCount = billingNumber(describedCount) || (credits > 0 ? Math.ceil(credits / 30) : 0);
+  if (!contentCount) return description ? translateBilling(description, locale, catalog) : '';
+  return translateBilling('About {{count}} 30-second videos', locale, catalog)
+    .replaceAll('{{count}}', formatCreditNumber(contentCount, locale));
+};
 const normalizePlanCard = (plan = {}, index = 0, locale = 'en-US', catalog = {}) => {
   const credits = getCreditCount(plan);
   const rawTitle = pick(plan.title, plan.name, plan.plan_name, plan.planName, plan.package_name, plan.packageName);
@@ -5561,8 +5569,6 @@ const normalizePlanCard = (plan = {}, index = 0, locale = 'en-US', catalog = {})
     'price', 'amount', 'sale_price', 'salePrice', 'pay_amount', 'payAmount',
   ]));
   const originalPrice = billingNumber(billingPick(plan, ['original_price', 'originalPrice', 'list_price', 'listPrice']));
-  const explicitUnitPrice = billingNumber(billingPick(plan, ['credit_unit_price', 'creditUnitPrice', 'point_unit_price', 'pointUnitPrice']));
-  const unitPrice = explicitUnitPrice ?? (credits > 0 && price !== null ? price / credits : null);
   const explicitDiscount = billingNumber(billingPick(plan, ['discount_percent', 'discountPercent']));
   const discountRate = billingNumber(billingPick(plan, ['discount_rate', 'discountRate']));
   const inferredDiscount = price !== null && originalPrice
@@ -5585,15 +5591,13 @@ const normalizePlanCard = (plan = {}, index = 0, locale = 'en-US', catalog = {})
     title: translateBilling(rawTitle ? getBillingPlanTitleSource(rawTitle) : `Credit package ${index + 1}`, locale, catalog),
     credits,
     creditsText: `${formatCreditNumber(credits, locale)} ${translateBilling('credits', locale, catalog)}`,
+    contentEstimate: getPlanContentEstimate(plan, credits, locale, catalog),
     price: translateBilling(formatBillingMoney(moneySource, ['discount_price']), locale, catalog),
     originalPrice: hasDiscount && originalPrice
       ? translateBilling(formatBillingMoney({ ...plan, original_price: originalPrice }, ['original_price']), locale, catalog)
       : '',
     savings: savings > 0
       ? translateBilling(formatBillingMoney({ ...plan, savings }, ['savings']), locale, catalog)
-      : '',
-    unitPrice: unitPrice !== null
-      ? `${formatBillingMoney({ ...plan, credit_unit_price: unitPrice }, ['credit_unit_price'])} / ${translateBilling('credit', locale, catalog)}`
       : '',
     discount: hasDiscount && discountPercent > 0
       ? `-${formatCreditNumber(discountPercent, locale)}%`
@@ -6253,7 +6257,7 @@ function OverseasBillingPage({ language, authVersion }) {
                       <strong>{plan.title}</strong>
                       {plan.discount && <em>{plan.discount}</em>}
                     </span>
-                    <small>{plan.unitPrice || 'One-time credit purchase'}</small>
+                    <small>{plan.contentEstimate || 'One-time credit purchase'}</small>
                   </div>
                   <span className="billing-plan-credits">
                     <b>{plan.creditsText}</b>

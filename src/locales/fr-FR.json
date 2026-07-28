@@ -1706,5 +1706,6 @@
   "The package and price shown in the Mini Program are final.": "Le package et le prix affichés dans le Mini Programme sont définitifs.",
   "Use WeChat to scan the code and select the credit package in the Mini Program.": "Utilisez WeChat pour scanner le code et sélectionner le forfait de crédit dans le Mini Programme.",
   "WeChat Mini Program": "Programme Mini WeChat",
-  "WeChat Mini Program code": "Code du programme WeChat Mini"
+  "WeChat Mini Program code": "Code du programme WeChat Mini",
+  "About {{count}} 30-second videos": "Environ {{count}} vidéos de 30 secondes"
 }

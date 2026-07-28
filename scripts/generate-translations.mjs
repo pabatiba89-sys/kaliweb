@@ -124,6 +124,7 @@ const localeOverrides = {
     'No credit packages available yet': '暂无可购买的积分包',
     'View orders': '查看订单',
     'Loading credit packages...': '正在加载积分包...',
+    'About {{count}} 30-second videos': '约可制作 {{count}} 条 30 秒视频',
     'One-time credit purchase': '一次性购买积分',
     off: '优惠',
     'One-time purchase': '单次购买',
@@ -294,6 +295,7 @@ const localeOverrides = {
     'No credit packages available yet': '暫無可購買的積分包',
     'View orders': '查看訂單',
     'Loading credit packages...': '正在載入積分包...',
+    'About {{count}} 30-second videos': '約可製作 {{count}} 條 30 秒影片',
     'One-time credit purchase': '一次性購買積分',
     off: '優惠',
     'One-time purchase': '單次購買',
@@ -639,11 +641,13 @@ const getToken = async () => withRetries(() => request({ hostname: 'edge.microso
 const protectBrand = (text) => text
   .replaceAll('Kali', 'KALI_BRAND_TOKEN_9841')
   .replaceAll('Yixiu', 'YIXIU_BRAND_TOKEN_9841')
-  .replaceAll('{{name}}', 'AUTH_NAME_TOKEN_9841');
+  .replaceAll('{{name}}', 'AUTH_NAME_TOKEN_9841')
+  .replaceAll('{{count}}', 'CONTENT_COUNT_TOKEN_9841');
 const restoreBrand = (text) => text
   .replaceAll('KALI_BRAND_TOKEN_9841', 'Kali')
   .replaceAll('YIXIU_BRAND_TOKEN_9841', 'Yixiu')
-  .replaceAll('AUTH_NAME_TOKEN_9841', '{{name}}');
+  .replaceAll('AUTH_NAME_TOKEN_9841', '{{name}}')
+  .replaceAll('CONTENT_COUNT_TOKEN_9841', '{{count}}');
 
 const requestedLocale = process.argv.find((argument) => argument.startsWith('--locale='))?.split('=')[1];
 if (requestedLocale && !localeTargets[requestedLocale]) throw new Error(`Unsupported locale: ${requestedLocale}`);

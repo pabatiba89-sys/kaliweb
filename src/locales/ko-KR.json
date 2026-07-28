@@ -1757,5 +1757,6 @@
   "Use WeChat to scan the code and select the credit package in the Mini Program.": "위챗을 사용해 코드를 스캔하고 미니 프로그램에서 학점 패키지를 선택하세요.",
   "WeChat Mini Program": "위챗 미니프로그램",
   "WeChat Mini Program code": "위챗 미니 프로그램 코드",
-  "zh-TW": "zh-tw"
+  "zh-TW": "zh-tw",
+  "About {{count}} 30-second videos": "약 {{count}} 개의 30초 영상"
 }

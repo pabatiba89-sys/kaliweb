@@ -877,5 +877,6 @@
   "Use WeChat to scan the code and select the credit package in the Mini Program.": "请使用微信扫描小程序码，并在小程序内选择需要的积分包。",
   "WeChat Mini Program": "微信小程序",
   "WeChat Mini Program code": "微信小程序码",
-  "zh-TW": "真是太棒了"
+  "zh-TW": "真是太棒了",
+  "About {{count}} 30-second videos": "约可制作 {{count}} 条 30 秒视频"
 }
