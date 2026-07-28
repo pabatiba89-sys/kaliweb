@@ -1692,5 +1692,14 @@
   "Plan purchase": "Купівля плану",
   "Refund amount": "Сума повернення коштів",
   "Refunded at": "Повернено за адресою",
-  "Video settlement": "Відео-поселення"
+  "Video settlement": "Відео-поселення",
+  "After payment, return here and refresh your credit balance.": "Після оплати поверніться сюди і оновіть свій кредитний баланс.",
+  "Complete your purchase in the Mini Program": "Завершіть свою покупку в Mini Program",
+  "Continue purchase in the Mini Program": "Продовжуйте купівлю в рамках програми Mini",
+  "Got it": "Зрозуміло",
+  "Scan with WeChat": "Скануйте за допомогою WeChat",
+  "The package and price shown in the Mini Program are final.": "Пакет і ціна, показані в Міні-програмі, є остаточними.",
+  "Use WeChat to scan the code and select the credit package in the Mini Program.": "Використовуйте WeChat, щоб відсканувати код і вибрати кредитний пакет у Mini Program.",
+  "WeChat Mini Program": "Міні-програма WeChat",
+  "WeChat Mini Program code": "Код програми WeChat Mini"
 }

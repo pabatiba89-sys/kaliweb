@@ -1666,5 +1666,15 @@
   "Plan purchase": "方案購買",
   "Refund amount": "退款金額",
   "Refunded at": "退款時間",
-  "Video settlement": "影片結算"
+  "Video settlement": "影片結算",
+  "After payment, return here and refresh your credit balance.": "付款完成後，請返回本頁面並重新整理積分餘額。",
+  "Complete your purchase in the Mini Program": "請在小程式內完成積分購買",
+  "Continue purchase in the Mini Program": "前往小程式完成購買",
+  "Got it": "我知道了",
+  "Scan with WeChat": "微信掃碼",
+  "The package and price shown in the Mini Program are final.": "實際可購買的積分包及價格以小程式內顯示為準。",
+  "Use WeChat to scan the code and select the credit package in the Mini Program.": "請使用微信掃描小程式碼，並在小程式內選擇需要的積分包。",
+  "WeChat Mini Program": "微信小程式",
+  "WeChat Mini Program code": "微信小程式碼",
+  "zh-TW": "茲-特"
 }

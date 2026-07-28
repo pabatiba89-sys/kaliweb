@@ -1692,5 +1692,14 @@
   "Plan purchase": "Achiziția planului",
   "Refund amount": "Suma rambursării",
   "Refunded at": "Rambursat la",
-  "Video settlement": "Înțelegerea video"
+  "Video settlement": "Înțelegerea video",
+  "After payment, return here and refresh your credit balance.": "După plată, revino aici și reîmprospătează-ți soldul de credit.",
+  "Complete your purchase in the Mini Program": "Finalizează achiziția în cadrul Programului Mini",
+  "Continue purchase in the Mini Program": "Continuă achiziția în Programul Mini",
+  "Got it": "Am înțeles",
+  "Scan with WeChat": "Scanează cu WeChat",
+  "The package and price shown in the Mini Program are final.": "Pachetul și prețul afișate în Mini Program sunt definitive.",
+  "Use WeChat to scan the code and select the credit package in the Mini Program.": "Folosește WeChat pentru a scana codul și a selecta pachetul de credit în Mini Program.",
+  "WeChat Mini Program": "Programul Mini WeChat",
+  "WeChat Mini Program code": "Codul programului WeChat Mini"
 }

@@ -1747,5 +1747,15 @@
   "Plan purchase": "플랜 구매",
   "Refund amount": "환불 금액",
   "Refunded at": "환불",
-  "Video settlement": "비디오 결제"
+  "Video settlement": "비디오 결제",
+  "After payment, return here and refresh your credit balance.": "결제 후 여기로 돌아와 신용 잔액을 새로 갱납하세요.",
+  "Complete your purchase in the Mini Program": "미니 프로그램에서 구매를 완료하세요",
+  "Continue purchase in the Mini Program": "미니 프로그램에서 계속 구매하세요",
+  "Got it": "알겠어",
+  "Scan with WeChat": "위챗으로 스캔하기",
+  "The package and price shown in the Mini Program are final.": "미니 프로그램에 표시된 패키지와 가격은 최종 확정입니다.",
+  "Use WeChat to scan the code and select the credit package in the Mini Program.": "위챗을 사용해 코드를 스캔하고 미니 프로그램에서 학점 패키지를 선택하세요.",
+  "WeChat Mini Program": "위챗 미니프로그램",
+  "WeChat Mini Program code": "위챗 미니 프로그램 코드",
+  "zh-TW": "zh-tw"
 }

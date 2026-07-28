@@ -1684,5 +1684,14 @@
   "Plan purchase": "Suunnitelman hankinta",
   "Refund amount": "Palautussumma",
   "Refunded at": "Hyvitys osoitteesta",
-  "Video settlement": "Videoasutus"
+  "Video settlement": "Videoasutus",
+  "After payment, return here and refresh your credit balance.": "Maksun jälkeen palaa tänne ja päivitä luottosaldosi.",
+  "Complete your purchase in the Mini Program": "Suorita ostoksesi Mini-ohjelmassa",
+  "Continue purchase in the Mini Program": "Jatka ostamista Mini-ohjelmassa",
+  "Got it": "Selkis",
+  "Scan with WeChat": "Skannaa WeChatilla",
+  "The package and price shown in the Mini Program are final.": "Mini-ohjelmassa esitetty paketti ja hinta ovat lopullisia.",
+  "Use WeChat to scan the code and select the credit package in the Mini Program.": "Käytä WeChatia skannataksesi koodin ja valitaksesi luottopaketin Mini-ohjelmassa.",
+  "WeChat Mini Program": "WeChat-miniohjelma",
+  "WeChat Mini Program code": "WeChat Mini -ohjelman koodi"
 }

@@ -1780,5 +1780,15 @@
   "Plan purchase": "วางแผนการซื้อ",
   "Refund amount": "จํานวนเงินคืน",
   "Refunded at": "คืนเงินที่",
-  "Video settlement": "การชําระบัญชีด้วยวิดีโอ"
+  "Video settlement": "การชําระบัญชีด้วยวิดีโอ",
+  "After payment, return here and refresh your credit balance.": "หลังจากชําระเงินแล้ว กรุณากลับมาที่นี่และรีเฟรชยอดเครดิตของคุณ",
+  "Complete your purchase in the Mini Program": "ดําเนินการซื้อของคุณให้เสร็จสิ้นในโปรแกรมย่อย",
+  "Continue purchase in the Mini Program": "ดําเนินการซื้อต่อในโปรแกรมย่อย",
+  "Got it": "เข้าใจแล้ว",
+  "Scan with WeChat": "สแกนด้วย WeChat",
+  "The package and price shown in the Mini Program are final.": "แพ็กเกจและราคาที่แสดงในมินิโปรแกรมถือเป็นราคาสุดท้าย",
+  "Use WeChat to scan the code and select the credit package in the Mini Program.": "ใช้ WeChat เพื่อสแกนรหัสและเลือกแพ็กเกจเครดิตในโปรแกรมย่อย",
+  "WeChat Mini Program": "โปรแกรมย่อย WeChat",
+  "WeChat Mini Program code": "โค้ดโปรแกรมย่อยของ WeChat",
+  "zh-CN": "เอช-ซีเอ็น"
 }

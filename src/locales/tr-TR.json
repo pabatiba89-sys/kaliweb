@@ -1681,5 +1681,14 @@
   "Plan purchase": "Plan satın alma",
   "Refund amount": "İade tutarı",
   "Refunded at": "İade adresinden",
-  "Video settlement": "Video yerleşim"
+  "Video settlement": "Video yerleşim",
+  "After payment, return here and refresh your credit balance.": "Ödemeden sonra buraya geri dönün ve kredi bakiyenizi yenileyin.",
+  "Complete your purchase in the Mini Program": "Satın alımınızı Mini Program'da tamamlayın",
+  "Continue purchase in the Mini Program": "Mini Program'da satın almaya devam edin",
+  "Got it": "Anladım",
+  "Scan with WeChat": "WeChat ile tarama",
+  "The package and price shown in the Mini Program are final.": "Mini Program'da gösterilen paket ve fiyat kesin.",
+  "Use WeChat to scan the code and select the credit package in the Mini Program.": "Mini Program'da kodu taramak ve kredi paketini seçmek için WeChat kullanın.",
+  "WeChat Mini Program": "WeChat Mini Programı",
+  "WeChat Mini Program code": "WeChat Mini Program Kodu"
 }

@@ -1723,5 +1723,15 @@
   "Plan purchase": "プラン購入",
   "Refund amount": "返金金額",
   "Refunded at": "返金はこちらで",
-  "Video settlement": "ビデオ決済"
+  "Video settlement": "ビデオ決済",
+  "After payment, return here and refresh your credit balance.": "支払い後、ここに戻ってクレジット残高を更新してください。",
+  "Complete your purchase in the Mini Program": "ミニプログラムで購入を完了してください",
+  "Continue purchase in the Mini Program": "ミニプログラムでの購入を続ける",
+  "Got it": "了解",
+  "Scan with WeChat": "WeChatでスキャン",
+  "The package and price shown in the Mini Program are final.": "ミニプログラムに表示されているパッケージと価格は最終的なものです。",
+  "Use WeChat to scan the code and select the credit package in the Mini Program.": "WeChatを使ってコードをスキャンし、ミニプログラムで単位パッケージを選択します。",
+  "WeChat Mini Program": "WeChatミニプログラム",
+  "WeChat Mini Program code": "WeChat ミニプログラムコード",
+  "zh-TW": "ツッ・トゥ"
 }

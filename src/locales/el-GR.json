@@ -1748,5 +1748,14 @@
   "Plan purchase": "Αγορά προγράμματος",
   "Refund amount": "Ποσό επιστροφής χρημάτων",
   "Refunded at": "Επιστροφή χρημάτων σε",
-  "Video settlement": "Διακανονισμός βίντεο"
+  "Video settlement": "Διακανονισμός βίντεο",
+  "After payment, return here and refresh your credit balance.": "Μετά την πληρωμή, επιστρέψτε εδώ και ανανεώστε το πιστωτικό σας υπόλοιπο.",
+  "Complete your purchase in the Mini Program": "Ολοκλήρωσε την αγορά σου στο Mini Program",
+  "Continue purchase in the Mini Program": "Συνεχίστε την αγορά στο Mini Program",
+  "Got it": "Το κατάλαβα",
+  "Scan with WeChat": "Σάρωση με WeChat",
+  "The package and price shown in the Mini Program are final.": "Το πακέτο και η τιμή που εμφανίζονται στο Mini Program είναι οριστικά.",
+  "Use WeChat to scan the code and select the credit package in the Mini Program.": "Χρησιμοποιήστε το WeChat για να σαρώσετε τον κωδικό και να επιλέξετε το πακέτο πίστωσης στο Μίνι Πρόγραμμα.",
+  "WeChat Mini Program": "Πρόγραμμα WeChat Mini",
+  "WeChat Mini Program code": "Κωδικός προγράμματος WeChat Mini"
 }

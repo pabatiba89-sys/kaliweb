@@ -5932,6 +5932,59 @@ function EvonetPaymentModal({ checkout, language, onClose, onEvent }) {
   );
 }
 
+function MiniProgramPurchaseModal({ plan, language, catalog, onClose }) {
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
+  return (
+    <div className="payment-modal-backdrop" role="presentation" onMouseDown={(event) => {
+      if (event.target === event.currentTarget) onClose();
+    }}>
+      <section className="mini-program-payment-modal" role="dialog" aria-modal="true" aria-labelledby="mini-program-payment-title">
+        <header>
+          <div>
+            <small>{translateBilling('WeChat Mini Program', language, catalog)}</small>
+            <h2 id="mini-program-payment-title">{translateBilling('Continue purchase in the Mini Program', language, catalog)}</h2>
+          </div>
+          <button type="button" className="icon-button" onClick={onClose} aria-label={translateBilling('Close checkout', language, catalog)}>
+            <X size={18} />
+          </button>
+        </header>
+        <div className="payment-modal-summary">
+          <span>{plan.creditsText}</span>
+          <small>{plan.price}</small>
+        </div>
+        <div className="mini-program-payment-body">
+          <div className="mini-program-payment-qr">
+            <img
+              src="/payments/kali-mini-program.png"
+              alt={translateBilling('WeChat Mini Program code', language, catalog)}
+            />
+          </div>
+          <div className="mini-program-payment-copy">
+            <span><Coins size={16} /> {translateBilling('Scan with WeChat', language, catalog)}</span>
+            <h3>{translateBilling('Complete your purchase in the Mini Program', language, catalog)}</h3>
+            <p>{translateBilling('Use WeChat to scan the code and select the credit package in the Mini Program.', language, catalog)}</p>
+            <div>
+              <CheckCircle2 size={18} />
+              <p>{translateBilling('After payment, return here and refresh your credit balance.', language, catalog)}</p>
+            </div>
+            <small>{translateBilling('The package and price shown in the Mini Program are final.', language, catalog)}</small>
+            <button type="button" className="primary-button" onClick={onClose}>
+              {translateBilling('Got it', language, catalog)}
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
 const billingBaseConfig = {
   ...pageConfigs.billing,
   endpoints: pageConfigs.billing.endpoints.filter((endpoint) => ['Credit balance', 'Credit packages'].includes(endpoint.label)),
@@ -5941,6 +5994,7 @@ function OverseasBillingPage({ language, authVersion }) {
   const localeCatalog = useLocaleCatalog(language);
   const [activeTab, setActiveTab] = useState('purchase');
   const [checkout, setCheckout] = useState(null);
+  const [miniProgramPlan, setMiniProgramPlan] = useState(null);
   const [paymentMessage, setPaymentMessage] = useState('');
   const [paymentError, setPaymentError] = useState('');
   const [startingPlanId, setStartingPlanId] = useState('');
@@ -6065,6 +6119,15 @@ function OverseasBillingPage({ language, authVersion }) {
       return;
     }
     setCheckout({ plan, session });
+  };
+  const startPlanPurchase = (plan) => {
+    setPaymentMessage('');
+    setPaymentError('');
+    if (language === 'zh-CN' || language === 'zh-TW') {
+      setMiniProgramPlan(plan);
+      return;
+    }
+    startOneTimePayment(plan);
   };
   const handlePaymentEvent = useCallback(async (event) => {
     if (!checkout?.session) return;
@@ -6207,7 +6270,7 @@ function OverseasBillingPage({ language, authVersion }) {
                       <small>One-time purchase</small>
                     )}
                   </span>
-                  <button type="button" onClick={() => startOneTimePayment(plan)} disabled={Boolean(startingPlanId) || plan.purchased}>
+                  <button type="button" onClick={() => startPlanPurchase(plan)} disabled={Boolean(startingPlanId) || plan.purchased}>
                     {plan.purchased ? 'Purchased' : startingPlanId === plan.id ? 'Starting' : 'Buy credits'}
                   </button>
                 </article>
@@ -6380,6 +6443,14 @@ function OverseasBillingPage({ language, authVersion }) {
           language={language}
           onClose={() => setCheckout(null)}
           onEvent={handlePaymentEvent}
+        />
+      )}
+      {miniProgramPlan && (
+        <MiniProgramPurchaseModal
+          plan={miniProgramPlan}
+          language={language}
+          catalog={localeCatalog}
+          onClose={() => setMiniProgramPlan(null)}
         />
       )}
       {recordDetail && (

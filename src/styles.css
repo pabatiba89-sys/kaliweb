@@ -6246,6 +6246,129 @@ video.media-preview {
   padding: 18px;
 }
 
+.mini-program-payment-modal {
+  width: min(720px, 100%);
+  max-height: min(760px, calc(100vh - 48px));
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 26px 80px rgba(15, 35, 31, 0.28);
+}
+
+.mini-program-payment-modal > header {
+  padding: 18px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.mini-program-payment-modal > header small {
+  color: var(--green-dark);
+  font-size: 11px;
+  font-weight: 880;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.mini-program-payment-modal > header h2 {
+  margin: 4px 0 0;
+  color: var(--ink);
+  font-size: 23px;
+  line-height: 1.2;
+}
+
+.mini-program-payment-body {
+  padding: 20px;
+  display: grid;
+  grid-template-columns: minmax(260px, 0.9fr) minmax(0, 1.1fr);
+  align-items: center;
+  gap: 24px;
+}
+
+.mini-program-payment-qr {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid #d7e8e3;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 14px 36px rgba(24, 62, 53, 0.1);
+}
+
+.mini-program-payment-qr img {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  display: block;
+}
+
+.mini-program-payment-copy {
+  min-width: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.mini-program-payment-copy > span {
+  width: max-content;
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: #e8f8f3;
+  color: var(--green-dark);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 880;
+}
+
+.mini-program-payment-copy h3,
+.mini-program-payment-copy p {
+  margin: 0;
+}
+
+.mini-program-payment-copy h3 {
+  color: var(--ink);
+  font-size: 22px;
+  line-height: 1.3;
+}
+
+.mini-program-payment-copy > p,
+.mini-program-payment-copy > small {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.mini-program-payment-copy > div {
+  padding: 11px 12px;
+  border-radius: 14px;
+  background: #f1faf6;
+  color: #31564e;
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+}
+
+.mini-program-payment-copy > div svg {
+  flex: 0 0 auto;
+  margin-top: 2px;
+  color: #168565;
+}
+
+.mini-program-payment-copy > div p {
+  font-size: 12px;
+  font-weight: 760;
+  line-height: 1.55;
+}
+
+.mini-program-payment-copy > button {
+  width: 100%;
+  min-height: 42px;
+  margin-top: 2px;
+}
+
 .china-billing-page {
   display: grid;
   gap: 16px;
@@ -6490,6 +6613,38 @@ video.media-preview {
 }
 
 @media (max-width: 640px) {
+  .payment-modal-backdrop {
+    padding: 12px;
+  }
+
+  .mini-program-payment-modal {
+    max-height: calc(100vh - 24px);
+    border-radius: 20px;
+  }
+
+  .mini-program-payment-modal > header {
+    padding: 15px;
+  }
+
+  .mini-program-payment-modal > header h2 {
+    font-size: 20px;
+  }
+
+  .mini-program-payment-body {
+    padding: 15px;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .mini-program-payment-qr {
+    width: min(100%, 360px);
+    justify-self: center;
+  }
+
+  .mini-program-payment-copy h3 {
+    font-size: 19px;
+  }
+
   .billing-hero {
     min-height: 0;
     padding: 18px;

@@ -1744,5 +1744,14 @@
   "Plan purchase": "شراء الخطة",
   "Refund amount": "مبلغ الاسترداد",
   "Refunded at": "تم تعويض التمويل في",
-  "Video settlement": "تسوية الفيديو"
+  "Video settlement": "تسوية الفيديو",
+  "After payment, return here and refresh your credit balance.": "بعد الدفع، عد هنا وجدد رصيد ائتمانك.",
+  "Complete your purchase in the Mini Program": "أكمل عملية الشراء في البرنامج المصغر",
+  "Continue purchase in the Mini Program": "استمر في الشراء في البرنامج المصغر",
+  "Got it": "فهمت",
+  "Scan with WeChat": "امسح ضوئيا باستخدام وي تشات",
+  "The package and price shown in the Mini Program are final.": "الحزمة والسعر المعروضان في البرنامج المصغر هما نهائيان.",
+  "Use WeChat to scan the code and select the credit package in the Mini Program.": "استخدم وي شات لمسح الرمز واختيار حزمة الائتمان في البرنامج المصغر.",
+  "WeChat Mini Program": "برنامج وي تشات المصغر",
+  "WeChat Mini Program code": "رمز برنامج WeChat المصغر"
 }

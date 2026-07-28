@@ -1705,5 +1705,14 @@
   "Plan purchase": "Compra do plano",
   "Refund amount": "Valor do reembolso",
   "Refunded at": "Reembolsado em",
-  "Video settlement": "Acordo por vídeo"
+  "Video settlement": "Acordo por vídeo",
+  "After payment, return here and refresh your credit balance.": "Após o pagamento, volte aqui e atualize o seu saldo de crédito.",
+  "Complete your purchase in the Mini Program": "Conclua a sua compra no Programa Mini",
+  "Continue purchase in the Mini Program": "Continuar a compra no Programa Mini",
+  "Got it": "Percebi",
+  "Scan with WeChat": "Digitalizar com o WeChat",
+  "The package and price shown in the Mini Program are final.": "O pacote e o preço mostrados no Mini Programa são definitivos.",
+  "Use WeChat to scan the code and select the credit package in the Mini Program.": "Use o WeChat para digitalizar o código e selecionar o pacote de créditos no Mini Program.",
+  "WeChat Mini Program": "Programa Mini WeChat",
+  "WeChat Mini Program code": "Código do programa WeChat Mini"
 }

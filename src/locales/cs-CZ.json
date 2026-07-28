@@ -1678,5 +1678,13 @@
   "Plan purchase": "Nákup plánu",
   "Refund amount": "Částka vrácení peněz",
   "Refunded at": "Vráceno na",
-  "Video settlement": "Video vyrovnání"
+  "Video settlement": "Video vyrovnání",
+  "After payment, return here and refresh your credit balance.": "Po zaplacení se vraťte sem a obnovte si kreditní zůstatek.",
+  "Complete your purchase in the Mini Program": "Dokončete nákup v Mini programu",
+  "Continue purchase in the Mini Program": "Pokračovat v nákupu v Mini programu",
+  "Got it": "Rozumím",
+  "Scan with WeChat": "Skenovat pomocí WeChatu",
+  "The package and price shown in the Mini Program are final.": "Balíček a cena uvedené v Mini programu jsou konečné.",
+  "Use WeChat to scan the code and select the credit package in the Mini Program.": "Použijte WeChat ke skenování kódu a výběru kreditního balíčku v Mini programu.",
+  "WeChat Mini Program code": "Kód programu WeChat Mini"
 }
