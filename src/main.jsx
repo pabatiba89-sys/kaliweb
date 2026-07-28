@@ -5530,7 +5530,7 @@ const formatBillingMoney = (
   const currency = rmbAnchored
     ? (isChinese ? 'CNY' : 'USD')
     : pick(plan.currency, plan.currency_code, plan.currencyCode) || (isChinese ? 'CNY' : 'USD');
-  const displayAmount = rmbAnchored && !isChinese ? Math.round(number / RMB_PER_USD) : number;
+  const displayAmount = rmbAnchored && !isChinese ? Math.ceil(number / RMB_PER_USD) : number;
   try {
     return new Intl.NumberFormat(locale, {
       style: 'currency',
