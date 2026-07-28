@@ -5496,6 +5496,18 @@ const formatBillingDate = (value, locale = 'en-US') => {
     return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(date);
   }
 };
+const formatBillingDateTime = (value, locale = 'en-US') => {
+  if (!value) return '';
+  const numeric = Number(value);
+  const date = new Date(Number.isFinite(numeric) && numeric > 0 && numeric < 1000000000000 ? numeric * 1000 : value);
+  if (Number.isNaN(date.getTime())) return textOf(value);
+  const options = { year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' };
+  try {
+    return new Intl.DateTimeFormat(locale, options).format(date);
+  } catch {
+    return new Intl.DateTimeFormat('en-US', options).format(date);
+  }
+};
 const formatBillingMoney = (plan = {}, amountKeys = ['price', 'amount', 'sale_price', 'salePrice', 'pay_amount', 'payAmount', 'total_amount', 'totalAmount']) => {
   const amount = billingPick(plan, amountKeys);
   const number = billingNumber(amount);
@@ -5592,7 +5604,8 @@ const normalizePlanCard = (plan = {}, index = 0, locale = 'en-US', catalog = {})
 };
 const normalizeBillingOrder = (record = {}, index = 0, plans = [], locale = 'en-US', catalog = {}) => {
   const planId = pick(record.plan_id, record.planId, record.package_id, record.packageId);
-  const relatedPlan = plans.find((plan) => String(pick(plan.id, plan.plan_id, plan.planId)) === String(planId)) || {};
+  const embeddedPlan = record.plan && typeof record.plan === 'object' ? record.plan : {};
+  const relatedPlan = plans.find((plan) => String(pick(plan.id, plan.plan_id, plan.planId)) === String(planId)) || embeddedPlan;
   const statusValue = pick(record.status, record.pay_status, record.payStatus, record.order_status, record.orderStatus);
   const refundValue = pick(record.refund_status, record.refundStatus);
   const status = refundValue === 1 || refundValue === '1'
@@ -5602,9 +5615,9 @@ const normalizeBillingOrder = (record = {}, index = 0, plans = [], locale = 'en-
       : statusValue === 2 || statusValue === '2' || /fail|cancel|closed/i.test(textOf(statusValue))
         ? 'Failed'
         : statusValue === '' || statusValue === undefined
-          ? 'Completed'
-          : 'Pending';
-  const rawTitle = pick(record.plan_name, record.planName, record.package_name, record.packageName, relatedPlan.name, relatedPlan.title);
+        ? 'Completed'
+        : 'Pending';
+  const rawTitle = pick(record.plan_name, record.planName, record.package_name, record.packageName, embeddedPlan.name, embeddedPlan.title, relatedPlan.name, relatedPlan.title);
   const credits = getCreditCount(record) || getCreditCount(relatedPlan)
     || billingNumber(billingPick(record, ['credits_total', 'creditsTotal'])) || 0;
   const orderAmountKeys = [
@@ -5612,18 +5625,184 @@ const normalizeBillingOrder = (record = {}, index = 0, plans = [], locale = 'en-
     'pay_amount', 'payAmount', 'total_amount', 'totalAmount',
   ];
   const hasAmount = billingNumber(billingPick(record, orderAmountKeys)) !== null;
+  const payType = billingNumber(pick(record.pay_type, record.payType));
+  const channelMap = {
+    1: 'WeChat Pay',
+    2: 'WeChat Virtual Pay',
+    3: 'Evonet',
+    微信支付: 'WeChat Pay',
+    微信虚拟支付: 'WeChat Virtual Pay',
+    其他支付: 'Other payment',
+  };
+  const channelSource = pick(record.pay_type_name, record.payTypeName, record.payment_channel, record.paymentChannel, record.channel, record.provider);
+  const channel = channelMap[channelSource] || channelMap[payType] || channelSource || 'Other payment';
 
   return {
     id: pick(record.id, record.order_id, record.orderId, record.order_no, record.orderNo, `order-${index}`),
+    detailId: pick(record.id, record.order_id, record.orderId),
     orderNo: pick(record.order_no, record.orderNo, record.trade_no, record.tradeNo),
     title: translateBilling(rawTitle ? getBillingPlanTitleSource(rawTitle) : 'Credit purchase', locale, catalog),
     credits: `${formatCreditNumber(credits, locale)} ${translateBilling('credits', locale, catalog)}`,
     amount: hasAmount ? formatBillingMoney(record, orderAmountKeys) : '—',
-    date: formatBillingDate(pick(record.pay_time, record.payTime, record.purchased_at, record.purchasedAt, record.created_at, record.createdAt), locale),
+    date: formatBillingDateTime(pick(record.pay_time, record.payTime, record.purchased_at, record.purchasedAt, record.created_at, record.createdAt), locale),
+    createdAt: formatBillingDateTime(pick(record.created_at, record.createdAt), locale),
+    paidAt: formatBillingDateTime(pick(record.pay_time, record.payTime), locale),
+    channel: translateBilling(channel, locale, catalog),
+    tradeNo: pick(record.trade_no, record.tradeNo, record.wx_order_id, record.wxOrderId),
+    refundAmount: billingNumber(billingPick(record, ['refund_amount', 'refundAmount'])) > 0
+      ? formatBillingMoney(record, ['refund_amount', 'refundAmount'])
+      : '',
+    refundedAt: formatBillingDateTime(pick(record.refund_time, record.refundTime), locale),
+    description: pick(record.body, record.detail, record.description),
     statusKey: status.toLowerCase(),
     status: translateBilling(status, locale, catalog),
+    raw: record,
   };
 };
+const creditRecordTypeMap = {
+  1: 'Credit granted',
+  2: 'Credit consumed',
+  3: 'Credit refunded',
+  积分发放: 'Credit granted',
+  积分消耗: 'Credit consumed',
+  积分退回: 'Credit refunded',
+  积分变动: 'Credit changed',
+};
+const creditResourceNameMap = {
+  ai_human: 'Digital human training',
+  image_ai_human: 'Image digital human',
+  voice: 'Voice training',
+  video: 'Video generation',
+  video_production: 'Video production',
+  music: 'Music generation',
+  chat: 'Script generation',
+  image: 'Image generation',
+  cover: 'Video cover',
+  数字人训练: 'Digital human training',
+  图片数字人训练: 'Image digital human',
+  声音训练: 'Voice training',
+  视频生成: 'Video generation',
+  '视频制作（含封面）': 'Video production',
+  音乐制作: 'Music generation',
+  文案生成: 'Script generation',
+  图片生成: 'Image generation',
+  封面生成: 'Video cover',
+};
+const creditSourceNameMap = {
+  plan_purchase: 'Plan purchase',
+  grant: 'Credit grant',
+  resource_consume: 'Creation consumption',
+  resource_refund: 'Creation refund',
+  video_actual_settlement: 'Video settlement',
+};
+const normalizeCreditRecord = (record = {}, index = 0, locale = 'en-US', catalog = {}) => {
+  const amount = billingNumber(billingPick(record, ['amount', 'credits', 'points', 'change_amount', 'changeAmount'])) || 0;
+  const typeValue = pick(record.type, record.record_type, record.recordType);
+  const rawTypeName = pick(record.type_name, record.typeName);
+  const typeSource = creditRecordTypeMap[rawTypeName] || creditRecordTypeMap[typeValue]
+    || (amount < 0 ? 'Credit consumed' : 'Credit granted');
+  const direction = amount < 0 || /expense|consume/i.test(textOf(record.direction)) ? 'expense' : 'income';
+  const resourceType = pick(record.resource_type, record.resourceType, record.related_type, record.relatedType);
+  const rawResourceName = pick(record.resource_name, record.resourceName, resourceType);
+  const resourceSource = creditResourceNameMap[rawResourceName] || creditResourceNameMap[resourceType] || rawResourceName || 'Credits';
+  const note = pick(record.remark, record.description, record.detail, record.note);
+
+  return {
+    id: pick(record.id, record.record_id, record.recordId, `credit-record-${index}`),
+    detailId: pick(record.id, record.record_id, record.recordId),
+    typeKey: Number(typeValue) === 3 ? 'refunded' : direction === 'expense' ? 'consumed' : 'granted',
+    type: translateBilling(typeSource, locale, catalog),
+    resource: translateBilling(resourceSource, locale, catalog),
+    source: translateBilling(creditSourceNameMap[pick(record.source, record.origin)] || pick(record.source, record.origin) || 'Not available', locale, catalog),
+    orderId: pick(record.order_id, record.orderId),
+    orderNo: pick(record.order_no, record.orderNo),
+    relatedId: pick(record.related_id, record.relatedId),
+    amount: `${amount < 0 ? '−' : '+'}${formatCreditNumber(Math.abs(amount), locale)}`,
+    balance: formatCreditNumber(billingNumber(pick(record.balance, record.balance_after, record.balanceAfter)) || 0, locale),
+    date: formatBillingDateTime(pick(record.created_at, record.createdAt, record.updated_at, record.updatedAt), locale),
+    note: note || translateBilling(typeSource, locale, catalog),
+    raw: record,
+  };
+};
+const getBillingListMeta = (result = {}, records = [], page = 1, pageSize = PAGE_SIZE) => {
+  let total = null;
+  let totalPages = null;
+  let explicitHasMore = null;
+  for (const payload of billingPayloads(result)) {
+    if (!payload || Array.isArray(payload)) continue;
+    const nextTotal = billingNumber(billingPick(payload, ['total', 'total_count', 'totalCount']));
+    const nextTotalPages = billingNumber(billingPick(payload, ['total_pages', 'totalPages', 'pages']));
+    const nextHasMore = billingPick(payload, ['has_more', 'hasMore']);
+    if (nextTotal !== null) total = nextTotal;
+    if (nextTotalPages !== null) totalPages = nextTotalPages;
+    if (nextHasMore !== '') explicitHasMore = nextHasMore === true || nextHasMore === 1 || nextHasMore === '1';
+  }
+  const hasMore = explicitHasMore !== null
+    ? explicitHasMore
+    : totalPages !== null
+      ? page < totalPages
+      : total !== null
+        ? page * pageSize < total
+        : records.length === pageSize;
+  return { total, hasMore };
+};
+const getCreditRecordSummary = (result = {}) => {
+  for (const payload of billingPayloads(result)) {
+    if (!payload || Array.isArray(payload)) continue;
+    const summary = payload.summary && typeof payload.summary === 'object' ? payload.summary : payload;
+    const values = {
+      creditsRemaining: billingNumber(billingPick(summary, ['credits_remaining', 'creditsRemaining'])),
+      totalGranted: billingNumber(billingPick(summary, ['total_granted', 'totalGranted'])),
+      totalConsumed: billingNumber(billingPick(summary, ['total_consumed', 'totalConsumed'])),
+      totalRefunded: billingNumber(billingPick(summary, ['total_refunded', 'totalRefunded'])),
+    };
+    if (Object.values(values).some((value) => value !== null)) return values;
+  }
+  return { creditsRemaining: null, totalGranted: null, totalConsumed: null, totalRefunded: null };
+};
+const getBillingDetailRecord = (result = {}) => {
+  for (const payload of billingPayloads(result)) {
+    if (!payload || Array.isArray(payload)) continue;
+    for (const key of ['order', 'record', 'detail', 'item']) {
+      if (payload[key] && typeof payload[key] === 'object' && !Array.isArray(payload[key])) return payload[key];
+    }
+    if (pick(payload.id, payload.order_id, payload.orderId, payload.record_id, payload.recordId)) return payload;
+  }
+  return {};
+};
+function useBillingHistory(path, page, params, authVersion) {
+  const [state, setState] = useState({
+    loading: true,
+    result: {},
+    records: [],
+    total: null,
+    hasMore: false,
+  });
+
+  useEffect(() => {
+    let ignore = false;
+    setState((current) => ({ ...current, loading: true }));
+    apiFetch(path, {
+      params: {
+        page,
+        page_size: PAGE_SIZE,
+        pageSize: PAGE_SIZE,
+        ...params,
+      },
+      timeoutMs: 12000,
+    }).then((result) => {
+      if (ignore) return;
+      const records = getBillingPlans(result);
+      const meta = getBillingListMeta(result, records, page, PAGE_SIZE);
+      setState({ loading: false, result, records, ...meta });
+    });
+    return () => {
+      ignore = true;
+    };
+  }, [path, page, params, authVersion]);
+
+  return state;
+}
 const creditUsageRules = [
   ['Script generation', '1 credit'],
   ['Image generation', '2 credits'],
@@ -5753,29 +5932,123 @@ function EvonetPaymentModal({ checkout, language, onClose, onEvent }) {
   );
 }
 
+const billingBaseConfig = {
+  ...pageConfigs.billing,
+  endpoints: pageConfigs.billing.endpoints.filter((endpoint) => ['Credit balance', 'Credit packages'].includes(endpoint.label)),
+};
+
 function OverseasBillingPage({ language, authVersion }) {
   const localeCatalog = useLocaleCatalog(language);
-  const config = pageConfigs.billing;
   const [activeTab, setActiveTab] = useState('purchase');
   const [checkout, setCheckout] = useState(null);
   const [paymentMessage, setPaymentMessage] = useState('');
   const [paymentError, setPaymentError] = useState('');
   const [startingPlanId, setStartingPlanId] = useState('');
-  const { loading, results } = useEndpointGroup(config, authVersion);
+  const [paymentPage, setPaymentPage] = useState(1);
+  const [paymentDraft, setPaymentDraft] = useState({ status: '', payType: '', planId: '', orderNo: '' });
+  const [paymentParams, setPaymentParams] = useState({});
+  const [consumptionPage, setConsumptionPage] = useState(1);
+  const [consumptionDraft, setConsumptionDraft] = useState({ recordType: '', resourceType: '', source: '', orderId: '' });
+  const [consumptionParams, setConsumptionParams] = useState({});
+  const [recordDetail, setRecordDetail] = useState(null);
+  const recordDetailRequestRef = useRef(0);
+  const { loading, results } = useEndpointGroup(billingBaseConfig, authVersion);
+  const paymentHistory = useBillingHistory('/api/pay/orders', paymentPage, paymentParams, authVersion);
+  const consumptionHistory = useBillingHistory('/api/plan/points-records', consumptionPage, consumptionParams, authVersion);
   const currentResult = getBillingResult(results, 'Credit balance');
   const planResult = getBillingResult(results, 'Credit packages');
-  const orderResult = getBillingResult(results, 'Purchase orders');
   const currentPlan = findBillingPlan(currentResult);
   const rawPlans = getBillingPlans(planResult);
   const planCards = rawPlans.map((plan, index) => normalizePlanCard(plan, index, language, localeCatalog));
-  const orders = getBillingPlans(orderResult).map((record, index) => normalizeBillingOrder(record, index, rawPlans, language, localeCatalog));
+  const paymentRecords = paymentHistory.records.map((record, index) => normalizeBillingOrder(record, index, rawPlans, language, localeCatalog));
+  const consumptionRecords = consumptionHistory.records.map((record, index) => normalizeCreditRecord(record, index, language, localeCatalog));
   const balance = getCreditBalance(currentPlan);
+  const recordSummary = getCreditRecordSummary(consumptionHistory.result);
+  const creditSummary = {
+    remaining: recordSummary.creditsRemaining ?? balance.remaining,
+    granted: recordSummary.totalGranted ?? balance.total,
+    consumed: recordSummary.totalConsumed ?? balance.used,
+    refunded: recordSummary.totalRefunded ?? 0,
+  };
+  const creditUsagePercent = creditSummary.granted > 0
+    ? Math.min(Math.max((creditSummary.consumed / creditSummary.granted) * 100, 0), 100)
+    : 0;
   const updatedText = formatBillingDate(pick(currentPlan.updated_at, currentPlan.updatedAt, currentPlan.purchased_at, currentPlan.purchasedAt, currentPlan.created_at, currentPlan.createdAt), language);
   const message = currentResult.authMissing
     ? 'Sign in to view your credits and purchase orders.'
     : currentResult.ok === false && currentResult.message
       ? currentResult.message
       : '';
+  const submitPaymentFilters = (event) => {
+    event.preventDefault();
+    setPaymentPage(1);
+    setPaymentParams({
+      ...(paymentDraft.status !== '' ? { status: paymentDraft.status } : {}),
+      ...(paymentDraft.payType ? { pay_type: paymentDraft.payType } : {}),
+      ...(paymentDraft.planId ? { plan_id: paymentDraft.planId } : {}),
+      ...(paymentDraft.orderNo.trim() ? { order_no: paymentDraft.orderNo.trim() } : {}),
+    });
+  };
+  const submitConsumptionFilters = (event) => {
+    event.preventDefault();
+    setConsumptionPage(1);
+    setConsumptionParams({
+      ...(consumptionDraft.recordType ? { record_type: consumptionDraft.recordType } : {}),
+      ...(consumptionDraft.resourceType.trim() ? { resource_type: consumptionDraft.resourceType.trim() } : {}),
+      ...(consumptionDraft.source.trim() ? { source: consumptionDraft.source.trim() } : {}),
+      ...(consumptionDraft.orderId.trim() ? { order_id: consumptionDraft.orderId.trim() } : {}),
+    });
+  };
+  const closeRecordDetail = () => {
+    recordDetailRequestRef.current += 1;
+    setRecordDetail(null);
+  };
+  const openRecordDetail = async (kind, item) => {
+    if (!item.detailId) return;
+    const requestId = recordDetailRequestRef.current + 1;
+    recordDetailRequestRef.current = requestId;
+    setRecordDetail({ kind, item, loading: true, error: '' });
+    const path = kind === 'payment'
+      ? `/api/pay/orders/${encodeURIComponent(item.detailId)}`
+      : `/api/plan/points-records/${encodeURIComponent(item.detailId)}`;
+    const result = await apiFetch(path, { timeoutMs: 10000 });
+    if (requestId !== recordDetailRequestRef.current) return;
+    if (!result.ok) {
+      setRecordDetail({ kind, item, loading: false, error: result.message || 'Record details unavailable.' });
+      return;
+    }
+    const raw = getBillingDetailRecord(result);
+    const normalized = kind === 'payment'
+      ? normalizeBillingOrder(raw, 0, rawPlans, language, localeCatalog)
+      : normalizeCreditRecord(raw, 0, language, localeCatalog);
+    setRecordDetail({ kind, item: normalized, loading: false, error: '' });
+  };
+  const detailRows = recordDetail?.kind === 'payment'
+    ? [
+        ['Order number', recordDetail.item.orderNo],
+        ['Package', recordDetail.item.title],
+        ['Credits', recordDetail.item.credits],
+        ['Amount', recordDetail.item.amount],
+        ['Payment channel', recordDetail.item.channel],
+        ['Payment status', recordDetail.item.status],
+        ['Created at', recordDetail.item.createdAt],
+        ['Paid at', recordDetail.item.paidAt],
+        ['Transaction number', recordDetail.item.tradeNo],
+        ['Refund amount', recordDetail.item.refundAmount],
+        ['Refunded at', recordDetail.item.refundedAt],
+        ['Description', recordDetail.item.description],
+      ]
+    : [
+        ['Record type', recordDetail?.item.type],
+        ['Credit change', recordDetail?.item.amount],
+        ['Balance after change', recordDetail?.item.balance],
+        ['Resource type', recordDetail?.item.resource],
+        ['Source', recordDetail?.item.source],
+        ['Order number', recordDetail?.item.orderNo || recordDetail?.item.orderId],
+        ['Related record', recordDetail?.item.relatedId],
+        ['Date', recordDetail?.item.date],
+        ['Note', recordDetail?.item.note],
+      ];
   const startOneTimePayment = async (plan) => {
     setPaymentMessage('');
     setPaymentError('');
@@ -5825,12 +6098,15 @@ function OverseasBillingPage({ language, authVersion }) {
             Buy credits
           </button>
         </div>
-        <div className="billing-tabs" role="tablist" aria-label="Credit billing">
+        <div className="billing-tabs" role="tablist" aria-label="Credits and records">
           <button type="button" role="tab" aria-selected={activeTab === 'purchase'} className={activeTab === 'purchase' ? 'is-active' : ''} onClick={() => setActiveTab('purchase')}>
             <Coins size={17} /> Buy credits
           </button>
-          <button type="button" role="tab" aria-selected={activeTab === 'orders'} className={activeTab === 'orders' ? 'is-active' : ''} onClick={() => setActiveTab('orders')}>
-            <ReceiptText size={17} /> Orders
+          <button type="button" role="tab" aria-selected={activeTab === 'payments'} className={activeTab === 'payments' ? 'is-active' : ''} onClick={() => setActiveTab('payments')}>
+            <ReceiptText size={17} /> Payment records
+          </button>
+          <button type="button" role="tab" aria-selected={activeTab === 'consumption'} className={activeTab === 'consumption' ? 'is-active' : ''} onClick={() => setActiveTab('consumption')}>
+            <TrendingUp size={17} /> Consumption records
           </button>
         </div>
       </section>
@@ -5860,17 +6136,18 @@ function OverseasBillingPage({ language, authVersion }) {
             <span><Coins size={20} /></span>
             <div>
               <small>Available credits</small>
-              <h2>{currentResult.authMissing ? '—' : formatCreditNumber(balance.remaining, language)}</h2>
+              <h2>{currentResult.authMissing ? '—' : formatCreditNumber(creditSummary.remaining, language)}</h2>
             </div>
           </div>
           <dl className="billing-current-meta">
-            <div><dt>Total credits</dt><dd>{currentResult.authMissing ? '—' : formatCreditNumber(balance.total, language)}</dd></div>
-            <div><dt>Used credits</dt><dd>{currentResult.authMissing ? '—' : formatCreditNumber(balance.used, language)}</dd></div>
+            <div><dt>Total granted</dt><dd>{currentResult.authMissing ? '—' : formatCreditNumber(creditSummary.granted, language)}</dd></div>
+            <div><dt>Total consumed</dt><dd>{currentResult.authMissing ? '—' : formatCreditNumber(creditSummary.consumed, language)}</dd></div>
+            <div><dt>Total refunded</dt><dd>{currentResult.authMissing ? '—' : formatCreditNumber(creditSummary.refunded, language)}</dd></div>
             <div><dt>Last updated</dt><dd>{updatedText || 'Not available'}</dd></div>
           </dl>
           <div className="billing-credit-progress" aria-label="Credit usage">
-            <i><em style={{ width: `${balance.percent}%` }} /></i>
-            <span><strong>{formatCreditNumber(balance.percent, language)}%</strong> Used credits</span>
+            <i><em style={{ width: `${creditUsagePercent}%` }} /></i>
+            <span><strong>{formatCreditNumber(creditUsagePercent, language)}%</strong> Used credits</span>
           </div>
         </article>
 
@@ -5900,7 +6177,7 @@ function OverseasBillingPage({ language, authVersion }) {
               <h2>Credit packages</h2>
               <p>{planCards.length ? `${planCards.length} ${translateBilling('packages available', language, localeCatalog)}` : 'No credit packages available yet'}</p>
             </div>
-            <button type="button" className="billing-text-button" onClick={() => setActiveTab('orders')}>View orders <ChevronRight size={16} /></button>
+            <button type="button" className="billing-text-button" onClick={() => setActiveTab('payments')}>Payment records <ChevronRight size={16} /></button>
           </div>
           {loading ? (
             <div className="billing-empty">Loading credit packages...</div>
@@ -5942,35 +6219,157 @@ function OverseasBillingPage({ language, authVersion }) {
             </div>
           )}
         </section>
+      ) : activeTab === 'payments' ? (
+        <section className="billing-plans-panel">
+          <div className="billing-section-head">
+            <div>
+              <h2>Payment records</h2>
+              <p>{paymentHistory.total !== null ? `${paymentHistory.total} ${translateBilling('payment records', language, localeCatalog)}` : 'Review orders and payment status.'}</p>
+            </div>
+            <button type="button" className="billing-text-button" onClick={() => setActiveTab('purchase')}>Buy credits <ChevronRight size={16} /></button>
+          </div>
+          <form className="billing-record-filters" onSubmit={submitPaymentFilters}>
+            <label>
+              <span>Payment status</span>
+              <select value={paymentDraft.status} onChange={(event) => setPaymentDraft((current) => ({ ...current, status: event.target.value }))}>
+                <option value="">All statuses</option>
+                <option value="0">Pending</option>
+                <option value="1">Completed</option>
+              </select>
+            </label>
+            <label>
+              <span>Payment channel</span>
+              <select value={paymentDraft.payType} onChange={(event) => setPaymentDraft((current) => ({ ...current, payType: event.target.value }))}>
+                <option value="">All channels</option>
+                <option value="1">WeChat Pay</option>
+                <option value="2">WeChat Virtual Pay</option>
+                <option value="3">Evonet</option>
+              </select>
+            </label>
+            <label>
+              <span>Package</span>
+              <select value={paymentDraft.planId} onChange={(event) => setPaymentDraft((current) => ({ ...current, planId: event.target.value }))}>
+                <option value="">All packages</option>
+                {planCards.map((plan) => <option value={plan.id} key={plan.id}>{plan.title}</option>)}
+              </select>
+            </label>
+            <label className="is-wide">
+              <span>Order number</span>
+              <input value={paymentDraft.orderNo} onChange={(event) => setPaymentDraft((current) => ({ ...current, orderNo: event.target.value }))} placeholder="Search order number" />
+            </label>
+            <button type="submit" className="primary-button"><Search size={16} /> Filter</button>
+          </form>
+          {paymentHistory.loading ? (
+            <div className="billing-empty">Loading payment records...</div>
+          ) : paymentRecords.length ? (
+            <>
+            <div className="billing-orders is-payments" role="table" aria-label="Payment records">
+              <div className="billing-order-head" role="row">
+                <span>Order</span><span>Package</span><span>Credits</span><span>Amount</span><span>Channel</span><span>Date</span><span>Status</span>
+              </div>
+              {paymentRecords.map((order) => (
+                <button type="button" className="billing-order-row" role="row" key={order.id} onClick={() => openRecordDetail('payment', order)}>
+                  <span><strong>{order.orderNo || 'Credit purchase'}</strong><small>View details</small></span>
+                  <span>{order.title}</span>
+                  <b>{order.credits}</b>
+                  <span>{order.amount}</span>
+                  <span>{order.channel}</span>
+                  <time>{order.date || 'Not available'}</time>
+                  <em className={`is-${order.statusKey}`}>{order.status}</em>
+                </button>
+              ))}
+            </div>
+            <div className="billing-pagination">
+              <button type="button" disabled={paymentPage <= 1 || paymentHistory.loading} onClick={() => setPaymentPage((page) => Math.max(1, page - 1))}>Previous</button>
+              <span>{translateBilling('Page', language, localeCatalog)} {paymentPage}</span>
+              <button type="button" disabled={!paymentHistory.hasMore || paymentHistory.loading} onClick={() => setPaymentPage((page) => page + 1)}>Next</button>
+            </div>
+            </>
+          ) : (
+            <div className="billing-empty">
+              {paymentHistory.result.authMissing ? 'Sign in to view your payment records.' : paymentHistory.result.ok === false ? paymentHistory.result.message || 'Payment records unavailable.' : 'No payment records yet.'}
+            </div>
+          )}
+        </section>
       ) : (
         <section className="billing-plans-panel">
           <div className="billing-section-head">
             <div>
-              <h2>Purchase orders</h2>
-              <p>Review credit purchases and payment status.</p>
+              <h2>Consumption records</h2>
+              <p>{consumptionHistory.total !== null ? `${consumptionHistory.total} ${translateBilling('credit records', language, localeCatalog)}` : 'Review every credit grant, consumption, and refund.'}</p>
             </div>
             <button type="button" className="billing-text-button" onClick={() => setActiveTab('purchase')}>Buy credits <ChevronRight size={16} /></button>
           </div>
-          {loading ? (
-            <div className="billing-empty">Loading purchase orders...</div>
-          ) : orders.length ? (
-            <div className="billing-orders" role="table" aria-label="Purchase orders">
+          <form className="billing-record-filters" onSubmit={submitConsumptionFilters}>
+            <label>
+              <span>Record type</span>
+              <select value={consumptionDraft.recordType} onChange={(event) => setConsumptionDraft((current) => ({ ...current, recordType: event.target.value }))}>
+                <option value="">All record types</option>
+                <option value="1">Credit granted</option>
+                <option value="2">Credit consumed</option>
+                <option value="3">Credit refunded</option>
+              </select>
+            </label>
+            <label>
+              <span>Resource type</span>
+              <select value={consumptionDraft.resourceType} onChange={(event) => setConsumptionDraft((current) => ({ ...current, resourceType: event.target.value }))}>
+                <option value="">All resources</option>
+                <option value="chat">Script generation</option>
+                <option value="image">Image generation</option>
+                <option value="music">Music generation</option>
+                <option value="video">Video generation</option>
+                <option value="video_production">Video production</option>
+                <option value="cover">Video cover</option>
+                <option value="ai_human">Digital human training</option>
+                <option value="image_ai_human">Image digital human</option>
+                <option value="voice">Voice training</option>
+              </select>
+            </label>
+            <label>
+              <span>Source</span>
+              <select value={consumptionDraft.source} onChange={(event) => setConsumptionDraft((current) => ({ ...current, source: event.target.value }))}>
+                <option value="">All sources</option>
+                <option value="plan_purchase">Plan purchase</option>
+                <option value="grant">Credit grant</option>
+                <option value="resource_consume">Creation consumption</option>
+                <option value="resource_refund">Creation refund</option>
+                <option value="video_actual_settlement">Video settlement</option>
+              </select>
+            </label>
+            <label className="is-wide">
+              <span>Order ID</span>
+              <input inputMode="numeric" value={consumptionDraft.orderId} onChange={(event) => setConsumptionDraft((current) => ({ ...current, orderId: event.target.value.replace(/\D/g, '') }))} placeholder="Filter by order ID" />
+            </label>
+            <button type="submit" className="primary-button"><Search size={16} /> Filter</button>
+          </form>
+          {consumptionHistory.loading ? (
+            <div className="billing-empty">Loading consumption records...</div>
+          ) : consumptionRecords.length ? (
+            <>
+            <div className="billing-orders is-consumption" role="table" aria-label="Consumption records">
               <div className="billing-order-head" role="row">
-                <span>Order</span><span>Credits</span><span>Amount</span><span>Date</span><span>Status</span>
+                <span>Record</span><span>Change</span><span>Resource</span><span>Source</span><span>Balance</span><span>Date</span>
               </div>
-              {orders.map((order) => (
-                <article className="billing-order-row" role="row" key={order.id}>
-                  <span><strong>{order.title}</strong><small>{order.orderNo || 'Credit purchase'}</small></span>
-                  <b>{order.credits}</b>
-                  <span>{order.amount}</span>
-                  <time>{order.date || 'Not available'}</time>
-                  <em className={`is-${order.statusKey}`}>{order.status}</em>
-                </article>
+              {consumptionRecords.map((record) => (
+                <button type="button" className="billing-order-row" role="row" key={record.id} onClick={() => openRecordDetail('consumption', record)}>
+                  <span><strong>{record.type}</strong><small>{record.orderNo || record.note}</small></span>
+                  <b className={`is-${record.typeKey}`}>{record.amount}</b>
+                  <span>{record.resource}</span>
+                  <span>{record.source}</span>
+                  <span>{record.balance}</span>
+                  <time>{record.date || 'Not available'}</time>
+                </button>
               ))}
             </div>
+            <div className="billing-pagination">
+              <button type="button" disabled={consumptionPage <= 1 || consumptionHistory.loading} onClick={() => setConsumptionPage((page) => Math.max(1, page - 1))}>Previous</button>
+              <span>{translateBilling('Page', language, localeCatalog)} {consumptionPage}</span>
+              <button type="button" disabled={!consumptionHistory.hasMore || consumptionHistory.loading} onClick={() => setConsumptionPage((page) => page + 1)}>Next</button>
+            </div>
+            </>
           ) : (
             <div className="billing-empty">
-              {orderResult.authMissing ? 'Sign in to view your credits and purchase orders.' : orderResult.ok === false ? orderResult.message || 'Purchase orders unavailable.' : 'No purchase orders yet.'}
+              {consumptionHistory.result.authMissing ? 'Sign in to view your consumption records.' : consumptionHistory.result.ok === false ? consumptionHistory.result.message || 'Consumption records unavailable.' : 'No consumption records yet.'}
             </div>
           )}
         </section>
@@ -5982,6 +6381,32 @@ function OverseasBillingPage({ language, authVersion }) {
           onClose={() => setCheckout(null)}
           onEvent={handlePaymentEvent}
         />
+      )}
+      {recordDetail && (
+        <div className="payment-modal-backdrop" role="presentation" onMouseDown={(event) => {
+          if (event.target === event.currentTarget) closeRecordDetail();
+        }}>
+          <section className="billing-record-modal" role="dialog" aria-modal="true" aria-labelledby="billing-record-detail-title">
+            <header>
+              <div>
+                <small>{recordDetail.kind === 'payment' ? 'Payment record' : 'Consumption record'}</small>
+                <h2 id="billing-record-detail-title">Record details</h2>
+              </div>
+              <button type="button" className="icon-button" onClick={closeRecordDetail} aria-label="Close details"><X size={18} /></button>
+            </header>
+            {recordDetail.loading ? (
+              <div className="billing-empty">Loading record details...</div>
+            ) : recordDetail.error ? (
+              <div className="billing-message is-error"><AlertCircle size={18} /><span>{recordDetail.error}</span></div>
+            ) : (
+              <dl className="billing-record-detail-list">
+                {detailRows.filter(([, value]) => value !== undefined && value !== null && value !== '').map(([label, value]) => (
+                  <div key={label}><dt>{label}</dt><dd>{value}</dd></div>
+                ))}
+              </dl>
+            )}
+          </section>
+        </div>
       )}
     </div>
   );

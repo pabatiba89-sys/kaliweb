@@ -72,9 +72,10 @@ export const pageConfigs = {
     endpoints: [
       { label: 'Credit balance', path: '/api/plan/user-plan' },
       { label: 'Credit packages', path: '/api/plan/list' },
-      { label: 'Purchase orders', path: '/api/plan/purchase-history' },
+      { label: 'Payment records', path: '/api/pay/orders' },
+      { label: 'Consumption records', path: '/api/plan/points-records' },
     ],
-    actions: ['Buy credits', 'Refresh balance', 'View orders'],
+    actions: ['Buy credits', 'Payment records', 'Consumption records'],
   },
   settings: {
     title: 'Settings',

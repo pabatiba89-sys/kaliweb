@@ -1129,5 +1129,7 @@
   "Sign in before starting checkout.": "Sign in before starting checkout.",
   "Payment checkout is not available yet.": "Payment checkout is not available yet.",
   "Payment session was not returned by the server.": "Payment session was not returned by the server.",
-  "Payment result could not be recorded.": "Payment result could not be recorded."
+  "Payment result could not be recorded.": "Payment result could not be recorded.",
+  "制作": "Production",
+  "视频制作（含封面）": "Video Production (including cover)"
 }

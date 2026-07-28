@@ -143,3 +143,4 @@
 - 2026-07-26：视频制作素材时长必须出现在所有可能被后端保存的字段中：顶层 `materials/materialList/materialsJson`、`shanjianData.materials`、Pro `scenes/sceneList/scene_list[].materials`，且每个素材同时带 `duration/durationSeconds/duration_seconds`；只放顶层 `materials` 可能被后端清洗或落库路径丢掉。
 - 2026-07-28：工作台购买与订单统一改为积分模式：主余额只展示 `credits_total/credits_remaining`，积分包读取套餐接口的 `credits_count/credit_unit_price/original_price/price/discount_percent`，订单页兼容购买历史和订单字段；中文不再跳小程序，24 种界面语言共用同一积分购买与订单页面。
 - 2026-07-28：积分套餐折扣展示以 `discount_price` 为实际支付价，结合 `original_price/discount_rate/discount_percent/has_discount` 判断优惠；折扣套餐卡集中展示折扣角标、划线原价和节省金额，订单金额也优先读取折后价。
+- 2026-07-28：Billing 页的记录区统一使用正式接口：支付记录读取 `/api/pay/orders`，按 `status/pay_type/plan_id/order_no` 筛选；消耗记录读取 `/api/plan/points-records`，按 `record_type/resource_type/source/order_id` 筛选，并用接口 `summary` 回显剩余、累计发放、累计消耗和累计退回积分；两类列表均支持分页和独立详情接口。
