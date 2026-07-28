@@ -5515,15 +5515,32 @@ const formatBillingDateTime = (value, locale = 'en-US') => {
     return new Intl.DateTimeFormat('en-US', options).format(date);
   }
 };
-const formatBillingMoney = (plan = {}, amountKeys = ['price', 'amount', 'sale_price', 'salePrice', 'pay_amount', 'payAmount', 'total_amount', 'totalAmount']) => {
+const RMB_PER_USD = 7.2;
+const isChineseBillingLocale = (locale = '') => locale === 'zh-CN' || locale === 'zh-TW';
+const formatBillingMoney = (
+  plan = {},
+  amountKeys = ['price', 'amount', 'sale_price', 'salePrice', 'pay_amount', 'payAmount', 'total_amount', 'totalAmount'],
+  locale = 'en-US',
+  rmbAnchored = false,
+) => {
   const amount = billingPick(plan, amountKeys);
   const number = billingNumber(amount);
   if (number === null) return pick(plan.price_text, plan.priceText, plan.display_price, plan.displayPrice, plan.billingText, plan.billing_text) || 'Contact sales';
-  const currency = pick(plan.currency, plan.currency_code, plan.currencyCode) || 'USD';
+  const isChinese = isChineseBillingLocale(locale);
+  const currency = rmbAnchored
+    ? (isChinese ? 'CNY' : 'USD')
+    : pick(plan.currency, plan.currency_code, plan.currencyCode) || (isChinese ? 'CNY' : 'USD');
+  const displayAmount = rmbAnchored && !isChinese ? Math.round(number / RMB_PER_USD) : number;
   try {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(number);
+    return new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency,
+      currencyDisplay: 'narrowSymbol',
+      minimumFractionDigits: Number.isInteger(displayAmount) ? 0 : 2,
+      maximumFractionDigits: Number.isInteger(displayAmount) ? 0 : 2,
+    }).format(displayAmount);
   } catch {
-    return `${currency} ${number}`;
+    return `${currency === 'CNY' ? '¥' : '$'}${displayAmount}`;
   }
 };
 const translateBilling = (value, locale, catalog) => translateStatic(textOf(value), locale, catalog);
@@ -5610,12 +5627,12 @@ const normalizePlanCard = (plan = {}, index = 0, locale = 'en-US', catalog = {})
     credits,
     creditsText: `${formatCreditNumber(credits, locale)} ${translateBilling('credits', locale, catalog)}`,
     contentEstimate: getPlanContentEstimate(plan, credits, locale, catalog),
-    price: translateBilling(formatBillingMoney(moneySource, ['discount_price']), locale, catalog),
+    price: translateBilling(formatBillingMoney(moneySource, ['discount_price'], locale, true), locale, catalog),
     originalPrice: hasDiscount && originalPrice
-      ? translateBilling(formatBillingMoney({ ...plan, original_price: originalPrice }, ['original_price']), locale, catalog)
+      ? translateBilling(formatBillingMoney({ ...plan, original_price: originalPrice }, ['original_price'], locale, true), locale, catalog)
       : '',
     savings: savings > 0
-      ? translateBilling(formatBillingMoney({ ...plan, savings }, ['savings']), locale, catalog)
+      ? translateBilling(formatBillingMoney({ ...plan, savings }, ['savings'], locale, true), locale, catalog)
       : '',
     discount: hasDiscount && discountPercent > 0
       ? `-${formatCreditNumber(discountPercent, locale)}%`
@@ -5698,7 +5715,7 @@ const normalizeBillingOrder = (record = {}, index = 0, plans = [], locale = 'en-
     orderNo: pick(record.order_no, record.orderNo, record.trade_no, record.tradeNo),
     title: translateBilling(rawTitle ? getBillingPlanTitleSource(rawTitle) : 'Credit purchase', locale, catalog),
     credits: `${formatCreditNumber(credits, locale)} ${translateBilling('credits', locale, catalog)}`,
-    amount: hasAmount ? formatBillingMoney(record, orderAmountKeys) : '—',
+    amount: hasAmount ? formatBillingMoney(record, orderAmountKeys, locale) : '—',
     amountValue,
     date: formatBillingDateTime(paidAtValue, locale),
     createdAt: formatBillingDateTime(pick(record.created_at, record.createdAt), locale),
@@ -5706,7 +5723,7 @@ const normalizeBillingOrder = (record = {}, index = 0, plans = [], locale = 'en-
     channel: translateBilling(channel, locale, catalog),
     tradeNo: pick(record.trade_no, record.tradeNo, record.wx_order_id, record.wxOrderId),
     refundAmount: billingNumber(billingPick(record, ['refund_amount', 'refundAmount'])) > 0
-      ? formatBillingMoney(record, ['refund_amount', 'refundAmount'])
+      ? formatBillingMoney(record, ['refund_amount', 'refundAmount'], locale)
       : '',
     refundStatusKey,
     refundStatus: translateBilling(refundStatusSource, locale, catalog),

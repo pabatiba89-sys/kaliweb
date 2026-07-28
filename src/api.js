@@ -250,7 +250,7 @@ export async function createEvonetOneTimePaymentSession({ plan, locale }) {
     body: {
       plan_id: planId,
       ...(email ? { email } : {}),
-      currency: plan?.currency || plan?.currency_code || plan?.currencyCode || 'USD',
+      currency: 'USD',
       locale,
     },
   }, 'Payment checkout is not available yet');
