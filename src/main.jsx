@@ -5517,6 +5517,7 @@ const formatBillingDateTime = (value, locale = 'en-US') => {
 };
 const RMB_PER_USD = 7.2;
 const isChineseBillingLocale = (locale = '') => locale === 'zh-CN' || locale === 'zh-TW';
+const convertRmbToUsdAmount = (amount) => Math.ceil(amount / RMB_PER_USD);
 const formatBillingMoney = (
   plan = {},
   amountKeys = ['price', 'amount', 'sale_price', 'salePrice', 'pay_amount', 'payAmount', 'total_amount', 'totalAmount'],
@@ -5530,7 +5531,7 @@ const formatBillingMoney = (
   const currency = rmbAnchored
     ? (isChinese ? 'CNY' : 'USD')
     : pick(plan.currency, plan.currency_code, plan.currencyCode) || (isChinese ? 'CNY' : 'USD');
-  const displayAmount = rmbAnchored && !isChinese ? Math.ceil(number / RMB_PER_USD) : number;
+  const displayAmount = rmbAnchored && !isChinese ? convertRmbToUsdAmount(number) : number;
   try {
     return new Intl.NumberFormat(locale, {
       style: 'currency',
@@ -6272,6 +6273,23 @@ function OverseasBillingPage({ language, authVersion }) {
     const session = normalizeEvonetSession(result);
     if (!session.sessionID) {
       setPaymentError('Payment session was not returned by the server.');
+      return;
+    }
+    const order = session.order && typeof session.order === 'object' ? session.order : {};
+    const expectedAmount = billingNumber(billingPick(plan.raw, [
+      'discount_price', 'discountPrice', 'discounted_price', 'discountedPrice',
+      'price', 'amount', 'sale_price', 'salePrice', 'pay_amount', 'payAmount',
+    ]));
+    const checkoutAmount = billingNumber(billingPick(order, ['total_amount', 'totalAmount', 'pay_amount', 'payAmount', 'amount']));
+    const checkoutCurrency = textOf(pick(order.currency, order.currency_code, order.currencyCode, session.currency)).toUpperCase();
+    const expectedUsdAmount = expectedAmount === null ? null : convertRmbToUsdAmount(expectedAmount);
+    if (
+      expectedUsdAmount === null
+      || checkoutAmount === null
+      || checkoutCurrency !== 'USD'
+      || checkoutAmount !== expectedUsdAmount
+    ) {
+      setPaymentError('Checkout amount does not match the displayed price. Please refresh and try again later.');
       return;
     }
     setCheckout({ plan, session });
