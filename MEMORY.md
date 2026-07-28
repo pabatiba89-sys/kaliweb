@@ -142,3 +142,4 @@
 - 2026-07-24：文案生成结果跳转视频制作时，普通非音乐文案默认进入分镜制作（形象播报 Pro / `productionType=professional`），提示词也应输出“分镜1/分镜2”以便预填分镜；不要默认跳旧的数字人口播或智能成片。
 - 2026-07-26：视频制作素材时长必须出现在所有可能被后端保存的字段中：顶层 `materials/materialList/materialsJson`、`shanjianData.materials`、Pro `scenes/sceneList/scene_list[].materials`，且每个素材同时带 `duration/durationSeconds/duration_seconds`；只放顶层 `materials` 可能被后端清洗或落库路径丢掉。
 - 2026-07-28：工作台购买与订单统一改为积分模式：主余额只展示 `credits_total/credits_remaining`，积分包读取套餐接口的 `credits_count/credit_unit_price/original_price/price/discount_percent`，订单页兼容购买历史和订单字段；中文不再跳小程序，24 种界面语言共用同一积分购买与订单页面。
+- 2026-07-28：积分套餐折扣展示以 `discount_price` 为实际支付价，结合 `original_price/discount_rate/discount_percent/has_discount` 判断优惠；折扣套餐卡集中展示折扣角标、划线原价和节省金额，订单金额也优先读取折后价。

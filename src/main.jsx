@@ -5544,12 +5544,28 @@ const getCreditBalance = (source = {}) => {
 const normalizePlanCard = (plan = {}, index = 0, locale = 'en-US', catalog = {}) => {
   const credits = getCreditCount(plan);
   const rawTitle = pick(plan.title, plan.name, plan.plan_name, plan.planName, plan.package_name, plan.packageName);
-  const price = billingNumber(billingPick(plan, ['price', 'amount', 'sale_price', 'salePrice', 'pay_amount', 'payAmount']));
+  const price = billingNumber(billingPick(plan, [
+    'discount_price', 'discountPrice', 'discounted_price', 'discountedPrice',
+    'price', 'amount', 'sale_price', 'salePrice', 'pay_amount', 'payAmount',
+  ]));
   const originalPrice = billingNumber(billingPick(plan, ['original_price', 'originalPrice', 'list_price', 'listPrice']));
   const explicitUnitPrice = billingNumber(billingPick(plan, ['credit_unit_price', 'creditUnitPrice', 'point_unit_price', 'pointUnitPrice']));
   const unitPrice = explicitUnitPrice ?? (credits > 0 && price !== null ? price / credits : null);
   const explicitDiscount = billingNumber(billingPick(plan, ['discount_percent', 'discountPercent']));
-  const discountPercent = explicitDiscount ?? (price !== null && originalPrice ? Math.max(0, (1 - price / originalPrice) * 100) : 0);
+  const discountRate = billingNumber(billingPick(plan, ['discount_rate', 'discountRate']));
+  const inferredDiscount = price !== null && originalPrice
+    ? Math.max(0, (1 - price / originalPrice) * 100)
+    : 0;
+  const discountPercent = explicitDiscount
+    ?? (discountRate !== null ? Math.max(0, (1 - discountRate) * 100) : inferredDiscount);
+  const hasDiscountFlag = billingPick(plan, ['has_discount', 'hasDiscount']);
+  const hasDiscount = hasDiscountFlag === true || hasDiscountFlag === 1 || hasDiscountFlag === '1'
+    || discountPercent > 0
+    || (price !== null && originalPrice !== null && originalPrice > price);
+  const savings = hasDiscount && price !== null && originalPrice !== null
+    ? Math.max(originalPrice - price, 0)
+    : 0;
+  const moneySource = { ...plan, discount_price: price };
 
   return {
     id: pick(plan.id, plan.plan_id, plan.planId, plan.name, `plan-${index}`),
@@ -5557,14 +5573,20 @@ const normalizePlanCard = (plan = {}, index = 0, locale = 'en-US', catalog = {})
     title: translateBilling(rawTitle ? getBillingPlanTitleSource(rawTitle) : `Credit package ${index + 1}`, locale, catalog),
     credits,
     creditsText: `${formatCreditNumber(credits, locale)} ${translateBilling('credits', locale, catalog)}`,
-    price: translateBilling(formatBillingMoney(plan), locale, catalog),
-    originalPrice: originalPrice && price !== null && originalPrice > price
+    price: translateBilling(formatBillingMoney(moneySource, ['discount_price']), locale, catalog),
+    originalPrice: hasDiscount && originalPrice
       ? translateBilling(formatBillingMoney({ ...plan, original_price: originalPrice }, ['original_price']), locale, catalog)
+      : '',
+    savings: savings > 0
+      ? translateBilling(formatBillingMoney({ ...plan, savings }, ['savings']), locale, catalog)
       : '',
     unitPrice: unitPrice !== null
       ? `${formatBillingMoney({ ...plan, credit_unit_price: unitPrice }, ['credit_unit_price'])} / ${translateBilling('credit', locale, catalog)}`
       : '',
-    discount: discountPercent > 0 ? `${formatCreditNumber(discountPercent, locale)}% ${translateBilling('off', locale, catalog)}` : '',
+    discount: hasDiscount && discountPercent > 0
+      ? `-${formatCreditNumber(discountPercent, locale)}%`
+      : '',
+    hasDiscount,
     purchased: Boolean(plan.purchased || plan.is_purchased || plan.isPurchased),
   };
 };
@@ -5585,14 +5607,18 @@ const normalizeBillingOrder = (record = {}, index = 0, plans = [], locale = 'en-
   const rawTitle = pick(record.plan_name, record.planName, record.package_name, record.packageName, relatedPlan.name, relatedPlan.title);
   const credits = getCreditCount(record) || getCreditCount(relatedPlan)
     || billingNumber(billingPick(record, ['credits_total', 'creditsTotal'])) || 0;
-  const hasAmount = billingNumber(billingPick(record, ['price', 'amount', 'sale_price', 'salePrice', 'pay_amount', 'payAmount', 'total_amount', 'totalAmount'])) !== null;
+  const orderAmountKeys = [
+    'discount_price', 'discountPrice', 'price', 'amount', 'sale_price', 'salePrice',
+    'pay_amount', 'payAmount', 'total_amount', 'totalAmount',
+  ];
+  const hasAmount = billingNumber(billingPick(record, orderAmountKeys)) !== null;
 
   return {
     id: pick(record.id, record.order_id, record.orderId, record.order_no, record.orderNo, `order-${index}`),
     orderNo: pick(record.order_no, record.orderNo, record.trade_no, record.tradeNo),
     title: translateBilling(rawTitle ? getBillingPlanTitleSource(rawTitle) : 'Credit purchase', locale, catalog),
     credits: `${formatCreditNumber(credits, locale)} ${translateBilling('credits', locale, catalog)}`,
-    amount: hasAmount ? formatBillingMoney(record) : '—',
+    amount: hasAmount ? formatBillingMoney(record, orderAmountKeys) : '—',
     date: formatBillingDate(pick(record.pay_time, record.payTime, record.purchased_at, record.purchasedAt, record.created_at, record.createdAt), locale),
     statusKey: status.toLowerCase(),
     status: translateBilling(status, locale, catalog),
@@ -5881,21 +5907,28 @@ function OverseasBillingPage({ language, authVersion }) {
           ) : planCards.length ? (
             <div className="billing-plan-list">
               {planCards.map((plan) => (
-                <article className="billing-plan-card" key={plan.id}>
+                <article className={`billing-plan-card${plan.hasDiscount ? ' has-discount' : ''}`} key={plan.id}>
                   <div>
-                    <strong>{plan.title}</strong>
+                    <span className="billing-plan-title">
+                      <strong>{plan.title}</strong>
+                      {plan.discount && <em>{plan.discount}</em>}
+                    </span>
                     <small>{plan.unitPrice || 'One-time credit purchase'}</small>
                   </div>
                   <span className="billing-plan-credits">
                     <b>{plan.creditsText}</b>
-                    <small>
-                      {plan.originalPrice && <s>{plan.originalPrice}</s>}
-                      {plan.discount && <em>{plan.discount}</em>}
-                    </small>
+                    <small>Credit package</small>
                   </span>
                   <span className="billing-plan-price">
                     <b>{plan.price}</b>
-                    <small>One-time purchase</small>
+                    {plan.originalPrice ? (
+                      <small>
+                        <s>{plan.originalPrice}</s>
+                        {plan.savings && <em>{translateBilling('You save', language, localeCatalog)} {plan.savings}</em>}
+                      </small>
+                    ) : (
+                      <small>One-time purchase</small>
+                    )}
                   </span>
                   <button type="button" onClick={() => startOneTimePayment(plan)} disabled={Boolean(startingPlanId) || plan.purchased}>
                     {plan.purchased ? 'Purchased' : startingPlanId === plan.id ? 'Starting' : 'Buy credits'}

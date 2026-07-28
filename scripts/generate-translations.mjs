@@ -127,6 +127,7 @@ const localeOverrides = {
     'One-time credit purchase': '一次性购买积分',
     off: '优惠',
     'One-time purchase': '单次购买',
+    'You save': '立省',
     Purchased: '已购买',
     'Credit packages unavailable.': '积分包暂不可用。',
     'No credit packages available yet.': '暂无可购买的积分包。',
@@ -218,6 +219,7 @@ const localeOverrides = {
     'One-time credit purchase': '一次性購買積分',
     off: '優惠',
     'One-time purchase': '單次購買',
+    'You save': '現省',
     Purchased: '已購買',
     'Credit packages unavailable.': '積分包暫不可用。',
     'No credit packages available yet.': '暫無可購買的積分包。',
@@ -429,6 +431,7 @@ const translationScopes = {
     'Video production',
     'View orders',
     'Voice training',
+    'You save',
   ]),
 };
 if (requestedScope && !translationScopes[requestedScope]) throw new Error(`Unsupported translation scope: ${requestedScope}`);

@@ -5510,6 +5510,10 @@ video.media-preview {
   padding: 18px;
 }
 
+.billing-plans-panel {
+  container-type: inline-size;
+}
+
 .billing-usage-panel {
   border: 1px solid var(--line);
   background: rgba(255, 255, 255, 0.94);
@@ -5762,6 +5766,13 @@ video.media-preview {
   gap: 16px;
 }
 
+.billing-plan-card.has-discount {
+  border-color: #f0d8b8;
+  background:
+    linear-gradient(90deg, rgba(255, 248, 237, 0.94), rgba(248, 252, 250, 0.94));
+  box-shadow: inset 3px 0 0 #e6a552;
+}
+
 .billing-plan-card strong,
 .billing-plan-card b {
   color: var(--ink);
@@ -5771,6 +5782,25 @@ video.media-preview {
   display: block;
   font-size: 16px;
   line-height: 1.25;
+}
+
+.billing-plan-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.billing-plan-title > em {
+  flex: 0 0 auto;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: #c35231;
+  color: #fff8f2;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 900;
+  line-height: 1;
 }
 
 .billing-plan-card small {
@@ -5791,23 +5821,31 @@ video.media-preview {
 
 .billing-plan-credits small {
   min-height: 17px;
-  display: flex;
-  justify-content: flex-end;
-  gap: 7px;
-}
-
-.billing-plan-credits s {
   color: #91a39f;
 }
 
-.billing-plan-credits em {
-  color: #c35231;
-  font-style: normal;
-  font-weight: 850;
+.billing-plan-price b {
+  color: var(--green-dark);
+  font-size: 19px;
 }
 
-.billing-plan-price b {
-  font-size: 17px;
+.billing-plan-price small {
+  min-height: 17px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 7px;
+}
+
+.billing-plan-price s {
+  color: #91a39f;
+}
+
+.billing-plan-price em {
+  color: #b95632;
+  font-style: normal;
+  font-weight: 800;
 }
 
 .billing-plan-card b {
@@ -6280,7 +6318,7 @@ video.media-preview {
     text-align: left;
   }
 
-  .billing-plan-credits small {
+  .billing-plan-price small {
     justify-content: flex-start;
   }
 
@@ -9857,6 +9895,40 @@ video.media-preview {
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+
+@container (max-width: 720px) {
+  .billing-plan-card {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .billing-plan-card > span {
+    text-align: left;
+  }
+
+  .billing-plan-credits {
+    text-align: right !important;
+  }
+
+  .billing-plan-price small {
+    justify-content: flex-start;
+  }
+}
+
+@container (max-width: 480px) {
+  .billing-plan-card {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .billing-plan-credits {
+    text-align: left !important;
+  }
+
+  .billing-plan-card > button {
+    width: 100%;
+  }
 }
 
 .music-detail-title {
