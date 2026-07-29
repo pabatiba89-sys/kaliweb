@@ -8355,11 +8355,22 @@ const extractPartialGeneratedEnvelopeText = (value) => {
   }
   return '';
 };
+const GENERATED_OUTPUT_START_REGEX = /(?:^|\n)[ \t]*(?:#{1,6}\s*)?(?:[*`_]+\s*)?(?:【(?:标题|歌名|歌曲名称)】|(?:标题|歌名|歌曲名称))\s*[：:]/g;
+const selectGeneratedDraftText = (value, { allowUnstructured = true } = {}) => {
+  const text = textOf(value);
+  let draftStart = -1;
+  for (const match of text.matchAll(GENERATED_OUTPUT_START_REGEX)) {
+    draftStart = match.index + (match[0].startsWith('\n') ? 1 : 0);
+  }
+  if (draftStart >= 0) return text.slice(draftStart).trim();
+  return allowUnstructured ? text : '';
+};
 const normalizeGeneratedStreamPreview = (value) => {
   const partial = extractPartialGeneratedEnvelopeText(value);
-  if (partial) return partial;
+  if (partial) return selectGeneratedDraftText(partial, { allowUnstructured: false });
   const normalized = normalizeGeneratedText(value);
-  return /^[{[]/.test(normalized) ? '' : normalized;
+  if (/^[{[]/.test(normalized)) return '';
+  return selectGeneratedDraftText(normalized, { allowUnstructured: false });
 };
 const mergeGeneratedStreamText = (currentValue, incomingValue) => {
   const current = `${currentValue || ''}`;
@@ -8377,6 +8388,19 @@ const extractGeneratedStreamChunk = (payload, depth = 0) => {
   if (Array.isArray(payload)) return payload.map((item) => extractGeneratedStreamChunk(item, depth + 1)).join('');
   if (typeof payload !== 'object') return '';
   const choice = Array.isArray(payload.choices) ? payload.choices[0] || {} : {};
+  const delta = choice.delta || payload.delta || {};
+  const payloadType = textOf(payload.type || payload.event || payload.kind || delta.type).toLowerCase();
+  const isThought = (
+    payload.thought === true
+    || payload.is_thought === true
+    || payload.isThought === true
+    || choice.thought === true
+    || delta.thought === true
+    || delta.is_thought === true
+    || delta.isThought === true
+    || /(?:^|[._-])(reasoning|thought|analysis)(?:$|[._-])/.test(payloadType)
+  );
+  if (isThought) return '';
   const candidates = [
     choice.delta?.content,
     choice.message?.content,
@@ -8432,6 +8456,7 @@ const buildTypedPrompt = (prompt, type, agent = {}) => {
     return [
       '请根据用户需求创作一首可直接进入歌曲制作的歌词方案。',
       '请严格按“歌名：”“风格：”“歌词：”三个段落输出。',
+      '使用与“用户需求”相同的主要语言输出；用户使用中文时，歌名、风格和歌词都使用中文。',
       '不要输出 JSON、代码块、花括号或字段引号。',
       '',
       `用户需求：${prompt}`,
@@ -8443,6 +8468,7 @@ const buildTypedPrompt = (prompt, type, agent = {}) => {
       '请严格按“标题：”“话题：”“文案：”“分镜1：”“分镜2：”这样的纯文本段落输出。',
       '话题使用简短主题或标签；文案段落可以留空，正文必须拆成连续分镜。',
       '每个分镜是一句可直接作为字幕的完整内容，不要输出 JSON、代码块、花括号或字段引号。',
+      '使用与“用户需求”相同的主要语言输出；用户使用中文时，标题、话题、文案和分镜都使用中文。',
       '',
       `用户需求：${prompt}`,
     ].join('\n');
@@ -8452,6 +8478,7 @@ const buildTypedPrompt = (prompt, type, agent = {}) => {
     '请严格按“标题：”“话题：”“文案：”“分镜1：”“分镜2：”这样的纯文本段落输出。',
     '话题使用简短主题或标签；文案可以是完整正文，正文必须同时拆成连续分镜。',
     '每个分镜是一句可直接作为字幕的完整内容。',
+    '使用与“用户需求”相同的主要语言输出；用户使用中文时，标题、话题、文案和分镜都使用中文。',
     '不要输出 JSON、代码块、花括号或字段引号。',
     '',
     `用户需求：${prompt}`,
@@ -8552,7 +8579,7 @@ async function requestGeneratedCopy({ prompt, agent, messages, signal, onProgres
     } catch {
       fallbackReply = parseStreamText(raw);
     }
-    fallbackReply = normalizeGeneratedText(fallbackReply);
+    fallbackReply = selectGeneratedDraftText(normalizeGeneratedText(fallbackReply));
     if (!response.ok || !fallbackReply) throw new Error(fallbackReply || '文案生成失败，请重试');
     onProgress?.(fallbackReply);
     return { text: fallbackReply, script: parseGeneratedResult(fallbackReply) };
@@ -8628,7 +8655,7 @@ async function requestGeneratedCopy({ prompt, agent, messages, signal, onProgres
       reply = parseStreamText(transportText);
     }
   }
-  reply = normalizeGeneratedText(reply);
+  reply = selectGeneratedDraftText(normalizeGeneratedText(reply));
   if (!response.ok || !reply) throw new Error(streamError || reply || '文案生成失败，请重试');
   return { text: reply, script: parseGeneratedResult(reply) };
 }
