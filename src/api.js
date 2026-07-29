@@ -141,7 +141,8 @@ export async function uploadFile(file, { source = 'material', timeoutMs = 180000
   });
 }
 
-export async function emailLogin({ email, password, nickname, autoCreate = true }) {
+export async function emailLogin({ email, password, nickname, inviteCode, autoCreate = true }) {
+  const normalizedInviteCode = String(inviteCode || '').trim().toUpperCase();
   return apiFetch(EMAIL_LOGIN_URL, {
     method: 'POST',
     auth: false,
@@ -150,6 +151,10 @@ export async function emailLogin({ email, password, nickname, autoCreate = true 
       email,
       password,
       ...(nickname ? { nickname } : {}),
+      ...(normalizedInviteCode ? {
+        inviteCode: normalizedInviteCode,
+        invite_code: normalizedInviteCode,
+      } : {}),
       autoCreate,
       auto_create: autoCreate,
     },

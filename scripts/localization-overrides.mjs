@@ -879,6 +879,39 @@ const paymentRows = {
   ]
 };
 
+const affiliateOverrides = {
+  'zh-CN': {
+    'AFFILIATE PROGRAM': '代理计划',
+    'Affiliate Center': '代理中心',
+    'Share your invite code and track invitees and commissions.': '分享邀请码，并查看邀请用户和佣金。',
+    'Sign in to view your affiliate account.': '登录后查看代理账户。',
+    'Affiliate records': '代理记录',
+    'Available commission': '可用佣金',
+    'Frozen commission': '冻结佣金',
+    'Total earned': '累计佣金',
+    'Invited users': '邀请用户',
+    'Paid invitees': '已付费用户',
+    'Commission rate': '佣金比例',
+    Invitees: '邀请用户',
+    Commissions: '佣金明细',
+  },
+  'zh-TW': {
+    'AFFILIATE PROGRAM': '代理計畫',
+    'Affiliate Center': '代理中心',
+    'Share your invite code and track invitees and commissions.': '分享邀請碼，並查看邀請用戶和佣金。',
+    'Sign in to view your affiliate account.': '登入後查看代理帳戶。',
+    'Affiliate records': '代理記錄',
+    'Available commission': '可用佣金',
+    'Frozen commission': '凍結佣金',
+    'Total earned': '累計佣金',
+    'Invited users': '邀請用戶',
+    'Paid invitees': '已付費用戶',
+    'Commission rate': '佣金比例',
+    Invitees: '邀請用戶',
+    Commissions: '佣金明細',
+  },
+};
+
 export const workspaceLocalizationOverrides = Object.fromEntries(Object.entries(actionRows).map(([locale, values]) => {
   const overrides = {};
   actionKeys.forEach((key, index) => actionAliases[key].forEach((source) => { overrides[source] = values[index]; }));
@@ -888,5 +921,6 @@ export const workspaceLocalizationOverrides = Object.fromEntries(Object.entries(
   accountSecurityKeys.forEach((key, index) => { overrides[key] = accountSecurityRows[locale][index]; });
   billingKeys.forEach((key, index) => { overrides[key] = billingRows[locale][index]; });
   paymentKeys.forEach((key, index) => { overrides[key] = paymentRows[locale][index]; });
+  Object.assign(overrides, affiliateOverrides[locale] || {});
   return [locale, overrides];
 }));

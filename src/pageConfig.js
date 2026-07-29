@@ -77,6 +77,16 @@ export const pageConfigs = {
     ],
     actions: ['Buy credits', 'Payment records', 'Consumption records'],
   },
+  affiliate: {
+    title: 'Affiliate Center',
+    description: 'Share an invite code and track invitees, pending commissions, and available commission balance.',
+    endpoints: [
+      { label: 'Affiliate profile', path: '/api/agent/profile' },
+      { label: 'Invitees', path: '/api/agent/invitees' },
+      { label: 'Commissions', path: '/api/agent/commissions' },
+    ],
+    actions: ['Copy invite link', 'Bind invite code', 'View commissions'],
+  },
   settings: {
     title: 'Settings',
     description: 'User profile, account preferences, subscriptions, and agreements.',

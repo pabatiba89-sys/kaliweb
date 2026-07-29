@@ -15,6 +15,7 @@ import {
   Clapperboard,
   Clock3,
   Coins,
+  Copy,
   Cuboid,
   Download,
   Edit3,
@@ -48,6 +49,7 @@ import {
   Trash2,
   Upload,
   UserRound,
+  UserPlus,
   UsersRound,
   Video,
   X,
@@ -158,6 +160,7 @@ const navItems = [
   { id: 'materials', label: 'Materials', icon: Library },
   { id: 'templates', label: 'Templates', icon: GalleryVerticalEnd },
   { id: 'billing', label: 'Credits & orders', icon: CircleDollarSign },
+  { id: 'affiliate', label: 'Affiliate Center', icon: UsersRound },
   { id: 'settings', label: 'Settings', icon: Settings },
 ];
 
@@ -6761,6 +6764,403 @@ const readStoredUser = () => {
   }
 };
 
+const AGENT_PAGE_SIZE = 20;
+
+const agentNumber = (value, fallback = 0) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+};
+
+const agentBoolean = (value) => value === true || value === 1 || ['1', 'true', 'yes'].includes(String(value || '').toLowerCase());
+
+const formatAgentMoney = (value, locale = 'en-US') => new Intl.NumberFormat(locale, {
+  style: 'currency',
+  currency: 'CNY',
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+}).format(agentNumber(value));
+
+const formatAgentDate = (value, locale = 'en-US') => {
+  if (!value) return 'Not available';
+  const parsed = new Date(String(value).replace(' ', 'T'));
+  if (Number.isNaN(parsed.getTime())) return String(value);
+  return new Intl.DateTimeFormat(locale, {
+    year: 'numeric',
+    month: 'short',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(parsed);
+};
+
+const getAffiliateList = (data) => {
+  if (Array.isArray(data)) return data;
+  if (!data || typeof data !== 'object') return [];
+  return Array.isArray(data.list) ? data.list : Array.isArray(data.items) ? data.items : Array.isArray(data.records) ? data.records : [];
+};
+
+const getAgentTotal = (data, list) => agentNumber(data?.total ?? data?.total_count ?? data?.totalCount, list.length);
+
+const getCommissionStatus = (record = {}) => {
+  const status = agentNumber(record.status, -1);
+  if (status === 0) return { label: record.status_name || 'Pending review', className: 'is-pending' };
+  if (status === 1) return { label: record.status_name || 'Credited', className: 'is-approved' };
+  if (status === 2) return { label: record.status_name || 'Rejected', className: 'is-rejected' };
+  return { label: record.status_name || 'Unknown', className: '' };
+};
+
+function AffiliatePage({ language, authVersion, onLogin }) {
+  const token = getAccessToken();
+  const [profile, setProfile] = useState(null);
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('invitees');
+  const [inviteesState, setInviteesState] = useState({ list: [], total: 0, page: 1, loading: false });
+  const [commissionsState, setCommissionsState] = useState({ list: [], total: 0, page: 1, loading: false });
+  const [commissionStatus, setCommissionStatus] = useState('');
+  const [bindCode, setBindCode] = useState('');
+  const [bindBusy, setBindBusy] = useState(false);
+  const [notice, setNotice] = useState({ text: '', error: false });
+
+  const loadProfile = useCallback(async () => {
+    if (!token) {
+      setProfile(null);
+      return;
+    }
+    setProfileLoading(true);
+    const result = await apiFetch('/api/agent/profile', { timeoutMs: 10000 });
+    setProfileLoading(false);
+    if (result.ok) {
+      setProfile(result.data || {});
+      return;
+    }
+    setNotice({ text: result.message || 'Affiliate profile could not be loaded.', error: true });
+  }, [token]);
+
+  const loadInvitees = useCallback(async (page = 1) => {
+    if (!token) return;
+    setInviteesState((current) => ({ ...current, page, loading: true }));
+    const result = await apiFetch('/api/agent/invitees', {
+      params: { page, page_size: AGENT_PAGE_SIZE },
+      timeoutMs: 10000,
+    });
+    if (result.ok) {
+      const list = getAffiliateList(result.data);
+      setInviteesState({ list, total: getAgentTotal(result.data, list), page, loading: false });
+      return;
+    }
+    setInviteesState((current) => ({ ...current, loading: false }));
+    setNotice({ text: result.message || 'Invitees could not be loaded.', error: true });
+  }, [token]);
+
+  const loadCommissions = useCallback(async (page = 1, status = commissionStatus) => {
+    if (!token) return;
+    setCommissionsState((current) => ({ ...current, page, loading: true }));
+    const result = await apiFetch('/api/agent/commissions', {
+      params: {
+        page,
+        page_size: AGENT_PAGE_SIZE,
+        ...(status !== '' ? { status } : {}),
+      },
+      timeoutMs: 10000,
+    });
+    if (result.ok) {
+      const list = getAffiliateList(result.data);
+      setCommissionsState({ list, total: getAgentTotal(result.data, list), page, loading: false });
+      if (result.data?.account) {
+        setProfile((current) => current ? { ...current, account: result.data.account } : current);
+      }
+      return;
+    }
+    setCommissionsState((current) => ({ ...current, loading: false }));
+    setNotice({ text: result.message || 'Commission records could not be loaded.', error: true });
+  }, [commissionStatus, token]);
+
+  useEffect(() => {
+    if (!token) {
+      setProfile(null);
+      setInviteesState({ list: [], total: 0, page: 1, loading: false });
+      setCommissionsState({ list: [], total: 0, page: 1, loading: false });
+      return;
+    }
+    setNotice({ text: '', error: false });
+    loadProfile();
+    loadInvitees(1);
+  }, [authVersion, loadInvitees, loadProfile, token]);
+
+  useEffect(() => {
+    if (activeTab === 'commissions' && token) loadCommissions(1, commissionStatus);
+  }, [activeTab, commissionStatus, loadCommissions, token]);
+
+  const refresh = () => {
+    setNotice({ text: '', error: false });
+    loadProfile();
+    if (activeTab === 'invitees') loadInvitees(inviteesState.page);
+    else loadCommissions(commissionsState.page, commissionStatus);
+  };
+
+  const submitBindCode = async (event) => {
+    event.preventDefault();
+    const inviteCode = bindCode.trim().toUpperCase();
+    if (!inviteCode) {
+      setNotice({ text: 'Enter an invite code.', error: true });
+      return;
+    }
+    setBindBusy(true);
+    setNotice({ text: '', error: false });
+    let result = await apiFetch('/api/agent/bind-invite-code', {
+      method: 'POST',
+      body: { inviteCode, invite_code: inviteCode },
+      timeoutMs: 10000,
+    });
+    if (!result.ok && [404, 405].includes(result.status)) {
+      result = await apiFetch('/api/agent/invite-code/bind', {
+        method: 'POST',
+        body: { inviteCode, invite_code: inviteCode },
+        timeoutMs: 10000,
+      });
+    }
+    setBindBusy(false);
+    if (!result.ok) {
+      setNotice({ text: result.message || 'Invite code could not be bound.', error: true });
+      return;
+    }
+    setBindCode('');
+    setNotice({ text: result.message || 'Invite code bound successfully.', error: false });
+    loadProfile();
+  };
+
+  const copyText = async (value, successMessage) => {
+    try {
+      await navigator.clipboard.writeText(value);
+      setNotice({ text: successMessage, error: false });
+    } catch {
+      setNotice({ text: 'Copy failed. Please copy it manually.', error: true });
+    }
+  };
+
+  if (!token) {
+    return (
+      <div className="affiliate-page">
+        <section className="affiliate-hero">
+          <div>
+            <span>AFFILIATE PROGRAM</span>
+            <h1>Affiliate Center</h1>
+            <p>Share your invite code and track invitees and commissions.</p>
+          </div>
+        </section>
+        <div className="affiliate-empty">
+          <UsersRound size={36} />
+          <strong>Sign in to view your affiliate account.</strong>
+          <button className="primary-button" onClick={onLogin}>Sign in</button>
+        </div>
+      </div>
+    );
+  }
+
+  const account = profile?.account || {};
+  const inviteCode = String(profile?.invite_code || '').toUpperCase();
+  const inviter = profile?.inviter || null;
+  const shareUrl = inviteCode
+    ? (() => {
+      const url = new URL('/app/', window.location.origin);
+      url.searchParams.set('inviteCode', inviteCode);
+      return url.toString();
+    })()
+    : '';
+  const inviteePages = Math.max(1, Math.ceil(inviteesState.total / AGENT_PAGE_SIZE));
+  const commissionPages = Math.max(1, Math.ceil(commissionsState.total / AGENT_PAGE_SIZE));
+
+  return (
+    <div className="affiliate-page">
+      <section className="affiliate-hero">
+        <div>
+          <span>AFFILIATE PROGRAM</span>
+          <h1>Affiliate Center</h1>
+          <p>Share your invite code and track invitees and commissions.</p>
+        </div>
+        <button className="outline-button" onClick={refresh} disabled={profileLoading}>
+          <RefreshCw size={17} className={profileLoading ? 'is-spinning' : ''} />
+          {profileLoading ? 'Refreshing' : 'Refresh'}
+        </button>
+      </section>
+
+      {notice.text && <div className={`affiliate-notice${notice.error ? ' is-error' : ''}`}>{notice.text}</div>}
+
+      <section className="affiliate-overview" aria-busy={profileLoading}>
+        <article className="affiliate-code-card">
+          <div>
+            <small>Your invite code</small>
+            <strong>{inviteCode || 'Loading'}</strong>
+          </div>
+          <div className="affiliate-code-actions">
+            <button type="button" onClick={() => copyText(inviteCode, 'Invite code copied.')} disabled={!inviteCode}>
+              <Copy size={16} />
+              Copy code
+            </button>
+            <button type="button" onClick={() => copyText(shareUrl, 'Invite link copied.')} disabled={!shareUrl}>
+              <ExternalLink size={16} />
+              Copy invite link
+            </button>
+          </div>
+        </article>
+        <article className="affiliate-stat-card">
+          <Coins size={21} />
+          <span>Available commission</span>
+          <strong>{formatAgentMoney(account.available_balance, language)}</strong>
+        </article>
+        <article className="affiliate-stat-card">
+          <Clock3 size={21} />
+          <span>Frozen commission</span>
+          <strong>{formatAgentMoney(account.frozen_balance, language)}</strong>
+        </article>
+        <article className="affiliate-stat-card">
+          <ReceiptText size={21} />
+          <span>Total earned</span>
+          <strong>{formatAgentMoney(account.total_earned, language)}</strong>
+        </article>
+        <article className="affiliate-stat-card">
+          <UsersRound size={21} />
+          <span>Invited users</span>
+          <strong>{agentNumber(profile?.invited_count)}</strong>
+        </article>
+        <article className="affiliate-stat-card">
+          <UserPlus size={21} />
+          <span>Paid invitees</span>
+          <strong>{agentNumber(profile?.paid_invitee_count)}</strong>
+        </article>
+        <article className="affiliate-stat-card">
+          <CircleDollarSign size={21} />
+          <span>Commission rate</span>
+          <strong>{agentNumber(profile?.commission_percent, agentNumber(profile?.commission_rate) * 100)}%</strong>
+        </article>
+      </section>
+
+      {inviter ? (
+        <section className="affiliate-inviter">
+          <div className="affiliate-avatar">
+            {inviter.avatar_url ? <img src={inviter.avatar_url} alt="" /> : <UserRound size={22} />}
+          </div>
+          <div>
+            <small>Invited by</small>
+            <strong>{inviter.nickname || `User ${inviter.id}`}</strong>
+            <span>{formatAgentDate(profile?.invited_at, language)}</span>
+          </div>
+        </section>
+      ) : (
+        <form className="affiliate-bind-card" onSubmit={submitBindCode}>
+          <div>
+            <span>Already have an invite code?</span>
+            <p>You can bind it once. Orders paid before binding are not included.</p>
+          </div>
+          <label>
+            <span>Invite code</span>
+            <input
+              value={bindCode}
+              maxLength={6}
+              onChange={(event) => setBindCode(event.target.value.replace(/[^a-z0-9]/gi, '').toUpperCase().slice(0, 6))}
+              placeholder="Up to 6 characters"
+              autoCapitalize="characters"
+            />
+          </label>
+          <button className="primary-button" disabled={bindBusy || !bindCode}>
+            <UserPlus size={17} />
+            {bindBusy ? 'Binding' : 'Bind invite code'}
+          </button>
+        </form>
+      )}
+
+      <section className="affiliate-records">
+        <div className="affiliate-record-head">
+          <div className="affiliate-tabs" role="tablist" aria-label="Affiliate records">
+            <button className={activeTab === 'invitees' ? 'is-active' : ''} onClick={() => setActiveTab('invitees')}>Invitees</button>
+            <button className={activeTab === 'commissions' ? 'is-active' : ''} onClick={() => setActiveTab('commissions')}>Commissions</button>
+          </div>
+          {activeTab === 'commissions' && (
+            <label className="affiliate-status-filter">
+              <span>Commission status</span>
+              <select value={commissionStatus} onChange={(event) => setCommissionStatus(event.target.value)}>
+                <option value="">All statuses</option>
+                <option value="0">Pending review</option>
+                <option value="1">Credited</option>
+                <option value="2">Rejected</option>
+              </select>
+            </label>
+          )}
+        </div>
+
+        {activeTab === 'invitees' ? (
+          inviteesState.loading ? (
+            <div className="affiliate-list-empty"><RefreshCw className="is-spinning" size={24} />Loading invitees...</div>
+          ) : inviteesState.list.length ? (
+            <div className="affiliate-list">
+              {inviteesState.list.map((invitee, index) => (
+                <article className="affiliate-list-row" key={invitee.id || index}>
+                  <div className="affiliate-person">
+                    <span className="affiliate-avatar">
+                      {invitee.avatar_url ? <img src={invitee.avatar_url} alt="" /> : <UserRound size={19} />}
+                    </span>
+                    <span><strong>{invitee.nickname || `User ${invitee.id}`}</strong><small>{formatAgentDate(invitee.invited_at || invitee.created_at, language)}</small></span>
+                  </div>
+                  <div><small>Payment</small><strong>{agentBoolean(invitee.has_paid) ? 'Paid' : 'Not paid'}</strong></div>
+                  <div><small>Commission</small><strong>{formatAgentMoney(invitee.total_commission, language)}</strong></div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="affiliate-list-empty"><UsersRound size={28} />No invitees yet.</div>
+          )
+        ) : commissionsState.loading ? (
+          <div className="affiliate-list-empty"><RefreshCw className="is-spinning" size={24} />Loading commissions...</div>
+        ) : commissionsState.list.length ? (
+          <div className="affiliate-list">
+            {commissionsState.list.map((record, index) => {
+              const commissionState = getCommissionStatus(record);
+              return (
+                <article className="affiliate-list-row is-commission" key={record.id || index}>
+                  <div>
+                    <small>Order</small>
+                    <strong>{record.order_no || record.order_id || 'Not available'}</strong>
+                    <span>{formatAgentDate(record.order_pay_time || record.created_at, language)}</span>
+                  </div>
+                  <div>
+                    <small>Invitee</small>
+                    <strong>{record.invitee?.nickname || `User ${record.invitee_user_id}`}</strong>
+                    <span>{agentNumber(record.commission_percent, agentNumber(record.commission_rate) * 100)}%</span>
+                  </div>
+                  <div>
+                    <small>Commission</small>
+                    <strong>{formatAgentMoney(record.commission_amount, language)}</strong>
+                    <span>Base {formatAgentMoney(record.base_amount, language)}</span>
+                  </div>
+                  <span className={`affiliate-status ${commissionState.className}`}>{commissionState.label}</span>
+                </article>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="affiliate-list-empty"><ReceiptText size={28} />No commission records yet.</div>
+        )}
+
+        <div className="affiliate-pagination">
+          {activeTab === 'invitees' ? (
+            <>
+              <button className="outline-button" disabled={inviteesState.page <= 1 || inviteesState.loading} onClick={() => loadInvitees(inviteesState.page - 1)}>Previous</button>
+              <span>Page {inviteesState.page} / {inviteePages}</span>
+              <button className="outline-button" disabled={inviteesState.page >= inviteePages || inviteesState.loading} onClick={() => loadInvitees(inviteesState.page + 1)}>Next</button>
+            </>
+          ) : (
+            <>
+              <button className="outline-button" disabled={commissionsState.page <= 1 || commissionsState.loading} onClick={() => loadCommissions(commissionsState.page - 1, commissionStatus)}>Previous</button>
+              <span>Page {commissionsState.page} / {commissionPages}</span>
+              <button className="outline-button" disabled={commissionsState.page >= commissionPages || commissionsState.loading} onClick={() => loadCommissions(commissionsState.page + 1, commissionStatus)}>Next</button>
+            </>
+          )}
+        </div>
+      </section>
+    </div>
+  );
+}
+
 function SettingsPage({ authVersion, onLogin, onLogout }) {
   const [profile, setProfile] = useState(() => readStoredUser());
   const [loading, setLoading] = useState(false);
@@ -8934,8 +9334,21 @@ function PasswordResetPage({ initialEmail = '', onBackToLogin }) {
   );
 }
 
+const getInviteCodeFromUrl = () => {
+  if (typeof window === 'undefined') return '';
+  const params = new URLSearchParams(window.location.search);
+  return (params.get('inviteCode') || params.get('invite_code') || params.get('invite') || '').trim().toUpperCase().slice(0, 6);
+};
+
 function LoginModal({ open, onClose, onSuccess, onOpenInfo, onForgotPassword }) {
-  const [form, setForm] = useState({ email: '', password: '', nickname: '', autoCreate: true, agreement: false });
+  const [form, setForm] = useState({
+    email: '',
+    password: '',
+    nickname: '',
+    inviteCode: getInviteCodeFromUrl(),
+    autoCreate: true,
+    agreement: false,
+  });
   const [status, setStatus] = useState({ loading: false, message: '' });
 
   if (!open) return null;
@@ -8989,6 +9402,16 @@ function LoginModal({ open, onClose, onSuccess, onOpenInfo, onForgotPassword }) 
           <label>
             <span>Nickname</span>
             <input value={form.nickname} onChange={(event) => update('nickname', event.target.value)} placeholder="Optional" />
+          </label>
+          <label>
+            <span>Invite code</span>
+            <input
+              value={form.inviteCode}
+              maxLength={6}
+              onChange={(event) => update('inviteCode', event.target.value.replace(/[^a-z0-9]/gi, '').toUpperCase().slice(0, 6))}
+              placeholder="Optional for new accounts"
+              autoCapitalize="characters"
+            />
           </label>
           <label className="checkbox-row">
             <input
@@ -9595,6 +10018,12 @@ export default function App() {
               />
             ) : active === 'billing' ? (
               <BillingPage language={language} authVersion={authVersion} />
+            ) : active === 'affiliate' ? (
+              <AffiliatePage
+                language={language}
+                authVersion={authVersion}
+                onLogin={() => setLoginOpen(true)}
+              />
             ) : active === 'settings' ? (
               <SettingsPage
                 authVersion={authVersion}

@@ -151,3 +151,4 @@
 - 2026-07-28：多币种实现优先保持现有 Evonet 接口和请求体不变，不引入 `quote_id`、新报价接口或复杂价目表；前端继续提交 `plan_id + currency + locale`，后端内部仅对白名单币种按集中配置的固定汇率换算并把成交金额固化到订单。若完全不改后端逻辑，则国际站只能安全地统一按 USD 展示和扣款。
 - 2026-07-28：价格统一以人民币套餐价为锚点；`zh-CN`/`zh-TW` 保留原人民币金额并显示 `¥`，其他界面语言按 `USD = RMB / 7.2` 向上取整为整数并显示 `$`（例如 `3.1 -> 4`）。Evonet 接口和请求体不变，前端固定提交 `currency=USD`，后端创建订单时执行相同换算并只允许 USD，保证展示金额与实际扣款一致。
 - 2026-07-28：Evonet 结账前必须校验后端订单的 `currency=USD`，且 `orders.total_amount` 与前端按 `RMB / 7.2` 向上取整的展示金额一致；若前后端版本不一致（例如页面 `$9`、Drop-in `USD 60`），直接阻止打开支付组件，避免错误扣款。
+- 2026-07-29：邀请代理用户链路已接入 Web：邮箱首次注册支持 `inviteCode/invite_code`，邀请链接通过 `/app/?inviteCode=<CODE>` 自动预填；代理中心读取 `/api/agent/profile`、`/api/agent/invitees`、`/api/agent/commissions`，并支持登录后补绑邀请码。`X-Agent-Admin-Key` 审核接口禁止接入公开 SPA，必须留在服务端管理后台，避免管理密钥泄露。

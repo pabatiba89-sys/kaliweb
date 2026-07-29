@@ -1131,5 +1131,6 @@
   "Payment session was not returned by the server.": "Payment session was not returned by the server.",
   "Payment result could not be recorded.": "Payment result could not be recorded.",
   "制作": "Production",
-  "视频制作（含封面）": "Video Production (including cover)"
+  "视频制作（含封面）": "Video Production (including cover)",
+  "Invite code copied.": "Prompt code copied."
 }
