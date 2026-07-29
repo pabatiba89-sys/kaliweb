@@ -9772,7 +9772,9 @@ export default function App() {
       if (result.reason === 'bound') {
         setInviteAttributionNotice({ text: 'Invite relationship linked successfully.', error: false });
         setAuthVersion((value) => value + 1);
-      } else if (result.reason === 'self' || result.reason === 'invalid') {
+      } else if (result.reason === 'self') {
+        setInviteAttributionNotice({ text: '', error: false });
+      } else if (result.reason === 'invalid') {
         setInviteAttributionNotice({ text: result.message || 'Invite code could not be linked.', error: true });
       } else if (result.reason === 'retryable') {
         setInviteAttributionNotice({ text: 'Invite linking will retry the next time you open the workspace.', error: true });
