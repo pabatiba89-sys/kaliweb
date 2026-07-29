@@ -1763,5 +1763,11 @@
   "User": "Uživatel",
   "View commissions": "Zobrazit zakázky",
   "You can bind it once. Orders paid before binding are not included.": "Můžeš to jednou svázat. Příkazy zaplacené před závazem nejsou zahrnuty.",
-  "Your invite code": "Váš pozvánkový kód"
+  "Your invite code": "Váš pozvánkový kód",
+  "Invite code could not be linked.": "Pozvánkový kód nemohl být propojen.",
+  "Invite linking will retry the next time you open the workspace.": "Pozvánkové propojení se pokusí znovu při dalším otevření pracovního prostoru.",
+  "Invite relationship already exists": "Vztah pozvánek už existuje",
+  "Invite relationship linked successfully.": "Úspěšně propojte vztah na pozvání.",
+  "不能填写自己的邀请码": "Nemůžete zadat svůj vlastní pozvánkový kód",
+  "请输入邀请码": "Zadejte prosím svůj pozvánkový kód"
 }

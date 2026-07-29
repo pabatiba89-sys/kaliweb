@@ -1750,5 +1750,11 @@
   "User": "Gebruiker",
   "View commissions": "Bekijk opdrachten",
   "You can bind it once. Orders paid before binding are not included.": "Je kunt het één keer binden. Bestellingen die vóór binding zijn betaald, zijn niet inbegrepen.",
-  "Your invite code": "Je uitnodigingscode"
+  "Your invite code": "Je uitnodigingscode",
+  "Invite code could not be linked.": "De uitnodigingscode kon niet worden gekoppeld.",
+  "Invite linking will retry the next time you open the workspace.": "Uitnodigingslinken probeert het opnieuw de volgende keer dat je de werkruimte opent.",
+  "Invite relationship already exists": "Een uitnodigingsrelatie bestaat al",
+  "Invite relationship linked successfully.": "Nodig de relatie succesvol uit.",
+  "不能填写自己的邀请码": "Je kunt je eigen uitnodigingscode niet invoeren",
+  "请输入邀请码": "Voer alstublieft uw uitnodigingscode in"
 }

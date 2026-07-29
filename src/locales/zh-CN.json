@@ -956,5 +956,9 @@
   "User": "用户",
   "View commissions": "查看委托作品",
   "You can bind it once. Orders paid before binding are not included.": "你可以绑一次。未包含在绑定前支付的订单。",
-  "Your invite code": "你的邀请码"
+  "Your invite code": "你的邀请码",
+  "Invite code could not be linked.": "邀请码绑定失败。",
+  "Invite linking will retry the next time you open the workspace.": "下次进入工作台时将自动重试绑定邀请码。",
+  "Invite relationship already exists": "已有邀请关系，不会重复绑定或改绑。",
+  "Invite relationship linked successfully.": "邀请码绑定成功。"
 }

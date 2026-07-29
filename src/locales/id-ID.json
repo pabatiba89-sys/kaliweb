@@ -1794,5 +1794,11 @@
   "User": "Pengguna",
   "View commissions": "Lihat komisi",
   "You can bind it once. Orders paid before binding are not included.": "Kamu bisa mengikatnya sekali. Pesanan yang dibayarkan sebelum penjilidan tidak termasuk.",
-  "Your invite code": "Kode undangan Anda"
+  "Your invite code": "Kode undangan Anda",
+  "Invite code could not be linked.": "Kode undangan tidak dapat dihubungkan.",
+  "Invite linking will retry the next time you open the workspace.": "Tautan undangan akan mencoba ulang saat Anda membuka workspace berikutnya.",
+  "Invite relationship already exists": "Hubungan undangan sudah ada",
+  "Invite relationship linked successfully.": "Hubungan yang dihubungkan dengan sukses diundang.",
+  "不能填写自己的邀请码": "Anda tidak dapat memasukkan kode undangan Anda sendiri",
+  "请输入邀请码": "Silakan masukkan kode undangan Anda"
 }

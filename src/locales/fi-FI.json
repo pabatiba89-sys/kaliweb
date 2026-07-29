@@ -1771,5 +1771,11 @@
   "User": "Käyttäjä",
   "View commissions": "Katso toimeksiantoja",
   "You can bind it once. Orders paid before binding are not included.": "Voit sitoa sen kerran. Ennen sitomista maksetut tilaukset eivät sisälly mukaan.",
-  "Your invite code": "Kutsukoodisi"
+  "Your invite code": "Kutsukoodisi",
+  "Invite code could not be linked.": "Kutsukoodia ei voitu linkittää.",
+  "Invite linking will retry the next time you open the workspace.": "Kutsulinkitys yrittää uudelleen seuraavalla kerralla, kun avaat työtilan.",
+  "Invite relationship already exists": "Kutsusuhde on jo olemassa",
+  "Invite relationship linked successfully.": "Kutsu suhde onnistuneesti.",
+  "不能填写自己的邀请码": "Et voi syöttää omaa kutsukoodiasi",
+  "请输入邀请码": "Syötä kutsukoodisi"
 }

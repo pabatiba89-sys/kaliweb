@@ -1790,5 +1790,11 @@
   "User": "Usuario",
   "View commissions": "Ver comisiones",
   "You can bind it once. Orders paid before binding are not included.": "Puedes encuadernarlo una vez. No se incluyen los pedidos pagados antes de la vinculación.",
-  "Your invite code": "Tu código de invitación"
+  "Your invite code": "Tu código de invitación",
+  "Invite code could not be linked.": "No se pudo vincular el código de invitación.",
+  "Invite linking will retry the next time you open the workspace.": "El enlace de invitación se reintentará la próxima vez que abras el espacio de trabajo.",
+  "Invite relationship already exists": "Ya existe una relación de invitación",
+  "Invite relationship linked successfully.": "Relación de invitación conectada con éxito.",
+  "不能填写自己的邀请码": "No puedes introducir tu propio código de invitación",
+  "请输入邀请码": "Por favor, introduzca su código de invitación"
 }

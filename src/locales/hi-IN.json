@@ -1867,5 +1867,11 @@
   "User": "उपभोक्ता",
   "View commissions": "कमीशन देखें",
   "You can bind it once. Orders paid before binding are not included.": "आप इसे एक बार बांध सकते हैं। बाध्यकारी से पहले भुगतान किए गए आदेश शामिल नहीं हैं।",
-  "Your invite code": "आपका आमंत्रण कोड"
+  "Your invite code": "आपका आमंत्रण कोड",
+  "Invite code could not be linked.": "आमंत्रण कोड लिंक नहीं किया जा सका.",
+  "Invite linking will retry the next time you open the workspace.": "अगली बार जब आप कार्यस्थान खोलेंगे तो लिंकिंग आमंत्रित करने का पुन: प्रयास करेगा.",
+  "Invite relationship already exists": "आमंत्रण संबंध पहले से मौजूद है",
+  "Invite relationship linked successfully.": "सफलतापूर्वक लिंक किए गए रिश्ते को आमंत्रित करें।",
+  "不能填写自己的邀请码": "आप अपना स्वयं का आमंत्रण कोड दर्ज नहीं कर सकते",
+  "请输入邀请码": "कृपया अपना आमंत्रण कोड दर्ज करें"
 }

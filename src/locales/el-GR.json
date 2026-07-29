@@ -1836,5 +1836,11 @@
   "User": "Χρήστης",
   "View commissions": "Προβολή προμηθειών",
   "You can bind it once. Orders paid before binding are not included.": "Μπορείτε να το δέσετε μία φορά. Δεν περιλαμβάνονται παραγγελίες που πληρώθηκαν πριν από τη δέσμευση.",
-  "Your invite code": "Ο κωδικός πρόσκλησής σας"
+  "Your invite code": "Ο κωδικός πρόσκλησής σας",
+  "Invite code could not be linked.": "Δεν ήταν δυνατή η σύνδεση του κωδικού πρόσκλησης.",
+  "Invite linking will retry the next time you open the workspace.": "Η σύνδεση πρόσκλησης θα προσπαθήσει ξανά την επόμενη φορά που θα ανοίξετε τον χώρο εργασίας.",
+  "Invite relationship already exists": "Η σχέση πρόσκλησης υπάρχει ήδη",
+  "Invite relationship linked successfully.": "Πρόσκληση σχέσης που συνδέθηκε με επιτυχία.",
+  "不能填写自己的邀请码": "Δεν μπορείτε να εισαγάγετε τον δικό σας κωδικό πρόσκλησης",
+  "请输入邀请码": "Εισαγάγετε τον κωδικό πρόσκλησής σας"
 }

@@ -1836,5 +1836,11 @@
   "User": "사용자",
   "View commissions": "의뢰 보기",
   "You can bind it once. Orders paid before binding are not included.": "한 번 묶으면 돼. 구속 이전에 지불된 주문은 포함되지 않습니다.",
-  "Your invite code": "초대 코드"
+  "Your invite code": "초대 코드",
+  "Invite code could not be linked.": "초대 코드가 연동되지 않았습니다.",
+  "Invite linking will retry the next time you open the workspace.": "초대 링크는 다음에 작업 공간을 열 때 다시 시도합니다.",
+  "Invite relationship already exists": "초대 관계는 이미 존재합니다",
+  "Invite relationship linked successfully.": "성공적으로 연결된 관계를 초대하세요.",
+  "不能填写自己的邀请码": "직접 초대 코드를 입력할 수 없습니다",
+  "请输入邀请码": "초대 코드를 입력해 주세요"
 }

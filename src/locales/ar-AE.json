@@ -1832,5 +1832,11 @@
   "User": "المستخدم",
   "View commissions": "عرض التكليفات",
   "You can bind it once. Orders paid before binding are not included.": "يمكنك ربطها مرة واحدة. الطلبات المدفوعة قبل الربط غير مشمولة.",
-  "Your invite code": "رمز الدعوة الخاص بك"
+  "Your invite code": "رمز الدعوة الخاص بك",
+  "Invite code could not be linked.": "لم يكن بالإمكان ربط رمز الدعوة.",
+  "Invite linking will retry the next time you open the workspace.": "سيتم إعادة محاولة ربط الدعوة في المرة القادمة التي تفتح فيها مساحة العمل.",
+  "Invite relationship already exists": "علاقة دعوة موجودة بالفعل",
+  "Invite relationship linked successfully.": "ادعو العلاقة بنجاح.",
+  "不能填写自己的邀请码": "لا يمكنك إدخال رمز دعوتك الخاص",
+  "请输入邀请码": "يرجى إدخال رمز الدعوة الخاص بك"
 }

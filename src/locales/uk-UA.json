@@ -1779,5 +1779,11 @@
   "User": "Користувач",
   "View commissions": "Переглянути замовлення",
   "You can bind it once. Orders paid before binding are not included.": "Можна перев'язати один раз. Замовлення, сплачені до змушування, не включаються.",
-  "Your invite code": "Ваш код запрошення"
+  "Your invite code": "Ваш код запрошення",
+  "Invite code could not be linked.": "Код запрошення не можна було прив'язати.",
+  "Invite linking will retry the next time you open the workspace.": "Посилання запрошень повториться наступного разу, коли ви відкриєте робочий простір.",
+  "Invite relationship already exists": "Відносини з запрошеннями вже існують",
+  "Invite relationship linked successfully.": "Запрошуйте стосунки успішно пов'язані.",
+  "不能填写自己的邀请码": "Ви не можете ввести власний код запрошення",
+  "请输入邀请码": "Будь ласка, введіть свій код запрошення"
 }

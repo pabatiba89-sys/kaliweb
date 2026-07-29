@@ -1780,5 +1780,11 @@
   "User": "Utilizator",
   "View commissions": "Vezi comenzile",
   "You can bind it once. Orders paid before binding are not included.": "Poți să-l legi o dată. Comenzile plătite înainte de legare nu sunt incluse.",
-  "Your invite code": "Codul tău de invitație"
+  "Your invite code": "Codul tău de invitație",
+  "Invite code could not be linked.": "Codul de invitație nu a putut fi legat.",
+  "Invite linking will retry the next time you open the workspace.": "Linkarea prin invitații va încerca din nou data viitoare când deschizi spațiul de lucru.",
+  "Invite relationship already exists": "Relația de invitație există deja",
+  "Invite relationship linked successfully.": "Relația de invitație este conectată cu succes.",
+  "不能填写自己的邀请码": "Nu poți introduce propriul tău cod de invitație",
+  "请输入邀请码": "Vă rugăm să introduceți codul de invitație"
 }

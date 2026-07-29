@@ -1755,5 +1755,11 @@
   "User": "使用者",
   "View commissions": "查看委託作品",
   "You can bind it once. Orders paid before binding are not included.": "你可以綁一次。未包含在約束前支付的訂單。",
-  "Your invite code": "你的邀請碼"
+  "Your invite code": "你的邀請碼",
+  "Invite code could not be linked.": "邀請碼綁定失敗。",
+  "Invite linking will retry the next time you open the workspace.": "下次進入工作區時將自動重試綁定邀請碼。",
+  "Invite relationship already exists": "已有邀請關係，不會重複綁定或改綁。",
+  "Invite relationship linked successfully.": "邀請碼綁定成功。",
+  "不能填写自己的邀请码": "你無法輸入自己的邀請碼",
+  "请输入邀请码": "請輸入您的邀請碼"
 }

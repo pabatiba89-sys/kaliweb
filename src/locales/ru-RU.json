@@ -1764,5 +1764,11 @@
   "User": "Пользователь",
   "View commissions": "Просмотр заказов",
   "You can bind it once. Orders paid before binding are not included.": "Можно перевязать один раз. Заказы, оплаченные до обвязывания, не включаются.",
-  "Your invite code": "Ваш код приглашения"
+  "Your invite code": "Ваш код приглашения",
+  "Invite code could not be linked.": "Код приглашения нельзя было связать.",
+  "Invite linking will retry the next time you open the workspace.": "Ссылка по приглашениям попробуется снова при следующем открытии рабочего пространства.",
+  "Invite relationship already exists": "Приглашённые отношения уже существуют",
+  "Invite relationship linked successfully.": "Пригласить отношения успешно связанные.",
+  "不能填写自己的邀请码": "Вы не можете ввести свой собственный код приглашения",
+  "请输入邀请码": "Пожалуйста, введите свой код приглашения"
 }

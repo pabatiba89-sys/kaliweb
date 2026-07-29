@@ -56,13 +56,18 @@ import {
 } from 'lucide-react';
 import {
   apiFetch,
+  bindInviteCode,
   bindPhoneNumber,
+  captureInviteCodeFromLocation,
   changePassword,
+  clearPendingInviteCode,
   clearSession,
   confirmPasswordReset,
   createEvonetOneTimePaymentSession,
   emailLogin,
   getAccessToken,
+  getPendingInviteCode,
+  rememberInviteCode,
   reportEvonetOneTimePaymentEvent,
   requestPasswordReset,
   sendPhoneVerificationCode,
@@ -6907,18 +6912,7 @@ function AffiliatePage({ language, authVersion, onLogin }) {
     }
     setBindBusy(true);
     setNotice({ text: '', error: false });
-    let result = await apiFetch('/api/agent/bind-invite-code', {
-      method: 'POST',
-      body: { inviteCode, invite_code: inviteCode },
-      timeoutMs: 10000,
-    });
-    if (!result.ok && [404, 405].includes(result.status)) {
-      result = await apiFetch('/api/agent/invite-code/bind', {
-        method: 'POST',
-        body: { inviteCode, invite_code: inviteCode },
-        timeoutMs: 10000,
-      });
-    }
+    const result = await bindInviteCode(inviteCode, { remember: false });
     setBindBusy(false);
     if (!result.ok) {
       setNotice({ text: result.message || 'Invite code could not be bound.', error: true });
@@ -6962,7 +6956,7 @@ function AffiliatePage({ language, authVersion, onLogin }) {
   const inviter = profile?.inviter || null;
   const shareUrl = inviteCode
     ? (() => {
-      const url = new URL('/app/', window.location.origin);
+      const url = new URL('/', window.location.origin);
       url.searchParams.set('inviteCode', inviteCode);
       return url.toString();
     })()
@@ -9334,22 +9328,21 @@ function PasswordResetPage({ initialEmail = '', onBackToLogin }) {
   );
 }
 
-const getInviteCodeFromUrl = () => {
-  if (typeof window === 'undefined') return '';
-  const params = new URLSearchParams(window.location.search);
-  return (params.get('inviteCode') || params.get('invite_code') || params.get('invite') || '').trim().toUpperCase().slice(0, 6);
-};
-
-function LoginModal({ open, onClose, onSuccess, onOpenInfo, onForgotPassword }) {
+function LoginModal({ open, initialInviteCode, onClose, onSuccess, onOpenInfo, onForgotPassword }) {
   const [form, setForm] = useState({
     email: '',
     password: '',
     nickname: '',
-    inviteCode: getInviteCodeFromUrl(),
+    inviteCode: initialInviteCode || getPendingInviteCode(),
     autoCreate: true,
     agreement: false,
   });
   const [status, setStatus] = useState({ loading: false, message: '' });
+
+  useEffect(() => {
+    if (!open || !initialInviteCode) return;
+    setForm((current) => current.inviteCode ? current : { ...current, inviteCode: initialInviteCode });
+  }, [initialInviteCode, open]);
 
   if (!open) return null;
 
@@ -9362,15 +9355,20 @@ function LoginModal({ open, onClose, onSuccess, onOpenInfo, onForgotPassword }) 
       return;
     }
     setStatus({ loading: true, message: '' });
-    const result = await emailLogin(form);
+    const inviteCode = form.inviteCode || getPendingInviteCode();
+    const result = await emailLogin({ ...form, inviteCode });
 
     if (result.ok && storeSession(result.data)) {
+      if (inviteCode) rememberInviteCode(inviteCode, { overwrite: true });
       setStatus({ loading: false, message: 'Signed in successfully' });
-      onSuccess();
+      onSuccess(inviteCode);
       onClose();
       return;
     }
 
+    if (/邀请码无效|最多6位|自己的邀请码/i.test(String(result.message || ''))) {
+      clearPendingInviteCode();
+    }
     setStatus({ loading: false, message: result.message || 'Email login failed' });
   };
 
@@ -9710,6 +9708,8 @@ export default function App() {
   const [loginOpen, setLoginOpen] = useState(false);
   const [passwordResetEmail, setPasswordResetEmail] = useState('');
   const [authVersion, setAuthVersion] = useState(0);
+  const [pendingInviteCode, setPendingInviteCode] = useState(() => captureInviteCodeFromLocation() || getPendingInviteCode());
+  const [inviteAttributionNotice, setInviteAttributionNotice] = useState({ text: '', error: false });
   const [agentVersion, setAgentVersion] = useState(0);
   const [editorSeed, setEditorSeed] = useState(null);
   const [generatorAgent, setGeneratorAgent] = useState(null);
@@ -9722,6 +9722,45 @@ export default function App() {
   const authed = Boolean(getAccessToken());
   const taskNotifications = useTaskNotifications({ authed, authVersion });
   useAutoTranslate(language);
+
+  useEffect(() => {
+    const syncCapturedCode = (event) => {
+      const code = event?.detail?.code || captureInviteCodeFromLocation() || getPendingInviteCode();
+      if (code) setPendingInviteCode(code);
+    };
+    window.addEventListener('kali-invite-code-captured', syncCapturedCode);
+    window.addEventListener('popstate', syncCapturedCode);
+    return () => {
+      window.removeEventListener('kali-invite-code-captured', syncCapturedCode);
+      window.removeEventListener('popstate', syncCapturedCode);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!authed || !pendingInviteCode) return undefined;
+    let ignore = false;
+    bindInviteCode(pendingInviteCode, { remember: false }).then((result) => {
+      if (ignore) return;
+      setPendingInviteCode(getPendingInviteCode());
+      if (result.reason === 'bound') {
+        setInviteAttributionNotice({ text: 'Invite relationship linked successfully.', error: false });
+        setAuthVersion((value) => value + 1);
+      } else if (result.reason === 'self' || result.reason === 'invalid') {
+        setInviteAttributionNotice({ text: result.message || 'Invite code could not be linked.', error: true });
+      } else if (result.reason === 'retryable') {
+        setInviteAttributionNotice({ text: 'Invite linking will retry the next time you open the workspace.', error: true });
+      }
+    });
+    return () => {
+      ignore = true;
+    };
+  }, [authed, pendingInviteCode]);
+
+  useEffect(() => {
+    if (!inviteAttributionNotice.text) return undefined;
+    const timer = window.setTimeout(() => setInviteAttributionNotice({ text: '', error: false }), 6000);
+    return () => window.clearTimeout(timer);
+  }, [inviteAttributionNotice.text]);
 
   const syncWorkspacePageQuery = (id) => {
     const url = new URL(window.location.href);
@@ -9852,6 +9891,15 @@ export default function App() {
 
   return (
     <div className="app-shell">
+      {inviteAttributionNotice.text && (
+        <div className={`invite-attribution-toast${inviteAttributionNotice.error ? ' is-error' : ''}`} role="status">
+          {inviteAttributionNotice.error ? <AlertCircle size={18} /> : <CheckCircle2 size={18} />}
+          <span>{inviteAttributionNotice.text}</span>
+          <button type="button" onClick={() => setInviteAttributionNotice({ text: '', error: false })} aria-label="Close">
+            <X size={16} />
+          </button>
+        </div>
+      )}
       <div className={`mobile-scrim ${mobileNav ? 'is-visible' : ''}`} onClick={() => setMobileNav(false)} />
       <div className={`sidebar-wrap ${mobileNav ? 'is-open' : ''}`}>
         <Sidebar active={active} collapsed={collapsed} onSelect={selectNav} onToggle={() => setCollapsed(!collapsed)} />
@@ -10044,6 +10092,7 @@ export default function App() {
       </main>
       <LoginModal
         open={loginOpen}
+        initialInviteCode={pendingInviteCode}
         onClose={() => setLoginOpen(false)}
         onSuccess={refreshAuth}
         onOpenInfo={(id) => { setLoginOpen(false); selectNav(id); }}

@@ -1811,5 +1811,11 @@
   "User": "ユーザー",
   "View commissions": "委託作品を見る",
   "You can bind it once. Orders paid before binding are not included.": "一度だけバインディングできます。拘束前に支払われた注文は含まれていません。",
-  "Your invite code": "招待コード"
+  "Your invite code": "招待コード",
+  "Invite code could not be linked.": "招待コードはリンクできませんでした。",
+  "Invite linking will retry the next time you open the workspace.": "次回ワークスペースを開くときに招待リンクを再度試行します。",
+  "Invite relationship already exists": "招待関係はすでに存在しています",
+  "Invite relationship linked successfully.": "関係を成功裏に結びつけましょう。",
+  "不能填写自己的邀请码": "ご自身の招待コードは入力できません",
+  "请输入邀请码": "招待コードを入力してください"
 }

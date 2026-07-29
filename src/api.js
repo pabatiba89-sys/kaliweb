@@ -1,6 +1,9 @@
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
 const AUTH_KEYS = ['access_token', 'token', 'accessToken'];
 const EMAIL_LOGIN_URL = '/api/user/email_login';
+const PENDING_INVITE_CODE_KEY = 'kali_pending_invite_code';
+const PENDING_INVITE_CAPTURED_AT_KEY = 'kali_pending_invite_captured_at';
+const PENDING_INVITE_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
 const AUTH_ENDPOINTS = {
   forgotPassword: ['/api/user/password/forgot', '/api/user/forgot-password', '/api/user/reset-password/request'],
   resetPassword: ['/api/user/password/reset', '/api/user/password/reset-with-code', '/api/user/reset-password/confirm', '/api/user/reset-password'],
@@ -20,6 +23,48 @@ export const getAccessToken = () => {
   }
   return '';
 };
+
+export const normalizeInviteCode = (value) => String(value || '')
+  .trim()
+  .replace(/[^a-z0-9]/gi, '')
+  .toUpperCase()
+  .slice(0, 6);
+
+export function clearPendingInviteCode() {
+  if (typeof window === 'undefined') return;
+  window.localStorage.removeItem(PENDING_INVITE_CODE_KEY);
+  window.localStorage.removeItem(PENDING_INVITE_CAPTURED_AT_KEY);
+}
+
+export function getPendingInviteCode() {
+  if (typeof window === 'undefined') return '';
+  const code = normalizeInviteCode(window.localStorage.getItem(PENDING_INVITE_CODE_KEY));
+  const capturedAt = Number(window.localStorage.getItem(PENDING_INVITE_CAPTURED_AT_KEY)) || 0;
+  if (!code || !capturedAt || Date.now() - capturedAt >= PENDING_INVITE_MAX_AGE_MS) {
+    clearPendingInviteCode();
+    return '';
+  }
+  return code;
+}
+
+export function rememberInviteCode(value, { overwrite = false } = {}) {
+  if (typeof window === 'undefined') return '';
+  const code = normalizeInviteCode(value);
+  if (!code) return getPendingInviteCode();
+  const existing = getPendingInviteCode();
+  if (existing && !overwrite) return existing;
+  window.localStorage.setItem(PENDING_INVITE_CODE_KEY, code);
+  window.localStorage.setItem(PENDING_INVITE_CAPTURED_AT_KEY, String(Date.now()));
+  window.dispatchEvent(new CustomEvent('kali-invite-code-captured', { detail: { code } }));
+  return code;
+}
+
+export function captureInviteCodeFromLocation() {
+  if (typeof window === 'undefined') return '';
+  const params = new URLSearchParams(window.location.search);
+  const incoming = normalizeInviteCode(params.get('inviteCode') || params.get('invite_code') || params.get('invite'));
+  return incoming ? rememberInviteCode(incoming) : getPendingInviteCode();
+}
 
 const normalizeUrl = (path) => {
   if (/^https?:\/\//.test(path)) return path;
@@ -171,6 +216,76 @@ async function apiFetchAny(paths, options, fallbackMessage) {
     if (result.status && result.status !== 404 && result.status !== 405) return result;
   }
   return lastResult || { ok: false, status: 0, message: fallbackMessage, data: null };
+}
+
+const hasBoundInviter = (user = {}) => {
+  const inviterId = user.inviter_user_id ?? user.inviterUserId;
+  return inviterId !== undefined && inviterId !== null && inviterId !== '';
+};
+
+const updateStoredInviteRelation = (data = {}) => {
+  const user = readStoredUserInfo();
+  const inviterId = data.inviter_user_id ?? data.inviterUserId ?? data.inviter?.id;
+  const invitedAt = data.invited_at ?? data.invitedAt;
+  if (inviterId === undefined && !invitedAt) return;
+  window.localStorage.setItem('user_info', JSON.stringify({
+    ...user,
+    ...(inviterId !== undefined ? { inviter_user_id: inviterId } : {}),
+    ...(invitedAt ? { invited_at: invitedAt } : {}),
+  }));
+};
+
+export async function bindInviteCode(value, { remember = true } = {}) {
+  const inviteCode = normalizeInviteCode(value);
+  if (!inviteCode) {
+    return { ok: false, status: 0, message: '请输入邀请码', data: null, reason: 'missing' };
+  }
+
+  if (remember) rememberInviteCode(inviteCode, { overwrite: true });
+  if (!getAccessToken()) {
+    return { ok: false, authMissing: true, status: 0, message: 'Sign in required', data: null, reason: 'auth' };
+  }
+
+  const user = readStoredUserInfo();
+  if (hasBoundInviter(user)) {
+    clearPendingInviteCode();
+    return { ok: true, skipped: true, status: 200, message: 'Invite relationship already exists', data: null, reason: 'already_bound' };
+  }
+
+  if (normalizeInviteCode(user.invite_code ?? user.inviteCode) === inviteCode) {
+    clearPendingInviteCode();
+    return { ok: false, skipped: true, status: 200, message: '不能填写自己的邀请码', data: null, reason: 'self' };
+  }
+
+  const result = await apiFetchAny([
+    '/api/agent/bind-invite-code',
+    '/api/agent/invite-code/bind',
+  ], {
+    method: 'POST',
+    timeoutMs: 10000,
+    body: { inviteCode, invite_code: inviteCode },
+  }, 'Invite code could not be bound.');
+
+  if (result.ok) {
+    updateStoredInviteRelation(result.data || {});
+    clearPendingInviteCode();
+    return { ...result, reason: 'bound' };
+  }
+
+  const message = String(result.message || '');
+  if (/已经绑定|不能重复|不能改绑/i.test(message)) {
+    clearPendingInviteCode();
+    return { ...result, ok: true, skipped: true, reason: 'already_bound' };
+  }
+  if (/自己的邀请码/i.test(message)) {
+    clearPendingInviteCode();
+    return { ...result, skipped: true, reason: 'self' };
+  }
+  if (/邀请码无效|最多6位|请输入邀请码/i.test(message)) {
+    clearPendingInviteCode();
+    return { ...result, reason: 'invalid' };
+  }
+  return { ...result, reason: 'retryable' };
 }
 
 export async function requestPasswordReset({ email }) {

@@ -67,6 +67,7 @@ const jsonLd = {
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={new URL('/og.png', Astro.site)} />
+    <script is:inline src="/invite-attribution.js"></script>
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   </head>
   <body>

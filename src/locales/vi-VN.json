@@ -1835,5 +1835,11 @@
   "User": "Người dùng",
   "View commissions": "Xem hoa hồng",
   "You can bind it once. Orders paid before binding are not included.": "Bạn có thể đóng bìa một lần. Các đơn hàng thanh toán trước khi có hiệu lực sẽ không được tính đến.",
-  "Your invite code": "Mã mời của bạn"
+  "Your invite code": "Mã mời của bạn",
+  "Invite code could not be linked.": "Không thể liên kết mã mời.",
+  "Invite linking will retry the next time you open the workspace.": "Liên kết lời mời sẽ thử lại lần tới khi bạn mở không gian làm việc.",
+  "Invite relationship already exists": "Mối quan hệ mời đã tồn tại",
+  "Invite relationship linked successfully.": "Liên kết mối quan hệ được mời thành công.",
+  "不能填写自己的邀请码": "Bạn không thể nhập mã mời riêng của mình",
+  "请输入邀请码": "Vui lòng nhập mã mời của bạn"
 }

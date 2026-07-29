@@ -1869,5 +1869,11 @@
   "User": "ผู้ใช้",
   "View commissions": "ดูงานคอมมิชชั่น",
   "You can bind it once. Orders paid before binding are not included.": "คุณเข้าเล่มได้แค่ครั้งเดียว คําสั่งซื้อที่ชําระเงินก่อนมีผลผูกพันจะไม่รวมอยู่ด้วย",
-  "Your invite code": "รหัสเชิญของคุณ"
+  "Your invite code": "รหัสเชิญของคุณ",
+  "Invite code could not be linked.": "ไม่สามารถเชื่อมโยงรหัสเชิญได้",
+  "Invite linking will retry the next time you open the workspace.": "การลิงก์เชิญจะลองใหม่อีกครั้งเมื่อคุณเปิดพื้นที่ทํางานครั้งถัดไป",
+  "Invite relationship already exists": "ความสัมพันธ์การเชิญมีอยู่แล้ว",
+  "Invite relationship linked successfully.": "เชิญความสัมพันธ์เชื่อมโยงสําเร็จ",
+  "不能填写自己的邀请码": "คุณไม่สามารถกรอกรหัสเชิญของตัวเองได้",
+  "请输入邀请码": "กรุณาใส่รหัสเชิญของคุณ"
 }

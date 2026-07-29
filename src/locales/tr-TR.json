@@ -1768,5 +1768,11 @@
   "User": "Kullanıcı",
   "View commissions": "Siparişleri görüntüleyin",
   "You can bind it once. Orders paid before binding are not included.": "Bir kez bağlayabilirsin. Bağlanmadan önce ödenen emirler dahil edilmez.",
-  "Your invite code": "Davet kodunuz"
+  "Your invite code": "Davet kodunuz",
+  "Invite code could not be linked.": "Davet kodu bağlanamadı.",
+  "Invite linking will retry the next time you open the workspace.": "Davet bağlantısı, çalışma alanını bir dahaki açtığında tekrar dener.",
+  "Invite relationship already exists": "Davet ilişkisi zaten var",
+  "Invite relationship linked successfully.": "Davet ilişkisi başarılı bir şekilde bağlandı.",
+  "不能填写自己的邀请码": "Kendi davet kodunuzu giremezsiniz",
+  "请输入邀请码": "Lütfen davetiye kodunuzu girin"
 }
