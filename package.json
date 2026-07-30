@@ -1,6 +1,6 @@
 {
   "name": "yixiu-overseas-site",
-  "version": "0.1.0",
+  "version": "1.5.1",
   "private": true,
   "type": "module",
   "scripts": {
@@ -11,6 +11,7 @@
     "i18n:generate": "node scripts/generate-translations.mjs",
     "i18n:update": "node scripts/generate-translations.mjs --missing-only --changed-only --scope=credits",
     "site:i18n:generate": "node scripts/generate-site-translations.mjs",
+    "version:patch": "npm version patch --no-git-tag-version",
     "check": "astro check"
   },
   "dependencies": {
