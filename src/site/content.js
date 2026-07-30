@@ -1,8 +1,9 @@
 import { localeMeta, localize, supportedLocales } from './localization.js';
 import { helpPages } from './help.js';
+import { LEGAL_COMPANY_NAME } from '../company.js';
 
 export const siteName = 'Kali';
-export { localeMeta, supportedLocales };
+export { LEGAL_COMPANY_NAME, localeMeta, supportedLocales };
 
 export const basePages = [
     {
@@ -105,7 +106,7 @@ export const basePages = [
       lead: 'Kali is focused on turning fragmented AI tools into a repeatable content-production system for global creators and teams.',
       bullets: ['One workflow from discovery to publishing', 'Reusable team assets and production presets', 'Built for multilingual, multi-market content operations'],
       sections: [['Why we built it', 'Content teams often move ideas, scripts, media, and task status across disconnected tools. Kali brings those steps into one operational workspace.'], ['What we prioritize', 'Clear workflows, reusable assets, visible task status, and explicit authorization for sensitive voice and likeness data.'], ['Who it is for', 'Creators and teams producing recurring short-form video, digital-human content, social campaigns, and localized media.']],
-      faq: [['Is Kali the same as Yixiu?', 'Kali is the international-facing product brand. Yixiu refers to the underlying product lineage and system used during its development.'], ['Who maintains the service?', 'The Kali product and operations team maintains the service.'], ['How can I contact the team?', 'Use the contact page for product feedback, business enquiries, and privacy requests.']],
+      faq: [['Is Kali the same as Yixiu?', 'Kali is the international-facing product brand. Yixiu refers to the underlying product lineage and system used during its development.'], ['Who maintains the service?', 'Jade Rouge Enterprises Limited maintains the service.'], ['How can I contact the team?', 'Use the contact page for product feedback, business enquiries, and privacy requests.']],
     },
     {
       slug: 'contact',

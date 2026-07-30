@@ -1070,7 +1070,6 @@
   "本人照片上传失败": "Falhei em carregar a minha própria foto",
   "本人照片预览": "Pré-visualização fotográfica minha",
   "本地上传": "Upload local",
-  "本服务由 Kali 团队提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。": "Este serviço é prestado pela equipa Kali. Antes de iniciar sessão, registar-se ou utilizar o serviço, por favor leia e compreenda o acordo na íntegra; Se não concordar, por favor pare de se registar ou utilizar o serviço.",
   "本页文案由人工智能辅助生成，请结合实际业务核验后使用": "O texto nesta página é gerado com a ajuda de inteligência artificial. Por favor, utilize-o após verificação em conjunto com as operações reais do negócio",
   "权益": "Interesses",
   "条可选": "O artigo pode ser selecionado",
@@ -1798,5 +1797,6 @@
   "Invite relationship already exists": "A relação de convite já existe",
   "Invite relationship linked successfully.": "Relacionamento de convite ligado com sucesso.",
   "不能填写自己的邀请码": "Não pode inserir o seu próprio código de convite",
-  "请输入邀请码": "Por favor, introduza o seu código de convite"
+  "请输入邀请码": "Por favor, introduza o seu código de convite",
+  "本服务由 Jade Rouge Enterprises Limited 提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。": "Este serviço é prestado por Jade Rouge Enterprises Limited. Antes de iniciar sessão, registar-se ou utilizar o serviço, por favor leia e compreenda o acordo na íntegra; Se não concordar, por favor pare de se registar ou utilizar o serviço."
 }

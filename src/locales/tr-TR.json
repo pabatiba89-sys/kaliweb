@@ -1046,7 +1046,6 @@
   "本人照片上传失败": "Kendi fotoğrafımı yükleyemedim",
   "本人照片预览": "Kendimin fotoğraf önizlemesi",
   "本地上传": "Yerel yükleme",
-  "本服务由 Kali 团队提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。": "Bu hizmet Kali ekibi tarafından sağlanmaktadır. Giriş yapmadan, kayıt olmadan veya hizmeti kullanmadan önce lütfen sözleşmeyi tamamını okuyun ve anlayın; Kabul etmiyorsanız, lütfen hizmeti kaydetmeyi veya kullanmayı bırakın.",
   "本页文案由人工智能辅助生成，请结合实际业务核验后使用": "Bu sayfadaki metin yapay zeka yardımıyla oluşturulmuştur. Lütfen doğrulamadan sonra gerçek iş operasyonlarıyla birlikte kullanın",
   "权益": "İlgi alanları",
   "条可选": "Makale seçilebilir",
@@ -1774,5 +1773,6 @@
   "Invite relationship already exists": "Davet ilişkisi zaten var",
   "Invite relationship linked successfully.": "Davet ilişkisi başarılı bir şekilde bağlandı.",
   "不能填写自己的邀请码": "Kendi davet kodunuzu giremezsiniz",
-  "请输入邀请码": "Lütfen davetiye kodunuzu girin"
+  "请输入邀请码": "Lütfen davetiye kodunuzu girin",
+  "本服务由 Jade Rouge Enterprises Limited 提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。": "Bu hizmet Jade Rouge Enterprises Limited tarafından sağlanmaktadır. Giriş yapmadan, kayıt olmadan veya hizmeti kullanmadan önce, lütfen anlaşmayı tamamını okuyun ve anlayın; Kabul etmiyorsanız, lütfen kayıt olmayı veya hizmeti kullanmayı bırakın."
 }

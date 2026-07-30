@@ -1046,7 +1046,6 @@
   "本人照片上传失败": "Ich habe mein eigenes Foto nicht hochgeladen",
   "本人照片预览": "Fotovorschau von mir selbst",
   "本地上传": "Lokaler Upload",
-  "本服务由 Kali 团队提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。": "Dieser Service wird vom Kali-Team bereitgestellt. Bevor Sie sich anmelden, sich registrieren oder den Dienst nutzen, lesen und verstehen Sie bitte die Vereinbarung vollständig; Wenn Sie nicht zustimmen, hören Sie bitte auf, sich zu registrieren oder den Dienst zu nutzen.",
   "本页文案由人工智能辅助生成，请结合实际业务核验后使用": "Der Text auf dieser Seite wird mit Hilfe von künstlicher Intelligenz generiert. Bitte verwenden Sie ihn nach der Überprüfung zusammen mit den tatsächlichen Geschäftsabläufen",
   "权益": "Interessen",
   "条可选": "Der Artikel kann ausgewählt werden",
@@ -1770,5 +1769,6 @@
   "Invite relationship already exists": "Eine Einladungsbeziehung existiert bereits",
   "Invite relationship linked successfully.": "Laden Sie die Beziehung erfolgreich ein.",
   "不能填写自己的邀请码": "Du kannst deinen eigenen Einladungscode nicht eingeben",
-  "请输入邀请码": "Bitte geben Sie Ihren Einladungscode ein"
+  "请输入邀请码": "Bitte geben Sie Ihren Einladungscode ein",
+  "本服务由 Jade Rouge Enterprises Limited 提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。": "Dieser Service wird von Jade Rouge Enterprises Limited angeboten. Bevor Sie sich anmelden, sich registrieren oder den Dienst nutzen, lesen und verstehen Sie bitte die Vereinbarung vollständig; Wenn Sie nicht zustimmen, hören Sie bitte auf, sich zu registrieren oder den Dienst zu nutzen."
 }

@@ -39,7 +39,6 @@
   "/yixiu-assets/trial-video.jpg": "/yixiu-tài sản/trial-video.jpg",
   "/yixiu-assets/trial-voice.jpg": "/yixiu-tài sản/trial-voice.jpg",
   "/yixiu-assets/voice-clone.png": "/yixiu-tài sản/voice-clone.png",
-  "© 2026 Kali": "© Kali năm 2026",
   "1. 价格、币种与税费": "1. Giá cả, tiền tệ và thuế",
   "1. 内容审核": "1. Đánh giá nội dung",
   "1. 协议的接受与生效": "1. Chấp nhận và hiệu lực của Thỏa thuận",
@@ -1113,7 +1112,6 @@
   "本人照片上传失败": "Không tải lên ảnh của chính tôi",
   "本人照片预览": "Xem trước ảnh của chính tôi",
   "本地上传": "Tải lên cục bộ",
-  "本服务由 Kali 团队提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。": "Dịch vụ này được cung cấp bởi đội ngũ Kali. Trước khi đăng nhập, đăng ký hoặc sử dụng dịch vụ, vui lòng đọc và hiểu đầy đủ thỏa thuận; Nếu bạn không đồng ý, vui lòng ngừng đăng ký hoặc sử dụng dịch vụ.",
   "本页文案由人工智能辅助生成，请结合实际业务核验后使用": "Văn bản trên trang này được tạo ra với sự trợ giúp của trí tuệ nhân tạo. Vui lòng sử dụng nó sau khi xác minh kết hợp với hoạt động kinh doanh thực tế",
   "权益": "Sở thích",
   "条可选": "Bài viết có thể được chọn",
@@ -1841,5 +1839,6 @@
   "Invite relationship already exists": "Mối quan hệ mời đã tồn tại",
   "Invite relationship linked successfully.": "Liên kết mối quan hệ được mời thành công.",
   "不能填写自己的邀请码": "Bạn không thể nhập mã mời riêng của mình",
-  "请输入邀请码": "Vui lòng nhập mã mời của bạn"
+  "请输入邀请码": "Vui lòng nhập mã mời của bạn",
+  "本服务由 Jade Rouge Enterprises Limited 提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。": "Dịch vụ này được cung cấp bởi Jade Rouge Enterprises Limited. Trước khi đăng nhập, đăng ký hoặc sử dụng dịch vụ, vui lòng đọc và hiểu đầy đủ thỏa thuận; Nếu bạn không đồng ý, vui lòng ngừng đăng ký hoặc sử dụng dịch vụ."
 }

@@ -602,7 +602,6 @@
   "本人照片上传失败": "Failed to upload my own photo",
   "本人照片预览": "Photo preview of myself",
   "本地上传": "Local upload",
-  "本服务由 Kali 团队提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。": "This service is provided by the Kali team. Before logging in, registering, or using the service, please read and understand the agreement in full; If you do not agree, please stop registering or using the service.",
   "本页文案由人工智能辅助生成，请结合实际业务核验后使用": "The text on this page is generated with the help of artificial intelligence. Please use it after verification in conjunction with actual business operations",
   "权益": "Interests",
   "条可选": "The article may be selected",
@@ -1134,5 +1133,6 @@
   "视频制作（含封面）": "Video Production (including cover)",
   "Invite code copied.": "Prompt code copied.",
   "不能填写自己的邀请码": "You cannot enter your own invitation code",
-  "请输入邀请码": "Please enter your invitation code"
+  "请输入邀请码": "Please enter your invitation code",
+  "本服务由 Jade Rouge Enterprises Limited 提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。": "This service is provided by Jade Rouge Enterprises Limited. Before logging in, registering, or using the service, please read and understand the agreement in full; If you do not agree, please stop registering or using the service."
 }

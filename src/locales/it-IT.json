@@ -39,7 +39,6 @@
   "/yixiu-assets/trial-video.jpg": "/yixiu-asset/trial-video.jpg",
   "/yixiu-assets/trial-voice.jpg": "/yixiu-asset/trial-voice.jpg",
   "/yixiu-assets/voice-clone.png": "/yixiu-asset/voice-clone.png",
-  "© 2026 Kali": "© Kali 2026",
   "1. 价格、币种与税费": "1. Prezzo, valuta e tasse",
   "1. 内容审核": "1. Revisione dei contenuti",
   "1. 协议的接受与生效": "1. Accettazione ed efficacia dell'accordo",
@@ -1059,7 +1058,6 @@
   "本人照片上传失败": "Non sono riuscito a caricare la mia foto",
   "本人照片预览": "Anteprima fotografica di me stessa",
   "本地上传": "Caricamento locale",
-  "本服务由 Kali 团队提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。": "Questo servizio è fornito dal team Kali. Prima di effettuare il login, registrarsi o utilizzare il servizio, si prega di leggere e comprendere integralmente l'accordo; Se non accetti, interrompi la registrazione o l'utilizzo del servizio.",
   "本页文案由人工智能辅助生成，请结合实际业务核验后使用": "Il testo in questa pagina è generato con l'aiuto dell'intelligenza artificiale. Si prega di usarlo dopo la verifica in combinazione con le reali operazioni aziendali",
   "权益": "Interessi",
   "条可选": "L'articolo può essere selezionato",
@@ -1788,5 +1786,6 @@
   "Invite relationship already exists": "La relazione di invito esiste già",
   "Invite relationship linked successfully.": "Relazione con invito collegata con successo.",
   "不能填写自己的邀请码": "Non puoi inserire il tuo codice d'invito",
-  "请输入邀请码": "Per favore, inserisci il tuo codice invito"
+  "请输入邀请码": "Per favore, inserisci il tuo codice invito",
+  "本服务由 Jade Rouge Enterprises Limited 提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。": "Questo servizio è fornito da Jade Rouge Enterprises Limited. Prima di effettuare il login, registrarsi o utilizzare il servizio, si prega di leggere e comprendere integralmente l'accordo; Se non sei d'accordo, ti preghiamo di smettere di registrarti o utilizzare il servizio."
 }

@@ -1040,7 +1040,6 @@
   "本人照片上传失败": "Nepodařilo se mi nahrát vlastní fotku",
   "本人照片预览": "Ukázka fotografie mého",
   "本地上传": "Lokální nahrávání",
-  "本服务由 Kali 团队提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。": "Tuto službu poskytuje tým Kali. Před přihlášením, registrací nebo používáním služby si prosím přečtěte a pochopte celou dohodu; Pokud s tím nesouhlasíte, přestaňte se registrovat nebo používat službu.",
   "本页文案由人工智能辅助生成，请结合实际业务核验后使用": "Text na této stránce je generován pomocí umělé inteligence. Použijte jej prosím po ověření ve spojení s reálnými obchodními aktivitami",
   "权益": "Zájmy",
   "条可选": "Článek může být vybrán",
@@ -1769,5 +1768,6 @@
   "Invite relationship already exists": "Vztah pozvánek už existuje",
   "Invite relationship linked successfully.": "Úspěšně propojte vztah na pozvání.",
   "不能填写自己的邀请码": "Nemůžete zadat svůj vlastní pozvánkový kód",
-  "请输入邀请码": "Zadejte prosím svůj pozvánkový kód"
+  "请输入邀请码": "Zadejte prosím svůj pozvánkový kód",
+  "本服务由 Jade Rouge Enterprises Limited 提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。": "Tuto službu poskytuje Jade Rouge Enterprises Limited. Před přihlášením, registrací nebo používáním služby si prosím přečtěte a pochopte celou smlouvu; Pokud s tím nesouhlasíte, přestaňte se registrovat nebo používat službu."
 }

@@ -1,5 +1,5 @@
 ---
-import { localeMeta, pagePath, supportedLocales } from '../site/content.js';
+import { LEGAL_COMPANY_NAME, localeMeta, pagePath, supportedLocales } from '../site/content.js';
 import { translateText } from '../site/localization.js';
 import { brandName } from '../site/localization.js';
 import '../site/public.css';
@@ -27,7 +27,8 @@ const jsonLd = {
     {
       '@type': 'Organization',
       '@id': `${Astro.site}#organization`,
-      name: brandName(locale),
+      name: LEGAL_COMPANY_NAME,
+      alternateName: brandName(locale),
       url: Astro.site,
       email: 'feedback@xyaip.fun',
     },
@@ -108,7 +109,7 @@ const jsonLd = {
         <div><strong>{t('Company')}</strong><a href={pagePath(locale, 'about')}>{copy.about}</a><a href={pagePath(locale, 'contact')}>{copy.contact}</a><a href="mailto:feedback@xyaip.fun">{t('Product feedback')}</a></div>
         <div><strong>{t('Workspace')}</strong><a href="/app/">{t('Open Kali')}</a><a href={pagePath(locale, 'help')}>{t('Help center')}</a><a href={pagePath(locale, 'payment-policy')}>{t('Payment policy')}</a><a href={pagePath(locale, 'refund-policy')}>{t('Refund policy')}</a><a href="mailto:privacy@xyaip.fun">{t('Privacy requests')}</a></div>
       </div>
-      <div class="footer-bottom"><span>© 2026 {brandName(locale)}</span><span>{eyebrow || t('Kali · Yixiu')}</span></div>
+      <div class="footer-bottom"><span>© 2026 {LEGAL_COMPANY_NAME}</span><span>{eyebrow || t('Kali · Yixiu')}</span></div>
     </footer>
     <script is:inline>
       document.querySelectorAll('.language-menu a').forEach((link) => {

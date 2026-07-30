@@ -230,7 +230,6 @@
     "Is Kali the same as Yixiu?": "Kali和一秀一样吗？",
     "Kali is the international-facing product brand. Yixiu refers to the underlying product lineage and system used during its development.": "Kali 是面向国际的产品品牌。一秀指的是其开发过程中所采用的底层产品血统和系统。",
     "Who maintains the service?": "谁负责维护服务？",
-    "The Kali product and operations team maintains the service.": "Kali产品和运营团队负责维护服务。",
     "How can I contact the team?": "我该如何联系团队？",
     "Use the contact page for product feedback, business enquiries, and privacy requests.": "请使用联系页面获取产品反馈、商业咨询和隐私请求。",
     "Contact Kali": "联系Kali",
@@ -833,7 +832,8 @@
     "Submit, track the task, then download or publish after review.": "提交后查看任务状态，检查无误再下载或发布。",
     "Materials ready": "素材已就绪",
     "Voice": "声音",
-    "Ready to submit": "可提交制作"
+    "Ready to submit": "可提交制作",
+    "Jade Rouge Enterprises Limited maintains the service.": "Jade Rouge Enterprises Limited维护服务。"
   },
   "zh-tw": {
     "Home": "首頁",
@@ -1066,7 +1066,6 @@
     "Is Kali the same as Yixiu?": "Kali和奕秀一樣嗎？",
     "Kali is the international-facing product brand. Yixiu refers to the underlying product lineage and system used during its development.": "Kali 是面向國際的產品品牌。Yixiu指的是其開發過程中所採用的底層產品血統與系統。",
     "Who maintains the service?": "誰負責維護這項服務？",
-    "The Kali product and operations team maintains the service.": "Kali產品與營運團隊負責維護這項服務。",
     "How can I contact the team?": "我該如何聯絡團隊？",
     "Use the contact page for product feedback, business enquiries, and privacy requests.": "請使用聯絡頁面以獲取產品回饋、商業諮詢及隱私請求。",
     "Contact Kali": "聯絡Kali",
@@ -1669,7 +1668,8 @@
     "Submit, track the task, then download or publish after review.": "提交後查看任務狀態，檢查無誤再下載或發佈。",
     "Materials ready": "素材已就緒",
     "Voice": "聲音",
-    "Ready to submit": "可提交製作"
+    "Ready to submit": "可提交製作",
+    "Jade Rouge Enterprises Limited maintains the service.": "Jade Rouge Enterprises Limited維持服務。"
   },
   "es": {
     "Home": "Inicio",
@@ -1902,7 +1902,6 @@
     "Is Kali the same as Yixiu?": "¿Es Kali igual que Yixiu?",
     "Kali is the international-facing product brand. Yixiu refers to the underlying product lineage and system used during its development.": "Kali es la marca de producto orientada a nivel internacional. Yixiu se refiere a la línea de productos subyacente y al sistema utilizado durante su desarrollo.",
     "Who maintains the service?": "¿Quién mantiene el servicio?",
-    "The Kali product and operations team maintains the service.": "El equipo de producto y operaciones de Kali mantiene el servicio.",
     "How can I contact the team?": "¿Cómo puedo contactar con el equipo?",
     "Use the contact page for product feedback, business enquiries, and privacy requests.": "Utiliza la página de contacto para recibir comentarios sobre productos, consultas empresariales y solicitudes de privacidad.",
     "Contact Kali": "Contacta Kali",
@@ -2505,7 +2504,8 @@
     "Submit, track the task, then download or publish after review.": "Envía, registra la tarea y luego descárgala o publa tras la revisión.",
     "Materials ready": "Materiales listos",
     "Voice": "Voz",
-    "Ready to submit": "Listo para enviar"
+    "Ready to submit": "Listo para enviar",
+    "Jade Rouge Enterprises Limited maintains the service.": "Jade Rouge Enterprises Limited mantiene el servicio."
   },
   "fr": {
     "Home": "Accueil",
@@ -2738,7 +2738,6 @@
     "Is Kali the same as Yixiu?": "Est-ce Kali pareil que Yixiu ?",
     "Kali is the international-facing product brand. Yixiu refers to the underlying product lineage and system used during its development.": "Kali est la marque de produit destinée à l’international. Yixiu fait référence à la lignée de produits sous-jacentes et au système utilisé lors de son développement.",
     "Who maintains the service?": "Qui assure l’entretien du service ?",
-    "The Kali product and operations team maintains the service.": "L’équipe Kali produit et opérations assure la gestion du service.",
     "How can I contact the team?": "Comment puis-je contacter l’équipe ?",
     "Use the contact page for product feedback, business enquiries, and privacy requests.": "Utilisez la page de contact pour les retours produits, les demandes d’affaires et les demandes de confidentialité.",
     "Contact Kali": "Contact Kali",
@@ -3341,7 +3340,8 @@
     "Submit, track the task, then download or publish after review.": "Soumets, suivez la tâche, puis téléchargez ou publiez après examen.",
     "Materials ready": "Matériel prêt",
     "Voice": "Voix",
-    "Ready to submit": "Prêt à soumettre"
+    "Ready to submit": "Prêt à soumettre",
+    "Jade Rouge Enterprises Limited maintains the service.": "Jade Rouge Enterprises Limited maintient le service."
   },
   "ru": {
     "Home": "Дом",
@@ -3574,7 +3574,6 @@
     "Is Kali the same as Yixiu?": "Это Kali то же самое, что Исю?",
     "Kali is the international-facing product brand. Yixiu refers to the underlying product lineage and system used during its development.": "Kali — это международный бренд продукции. Yixiu относится к базовой линейке продуктов и системе, использовавшейся при его разработке.",
     "Who maintains the service?": "Кто поддерживает сервис?",
-    "The Kali product and operations team maintains the service.": "Команда по продукту и операциям Kali поддерживает сервис.",
     "How can I contact the team?": "Как связаться с командой?",
     "Use the contact page for product feedback, business enquiries, and privacy requests.": "Используйте страницу контактов для отзывов о продукте, бизнес-запросов и запросов на конфиденциальность.",
     "Contact Kali": "Связаться с Kali",
@@ -4177,7 +4176,8 @@
     "Submit, track the task, then download or publish after review.": "Отправьте, отслеживайте задачу, затем скачайте или опубликуйте после проверки.",
     "Materials ready": "Материалы готовы",
     "Voice": "Голос",
-    "Ready to submit": "Готов к подаче"
+    "Ready to submit": "Готов к подаче",
+    "Jade Rouge Enterprises Limited maintains the service.": "Jade Rouge Enterprises Limited поддерживает сервис."
   },
   "de": {
     "Home": "Zuhause",
@@ -4410,7 +4410,6 @@
     "Is Kali the same as Yixiu?": "Ist Kali dasselbe wie Yixiu?",
     "Kali is the international-facing product brand. Yixiu refers to the underlying product lineage and system used during its development.": "Kali ist die international ausgerichtete Produktmarke. Yixiu bezieht sich auf die zugrundeliegende Produktlinie und das System, das während der Entwicklung verwendet wurde.",
     "Who maintains the service?": "Wer betreibt den Service?",
-    "The Kali product and operations team maintains the service.": "Das Kali Produkt- und Betriebsteam pflegt den Service.",
     "How can I contact the team?": "Wie kann ich das Team kontaktieren?",
     "Use the contact page for product feedback, business enquiries, and privacy requests.": "Nutzen Sie die Kontaktseite für Produktfeedback, Geschäftsanfragen und Datenschutzanfragen.",
     "Contact Kali": "Kontaktieren Sie Kali",
@@ -5013,7 +5012,8 @@
     "Submit, track the task, then download or publish after review.": "Reichen Sie ein, verfolgen Sie die Aufgabe und laden Sie dann nach der Überprüfung herunter oder veröffentlichen.",
     "Materials ready": "Materialien bereit",
     "Voice": "Stimme",
-    "Ready to submit": "Bereit zum Einreichen"
+    "Ready to submit": "Bereit zum Einreichen",
+    "Jade Rouge Enterprises Limited maintains the service.": "Jade Rouge Enterprises Limited hält den Service aufrecht."
   },
   "pt": {
     "Home": "Casa",
@@ -5246,7 +5246,6 @@
     "Is Kali the same as Yixiu?": "É Kali igual ao Yixiu?",
     "Kali is the international-facing product brand. Yixiu refers to the underlying product lineage and system used during its development.": "Kali é a marca de produto internacional. Yixiu refere-se à linha de produtos subjacentes e ao sistema utilizado durante o seu desenvolvimento.",
     "Who maintains the service?": "Quem mantém o serviço?",
-    "The Kali product and operations team maintains the service.": "A equipa Kali de produto e operações mantém o serviço.",
     "How can I contact the team?": "Como posso contactar a equipa?",
     "Use the contact page for product feedback, business enquiries, and privacy requests.": "Utilize a página de contacto para feedback sobre produtos, consultas empresariais e pedidos de privacidade.",
     "Contact Kali": "Contacte Kali",
@@ -5849,7 +5848,8 @@
     "Submit, track the task, then download or publish after review.": "Submete, acompanha a tarefa e depois descarrega ou publica após a revisão.",
     "Materials ready": "Materiais prontos",
     "Voice": "Voz",
-    "Ready to submit": "Pronto para submeter"
+    "Ready to submit": "Pronto para submeter",
+    "Jade Rouge Enterprises Limited maintains the service.": "Jade Rouge Enterprises Limited mantém o serviço."
   },
   "ar": {
     "Home": "المنزل",
@@ -6082,7 +6082,6 @@
     "Is Kali the same as Yixiu?": "هل Kali نفس يي شيو؟",
     "Kali is the international-facing product brand. Yixiu refers to the underlying product lineage and system used during its development.": "Kali هي العلامة التجارية العالمية للمنتجات. يشير ييشيو إلى السلالة الأساسية للمنتجات والنظام المستخدم أثناء تطويرها.",
     "Who maintains the service?": "من يدير الخدمة؟",
-    "The Kali product and operations team maintains the service.": "يقوم فريق المنتج والعمليات Kali بصيانة الخدمة.",
     "How can I contact the team?": "كيف يمكنني التواصل مع الفريق؟",
     "Use the contact page for product feedback, business enquiries, and privacy requests.": "استخدم صفحة التواصل للحصول على ملاحظات المنتجات، والاستفسارات التجارية، وطلبات الخصوصية.",
     "Contact Kali": "تواصل مع Kali",
@@ -6685,7 +6684,8 @@
     "Submit, track the task, then download or publish after review.": "ارسل، تتبع المهمة، ثم قم بتحميلها أو انشرها بعد المراجعة.",
     "Materials ready": "المواد جاهزة",
     "Voice": "الصوت",
-    "Ready to submit": "جاهز للتقديم"
+    "Ready to submit": "جاهز للتقديم",
+    "Jade Rouge Enterprises Limited maintains the service.": "Jade Rouge Enterprises Limited تحافظ على الخدمة."
   },
   "it": {
     "Home": "Casa",
@@ -6918,7 +6918,6 @@
     "Is Kali the same as Yixiu?": "È Kali uguale a Yixiu?",
     "Kali is the international-facing product brand. Yixiu refers to the underlying product lineage and system used during its development.": "Kali è il marchio di prodotto rivolto a livello internazionale. Yixiu si riferisce alla linea di prodotti sottostante e al sistema utilizzato durante il suo sviluppo.",
     "Who maintains the service?": "Chi mantiene il servizio?",
-    "The Kali product and operations team maintains the service.": "Il team di prodotto e operazioni Kali mantiene il servizio.",
     "How can I contact the team?": "Come posso contattare il team?",
     "Use the contact page for product feedback, business enquiries, and privacy requests.": "Usa la pagina di contatto per feedback sui prodotti, richieste aziendali e richieste di privacy.",
     "Contact Kali": "Contattare Kali",
@@ -7521,7 +7520,8 @@
     "Submit, track the task, then download or publish after review.": "Invia, traccia il compito, poi scarica o pubblica dopo la revisione.",
     "Materials ready": "Materiali pronti",
     "Voice": "Voce",
-    "Ready to submit": "Pronto per inviare"
+    "Ready to submit": "Pronto per inviare",
+    "Jade Rouge Enterprises Limited maintains the service.": "Jade Rouge Enterprises Limited mantiene il servizio."
   },
   "ja": {
     "Home": "ホーム",
@@ -7754,7 +7754,6 @@
     "Is Kali the same as Yixiu?": "Kali一秀と同じですか?",
     "Kali is the international-facing product brand. Yixiu refers to the underlying product lineage and system used during its development.": "Kaliは国際的な製品ブランドです。一秀とは、その開発過程で使われた製品の系統を指します。",
     "Who maintains the service?": "誰がそのサービスを維持しているのか?",
-    "The Kali product and operations team maintains the service.": "Kaliの製品および運用チームがサービスを維持しています。",
     "How can I contact the team?": "どうやってチームに連絡すればいいですか?",
     "Use the contact page for product feedback, business enquiries, and privacy requests.": "製品のフィードバック、ビジネスからのお問い合わせ、プライバシーのリクエストは、お問い合わせページをご利用ください。",
     "Contact Kali": "連絡先Kali",
@@ -8357,7 +8356,8 @@
     "Submit, track the task, then download or publish after review.": "タスクを提出し、追跡し、レビュー後にダウンロードまたは公開します。",
     "Materials ready": "材料準備完了",
     "Voice": "声",
-    "Ready to submit": "提出準備完了"
+    "Ready to submit": "提出準備完了",
+    "Jade Rouge Enterprises Limited maintains the service.": "Jade Rouge Enterprises Limitedサービスを維持しています。"
   },
   "ko": {
     "Home": "홈",
@@ -8590,7 +8590,6 @@
     "Is Kali the same as Yixiu?": "Kali 이시우와 같은 사람인가요?",
     "Kali is the international-facing product brand. Yixiu refers to the underlying product lineage and system used during its development.": "Kali는 국제적으로 판매되는 제품 브랜드입니다. 이시우는 개발 과정에서 사용된 제품 계보와 시스템을 의미합니다.",
     "Who maintains the service?": "누가 서비스를 유지하나요?",
-    "The Kali product and operations team maintains the service.": "Kali 제품 및 운영 팀이 서비스를 유지합니다.",
     "How can I contact the team?": "팀에 어떻게 연락할 수 있나요?",
     "Use the contact page for product feedback, business enquiries, and privacy requests.": "제품 피드백, 비즈니스 문의, 개인정보 보호 요청은 연락처 페이지를 이용하세요.",
     "Contact Kali": "연락 Kali",
@@ -9193,7 +9192,8 @@
     "Submit, track the task, then download or publish after review.": "제출하고 작업을 추적한 후 검토 후 다운로드 또는 게시하세요.",
     "Materials ready": "재료 준비 완료",
     "Voice": "음성",
-    "Ready to submit": "제출 준비 완료"
+    "Ready to submit": "제출 준비 완료",
+    "Jade Rouge Enterprises Limited maintains the service.": "Jade Rouge Enterprises Limited 서비스를 유지하고 있습니다."
   },
   "id": {
     "Home": "Beranda",
@@ -9426,7 +9426,6 @@
     "Is Kali the same as Yixiu?": "Apakah Kali sama dengan Yixiu?",
     "Kali is the international-facing product brand. Yixiu refers to the underlying product lineage and system used during its development.": "Kali adalah merek produk yang berhadapan dengan internasional. Yixiu mengacu pada garis keturunan dan sistem produk yang mendasari yang digunakan selama pengembangannya.",
     "Who maintains the service?": "Siapa yang memelihara layanan?",
-    "The Kali product and operations team maintains the service.": "Tim produk dan operasi Kali memelihara layanan.",
     "How can I contact the team?": "Bagaimana cara menghubungi tim?",
     "Use the contact page for product feedback, business enquiries, and privacy requests.": "Gunakan halaman kontak untuk umpan balik produk, pertanyaan bisnis, dan permintaan privasi.",
     "Contact Kali": "Hubungi Kali",
@@ -10029,7 +10028,8 @@
     "Submit, track the task, then download or publish after review.": "Kirim, lacak tugas, lalu unduh atau publikasikan setelah ditinjau.",
     "Materials ready": "Bahan siap",
     "Voice": "Suara",
-    "Ready to submit": "Siap untuk dikirimkan"
+    "Ready to submit": "Siap untuk dikirimkan",
+    "Jade Rouge Enterprises Limited maintains the service.": "Jade Rouge Enterprises Limited memelihara layanan tersebut."
   },
   "vi": {
     "Home": "Trang chủ",
@@ -10262,7 +10262,6 @@
     "Is Kali the same as Yixiu?": "Kali có giống Yixiu không?",
     "Kali is the international-facing product brand. Yixiu refers to the underlying product lineage and system used during its development.": "Kali là thương hiệu sản phẩm hướng đến quốc tế. Yixiu đề cập đến dòng sản phẩm cơ bản và hệ thống được sử dụng trong quá trình phát triển của nó.",
     "Who maintains the service?": "Ai duy trì dịch vụ?",
-    "The Kali product and operations team maintains the service.": "Nhóm vận hành và sản phẩm Kali duy trì dịch vụ.",
     "How can I contact the team?": "Làm thế nào tôi có thể liên hệ với nhóm?",
     "Use the contact page for product feedback, business enquiries, and privacy requests.": "Sử dụng trang liên hệ để nhận phản hồi về sản phẩm, yêu cầu kinh doanh và yêu cầu quyền riêng tư.",
     "Contact Kali": "Liên hệ Kali",
@@ -10865,7 +10864,8 @@
     "Submit, track the task, then download or publish after review.": "Gửi, theo dõi nhiệm vụ, sau đó tải xuống hoặc xuất bản sau khi xem xét.",
     "Materials ready": "Vật liệu đã sẵn sàng",
     "Voice": "Giọng nói",
-    "Ready to submit": "Sẵn sàng gửi"
+    "Ready to submit": "Sẵn sàng gửi",
+    "Jade Rouge Enterprises Limited maintains the service.": "Jade Rouge Enterprises Limited duy trì dịch vụ."
   },
   "tr": {
     "Home": "Ana Sayfa",
@@ -11098,7 +11098,6 @@
     "Is Kali the same as Yixiu?": "Kali Yixiu ile aynı mı?",
     "Kali is the international-facing product brand. Yixiu refers to the underlying product lineage and system used during its development.": "Kali, uluslararası önümlü ürün markasıdır. Yixiu, geliştirme sırasında kullanılan temel ürün hattı ve sistemi ifade eder.",
     "Who maintains the service?": "Hizmeti kim sürdürüyor?",
-    "The Kali product and operations team maintains the service.": "Kali ürün ve operasyon ekibi hizmeti sürdürür.",
     "How can I contact the team?": "Takımla nasıl iletişime geçebilirim?",
     "Use the contact page for product feedback, business enquiries, and privacy requests.": "Ürün geri bildirimleri, iş talepleri ve gizlilik talepleri için iletişim sayfasını kullanın.",
     "Contact Kali": "İletişim Kali",
@@ -11701,7 +11700,8 @@
     "Submit, track the task, then download or publish after review.": "Gönderin, görevi takip edin, sonra incelemeden sonra indirin veya yayınlayın.",
     "Materials ready": "Malzemeler hazır",
     "Voice": "Ses",
-    "Ready to submit": "Göndermeye hazır"
+    "Ready to submit": "Göndermeye hazır",
+    "Jade Rouge Enterprises Limited maintains the service.": "Jade Rouge Enterprises Limited hizmeti sürdürür."
   },
   "nl": {
     "Home": "Home",
@@ -11934,7 +11934,6 @@
     "Is Kali the same as Yixiu?": "Is Kali hetzelfde als Yixiu?",
     "Kali is the international-facing product brand. Yixiu refers to the underlying product lineage and system used during its development.": "Kali is het internationaal gerichte productmerk. Yixiu verwijst naar de onderliggende productlijn en het systeem dat tijdens de ontwikkeling werd gebruikt.",
     "Who maintains the service?": "Wie onderhoudt de dienst?",
-    "The Kali product and operations team maintains the service.": "Het Kali product- en operationele team onderhoudt de dienst.",
     "How can I contact the team?": "Hoe kan ik contact opnemen met het team?",
     "Use the contact page for product feedback, business enquiries, and privacy requests.": "Gebruik de contactpagina voor productfeedback, zakelijke vragen en privacyverzoeken.",
     "Contact Kali": "Contact Kali",
@@ -12537,7 +12536,8 @@
     "Submit, track the task, then download or publish after review.": "Dien in, houd de taak bij, en download of publiceer dan na beoordeling.",
     "Materials ready": "Materialen gereed",
     "Voice": "Stem",
-    "Ready to submit": "Klaar om in te dienen"
+    "Ready to submit": "Klaar om in te dienen",
+    "Jade Rouge Enterprises Limited maintains the service.": "Jade Rouge Enterprises Limited onderhoudt de dienst."
   },
   "uk": {
     "Home": "Дім",
@@ -12770,7 +12770,6 @@
     "Is Kali the same as Yixiu?": "Чи Kali те саме, що Їсіу?",
     "Kali is the international-facing product brand. Yixiu refers to the underlying product lineage and system used during its development.": "Kali — це міжнародний бренд продукції. Yixiu — це базова лінійка продуктів і система, що використовувалася під час її розробки.",
     "Who maintains the service?": "Хто підтримує цю службу?",
-    "The Kali product and operations team maintains the service.": "Команда Kali продукту та операцій підтримує сервіс.",
     "How can I contact the team?": "Як я можу зв'язатися з командою?",
     "Use the contact page for product feedback, business enquiries, and privacy requests.": "Використовуйте сторінку контактів для відгуків про продукт, бізнес-запитів та запитів щодо конфіденційності.",
     "Contact Kali": "Зв'язатися з Kali",
@@ -13373,7 +13372,8 @@
     "Submit, track the task, then download or publish after review.": "Надсилайте, відстежуйте завдання, а потім завантажуйте або публікуйте після перевірки.",
     "Materials ready": "Матеріали готові",
     "Voice": "Озвучення",
-    "Ready to submit": "Готовий подати документи"
+    "Ready to submit": "Готовий подати документи",
+    "Jade Rouge Enterprises Limited maintains the service.": "Jade Rouge Enterprises Limited підтримує сервіс."
   },
   "th": {
     "Home": "หน้าแรก",
@@ -13606,7 +13606,6 @@
     "Is Kali the same as Yixiu?": "Kali เหมือนกับ Yixiu หรือไม่?",
     "Kali is the international-facing product brand. Yixiu refers to the underlying product lineage and system used during its development.": "Kali เป็นแบรนด์ผลิตภัณฑ์ที่หันหน้าไปทางสากล Yixiu หมายถึงสายผลิตภัณฑ์พื้นฐานและระบบที่ใช้ในระหว่างการพัฒนา",
     "Who maintains the service?": "ใครเป็นผู้ดูแลบริการ?",
-    "The Kali product and operations team maintains the service.": "ทีมผลิตภัณฑ์และปฏิบัติการของ Kali ดูแลรักษาบริการ",
     "How can I contact the team?": "ฉันจะติดต่อทีมงานได้อย่างไร?",
     "Use the contact page for product feedback, business enquiries, and privacy requests.": "ใช้หน้าติดต่อสําหรับคําติชมเกี่ยวกับผลิตภัณฑ์ การสอบถามทางธุรกิจ และคําขอความเป็นส่วนตัว",
     "Contact Kali": "ติดต่อ Kali",
@@ -14209,7 +14208,8 @@
     "Submit, track the task, then download or publish after review.": "ส่ง ติดตามงาน จากนั้นดาวน์โหลดหรือเผยแพร่หลังจากตรวจสอบ",
     "Materials ready": "วัสดุพร้อม",
     "Voice": "เสียง",
-    "Ready to submit": "พร้อมส่ง"
+    "Ready to submit": "พร้อมส่ง",
+    "Jade Rouge Enterprises Limited maintains the service.": "Jade Rouge Enterprises Limited ดูแลบริการ"
   },
   "pl": {
     "Home": "Dom",
@@ -14442,7 +14442,6 @@
     "Is Kali the same as Yixiu?": "Czy Kali to samo co Yixiu?",
     "Kali is the international-facing product brand. Yixiu refers to the underlying product lineage and system used during its development.": "Kali to marka produktu skierowana na rynek międzynarodowy. Yixiu odnosi się do linii produkcyjnej i systemu wykorzystywanego podczas jego rozwoju.",
     "Who maintains the service?": "Kto utrzymuje usługę?",
-    "The Kali product and operations team maintains the service.": "Zespół Kali produktowy i operacyjny utrzymuje tę usługę.",
     "How can I contact the team?": "Jak mogę skontaktować się z zespołem?",
     "Use the contact page for product feedback, business enquiries, and privacy requests.": "Korzystaj ze strony kontaktowej, aby uzyskać opinie o produktach, zapytania biznesowe oraz prośby o prywatność.",
     "Contact Kali": "Skontaktuj się z Kali",
@@ -15045,7 +15044,8 @@
     "Submit, track the task, then download or publish after review.": "Prześlij, śledź zadanie, a następnie pobierz lub opublikuj po przeglądzie.",
     "Materials ready": "Materiały gotowe",
     "Voice": "Głos",
-    "Ready to submit": "Gotowy do zgłoszenia"
+    "Ready to submit": "Gotowy do zgłoszenia",
+    "Jade Rouge Enterprises Limited maintains the service.": "Jade Rouge Enterprises Limited utrzymuje usługę."
   },
   "ro": {
     "Home": "Acasă",
@@ -15278,7 +15278,6 @@
     "Is Kali the same as Yixiu?": "E Kali la fel ca Yixiu?",
     "Kali is the international-facing product brand. Yixiu refers to the underlying product lineage and system used during its development.": "Kali este brandul de produs orientat spre nivel internațional. Yixiu se referă la linia de produse și sistemul de bază folosit în timpul dezvoltării sale.",
     "Who maintains the service?": "Cine întreține serviciul?",
-    "The Kali product and operations team maintains the service.": "Echipa Kali de produs și operațiuni întreține serviciul.",
     "How can I contact the team?": "Cum pot contacta echipa?",
     "Use the contact page for product feedback, business enquiries, and privacy requests.": "Folosește pagina de contact pentru feedback despre produs, solicitări de afaceri și cereri de confidențialitate.",
     "Contact Kali": "Contact Kali",
@@ -15881,7 +15880,8 @@
     "Submit, track the task, then download or publish after review.": "Trimite, urmărește sarcina, apoi descarcă sau publică după revizuire.",
     "Materials ready": "Materiale pregătite",
     "Voice": "Voce",
-    "Ready to submit": "Gata să trimit"
+    "Ready to submit": "Gata să trimit",
+    "Jade Rouge Enterprises Limited maintains the service.": "Jade Rouge Enterprises Limited întreține serviciul."
   },
   "el": {
     "Home": "Σπίτι",
@@ -16114,7 +16114,6 @@
     "Is Kali the same as Yixiu?": "Είναι το Kali ίδιο με το Yixiu;",
     "Kali is the international-facing product brand. Yixiu refers to the underlying product lineage and system used during its development.": "Kali είναι η διεθνής μάρκα προϊόντων. Το Yixiu αναφέρεται στην υποκείμενη γενεαλογία προϊόντων και το σύστημα που χρησιμοποιήθηκε κατά την ανάπτυξή του.",
     "Who maintains the service?": "Ποιος συντηρεί την υπηρεσία;",
-    "The Kali product and operations team maintains the service.": "Η ομάδα προϊόντων και λειτουργιών Kali διατηρεί την υπηρεσία.",
     "How can I contact the team?": "Πώς μπορώ να επικοινωνήσω με την ομάδα;",
     "Use the contact page for product feedback, business enquiries, and privacy requests.": "Χρησιμοποιήστε τη σελίδα επικοινωνίας για σχόλια προϊόντων, επιχειρηματικές ερωτήσεις και αιτήματα απορρήτου.",
     "Contact Kali": "Επικοινωνήστε μαζί Kali",
@@ -16717,7 +16716,8 @@
     "Submit, track the task, then download or publish after review.": "Υποβάλετε, παρακολουθήστε την εργασία και, στη συνέχεια, πραγματοποιήστε λήψη ή δημοσίευση μετά από έλεγχο.",
     "Materials ready": "Υλικά έτοιμα",
     "Voice": "Φωνή",
-    "Ready to submit": "Έτοιμο για υποβολή"
+    "Ready to submit": "Έτοιμο για υποβολή",
+    "Jade Rouge Enterprises Limited maintains the service.": "Jade Rouge Enterprises Limited διατηρεί την υπηρεσία."
   },
   "cs": {
     "Home": "Domov",
@@ -16950,7 +16950,6 @@
     "Is Kali the same as Yixiu?": "Je Kali stejný jako Yixiu?",
     "Kali is the international-facing product brand. Yixiu refers to the underlying product lineage and system used during its development.": "Kali je produktová značka zaměřená na mezinárodní svět. Yixiu označuje základní produktovou linii a systém používaný během jeho vývoje.",
     "Who maintains the service?": "Kdo provozuje službu?",
-    "The Kali product and operations team maintains the service.": "O službu se stará tým Kali produktů a provozu.",
     "How can I contact the team?": "Jak mohu kontaktovat tým?",
     "Use the contact page for product feedback, business enquiries, and privacy requests.": "Použijte kontaktní stránku pro zpětnou vazbu k produktům, obchodní dotazy a žádosti o ochranu soukromí.",
     "Contact Kali": "Kontaktujte Kali",
@@ -17553,7 +17552,8 @@
     "Submit, track the task, then download or publish after review.": "Odevzdejte úkol, sledujte úkol a poté si ho stáhněte nebo publikujte po kontrole.",
     "Materials ready": "Materiály připravené",
     "Voice": "Hlas",
-    "Ready to submit": "Připraveno k odeslání"
+    "Ready to submit": "Připraveno k odeslání",
+    "Jade Rouge Enterprises Limited maintains the service.": "Jade Rouge Enterprises Limited službu udržuje."
   },
   "fi": {
     "Home": "Koti",
@@ -17786,7 +17786,6 @@
     "Is Kali the same as Yixiu?": "Onko Kali sama kuin Yixiu?",
     "Kali is the international-facing product brand. Yixiu refers to the underlying product lineage and system used during its development.": "Kali on kansainvälisesti suunnattu tuotebrändi. Yixiu viittaa kehityksessä käytettyyn tuotelinjaan ja järjestelmään.",
     "Who maintains the service?": "Kuka ylläpitää palvelua?",
-    "The Kali product and operations team maintains the service.": "Kali tuote- ja operatiivinen tiimi ylläpitää palvelua.",
     "How can I contact the team?": "Miten voin ottaa yhteyttä tiimiin?",
     "Use the contact page for product feedback, business enquiries, and privacy requests.": "Käytä yhteydenottosivua saadaksesi tuotepalautetta, liiketoimintatiedusteluja ja tietosuojapyyntöjä.",
     "Contact Kali": "Ota yhteyttä Kali",
@@ -18389,7 +18388,8 @@
     "Submit, track the task, then download or publish after review.": "Lähetä, seuraa tehtävää, lataa tai julkaise tarkastelun jälkeen.",
     "Materials ready": "Materiaalit valmiina",
     "Voice": "Ääni",
-    "Ready to submit": "Valmiina lähettämään"
+    "Ready to submit": "Valmiina lähettämään",
+    "Jade Rouge Enterprises Limited maintains the service.": "Jade Rouge Enterprises Limited ylläpitää palvelua."
   },
   "hi": {
     "Home": "घर",
@@ -18622,7 +18622,6 @@
     "Is Kali the same as Yixiu?": "क्या Kali यिक्सिउ के समान है?",
     "Kali is the international-facing product brand. Yixiu refers to the underlying product lineage and system used during its development.": "Kali अंतरराष्ट्रीय सामना करने वाला उत्पाद ब्रांड है। Yixiu अंतर्निहित उत्पाद वंश और इसके विकास के दौरान उपयोग की जाने वाली प्रणाली को संदर्भित करता है।",
     "Who maintains the service?": "सेवा का रखरखाव कौन करता है?",
-    "The Kali product and operations team maintains the service.": "Kali उत्पाद और संचालन टीम सेवा का रखरखाव करती है।",
     "How can I contact the team?": "मैं टीम से कैसे संपर्क कर सकता हूं?",
     "Use the contact page for product feedback, business enquiries, and privacy requests.": "उत्पाद प्रतिक्रिया, व्यावसायिक पूछताछ और गोपनीयता अनुरोधों के लिए संपर्क पृष्ठ का उपयोग करें।",
     "Contact Kali": "Kali से संपर्क करें",
@@ -19225,6 +19224,7 @@
     "Submit, track the task, then download or publish after review.": "सबमिट करें, कार्य को ट्रैक करें, फिर समीक्षा के बाद डाउनलोड या प्रकाशित करें।",
     "Materials ready": "सामग्री तैयार",
     "Voice": "आवाज",
-    "Ready to submit": "सबमिट करने के लिए तैयार"
+    "Ready to submit": "सबमिट करने के लिए तैयार",
+    "Jade Rouge Enterprises Limited maintains the service.": "Jade Rouge Enterprises Limited सेवा बनाए रखता है।"
   }
 }

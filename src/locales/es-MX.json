@@ -29,7 +29,6 @@
   "【话题】": "[Tema]",
   "【风格】": "[Estilo]",
   "/read": "/lee",
-  "© 2026 Kali": "© Kali 2026",
   "1. 价格、币种与税费": "1. Precio, moneda e impuestos",
   "1. 内容审核": "1. Revisión de contenidos",
   "1. 协议的接受与生效": "1. Aceptación y eficacia del acuerdo",
@@ -1068,7 +1067,6 @@
   "本人照片上传失败": "No pude subir mi propia foto",
   "本人照片预览": "Vista previa de fotos mía",
   "本地上传": "Subida local",
-  "本服务由 Kali 团队提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。": "Este servicio lo proporciona el equipo de Kali. Antes de iniciar sesión, registrarse o utilizar el servicio, por favor lee y comprende el acuerdo en su totalidad; Si no estás de acuerdo, por favor deja de registrarte o usar el servicio.",
   "本页文案由人工智能辅助生成，请结合实际业务核验后使用": "El texto de esta página se genera con la ayuda de inteligencia artificial. Por favor, úsalo tras la verificación junto con las operaciones empresariales reales",
   "权益": "Intereses",
   "条可选": "El artículo puede ser seleccionado",
@@ -1796,5 +1794,6 @@
   "Invite relationship already exists": "Ya existe una relación de invitación",
   "Invite relationship linked successfully.": "Relación de invitación conectada con éxito.",
   "不能填写自己的邀请码": "No puedes introducir tu propio código de invitación",
-  "请输入邀请码": "Por favor, introduzca su código de invitación"
+  "请输入邀请码": "Por favor, introduzca su código de invitación",
+  "本服务由 Jade Rouge Enterprises Limited 提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。": "Este servicio lo proporciona Jade Rouge Enterprises Limited. Antes de iniciar sesión, registrarse o utilizar el servicio, por favor lee y comprende el acuerdo en su totalidad; Si no estás de acuerdo, por favor deja de registrarte o usar el servicio."
 }

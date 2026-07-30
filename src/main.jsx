@@ -54,6 +54,7 @@ import {
   Video,
   X,
 } from 'lucide-react';
+import { LEGAL_COMPANY_NAME } from './company.js';
 import {
   apiFetch,
   bindInviteCode,
@@ -181,7 +182,7 @@ const legalDocuments = {
     icon: BookOpen,
     officialUrl: OFFICIAL_USER_AGREEMENT_URL,
     sections: [
-      ['1. 协议的接受与生效', '本服务由 Kali 团队提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。'],
+      ['1. 协议的接受与生效', '本服务由 Jade Rouge Enterprises Limited 提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。'],
       ['2. 账号注册与安全', '用户可通过平台支持的邮箱、移动号码或第三方账号注册。用户应提供真实、合法的账号信息，妥善保管密码与登录凭证，并对账号下的活动负责。'],
       ['3. 产品与服务', '平台提供热点、文案、图片、音乐、声音、数字人与视频生产相关服务。部分能力可能依赖第三方模型或服务，也可能随合规与产品需求调整。'],
       ['4. 用户行为与内容', '不得上传、生成或发布违法违规、欺诈冒充、侵害他人人格权、隐私权、声音权、肖像权或知识产权的内容。用户应确保对上传素材与输出内容拥有充分权利。'],
@@ -9251,7 +9252,7 @@ function SiteFooter({ onOpen }) {
         <div><strong>专项授权</strong><button onClick={() => onOpen('legal-voice')}>声纹授权</button><button onClick={() => onOpen('legal-avatar')}>数字人形象授权</button><button onClick={() => onOpen('legal-image')}>形象信息采集</button></div>
         <div><strong>支持</strong><button onClick={() => onOpen('info-contact')}>联系我们</button><a href="mailto:feedback@xyaip.fun">feedback@xyaip.fun</a><a href="mailto:privacy@xyaip.fun">privacy@xyaip.fun</a></div>
       </div>
-      <div className="site-footer__bottom"><span>© 2026 Kali</span><span>Kali · Yixiu</span></div>
+      <div className="site-footer__bottom"><span>© 2026 {LEGAL_COMPANY_NAME}</span><span>Kali · Yixiu</span></div>
     </footer>
   );
 }

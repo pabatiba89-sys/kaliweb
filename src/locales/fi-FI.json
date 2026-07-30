@@ -1048,7 +1048,6 @@
   "本人照片上传失败": "En onnistunut lataamaan omaa kuvaani",
   "本人照片预览": "Valokuvan esikatselu itsestäni",
   "本地上传": "Paikallinen lataus",
-  "本服务由 Kali 团队提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。": "Tämän palvelun tarjoaa Kali-tiimi. Ennen kirjautumista, rekisteröitymistä tai palvelun käyttöä lue ja ymmärrä sopimus kokonaisuudessaan; Jos et hyväksy, lopeta rekisteröityminen tai palvelun käyttö.",
   "本页文案由人工智能辅助生成，请结合实际业务核验后使用": "Tämän sivun teksti on luotu tekoälyn avulla. Käytä sitä varmistuksen jälkeen yhdessä varsinaisten liiketoimintatoimintojen kanssa",
   "权益": "Kiinnostuksen kohteet",
   "条可选": "Artikkeli voidaan valita",
@@ -1777,5 +1776,6 @@
   "Invite relationship already exists": "Kutsusuhde on jo olemassa",
   "Invite relationship linked successfully.": "Kutsu suhde onnistuneesti.",
   "不能填写自己的邀请码": "Et voi syöttää omaa kutsukoodiasi",
-  "请输入邀请码": "Syötä kutsukoodisi"
+  "请输入邀请码": "Syötä kutsukoodisi",
+  "本服务由 Jade Rouge Enterprises Limited 提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。": "Tämän palvelun tarjoaa Jade Rouge Enterprises Limited. Ennen kirjautumista, rekisteröitymistä tai palvelun käyttöä lue ja ymmärrä sopimus kokonaisuudessaan; Jos et ole samaa mieltä, lopeta rekisteröityminen tai palvelun käyttö."
 }

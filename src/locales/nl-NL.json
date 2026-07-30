@@ -1037,7 +1037,6 @@
   "本人照片上传失败": "Mijn eigen foto niet geüpload",
   "本人照片预览": "Foto-preview van mezelf",
   "本地上传": "Lokale upload",
-  "本服务由 Kali 团队提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。": "Deze dienst wordt geleverd door het Kali-team. Lees en begrijp de volledige overeenkomst voordat u inlogt, registreert of gebruikmaakt van de dienst; Als u het er niet mee eens bent, stop dan met registreren of het gebruik van de dienst.",
   "本页文案由人工智能辅助生成，请结合实际业务核验后使用": "De tekst op deze pagina is gegenereerd met behulp van kunstmatige intelligentie. Gebruik deze na verificatie in combinatie met daadwerkelijke bedrijfsactiviteiten",
   "权益": "Interesses",
   "条可选": "Het artikel kan worden geselecteerd",
@@ -1756,5 +1755,6 @@
   "Invite relationship already exists": "Een uitnodigingsrelatie bestaat al",
   "Invite relationship linked successfully.": "Nodig de relatie succesvol uit.",
   "不能填写自己的邀请码": "Je kunt je eigen uitnodigingscode niet invoeren",
-  "请输入邀请码": "Voer alstublieft uw uitnodigingscode in"
+  "请输入邀请码": "Voer alstublieft uw uitnodigingscode in",
+  "本服务由 Jade Rouge Enterprises Limited 提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。": "Deze dienst wordt geleverd door Jade Rouge Enterprises Limited. Lees en begrijp de volledige overeenkomst voordat u inlogt, registreert of gebruikmaakt van de dienst; Als u het er niet mee eens bent, stop dan met registreren of het gebruik van de dienst."
 }

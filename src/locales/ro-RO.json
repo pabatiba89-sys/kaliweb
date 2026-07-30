@@ -1056,7 +1056,6 @@
   "本人照片上传失败": "Nu am încărcat propria mea fotografie",
   "本人照片预览": "Previzualizare fotografică cu mine",
   "本地上传": "Încărcare locală",
-  "本服务由 Kali 团队提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。": "Acest serviciu este oferit de echipa Kali. Înainte de a vă autentifica, înregistra sau folosi serviciul, vă rugăm să citiți și să înțelegeți integral acordul; Dacă nu sunteți de acord, vă rugăm să încetați înregistrarea sau utilizarea serviciului.",
   "本页文案由人工智能辅助生成，请结合实际业务核验后使用": "Textul de pe această pagină este generat cu ajutorul inteligenței artificiale. Vă rugăm să îl folosiți după verificare în legătură cu operațiunile reale ale afacerii",
   "权益": "Interese",
   "条可选": "Articolul poate fi selectat",
@@ -1786,5 +1785,6 @@
   "Invite relationship already exists": "Relația de invitație există deja",
   "Invite relationship linked successfully.": "Relația de invitație este conectată cu succes.",
   "不能填写自己的邀请码": "Nu poți introduce propriul tău cod de invitație",
-  "请输入邀请码": "Vă rugăm să introduceți codul de invitație"
+  "请输入邀请码": "Vă rugăm să introduceți codul de invitație",
+  "本服务由 Jade Rouge Enterprises Limited 提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。": "Acest serviciu este oferit de Jade Rouge Enterprises Limited. Înainte de a vă autentifica, înregistra sau folosi serviciul, vă rugăm să citiți și să înțelegeți integral acordul; Dacă nu sunteți de acord, vă rugăm să încetați să vă înregistrați sau să folosiți serviciul."
 }

@@ -1076,7 +1076,6 @@
   "本人照片上传失败": "Gagal mengunggah foto saya sendiri",
   "本人照片预览": "Pratinjau foto diri saya",
   "本地上传": "Unggahan lokal",
-  "本服务由 Kali 团队提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。": "Layanan ini disediakan oleh tim Kali. Sebelum masuk, mendaftar, atau menggunakan layanan, harap baca dan pahami perjanjian secara lengkap; Jika Anda tidak setuju, harap berhenti mendaftar atau menggunakan layanan ini.",
   "本页文案由人工智能辅助生成，请结合实际业务核验后使用": "Teks di halaman ini dihasilkan dengan bantuan kecerdasan buatan. Silakan gunakan setelah verifikasi bersama dengan operasi bisnis yang sebenarnya",
   "权益": "Minat",
   "条可选": "Artikel dapat dipilih",
@@ -1800,5 +1799,6 @@
   "Invite relationship already exists": "Hubungan undangan sudah ada",
   "Invite relationship linked successfully.": "Hubungan yang dihubungkan dengan sukses diundang.",
   "不能填写自己的邀请码": "Anda tidak dapat memasukkan kode undangan Anda sendiri",
-  "请输入邀请码": "Silakan masukkan kode undangan Anda"
+  "请输入邀请码": "Silakan masukkan kode undangan Anda",
+  "本服务由 Jade Rouge Enterprises Limited 提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。": "Layanan ini disediakan oleh Jade Rouge Enterprises Limited. Sebelum masuk, mendaftar, atau menggunakan layanan, harap baca dan pahami perjanjian secara lengkap; Jika Anda tidak setuju, harap hentikan pendaftaran atau penggunaan layanan ini."
 }
