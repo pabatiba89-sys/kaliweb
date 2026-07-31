@@ -875,7 +875,6 @@
   "已选": "Výběr",
   "已选择": "Výběr",
   "希腊语": "Řecky",
-  "平台可因产品、安全或合规需要调整服务。正式协议的法律适用、争议解决与详细责任以下方“正式全文”为准。": "Platforma může upravovat služby podle požadavků produktu, bezpečnosti nebo souladu s předpisy. Právní odpovědnost, řešení sporů a podrobná odpovědnost za formální smlouvu budou dále převažovat v \"oficiálním plném textu\".",
   "平台提供热点、文案、图片、音乐、声音、数字人与视频生产相关服务。部分能力可能依赖第三方模型或服务，也可能随合规与产品需求调整。": "Platforma poskytuje služby související s trendy, copywritingem, obrázky, hudbou, zvukem, digitálními lidmi a video produkcí. Některé schopnosti mohou spoléhat na modely nebo služby třetích stran a mohou se přizpůsobovat požadavkům na dodržování předpisů a produktové požadavky.",
   "平台提供的通用数字人形象与声音，可直接用于视频创作。": "Univerzální digitální lidský obraz a hlas platformy lze přímo využít pro tvorbu videa.",
   "广角叙事 · 人景兼顾": "Širokoúhlé vyprávění · Vyvážení postav i prostředí",
@@ -1053,7 +1052,6 @@
   "查看套餐": "Zobrazit plán",
   "查看授权说明": "Zobrazit autorizační instrukce",
   "查看数字人口播视频的制作记录、成片状态和发布流程。": "Prohlédněte si produkční záznamy, konečný stav videí a proces vydávání digitálních hlasových vysílaných videí.",
-  "查看正式全文": "Zobrazit celý oficiální text",
   "查看详情": "Podrobnosti",
   "标签": "Štítky",
   "标签:": "Štítky:",
@@ -1769,5 +1767,6 @@
   "Invite relationship linked successfully.": "Úspěšně propojte vztah na pozvání.",
   "不能填写自己的邀请码": "Nemůžete zadat svůj vlastní pozvánkový kód",
   "请输入邀请码": "Zadejte prosím svůj pozvánkový kód",
-  "本服务由 Jade Rouge Enterprises Limited 提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。": "Tuto službu poskytuje Jade Rouge Enterprises Limited. Před přihlášením, registrací nebo používáním služby si prosím přečtěte a pochopte celou smlouvu; Pokud s tím nesouhlasíte, přestaňte se registrovat nebo používat službu."
+  "本服务由 Jade Rouge Enterprises Limited 提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。": "Tuto službu poskytuje Jade Rouge Enterprises Limited. Před přihlášením, registrací nebo používáním služby si prosím přečtěte a pochopte celou smlouvu; Pokud s tím nesouhlasíte, přestaňte se registrovat nebo používat službu.",
+  "平台可因产品、安全或合规需要调整服务。法律适用、争议解决与详细责任以本页面展示的协议内容及适用法律为准。": "Platforma může upravovat služby na základě potřeb produktu, bezpečnosti nebo dodržování předpisů. Platné právo, řešení sporů a podrobná odpovědnost podléhají obsahu smlouvy a platným zákonům zobrazeným na této stránce."
 }

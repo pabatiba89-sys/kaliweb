@@ -170,9 +170,6 @@ const navItems = [
   { id: 'settings', label: 'Settings', icon: Settings },
 ];
 
-const OFFICIAL_USER_AGREEMENT_URL = 'https://p.xyaip.fun/user-agreement.html';
-const OFFICIAL_PRIVACY_POLICY_URL = 'https://p.xyaip.fun/privacy-policy.html';
-
 const legalDocuments = {
   'legal-user': {
     eyebrow: 'ACCOUNT & SERVICE',
@@ -180,13 +177,12 @@ const legalDocuments = {
     description: '约定账号注册、服务使用、用户行为、内容权利与责任边界。',
     updated: 'V1.0 · 2026-02-13',
     icon: BookOpen,
-    officialUrl: OFFICIAL_USER_AGREEMENT_URL,
     sections: [
       ['1. 协议的接受与生效', '本服务由 Jade Rouge Enterprises Limited 提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。'],
       ['2. 账号注册与安全', '用户可通过平台支持的邮箱、移动号码或第三方账号注册。用户应提供真实、合法的账号信息，妥善保管密码与登录凭证，并对账号下的活动负责。'],
       ['3. 产品与服务', '平台提供热点、文案、图片、音乐、声音、数字人与视频生产相关服务。部分能力可能依赖第三方模型或服务，也可能随合规与产品需求调整。'],
       ['4. 用户行为与内容', '不得上传、生成或发布违法违规、欺诈冒充、侵害他人人格权、隐私权、声音权、肖像权或知识产权的内容。用户应确保对上传素材与输出内容拥有充分权利。'],
-      ['5. 服务变更、中止与争议', '平台可因产品、安全或合规需要调整服务。正式协议的法律适用、争议解决与详细责任以下方“正式全文”为准。'],
+      ['5. 服务变更、中止与争议', '平台可因产品、安全或合规需要调整服务。法律适用、争议解决与详细责任以本页面展示的协议内容及适用法律为准。'],
     ],
   },
   'legal-privacy': {
@@ -195,7 +191,6 @@ const legalDocuments = {
     description: '说明我们如何收集、使用、存储、保护及处理你的个人信息。',
     updated: '更新 2026-02-13 · 生效 2026-02-20',
     icon: ShieldCheck,
-    officialUrl: OFFICIAL_PRIVACY_POLICY_URL,
     sections: [
       ['1. 我们处理的信息', '根据你使用的功能，可能处理账号、联系方式、上传素材、创作记录、设备与操作日志。声纹、肖像与形象素材可能属于敏感个人信息，会通过专项协议取得单独同意。'],
       ['2. 使用目的', '信息用于账号运行、素材管理、AI 生成、任务通知、客户支持、安全风控和服务改进；我们不会将信息出售给无关第三方。'],
@@ -9133,9 +9128,6 @@ function LegalDocumentPage({ document, onOpen }) {
         <aside className="legal-document-meta">
           <span><Icon size={22} /></span>
           <strong>{document.updated}</strong>
-          {document.officialUrl && (
-            <a href={document.officialUrl} target="_blank" rel="noreferrer">查看正式全文<ExternalLink size={15} /></a>
-          )}
         </aside>
         <article className="legal-document-body">
           {document.sections.map(([heading, text]) => (

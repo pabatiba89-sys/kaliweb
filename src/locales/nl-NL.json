@@ -872,7 +872,6 @@
   "已选": "Geselecteerd",
   "已选择": "Geselecteerd",
   "希腊语": "Grieks",
-  "平台可因产品、安全或合规需要调整服务。正式协议的法律适用、争议解决与详细责任以下方“正式全文”为准。": "Het platform kan diensten aanpassen aan product-, beveiligings- of compliancebehoeften. De juridische structuur, geschiloplossing en gedetailleerde aansprakelijkheid van de formele overeenkomst gelden hierbij in de \"officiële volledige tekst\".",
   "平台提供热点、文案、图片、音乐、声音、数字人与视频生产相关服务。部分能力可能依赖第三方模型或服务，也可能随合规与产品需求调整。": "Het platform biedt diensten aan die betrekking hebben op trending, copywriting, afbeeldingen, muziek, geluid, digitale mensen en videoproductie. Sommige mogelijkheden kunnen afhankelijk zijn van modellen of diensten van derden en kunnen worden aangepast aan naleving en productvereisten.",
   "平台提供的通用数字人形象与声音，可直接用于视频创作。": "Het universele digitale menselijke beeld en de stem van het platform kunnen direct worden gebruikt voor videocreatie.",
   "广角叙事 · 人景兼顾": "Groothoekvertelling · Balans tussen mensen en landschap",
@@ -1050,7 +1049,6 @@
   "查看套餐": "Plan bekijken",
   "查看授权说明": "Bekijk de autorisatie-instructies",
   "查看数字人口播视频的制作记录、成片状态和发布流程。": "Bekijk de productiegegevens, de definitieve videostatus en het publicatieproces van digitale spraakuitzendvideo's.",
-  "查看正式全文": "Bekijk de volledige officiële tekst",
   "查看详情": "Zie details",
   "标签": "Tags",
   "标签:": "Tags:",
@@ -1756,5 +1754,6 @@
   "Invite relationship linked successfully.": "Nodig de relatie succesvol uit.",
   "不能填写自己的邀请码": "Je kunt je eigen uitnodigingscode niet invoeren",
   "请输入邀请码": "Voer alstublieft uw uitnodigingscode in",
-  "本服务由 Jade Rouge Enterprises Limited 提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。": "Deze dienst wordt geleverd door Jade Rouge Enterprises Limited. Lees en begrijp de volledige overeenkomst voordat u inlogt, registreert of gebruikmaakt van de dienst; Als u het er niet mee eens bent, stop dan met registreren of het gebruik van de dienst."
+  "本服务由 Jade Rouge Enterprises Limited 提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。": "Deze dienst wordt geleverd door Jade Rouge Enterprises Limited. Lees en begrijp de volledige overeenkomst voordat u inlogt, registreert of gebruikmaakt van de dienst; Als u het er niet mee eens bent, stop dan met registreren of het gebruik van de dienst.",
+  "平台可因产品、安全或合规需要调整服务。法律适用、争议解决与详细责任以本页面展示的协议内容及适用法律为准。": "Het platform kan diensten aanpassen op basis van product-, beveiligings- of compliancebehoeften. Toepasselijke wetgeving, geschiloplossing en gedetailleerde aansprakelijkheid zijn onderworpen aan de inhoud van de overeenkomst en de toepasselijke wetten die op deze pagina worden weergegeven."
 }

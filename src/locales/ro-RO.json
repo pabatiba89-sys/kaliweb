@@ -891,7 +891,6 @@
   "已选": "Selectat",
   "已选择": "Selectat",
   "希腊语": "Greacă",
-  "平台可因产品、安全或合规需要调整服务。正式协议的法律适用、争议解决与详细责任以下方“正式全文”为准。": "Platforma poate ajusta serviciile în funcție de produs, securitate sau cerințe de conformitate. Detaliile legale, soluționarea disputelor și răspunderea detaliată din acordul formal vor prevala în \"textul oficial integral\".",
   "平台提供热点、文案、图片、音乐、声音、数字人与视频生产相关服务。部分能力可能依赖第三方模型或服务，也可能随合规与产品需求调整。": "Platforma oferă servicii legate de trending, copywriting, imagini, muzică, sunet, oameni digitali și producție video. Unele capabilități pot depinde de modele sau servicii terțe părți și se pot ajusta în funcție de cerințele de conformitate și produse.",
   "平台提供的通用数字人形象与声音，可直接用于视频创作。": "Imaginea și vocea digitală universală a platformei pot fi folosite direct pentru crearea de videoclipuri.",
   "广角叙事 · 人景兼顾": "Povestire în unghi larg · Echilibrarea atât a oamenilor, cât și a peisajului",
@@ -1069,7 +1068,6 @@
   "查看套餐": "Vezi planul",
   "查看授权说明": "Vizualizați instrucțiunile de autorizare",
   "查看数字人口播视频的制作记录、成片状态和发布流程。": "Vizualizați înregistrările de producție, stadiul final al videoclipului și procesul de publicare al videoclipurilor digitale de difuzare vocală.",
-  "查看正式全文": "Vezi textul oficial complet",
   "查看详情": "Vezi detalii",
   "标签": "Etichete",
   "标签:": "Etichete:",
@@ -1786,5 +1784,6 @@
   "Invite relationship linked successfully.": "Relația de invitație este conectată cu succes.",
   "不能填写自己的邀请码": "Nu poți introduce propriul tău cod de invitație",
   "请输入邀请码": "Vă rugăm să introduceți codul de invitație",
-  "本服务由 Jade Rouge Enterprises Limited 提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。": "Acest serviciu este oferit de Jade Rouge Enterprises Limited. Înainte de a vă autentifica, înregistra sau folosi serviciul, vă rugăm să citiți și să înțelegeți integral acordul; Dacă nu sunteți de acord, vă rugăm să încetați să vă înregistrați sau să folosiți serviciul."
+  "本服务由 Jade Rouge Enterprises Limited 提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。": "Acest serviciu este oferit de Jade Rouge Enterprises Limited. Înainte de a vă autentifica, înregistra sau folosi serviciul, vă rugăm să citiți și să înțelegeți integral acordul; Dacă nu sunteți de acord, vă rugăm să încetați să vă înregistrați sau să folosiți serviciul.",
+  "平台可因产品、安全或合规需要调整服务。法律适用、争议解决与详细责任以本页面展示的协议内容及适用法律为准。": "Platforma poate ajusta serviciile în funcție de produs, securitate sau cerințe de conformitate. Legea aplicabilă, soluționarea disputelor și răspunderea detaliată vor fi supuse conținutului acordului și legilor aplicabile prezentate pe această pagină."
 }

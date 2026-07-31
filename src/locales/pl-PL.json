@@ -880,7 +880,6 @@
   "已选": "Wybrani",
   "已选择": "Wybrani",
   "希腊语": "Greka",
-  "平台可因产品、安全或合规需要调整服务。正式协议的法律适用、争议解决与详细责任以下方“正式全文”为准。": "Platforma może dostosować usługi do potrzeb produktu, bezpieczeństwa lub zgodności. Odpowiedzialność prawna, rozwiązywanie sporów oraz szczegółowa odpowiedzialność wynikająca z formalnej umowy będą przeważać dalej w \"oficjalnym pełnym tekście.\"",
   "平台提供热点、文案、图片、音乐、声音、数字人与视频生产相关服务。部分能力可能依赖第三方模型或服务，也可能随合规与产品需求调整。": "Platforma oferuje usługi związane z trendami, copywritingiem, obrazami, muzyką, dźwiękiem, cyfrowymi ludźmi oraz produkcją wideo. Niektóre możliwości mogą opierać się na modelach lub usługach firm trzecich i dostosowywać się do zgodności i wymagań produktowych.",
   "平台提供的通用数字人形象与声音，可直接用于视频创作。": "Uniwersalny cyfrowy obraz i głos platformy mogą być bezpośrednio wykorzystywane do tworzenia wideo.",
   "广角叙事 · 人景兼顾": "Opowiadanie historii z szerokim kątem · Równoważenie zarówno postaci, jak i scenerii",
@@ -1058,7 +1057,6 @@
   "查看套餐": "Zobacz plan",
   "查看授权说明": "Zobacz instrukcje autoryzacji",
   "查看数字人口播视频的制作记录、成片状态和发布流程。": "Zobacz dokumentację produkcyjną, ostateczny status wideo oraz proces publikacji cyfrowych nagrań głosowych.",
-  "查看正式全文": "Zobacz pełny oficjalny tekst",
   "查看详情": "Zobacz szczegóły",
   "标签": "Tagi",
   "标签:": "Tagi:",
@@ -1773,5 +1771,6 @@
   "Invite relationship linked successfully.": "Zaproś związek z powodzeniem.",
   "不能填写自己的邀请码": "Nie możesz wpisać własnego kodu zaproszenia",
   "请输入邀请码": "Proszę wpisać swój kod zaproszenia",
-  "本服务由 Jade Rouge Enterprises Limited 提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。": "Usługę tę świadczy Jade Rouge Enterprises Limited. Przed zalogowaniem, rejestracją lub skorzystaniem z usługi prosimy o przeczytanie i zrozumienie umowy w całości; Jeśli się nie zgadzasz, prosimy o przestań rejestrować się lub korzystać z usługi."
+  "本服务由 Jade Rouge Enterprises Limited 提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。": "Usługę tę świadczy Jade Rouge Enterprises Limited. Przed zalogowaniem, rejestracją lub skorzystaniem z usługi prosimy o przeczytanie i zrozumienie umowy w całości; Jeśli się nie zgadzasz, prosimy o przestań rejestrować się lub korzystać z usługi.",
+  "平台可因产品、安全或合规需要调整服务。法律适用、争议解决与详细责任以本页面展示的协议内容及适用法律为准。": "Platforma może dostosowywać usługi w oparciu o potrzeby produktu, bezpieczeństwa lub zgodności. Obowiązujące prawo, rozstrzyganie sporów oraz szczegółowa odpowiedzialność podlegają treści umowy oraz obowiązującym przepisom przedstawionym na tej stronie."
 }

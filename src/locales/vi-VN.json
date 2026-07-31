@@ -947,7 +947,6 @@
   "已选": "Đã chọn",
   "已选择": "Đã chọn",
   "希腊语": "Tiếng Hy Lạp",
-  "平台可因产品、安全或合规需要调整服务。正式协议的法律适用、争议解决与详细责任以下方“正式全文”为准。": "Nền tảng có thể điều chỉnh dịch vụ theo nhu cầu sản phẩm, bảo mật hoặc tuân thủ. Quy định pháp lý, giải quyết tranh chấp và trách nhiệm chi tiết của thỏa thuận chính thức sẽ được ưu tiên áp dụng sau đây trong \"toàn văn chính thức\".",
   "平台提供热点、文案、图片、音乐、声音、数字人与视频生产相关服务。部分能力可能依赖第三方模型或服务，也可能随合规与产品需求调整。": "Nền tảng này cung cấp các dịch vụ liên quan đến xu hướng, viết quảng cáo, hình ảnh, âm nhạc, âm thanh, con người kỹ thuật số và sản xuất video. Một số khả năng có thể dựa vào các mô hình hoặc dịch vụ của bên thứ ba và có thể điều chỉnh theo yêu cầu tuân thủ và sản phẩm.",
   "平台提供的通用数字人形象与声音，可直接用于视频创作。": "Hình ảnh và giọng nói con người kỹ thuật số phổ quát của nền tảng có thể được sử dụng trực tiếp để tạo video.",
   "广角叙事 · 人景兼顾": "Kể chuyện góc rộng · Cân bằng cả con người và phong cảnh",
@@ -1125,7 +1124,6 @@
   "查看套餐": "Xem gói",
   "查看授权说明": "Xem hướng dẫn ủy quyền",
   "查看数字人口播视频的制作记录、成片状态和发布流程。": "Xem hồ sơ sản xuất, trạng thái video cuối cùng và quy trình xuất bản video phát sóng giọng nói kỹ thuật số.",
-  "查看正式全文": "Xem toàn bộ văn bản chính thức",
   "查看详情": "Xem chi tiết",
   "标签": "thẻ",
   "标签:": "thẻ:",
@@ -1840,5 +1838,6 @@
   "Invite relationship linked successfully.": "Liên kết mối quan hệ được mời thành công.",
   "不能填写自己的邀请码": "Bạn không thể nhập mã mời riêng của mình",
   "请输入邀请码": "Vui lòng nhập mã mời của bạn",
-  "本服务由 Jade Rouge Enterprises Limited 提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。": "Dịch vụ này được cung cấp bởi Jade Rouge Enterprises Limited. Trước khi đăng nhập, đăng ký hoặc sử dụng dịch vụ, vui lòng đọc và hiểu đầy đủ thỏa thuận; Nếu bạn không đồng ý, vui lòng ngừng đăng ký hoặc sử dụng dịch vụ."
+  "本服务由 Jade Rouge Enterprises Limited 提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。": "Dịch vụ này được cung cấp bởi Jade Rouge Enterprises Limited. Trước khi đăng nhập, đăng ký hoặc sử dụng dịch vụ, vui lòng đọc và hiểu đầy đủ thỏa thuận; Nếu bạn không đồng ý, vui lòng ngừng đăng ký hoặc sử dụng dịch vụ.",
+  "平台可因产品、安全或合规需要调整服务。法律适用、争议解决与详细责任以本页面展示的协议内容及适用法律为准。": "Nền tảng có thể điều chỉnh dịch vụ dựa trên sản phẩm, bảo mật hoặc nhu cầu tuân thủ. Luật áp dụng, giải quyết tranh chấp và trách nhiệm chi tiết sẽ tuân theo nội dung thỏa thuận và luật áp dụng được hiển thị trên trang này."
 }

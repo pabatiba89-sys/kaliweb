@@ -883,7 +883,6 @@
   "已选": "Valitut",
   "已选择": "Valitut",
   "希腊语": "Kreikka",
-  "平台可因产品、安全或合规需要调整服务。正式协议的法律适用、争议解决与详细责任以下方“正式全文”为准。": "Alusta voi mukauttaa palveluitaan tuotteen, turvallisuuden tai vaatimustenmukaisuuden tarpeiden mukaan. Virallisen sopimuksen oikeudellinen osa, riidanratkaisu ja yksityiskohtainen vastuu ovat tästä eteenpäin voimassa \"virallisessa koko tekstissä\".",
   "平台提供热点、文案、图片、音乐、声音、数字人与视频生产相关服务。部分能力可能依赖第三方模型或服务，也可能随合规与产品需求调整。": "Alusta tarjoaa palveluita, jotka liittyvät trendaukseen, copywritingiin, kuviin, musiikkiin, ääneen, digitaalisiin ihmisiin ja videotuotantoon. Jotkut ominaisuudet voivat perustua kolmannen osapuolen malleihin tai palveluihin ja mukautua vaatimustenmukaisuuden ja tuotevaatimusten mukaan.",
   "平台提供的通用数字人形象与声音，可直接用于视频创作。": "Alustan universaalia digitaalista ihmiskuvaa ja -ääntä voidaan käyttää suoraan videon luomiseen.",
   "广角叙事 · 人景兼顾": "Laajakulmainen tarinankerronta · Ihmisten ja maisemien tasapainottaminen",
@@ -1061,7 +1060,6 @@
   "查看套餐": "Näytä paketti",
   "查看授权说明": "Katso valtuutusohjeet",
   "查看数字人口播视频的制作记录、成片状态和发布流程。": "Katso digitaalisten äänilähetysvideoiden tuotantotiedot, lopullinen videotilanne ja julkaisuprosessi.",
-  "查看正式全文": "Katso koko virallinen teksti",
   "查看详情": "Katso lisätietoja",
   "标签": "Tagit",
   "标签:": "Tagit:",
@@ -1777,5 +1775,6 @@
   "Invite relationship linked successfully.": "Kutsu suhde onnistuneesti.",
   "不能填写自己的邀请码": "Et voi syöttää omaa kutsukoodiasi",
   "请输入邀请码": "Syötä kutsukoodisi",
-  "本服务由 Jade Rouge Enterprises Limited 提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。": "Tämän palvelun tarjoaa Jade Rouge Enterprises Limited. Ennen kirjautumista, rekisteröitymistä tai palvelun käyttöä lue ja ymmärrä sopimus kokonaisuudessaan; Jos et ole samaa mieltä, lopeta rekisteröityminen tai palvelun käyttö."
+  "本服务由 Jade Rouge Enterprises Limited 提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。": "Tämän palvelun tarjoaa Jade Rouge Enterprises Limited. Ennen kirjautumista, rekisteröitymistä tai palvelun käyttöä lue ja ymmärrä sopimus kokonaisuudessaan; Jos et ole samaa mieltä, lopeta rekisteröityminen tai palvelun käyttö.",
+  "平台可因产品、安全或合规需要调整服务。法律适用、争议解决与详细责任以本页面展示的协议内容及适用法律为准。": "Alusta voi mukauttaa palveluita tuotteiden, tietoturvan tai vaatimustenmukaisuuden tarpeiden mukaan. Sovellettava laki, riidanratkaisu ja yksityiskohtainen vastuu ovat sopimuksen sisällön ja tällä sivulla esitettyjen lakien alaisia."
 }

@@ -905,7 +905,6 @@
   "已选": "Selecionado",
   "已选择": "Selecionado",
   "希腊语": "Grego",
-  "平台可因产品、安全或合规需要调整服务。正式协议的法律适用、争议解决与详细责任以下方“正式全文”为准。": "A plataforma pode ajustar os serviços com base nas necessidades do produto, segurança ou conformidade. A lei aplicável, a resolução de litígios e a responsabilidade detalhada do acordo formal prevalecerão no \"texto oficial completo\" abaixo.",
   "平台提供热点、文案、图片、音乐、声音、数字人与视频生产相关服务。部分能力可能依赖第三方模型或服务，也可能随合规与产品需求调整。": "A plataforma oferece temas em voga, copywriting, imagens, música, som, humanos digitais e serviços de produção de vídeo. Algumas capacidades podem depender de modelos ou serviços de terceiros e podem ajustar-se de acordo com a conformidade e os requisitos do produto.",
   "平台提供的通用数字人形象与声音，可直接用于视频创作。": "A imagem e voz digital universal da plataforma podem ser usadas diretamente para a criação de vídeo.",
   "广角叙事 · 人景兼顾": "Narrativa em grande angular · Equilibrando pessoas e paisagens",
@@ -1083,7 +1082,6 @@
   "查看套餐": "Ver plano",
   "查看授权说明": "Consulte as instruções de autorização",
   "查看数字人口播视频的制作记录、成片状态和发布流程。": "Consulte os registos de produção, o estado final do vídeo e o processo de publicação dos vídeos digitais transmitidos por voz.",
-  "查看正式全文": "Consulte o texto oficial completo",
   "查看详情": "Ver detalhes",
   "标签": "Etiquetas",
   "标签:": "Etiquetas:",
@@ -1798,5 +1796,6 @@
   "Invite relationship linked successfully.": "Relacionamento de convite ligado com sucesso.",
   "不能填写自己的邀请码": "Não pode inserir o seu próprio código de convite",
   "请输入邀请码": "Por favor, introduza o seu código de convite",
-  "本服务由 Jade Rouge Enterprises Limited 提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。": "Este serviço é prestado por Jade Rouge Enterprises Limited. Antes de iniciar sessão, registar-se ou utilizar o serviço, por favor leia e compreenda o acordo na íntegra; Se não concordar, por favor pare de se registar ou utilizar o serviço."
+  "本服务由 Jade Rouge Enterprises Limited 提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。": "Este serviço é prestado por Jade Rouge Enterprises Limited. Antes de iniciar sessão, registar-se ou utilizar o serviço, por favor leia e compreenda o acordo na íntegra; Se não concordar, por favor pare de se registar ou utilizar o serviço.",
+  "平台可因产品、安全或合规需要调整服务。法律适用、争议解决与详细责任以本页面展示的协议内容及适用法律为准。": "A plataforma pode ajustar os serviços com base nas necessidades do produto, segurança ou conformidade. A legislação aplicável, a resolução de litígios e a responsabilidade detalhada estarão sujeitas ao conteúdo do acordo e às leis aplicáveis apresentadas nesta página."
 }

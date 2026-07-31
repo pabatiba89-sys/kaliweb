@@ -881,7 +881,6 @@
   "已选": "Seçilenler",
   "已选择": "Seçilenler",
   "希腊语": "Yunanca",
-  "平台可因产品、安全或合规需要调整服务。正式协议的法律适用、争议解决与详细责任以下方“正式全文”为准。": "Platform, ürünleri ürün, güvenlik veya uyum ihtiyaçlarına göre ayarlayabilir. Resmi anlaşmanın hukuki yapısı, uyuşmazlık çözümü ve ayrıntılı sorumluluğu bundan sonra \"resmi tam metin\" olarak geçerli olacaktır.",
   "平台提供热点、文案、图片、音乐、声音、数字人与视频生产相关服务。部分能力可能依赖第三方模型或服务，也可能随合规与产品需求调整。": "Platform, trend olma, metin yazarlığı, görseller, müzik, ses, dijital insanlar ve video prodüksiyonu ile ilgili hizmetler sunmaktadır. Bazı yetenekler üçüncü taraf modellere veya hizmetlere dayanabilir ve uyumluluk ile ürün gereksinimlerine göre ayarlanabilir.",
   "平台提供的通用数字人形象与声音，可直接用于视频创作。": "Platformun evrensel dijital insan görüntüsü ve sesi, video üretiminde doğrudan kullanılabilir.",
   "广角叙事 · 人景兼顾": "Geniş açıdan hikaye anlatımı · İnsanlar ve manzarayı dengelemek",
@@ -1059,7 +1058,6 @@
   "查看套餐": "Planı görüntüle",
   "查看授权说明": "Yetkilendirme talimatlarını görüntüleyin",
   "查看数字人口播视频的制作记录、成片状态和发布流程。": "Dijital sesli yayın videolarının üretim kayıtlarını, nihai video durumunu ve yayın sürecini görüntüleyin.",
-  "查看正式全文": "Tam resmi metni görüntüleyin",
   "查看详情": "Detaylara bak",
   "标签": "Etiketler",
   "标签:": "Etiketler:",
@@ -1774,5 +1772,6 @@
   "Invite relationship linked successfully.": "Davet ilişkisi başarılı bir şekilde bağlandı.",
   "不能填写自己的邀请码": "Kendi davet kodunuzu giremezsiniz",
   "请输入邀请码": "Lütfen davetiye kodunuzu girin",
-  "本服务由 Jade Rouge Enterprises Limited 提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。": "Bu hizmet Jade Rouge Enterprises Limited tarafından sağlanmaktadır. Giriş yapmadan, kayıt olmadan veya hizmeti kullanmadan önce, lütfen anlaşmayı tamamını okuyun ve anlayın; Kabul etmiyorsanız, lütfen kayıt olmayı veya hizmeti kullanmayı bırakın."
+  "本服务由 Jade Rouge Enterprises Limited 提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。": "Bu hizmet Jade Rouge Enterprises Limited tarafından sağlanmaktadır. Giriş yapmadan, kayıt olmadan veya hizmeti kullanmadan önce, lütfen anlaşmayı tamamını okuyun ve anlayın; Kabul etmiyorsanız, lütfen kayıt olmayı veya hizmeti kullanmayı bırakın.",
+  "平台可因产品、安全或合规需要调整服务。法律适用、争议解决与详细责任以本页面展示的协议内容及适用法律为准。": "Platform, hizmetleri ürün, güvenlik veya uyum ihtiyaçlarına göre ayarlayabilir. Geçerli hukuk, uyuşmazlık çözümü ve ayrıntılı sorumluluk, bu sayfada gösterilen anlaşma içeriğine ve geçerli yasalara tabidir."
 }

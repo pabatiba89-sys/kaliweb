@@ -893,7 +893,6 @@
   "已选": "Selezionato",
   "已选择": "Selezionato",
   "希腊语": "Greco",
-  "平台可因产品、安全或合规需要调整服务。正式协议的法律适用、争议解决与详细责任以下方“正式全文”为准。": "La piattaforma può adattare i servizi in base al prodotto, alla sicurezza o alle esigenze di conformità. La responsabilità legale, la risoluzione delle controversie e la responsabilità dettagliata dell'accordo formale prevalgono di seguito nel \"testo completo ufficiale\".",
   "平台提供热点、文案、图片、音乐、声音、数字人与视频生产相关服务。部分能力可能依赖第三方模型或服务，也可能随合规与产品需求调整。": "La piattaforma offre servizi relativi a tendenza, copywriting, immagini, musica, suoni, digitale umano e produzione video. Alcune funzionalità possono dipendere da modelli o servizi di terze parti e possono adattarsi in base alla conformità e ai requisiti del prodotto.",
   "平台提供的通用数字人形象与声音，可直接用于视频创作。": "L'immagine e la voce digitale universale della piattaforma possono essere utilizzate direttamente per la creazione di video.",
   "广角叙事 · 人景兼顾": "Narrazione grandangolare · Bilanciare sia le persone che lo scenario",
@@ -1071,7 +1070,6 @@
   "查看套餐": "Vedi piano",
   "查看授权说明": "Visualizza le istruzioni di autorizzazione",
   "查看数字人口播视频的制作记录、成片状态和发布流程。": "Consulta i registri di produzione, lo stato finale del video e il processo di pubblicazione dei video digitali trasmessi in voce.",
-  "查看正式全文": "Visualizza il testo ufficiale completo",
   "查看详情": "Vedi dettagli",
   "标签": "Tag",
   "标签:": "Tag:",
@@ -1787,5 +1785,6 @@
   "Invite relationship linked successfully.": "Relazione con invito collegata con successo.",
   "不能填写自己的邀请码": "Non puoi inserire il tuo codice d'invito",
   "请输入邀请码": "Per favore, inserisci il tuo codice invito",
-  "本服务由 Jade Rouge Enterprises Limited 提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。": "Questo servizio è fornito da Jade Rouge Enterprises Limited. Prima di effettuare il login, registrarsi o utilizzare il servizio, si prega di leggere e comprendere integralmente l'accordo; Se non sei d'accordo, ti preghiamo di smettere di registrarti o utilizzare il servizio."
+  "本服务由 Jade Rouge Enterprises Limited 提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。": "Questo servizio è fornito da Jade Rouge Enterprises Limited. Prima di effettuare il login, registrarsi o utilizzare il servizio, si prega di leggere e comprendere integralmente l'accordo; Se non sei d'accordo, ti preghiamo di smettere di registrarti o utilizzare il servizio.",
+  "平台可因产品、安全或合规需要调整服务。法律适用、争议解决与详细责任以本页面展示的协议内容及适用法律为准。": "La piattaforma può adattare i servizi in base al prodotto, alla sicurezza o alle esigenze di conformità. La legge applicabile, la risoluzione delle controversie e la responsabilità dettagliata sono soggette al contenuto dell'accordo e alle leggi applicabili mostrate in questa pagina."
 }
