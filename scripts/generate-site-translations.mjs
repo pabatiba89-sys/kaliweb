@@ -68,13 +68,13 @@ const getToken = () => withRetries(() => request({ hostname: 'edge.microsoft.com
 let token = await getToken();
 
 const protect = (text) => text
-  .replaceAll('Jade Rouge Enterprises Limited', 'LEGAL_COMPANY_TOKEN_9841')
+  .replaceAll('JADE ROUGE ENTERPRISES LIMITED', 'LEGAL_COMPANY_TOKEN_9841')
   .replaceAll('Kali', 'KALI_BRAND_TOKEN_9841')
   .replaceAll('Yixiu', 'YIXIU_BRAND_TOKEN_9841')
   .replaceAll('feedback@xyaip.fun', 'FEEDBACK_EMAIL_TOKEN_9841')
   .replaceAll('privacy@xyaip.fun', 'PRIVACY_EMAIL_TOKEN_9841');
 const restore = (text) => text
-  .replaceAll('LEGAL_COMPANY_TOKEN_9841', 'Jade Rouge Enterprises Limited')
+  .replaceAll('LEGAL_COMPANY_TOKEN_9841', 'JADE ROUGE ENTERPRISES LIMITED')
   .replaceAll('KALI_BRAND_TOKEN_9841', 'Kali')
   .replaceAll('YIXIU_BRAND_TOKEN_9841', 'Yixiu')
   .replaceAll('FEEDBACK_EMAIL_TOKEN_9841', 'feedback@xyaip.fun')

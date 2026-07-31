@@ -718,13 +718,13 @@ const withRetries = async (operation, attempts = 4) => {
 const getToken = async () => withRetries(() => request({ hostname: 'edge.microsoft.com', path: '/translate/auth', method: 'GET', headers: browserHeaders }));
 
 const protectBrand = (text) => text
-  .replaceAll('Jade Rouge Enterprises Limited', 'LEGAL_COMPANY_TOKEN_9841')
+  .replaceAll('JADE ROUGE ENTERPRISES LIMITED', 'LEGAL_COMPANY_TOKEN_9841')
   .replaceAll('Kali', 'KALI_BRAND_TOKEN_9841')
   .replaceAll('Yixiu', 'YIXIU_BRAND_TOKEN_9841')
   .replaceAll('{{name}}', 'AUTH_NAME_TOKEN_9841')
   .replaceAll('{{count}}', 'CONTENT_COUNT_TOKEN_9841');
 const restoreBrand = (text) => text
-  .replaceAll('LEGAL_COMPANY_TOKEN_9841', 'Jade Rouge Enterprises Limited')
+  .replaceAll('LEGAL_COMPANY_TOKEN_9841', 'JADE ROUGE ENTERPRISES LIMITED')
   .replaceAll('KALI_BRAND_TOKEN_9841', 'Kali')
   .replaceAll('YIXIU_BRAND_TOKEN_9841', 'Yixiu')
   .replaceAll('AUTH_NAME_TOKEN_9841', '{{name}}')

@@ -182,7 +182,7 @@ const legalDocuments = {
     updated: 'V1.0 · 2026-02-13',
     icon: BookOpen,
     sections: [
-      ['1. 协议的接受与生效', '本服务由 Jade Rouge Enterprises Limited 提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。'],
+      ['1. 协议的接受与生效', '本服务由 JADE ROUGE ENTERPRISES LIMITED 提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。'],
       ['2. 账号注册与安全', '用户可通过平台支持的邮箱、移动号码或第三方账号注册。用户应提供真实、合法的账号信息，妥善保管密码与登录凭证，并对账号下的活动负责。'],
       ['3. 产品与服务', '平台提供热点、文案、图片、音乐、声音、数字人与视频生产相关服务。部分能力可能依赖第三方模型或服务，也可能随合规与产品需求调整。'],
       ['4. 用户行为与内容', '不得上传、生成或发布违法违规、欺诈冒充、侵害他人人格权、隐私权、声音权、肖像权或知识产权的内容。用户应确保对上传素材与输出内容拥有充分权利。'],
@@ -287,7 +287,7 @@ const legalDocuments = {
   },
 };
 
-const legalProviderNotice = '本服务由 Jade Rouge Enterprises Limited（香港公司编号 2799865）提供。公司地址：Hong Kong Special Administrative Region, People’s Republic of China。一般业务及法律通知请发送至 feedback@xyaip.fun；个人信息权利请求请发送至 privacy@xyaip.fun。';
+const legalProviderNotice = '本服务由 JADE ROUGE ENTERPRISES LIMITED（香港公司编号 2799865）提供。公司地址：Hong Kong Special Administrative Region, People’s Republic of China。一般业务及法律通知请发送至 feedback@xyaip.fun；个人信息权利请求请发送至 privacy@xyaip.fun。';
 
 const agreementCards = [
   ['legal-user', '账号与服务', '登录、注册、账号与服务使用规则'],
