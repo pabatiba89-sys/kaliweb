@@ -90,7 +90,13 @@ const targetEntries = Object.entries(activeTargets);
 const groups = [];
 for (let index = 0; index < targetEntries.length; index += 8) groups.push(targetEntries.slice(index, index + 8));
 const batches = [];
-for (let index = 0; index < protectedTexts.length; index += 40) batches.push({ protectedBatch: protectedTexts.slice(index, index + 40), sourceBatch: sourceTexts.slice(index, index + 40) });
+const translationBatchSize = 10;
+for (let index = 0; index < protectedTexts.length; index += translationBatchSize) {
+  batches.push({
+    protectedBatch: protectedTexts.slice(index, index + translationBatchSize),
+    sourceBatch: sourceTexts.slice(index, index + translationBatchSize),
+  });
+}
 
 const translateBatch = async (batch, group, retries = 3) => {
   const query = group.map(([, target]) => `to=${encodeURIComponent(target)}`).join('&');
