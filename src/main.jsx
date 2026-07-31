@@ -9375,21 +9375,6 @@ function PublicInfoPage({ active, onOpen }) {
   return <LegalDocumentPage document={legalDocuments[active]} onOpen={onOpen} />;
 }
 
-function SiteFooter({ onOpen }) {
-  return (
-    <footer className="site-footer">
-      <div className="site-footer__brand"><span className="brand-mark">K</span><div><strong>Kali</strong><small>AI Content Production Workspace</small></div></div>
-      <div className="site-footer__links">
-        <div><strong>产品</strong><button onClick={() => onOpen('home')}>工作台</button><button onClick={() => onOpen('info-about')}>关于我们</button><button onClick={() => onOpen('info-media')}>官方媒体</button></div>
-        <div><strong>合规</strong><button onClick={() => onOpen('info-agreements')}>协议中心</button><button onClick={() => onOpen('legal-user')}>用户服务协议</button><button onClick={() => onOpen('legal-privacy')}>隐私政策</button><button onClick={() => onOpen('legal-payment')}>支付政策</button><button onClick={() => onOpen('legal-refund')}>退款政策</button></div>
-        <div><strong>专项授权</strong><button onClick={() => onOpen('legal-voice')}>声纹授权</button><button onClick={() => onOpen('legal-avatar')}>数字人形象授权</button><button onClick={() => onOpen('legal-image')}>形象信息采集</button></div>
-        <div><strong>支持</strong><button onClick={() => onOpen('info-contact')}>联系我们</button><a href="mailto:feedback@xyaip.fun">feedback@xyaip.fun</a><a href="mailto:privacy@xyaip.fun">privacy@xyaip.fun</a></div>
-      </div>
-      <div className="site-footer__bottom"><span>© 2026 {LEGAL_COMPANY_NAME}</span><span>{LEGAL_COMPANY_ADDRESS}</span><span>Kali · Yixiu</span></div>
-    </footer>
-  );
-}
-
 function PasswordResetPage({ initialEmail = '', onBackToLogin }) {
   const [email, setEmail] = useState(initialEmail);
   const [step, setStep] = useState('request');
@@ -10250,7 +10235,6 @@ export default function App() {
               />
             )
           )}
-          <SiteFooter onOpen={selectNav} />
         </div>
       </main>
       <LoginModal

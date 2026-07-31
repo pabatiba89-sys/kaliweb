@@ -624,102 +624,10 @@
   margin-top: 3px;
 }
 
-.site-footer {
-  min-width: 0;
-  margin-top: 34px;
-  padding: 30px 30px 18px;
-  border: 1px solid #d7e8e1;
-  border-radius: 26px;
-  background: linear-gradient(145deg, #133a32, #0b5546);
-  color: #fff;
-  display: grid;
-  grid-template-columns: minmax(200px, 0.8fr) minmax(520px, 2.2fr);
-  gap: 30px;
-  box-shadow: 0 16px 38px rgba(20, 61, 52, 0.12);
-}
-
-.site-footer__brand {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-}
-
-.site-footer__brand .brand-mark {
-  background: #fff;
-  color: var(--green-dark);
-}
-
-.site-footer__brand div {
-  display: grid;
-  gap: 5px;
-}
-
-.site-footer__brand strong {
-  font-size: 17px;
-}
-
-.site-footer__brand small {
-  color: #add7ca;
-  font-size: 11px;
-}
-
-.site-footer__links {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 18px;
-}
-
-.site-footer__links > div {
-  min-width: 0;
-  display: grid;
-  align-content: start;
-  gap: 9px;
-}
-
-.site-footer__links strong {
-  margin-bottom: 3px;
-  color: #fff;
-  font-size: 12px;
-}
-
-.site-footer__links button,
-.site-footer__links a {
-  width: fit-content;
-  max-width: 100%;
-  padding: 0;
-  background: transparent;
-  color: #b9d7ce;
-  font-size: 11px;
-  line-height: 1.45;
-  text-align: left;
-  text-decoration: none;
-  overflow-wrap: anywhere;
-}
-
-.site-footer__links button:hover,
-.site-footer__links a:hover {
-  color: #fff;
-}
-
-.site-footer__bottom {
-  grid-column: 1 / -1;
-  padding-top: 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
-  color: #8fb9ad;
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  font-size: 10px;
-}
-
 @media (max-width: 1080px) {
   .agreement-card-grid,
   .about-values {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .site-footer {
-    grid-template-columns: 1fr;
   }
 }
 
@@ -766,20 +674,6 @@
     min-height: 140px;
   }
 
-  .site-footer {
-    padding: 24px 20px 16px;
-    border-radius: 22px;
-  }
-
-  .site-footer__links {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    row-gap: 24px;
-  }
-
-  .site-footer__bottom {
-    align-items: flex-start;
-    flex-direction: column;
-  }
 }
 
 @media (max-width: 460px) {
@@ -806,9 +700,6 @@
     display: none;
   }
 
-  .site-footer__links {
-    grid-template-columns: 1fr;
-  }
 }
 
 /* Video production list and detail */
