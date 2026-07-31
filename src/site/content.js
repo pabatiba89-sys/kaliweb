@@ -1,9 +1,19 @@
 import { localeMeta, localize, supportedLocales } from './localization.js';
 import { helpPages } from './help.js';
-import { LEGAL_COMPANY_NAME } from '../company.js';
+import {
+  LEGAL_COMPANY_ADDRESS,
+  LEGAL_COMPANY_NAME,
+  LEGAL_COMPANY_NUMBER,
+} from '../company.js';
 
 export const siteName = 'Kali';
-export { LEGAL_COMPANY_NAME, localeMeta, supportedLocales };
+export {
+  LEGAL_COMPANY_ADDRESS,
+  LEGAL_COMPANY_NAME,
+  LEGAL_COMPANY_NUMBER,
+  localeMeta,
+  supportedLocales,
+};
 
 export const basePages = [
     {
@@ -66,6 +76,51 @@ export const basePages = [
       faq: [['Is there a free trial?', 'The workspace presents trial benefits for eligible accounts and features. Exact availability is shown when you sign in.'], ['Where can I see current pricing?', 'Current plan details, quotas, and purchase options are shown in the billing area of the workspace.'], ['Do all creation types use the same quota?', 'Different production capabilities may use different plan allowances. Review the current billing page before starting a large batch.']],
     },
     {
+      slug: 'terms-of-service',
+      title: 'Kali Terms of Service',
+      description: 'Read the terms governing Kali accounts, AI services, credits, acceptable use, content rights, liability, and dispute resolution.',
+      eyebrow: 'TERMS OF SERVICE',
+      headline: 'The rules that apply when you use Kali',
+      lead: `These Terms form an agreement between you and ${LEGAL_COMPANY_NAME}, Hong Kong company number ${LEGAL_COMPANY_NUMBER}. By creating an account, purchasing credits, or using Kali, you agree to these Terms.`,
+      bullets: ['Use the service only with materials you are authorized to use', 'Review AI-generated results before publishing them', 'Hong Kong law governs these Terms, subject to mandatory consumer rights'],
+      sections: [
+        ['Service provider and address', `${LEGAL_COMPANY_NAME}, Hong Kong company number ${LEGAL_COMPANY_NUMBER}, provides Kali. Company address: ${LEGAL_COMPANY_ADDRESS}. Send general enquiries and legal notices to feedback@xyaip.fun.`],
+        ['Accounts and eligibility', 'You must provide accurate account information, keep your credentials secure, and be legally capable of entering into these Terms. If you use Kali for an organization, you confirm that you have authority to bind that organization.'],
+        ['Services and changes', 'Kali provides AI-assisted content, image, music, voice, digital-human, video, asset, and publishing workflows. Features may depend on third-party providers and may change for security, legal, technical, or product reasons.'],
+        ['Acceptable use', 'Do not use Kali for unlawful, fraudulent, deceptive, infringing, abusive, or unauthorized impersonation purposes. You must have sufficient rights and permissions for every prompt, recording, image, likeness, file, and other material you submit.'],
+        ['AI outputs and your responsibility', 'AI outputs may be inaccurate, incomplete, biased, or similar to content generated for others. You must review outputs before use, add required AI disclosures, and independently verify legal, factual, medical, financial, or other high-impact claims.'],
+        ['Content and intellectual property', 'You retain rights you already hold in submitted materials. You grant us and our service providers a limited permission to host, process, reproduce, and transmit those materials only as needed to operate, secure, and improve the requested service. Your rights in outputs depend on applicable law and third-party rights.'],
+        ['Credits, payments, and refunds', 'Prices, currency, taxes, credit quantities, and any recurring terms are shown before purchase. Credits are a contractual right to eligible service usage, have no cash value, and may be subject to stated validity or usage rules. The Payment Policy and Refund Policy form part of these Terms.'],
+        ['Suspension and termination', 'We may restrict or suspend access where reasonably necessary to address security risks, legal requirements, non-payment, abuse, or material breaches. You may stop using Kali at any time and may request account deletion, subject to legal retention obligations.'],
+        ['Disclaimers and liability', 'To the maximum extent permitted by law, the service is provided on an as-available basis without guarantees that every output will be accurate, unique, uninterrupted, or suitable for a particular purpose. Nothing in these Terms excludes liability that cannot lawfully be excluded.'],
+        ['Governing law and disputes', 'These Terms and any non-contractual obligations arising from or connected with them are governed by the laws of the Hong Kong Special Administrative Region, without regard to conflict-of-law rules. Before filing a claim, the parties will try in good faith for 30 days to resolve the dispute after written notice. The courts of Hong Kong have non-exclusive jurisdiction. This does not deprive consumers of non-waivable rights under the laws of their habitual residence or prevent a party from seeking urgent injunctive relief.'],
+        ['Contact and changes', 'We may update these Terms when the service or legal requirements change. Material changes will be communicated through the service or another reasonable channel. Questions and legal notices may be sent to feedback@xyaip.fun.'],
+      ],
+      faq: [['Which company provides Kali?', `${LEGAL_COMPANY_NAME}, Hong Kong company number ${LEGAL_COMPANY_NUMBER}, provides the service.`], ['Which law governs these Terms?', 'The laws of the Hong Kong Special Administrative Region govern these Terms, subject to mandatory rights that applicable consumer law does not allow you to waive.'], ['Where can I find payment and refund rules?', 'The Payment Policy and Refund Policy are linked in the site footer and form part of these Terms.']],
+    },
+    {
+      slug: 'privacy-policy',
+      title: 'Kali Privacy Policy',
+      description: 'Learn what personal data Kali processes, why it is used, who receives it, how long it is retained, and how to exercise your rights.',
+      eyebrow: 'PRIVACY POLICY',
+      headline: 'How Kali handles personal data',
+      lead: `${LEGAL_COMPANY_NAME} is responsible for the personal data described in this Policy. We apply this Policy together with applicable privacy law, including Hong Kong’s Personal Data (Privacy) Ordinance where it applies.`,
+      bullets: ['We process data needed to provide and secure the service', 'Voice and likeness data receive separate, explicit authorization', 'You can request access, correction, deletion, or withdrawal of consent'],
+      sections: [
+        ['Company and privacy contact', `${LEGAL_COMPANY_NAME}, Hong Kong company number ${LEGAL_COMPANY_NUMBER}, is the service provider and data controller. Company address: ${LEGAL_COMPANY_ADDRESS}. Send privacy requests to privacy@xyaip.fun.`],
+        ['Data we process', 'Depending on the features you use, we may process account and contact details, payment and transaction references, prompts, uploads, generated content, project records, support messages, device information, usage logs, and security events. Voiceprints, facial features, and likeness materials may be sensitive personal data.'],
+        ['Purposes and legal bases', 'We process data to create and manage accounts, provide requested AI and production services, process payments, deliver support, protect users and the service, comply with law, and improve reliability. Depending on the context, processing is based on contract, consent, legitimate interests, or legal obligations.'],
+        ['Service providers and international transfers', 'We use providers for hosting, storage, AI processing, payments, communications, analytics, and security. They receive only data reasonably needed for their role and are subject to appropriate contractual safeguards. Data may be processed outside your country; where required, we use applicable transfer safeguards and obtain required consent.'],
+        ['Retention and security', 'We keep personal data only for as long as reasonably needed for the stated purposes, legal obligations, dispute resolution, and security. We use access controls, encryption where appropriate, logging, and other organizational and technical safeguards, but no system can guarantee absolute security.'],
+        ['Your rights', 'Subject to applicable law, you may request access, correction, deletion, restriction, portability, or objection, and may withdraw consent without affecting earlier lawful processing. You may also complain to the relevant data-protection authority. We may verify your identity before completing a request.'],
+        ['Voice, face, and likeness data', 'Where a feature processes voiceprints, facial features, or likeness materials, we present a separate authorization at the point of collection. You must not submit another person’s sensitive data unless you have sufficient, provable authority.'],
+        ['Cookies and device storage', 'We may use cookies or similar storage for authentication, security, preferences, attribution, and essential service operation. Where required, optional technologies are used only after the relevant choice or consent.'],
+        ['Children', 'Kali is not directed to children who cannot lawfully consent to the service or data processing in their jurisdiction. A parent or legal guardian must provide any consent required by applicable law.'],
+        ['Policy changes and governing law', 'We may update this Policy and will communicate material changes through the service or another reasonable channel. This Policy is governed by the laws of the Hong Kong Special Administrative Region, without limiting any mandatory privacy rights or remedies available where you live.'],
+      ],
+      faq: [['How do I make a privacy request?', 'Email privacy@xyaip.fun with your account identifier and the specific right you want to exercise. Do not send a password or verification code.'], ['Does Kali sell personal data?', 'Kali does not sell personal data to unrelated third parties.'], ['Can I withdraw voice or likeness authorization?', 'Yes. Contact privacy@xyaip.fun or use an available deletion control. Withdrawal stops future consent-based processing but does not invalidate processing completed before withdrawal.']],
+    },
+    {
       slug: 'payment-policy',
       title: 'Kali Payment Policy',
       description: 'Understand prices, currencies, taxes, payment processing, plan activation, credits, and recurring charges for Kali purchases.',
@@ -78,6 +133,8 @@ export const basePages = [
         ['Payment processing', 'Payments may be processed by authorized third-party payment providers. Kali does not require you to send passwords, verification codes, or complete card details by email or support message.'],
         ['Plan and credit activation', 'A plan, credit package, or paid capability becomes available after successful payment confirmation. Usage is deducted according to the rules shown in the workspace and at purchase.'],
         ['Renewals and cancellation', 'If a purchase renews automatically, the renewal period, amount, and cancellation method will be disclosed before payment. Cancelling a future renewal does not automatically refund an earlier charge.'],
+        ['Service provider and address', `${LEGAL_COMPANY_NAME}, Hong Kong company number ${LEGAL_COMPANY_NUMBER}, provides the service. Company address: ${LEGAL_COMPANY_ADDRESS}. Billing questions and legal notices may be sent to feedback@xyaip.fun.`],
+        ['Governing law and disputes', 'This Policy is governed by the laws of the Hong Kong Special Administrative Region. The courts of Hong Kong have non-exclusive jurisdiction after the parties try in good faith for 30 days to resolve a dispute following written notice. This does not limit mandatory consumer rights under the laws of your habitual residence.'],
       ],
       faq: [['When is my plan activated?', 'Eligible plans and credits are normally activated after the payment provider confirms a successful charge.'], ['Will Kali renew my plan automatically?', 'Only purchases clearly marked as recurring at checkout renew automatically. One-time purchases do not become recurring without disclosure.'], ['What should I do if a charge looks incorrect?', 'Do not start a chargeback immediately. Contact feedback@xyaip.fun with your account email, order reference, charge date, amount, and a description of the issue.']],
     },
@@ -94,6 +151,8 @@ export const basePages = [
         ['Normally non-refundable items', 'Consumed credits, completed generation tasks, downloaded or delivered digital results, third-party costs already incurred, and accounts restricted for policy violations are normally non-refundable unless applicable law requires otherwise.'],
         ['How to request a refund', 'Email feedback@xyaip.fun with the account email, order or payment reference, purchase date, amount, reason, and relevant evidence. Never include passwords, verification codes, or complete payment-card details.'],
         ['Review and payment timing', 'We will confirm receipt and review the request against usage and payment records. Approved refunds return to the original payment method when possible; final arrival time depends on the payment provider and financial institution.'],
+        ['Service provider and address', `${LEGAL_COMPANY_NAME}, Hong Kong company number ${LEGAL_COMPANY_NUMBER}, provides the service. Company address: ${LEGAL_COMPANY_ADDRESS}. Refund requests and legal notices may be sent to feedback@xyaip.fun.`],
+        ['Governing law and consumer rights', 'This Policy is governed by the laws of the Hong Kong Special Administrative Region. The courts of Hong Kong have non-exclusive jurisdiction after the parties try in good faith for 30 days to resolve a dispute following written notice. Nothing in this Policy removes a refund, cancellation, or other remedy that applicable law does not allow you to waive.'],
       ],
       faq: [['Does cancelling a subscription create a refund?', 'Cancellation stops a future renewal when completed before the next billing date. It does not automatically refund the current billing period.'], ['Can used credits be refunded?', 'Credits already consumed by generation or processing tasks are normally non-refundable because the underlying service cost has already been incurred.'], ['How long does a refund take?', 'Review time depends on the request and available records. After approval, the payment provider or bank controls the final settlement time.']],
     },
@@ -105,7 +164,7 @@ export const basePages = [
       headline: 'A connected production workspace for modern content teams',
       lead: 'Kali is focused on turning fragmented AI tools into a repeatable content-production system for global creators and teams.',
       bullets: ['One workflow from discovery to publishing', 'Reusable team assets and production presets', 'Built for multilingual, multi-market content operations'],
-      sections: [['Why we built it', 'Content teams often move ideas, scripts, media, and task status across disconnected tools. Kali brings those steps into one operational workspace.'], ['What we prioritize', 'Clear workflows, reusable assets, visible task status, and explicit authorization for sensitive voice and likeness data.'], ['Who it is for', 'Creators and teams producing recurring short-form video, digital-human content, social campaigns, and localized media.']],
+      sections: [['Why we built it', 'Content teams often move ideas, scripts, media, and task status across disconnected tools. Kali brings those steps into one operational workspace.'], ['What we prioritize', 'Clear workflows, reusable assets, visible task status, and explicit authorization for sensitive voice and likeness data.'], ['Who it is for', 'Creators and teams producing recurring short-form video, digital-human content, social campaigns, and localized media.'], ['Company information', `${LEGAL_COMPANY_NAME}, Hong Kong company number ${LEGAL_COMPANY_NUMBER}, maintains Kali. Company address: ${LEGAL_COMPANY_ADDRESS}.`]],
       faq: [['Is Kali the same as Yixiu?', 'Kali is the international-facing product brand. Yixiu refers to the underlying product lineage and system used during its development.'], ['Who maintains the service?', 'Jade Rouge Enterprises Limited maintains the service.'], ['How can I contact the team?', 'Use the contact page for product feedback, business enquiries, and privacy requests.']],
     },
     {
@@ -115,8 +174,8 @@ export const basePages = [
       eyebrow: 'CONTACT',
       headline: 'Reach the right team without going through a support maze',
       lead: 'Use the appropriate mailbox below and include enough context for the team to identify your account, task, or request.',
-      bullets: ['Product feedback: feedback@xyaip.fun', 'Privacy, deletion, and consent withdrawal: privacy@xyaip.fun', 'Do not send passwords or verification codes'],
-      sections: [['Product and business', 'Send product feedback, partnership questions, and general enquiries to feedback@xyaip.fun.'], ['Privacy requests', 'Send access, correction, deletion, account cancellation, and consent-withdrawal requests to privacy@xyaip.fun.'], ['What to include', 'Provide the relevant account identifier, task time, feature name, and a concise description. Never include your password or one-time verification code.']],
+      bullets: ['Product feedback: feedback@xyaip.fun', 'Privacy, deletion, and consent withdrawal: privacy@xyaip.fun', `Company address: ${LEGAL_COMPANY_ADDRESS}`],
+      sections: [['Company information', `${LEGAL_COMPANY_NAME}, Hong Kong company number ${LEGAL_COMPANY_NUMBER}, provides Kali. Company address: ${LEGAL_COMPANY_ADDRESS}.`], ['Product and business', 'Send product feedback, partnership questions, legal notices, and general enquiries to feedback@xyaip.fun.'], ['Privacy requests', 'Send access, correction, deletion, account cancellation, and consent-withdrawal requests to privacy@xyaip.fun.'], ['What to include', 'Provide the relevant account identifier, task time, feature name, and a concise description. Never include your password or one-time verification code.']],
       faq: [['Which address handles privacy requests?', 'Use privacy@xyaip.fun for personal-information rights, deletion, account cancellation, and withdrawal of authorization.'], ['How should I report a production problem?', 'Include the approximate time, feature, task identifier if available, and what you expected to happen.'], ['Will the team ask for my password?', 'No. Do not send passwords, verification codes, or other authentication secrets.']],
     },
   ...helpPages,

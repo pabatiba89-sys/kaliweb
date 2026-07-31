@@ -1776,5 +1776,18 @@
   "不能填写自己的邀请码": "Et voi syöttää omaa kutsukoodiasi",
   "请输入邀请码": "Syötä kutsukoodisi",
   "本服务由 Jade Rouge Enterprises Limited 提供。登录、注册或使用服务前，请完整阅读并理解协议；不同意时请停止注册或使用。": "Tämän palvelun tarjoaa Jade Rouge Enterprises Limited. Ennen kirjautumista, rekisteröitymistä tai palvelun käyttöä lue ja ymmärrä sopimus kokonaisuudessaan; Jos et ole samaa mieltä, lopeta rekisteröityminen tai palvelun käyttö.",
-  "平台可因产品、安全或合规需要调整服务。法律适用、争议解决与详细责任以本页面展示的协议内容及适用法律为准。": "Alusta voi mukauttaa palveluita tuotteiden, tietoturvan tai vaatimustenmukaisuuden tarpeiden mukaan. Sovellettava laki, riidanratkaisu ja yksityiskohtainen vastuu ovat sopimuksen sisällön ja tällä sivulla esitettyjen lakien alaisia."
+  "平台可因产品、安全或合规需要调整服务。法律适用、争议解决与详细责任以本页面展示的协议内容及适用法律为准。": "Alusta voi mukauttaa palveluita tuotteiden, tietoturvan tai vaatimustenmukaisuuden tarpeiden mukaan. Sovellettava laki, riidanratkaisu ja yksityiskohtainen vastuu ovat sopimuksen sisällön ja tällä sivulla esitettyjen lakien alaisia.",
+  "。一般业务及法律通知请发送至 feedback@xyaip.fun；个人信息权利请求请发送至 privacy@xyaip.fun。": "。 Yleiset liiketoiminta- ja oikeudelliset ilmoitukset tulee lähettää feedback@xyaip.fun; Henkilötietopyyntöjä varten lähetä ne privacy@xyaip.fun.",
+  "· 公司地址：": "· Yrityksen osoite:",
+  "（香港公司编号": "(Hongkongin yrityksen numero",
+  "）提供。公司地址：": ") tarjottu. Yrityksen osoite:",
+  "ADDRESS": "OSOITE",
+  "COMPANY": "YHTIÖ",
+  "COMPANY NO.": "YRITYS NRO.",
+  "服务提供方与公司地址": "Palveluntarjoaja ja yrityksen osoite",
+  "本文件及因本服务产生或与本服务有关的非合同义务，均受香港特别行政区法律管辖并依其解释，但不适用其法律冲突规则。发生争议时，请先发送书面通知并与我们诚信协商 30 日；协商未果的，双方同意接受香港特别行政区法院的非专属管辖。本条不影响消费者依据其通常居住地适用法律享有的不可放弃权利，也不妨碍任何一方申请紧急禁令或其他保全措施。": "Tämä asiakirja ja kaikki ei-sopimusvelvoitteet, jotka liittyvät tähän palveluun, säätelevät ja tulkitaan Hongkongin erityishallintoalueen lakien mukaan, mutta niiden oikeusristiriitasäännöt eivät ole sovellettavissa. Riitojen sattuessa lähetä ensin kirjallinen ilmoitus ja neuvottele kanssamme hyvässä uskossa 30 päivän ajan; Jos neuvottelut epäonnistuvat, molemmat osapuolet sopivat hyväksyvänsä Hongkongin erityishallintoalueen tuomioistuinten ei-yksinomaisen toimivallan. Tämä säännös ei vaikuta kuluttajien luovuttamattomiin oikeuksiin heidän tavanomaisen asuinpaikkansa sovellettavien lakien nojalla, eikä se estä kumpaakaan osapuolta hakemasta hätäkieltoa tai muuta säilytystoimenpidettä.",
+  "本服务由": "Tämän palvelun tarjoaa",
+  "适用法律与争议解决": "Lainsäädäntö ja riitojen ratkaisu",
+  "香港公司编号": "Hongkongin yrityksen numero",
+  "本服务由 Jade Rouge Enterprises Limited（香港公司编号 2799865）提供。公司地址：Hong Kong Special Administrative Region, People’s Republic of China。一般业务及法律通知请发送至 feedback@xyaip.fun；个人信息权利请求请发送至 privacy@xyaip.fun。": "Tämän palvelun tarjoaa Jade Rouge Enterprises Limited (Hongkongin yritysnumero 2799865). Yrityksen osoite: Hongkongin erityishallintoalue, Kiinan kansantasavalta. Yleiset liiketoiminta- ja oikeudelliset ilmoitukset tulee lähettää feedback@xyaip.fun; Henkilötietopyyntöjä varten lähetä ne privacy@xyaip.fun."
 }

@@ -198,10 +198,51 @@ const helpRows = {
   },
 };
 
+const legalSiteOverrides = {
+  'zh-cn': {
+    Legal: '法律与合规',
+    'Terms of service': '服务条款',
+    'Privacy policy': '隐私政策',
+    'Service provider and address': '服务提供方与地址',
+    'Company and privacy contact': '公司与隐私联系方式',
+    'Credits, payments, and refunds': '积分、支付与退款',
+    'Suspension and termination': '暂停与终止',
+    'Governing law and disputes': '适用法律与争议解决',
+    'Governing law and consumer rights': '适用法律与消费者权利',
+    'Policy changes and governing law': '政策变更与适用法律',
+    'Service providers and international transfers': '服务提供商与跨境传输',
+    Children: '未成年人',
+    'Contact and changes': '联系与变更',
+    'These Terms and any non-contractual obligations arising from or connected with them are governed by the laws of the Hong Kong Special Administrative Region, without regard to conflict-of-law rules. Before filing a claim, the parties will try in good faith for 30 days to resolve the dispute after written notice. The courts of Hong Kong have non-exclusive jurisdiction. This does not deprive consumers of non-waivable rights under the laws of their habitual residence or prevent a party from seeking urgent injunctive relief.': '本条款以及由本条款产生或与本条款有关的任何非合同义务，均受香港特别行政区法律管辖并依其解释，但不适用法律冲突规则。提出诉请前，双方应在书面通知后诚信协商 30 日。香港法院具有非专属管辖权。本条不剥夺消费者依据其通常居住地法律享有的不可放弃权利，也不妨碍任何一方申请紧急禁令救济。',
+    'This Policy is governed by the laws of the Hong Kong Special Administrative Region. The courts of Hong Kong have non-exclusive jurisdiction after the parties try in good faith for 30 days to resolve a dispute following written notice. This does not limit mandatory consumer rights under the laws of your habitual residence.': '本政策受香港特别行政区法律管辖。双方收到书面争议通知后应先诚信协商 30 日；协商未果的，香港法院具有非专属管辖权。本条不限制消费者依据其通常居住地法律享有的强制性权利。',
+    'This Policy is governed by the laws of the Hong Kong Special Administrative Region. The courts of Hong Kong have non-exclusive jurisdiction after the parties try in good faith for 30 days to resolve a dispute following written notice. Nothing in this Policy removes a refund, cancellation, or other remedy that applicable law does not allow you to waive.': '本政策受香港特别行政区法律管辖。双方收到书面争议通知后应先诚信协商 30 日；协商未果的，香港法院具有非专属管辖权。本政策不排除适用法律不允许消费者放弃的退款、取消或其他救济。',
+    'We may update this Policy and will communicate material changes through the service or another reasonable channel. This Policy is governed by the laws of the Hong Kong Special Administrative Region, without limiting any mandatory privacy rights or remedies available where you live.': '我们可能更新本政策，并通过服务内通知或其他合理渠道告知重大变更。本政策受香港特别行政区法律管辖，但不限制你在居住地依法享有的强制性隐私权利或救济。',
+  },
+  'zh-tw': {
+    Legal: '法律與合規',
+    'Terms of service': '服務條款',
+    'Privacy policy': '私隱政策',
+    'Service provider and address': '服務提供方與地址',
+    'Company and privacy contact': '公司與私隱聯絡方式',
+    'Credits, payments, and refunds': '積分、付款與退款',
+    'Suspension and termination': '暫停與終止',
+    'Governing law and disputes': '適用法律與爭議解決',
+    'Governing law and consumer rights': '適用法律與消費者權利',
+    'Policy changes and governing law': '政策變更與適用法律',
+    'Service providers and international transfers': '服務供應商與跨境傳輸',
+    Children: '未成年人',
+    'Contact and changes': '聯絡與變更',
+    'These Terms and any non-contractual obligations arising from or connected with them are governed by the laws of the Hong Kong Special Administrative Region, without regard to conflict-of-law rules. Before filing a claim, the parties will try in good faith for 30 days to resolve the dispute after written notice. The courts of Hong Kong have non-exclusive jurisdiction. This does not deprive consumers of non-waivable rights under the laws of their habitual residence or prevent a party from seeking urgent injunctive relief.': '本條款以及由本條款產生或與本條款有關的任何非合約義務，均受香港特別行政區法律管轄並依其解釋，但不適用法律衝突規則。提出申索前，雙方應在書面通知後真誠協商 30 日。香港法院具有非專屬管轄權。本條不剝奪消費者依其通常居住地法律享有的不可放棄權利，也不妨礙任何一方申請緊急禁制令濟助。',
+    'This Policy is governed by the laws of the Hong Kong Special Administrative Region. The courts of Hong Kong have non-exclusive jurisdiction after the parties try in good faith for 30 days to resolve a dispute following written notice. This does not limit mandatory consumer rights under the laws of your habitual residence.': '本政策受香港特別行政區法律管轄。雙方收到書面爭議通知後應先真誠協商 30 日；協商未果的，香港法院具有非專屬管轄權。本條不限制消費者依其通常居住地法律享有的強制性權利。',
+    'This Policy is governed by the laws of the Hong Kong Special Administrative Region. The courts of Hong Kong have non-exclusive jurisdiction after the parties try in good faith for 30 days to resolve a dispute following written notice. Nothing in this Policy removes a refund, cancellation, or other remedy that applicable law does not allow you to waive.': '本政策受香港特別行政區法律管轄。雙方收到書面爭議通知後應先真誠協商 30 日；協商未果的，香港法院具有非專屬管轄權。本政策不排除適用法律不允許消費者放棄的退款、取消或其他濟助。',
+    'We may update this Policy and will communicate material changes through the service or another reasonable channel. This Policy is governed by the laws of the Hong Kong Special Administrative Region, without limiting any mandatory privacy rights or remedies available where you live.': '我們可能更新本政策，並透過服務內通知或其他合理渠道告知重大變更。本政策受香港特別行政區法律管轄，但不限制你在居住地依法享有的強制性私隱權利或濟助。',
+  },
+};
+
 export const siteLocalizationOverrides = Object.fromEntries(Object.keys(siteRows).map((locale) => {
   const cta = Object.fromEntries(siteKeys.map((key, index) => [key, siteRows[locale][index]]));
   const marketing = Object.fromEntries(marketingKeys.map((key, index) => [key, marketingRows[locale][index]]));
-  return [locale, { ...cta, ...marketing, ...(helpRows[locale] || {}) }];
+  return [locale, { ...cta, ...marketing, ...(helpRows[locale] || {}), ...(legalSiteOverrides[locale] || {}) }];
 }));
 
 const actionKeys = ['Cancel', 'Close', 'Delete', 'Upload', 'Refresh', 'Load more', 'Download', 'Save', 'Edit', 'Publish', 'Retry', 'Back', 'Loading', 'Success', 'Failed', 'Processing', 'Draft', 'Ready'];

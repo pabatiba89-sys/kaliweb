@@ -72,10 +72,10 @@ const navigation = {
 export const publicUiStrings = [
   ...Object.values(navigation),
   'Skip to content', 'Primary navigation', 'Content production workspace',
-  'From trend discovery to publish-ready media.', 'Product', 'Company', 'Workspace',
+  'From trend discovery to publish-ready media.', 'Product', 'Company', 'Workspace', 'Legal',
   'AI video', 'Digital humans', 'Voice cloning', 'AI music', 'Product feedback',
   'Open Kali', 'Help center', 'Privacy requests', 'Kali · Yixiu',
-  'Payment policy', 'Refund policy',
+  'Terms of service', 'Privacy policy', 'Payment policy', 'Refund policy',
   'Open the workspace', 'See the production flow', 'Product capabilities',
   'Trend discovery', 'Script generation', 'Digital humans', 'Voice cloning', 'AI music', 'Video publishing',
   'CONNECTED STUDIOS', 'Explore', 'THE WORKFLOW', 'Keep every decision connected from first insight to final publish',

@@ -54,7 +54,11 @@ import {
   Video,
   X,
 } from 'lucide-react';
-import { LEGAL_COMPANY_NAME } from './company.js';
+import {
+  LEGAL_COMPANY_ADDRESS,
+  LEGAL_COMPANY_NAME,
+  LEGAL_COMPANY_NUMBER,
+} from './company.js';
 import {
   apiFetch,
   bindInviteCode,
@@ -282,6 +286,8 @@ const legalDocuments = {
     ],
   },
 };
+
+const legalProviderNotice = '本服务由 Jade Rouge Enterprises Limited（香港公司编号 2799865）提供。公司地址：Hong Kong Special Administrative Region, People’s Republic of China。一般业务及法律通知请发送至 feedback@xyaip.fun；个人信息权利请求请发送至 privacy@xyaip.fun。';
 
 const agreementCards = [
   ['legal-user', '账号与服务', '登录、注册、账号与服务使用规则'],
@@ -9252,6 +9258,14 @@ function LegalDocumentPage({ document, onOpen }) {
           {document.sections.map(([heading, text]) => (
             <section key={heading}><h2>{heading}</h2><p>{text}</p></section>
           ))}
+          <section>
+            <h2>服务提供方与公司地址</h2>
+            <p>{legalProviderNotice}</p>
+          </section>
+          <section>
+            <h2>适用法律与争议解决</h2>
+            <p>本文件及因本服务产生或与本服务有关的非合同义务，均受香港特别行政区法律管辖并依其解释，但不适用其法律冲突规则。发生争议时，请先发送书面通知并与我们诚信协商 30 日；协商未果的，双方同意接受香港特别行政区法院的非专属管辖。本条不影响消费者依据其通常居住地适用法律享有的不可放弃权利，也不妨碍任何一方申请紧急禁令或其他保全措施。</p>
+          </section>
           <div className="legal-contact-line">
             <Mail size={18} />
             <span>如需行使个人信息权利或撤回授权，请联系 <a href="mailto:privacy@xyaip.fun">privacy@xyaip.fun</a></span>
@@ -9284,6 +9298,9 @@ function AboutPage({ onOpen }) {
         <div><span>PRODUCT</span><strong>Kali · Yixiu</strong></div>
         <div><span>FOCUS</span><strong>AI Content Production</strong></div>
         <div><span>WORKFLOW</span><strong>Discover · Create · Publish</strong></div>
+        <div><span>COMPANY</span><strong>{LEGAL_COMPANY_NAME}</strong></div>
+        <div><span>COMPANY NO.</span><strong>{LEGAL_COMPANY_NUMBER}</strong></div>
+        <div><span>ADDRESS</span><strong>{LEGAL_COMPANY_ADDRESS}</strong></div>
       </section>
     </div>
   );
@@ -9311,6 +9328,10 @@ function ContactPage({ onOpen }) {
         <div><span>01</span><p>账号所用邮箱（不要发送密码或登录令牌）</p></div>
         <div><span>02</span><p>问题发生时间、功能页面和可复现步骤</p></div>
         <div><span>03</span><p>需要删除或撤回授权时，说明对应资产类型与任务标识</p></div>
+      </section>
+      <section className="legal-review-note">
+        <Globe2 size={20} />
+        <div><strong>{LEGAL_COMPANY_NAME}</strong><p>香港公司编号 {LEGAL_COMPANY_NUMBER} · 公司地址：{LEGAL_COMPANY_ADDRESS}</p></div>
       </section>
     </div>
   );
@@ -9363,7 +9384,7 @@ function SiteFooter({ onOpen }) {
         <div><strong>专项授权</strong><button onClick={() => onOpen('legal-voice')}>声纹授权</button><button onClick={() => onOpen('legal-avatar')}>数字人形象授权</button><button onClick={() => onOpen('legal-image')}>形象信息采集</button></div>
         <div><strong>支持</strong><button onClick={() => onOpen('info-contact')}>联系我们</button><a href="mailto:feedback@xyaip.fun">feedback@xyaip.fun</a><a href="mailto:privacy@xyaip.fun">privacy@xyaip.fun</a></div>
       </div>
-      <div className="site-footer__bottom"><span>© 2026 {LEGAL_COMPANY_NAME}</span><span>Kali · Yixiu</span></div>
+      <div className="site-footer__bottom"><span>© 2026 {LEGAL_COMPANY_NAME}</span><span>{LEGAL_COMPANY_ADDRESS}</span><span>Kali · Yixiu</span></div>
     </footer>
   );
 }
