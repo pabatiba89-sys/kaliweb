@@ -5919,7 +5919,6 @@ const EVONET_APPEARANCE = {
   colorPlaceholder: '#82958F',
   colorPrimary: '#17342F',
   colorSecondary: '#6A7F79',
-  borderRadius: [16, 16, 12, 12],
 };
 let evonetDropInPromise = null;
 const loadEvonetDropIn = () => {

@@ -157,4 +157,4 @@
 - 2026-07-30：网站中作为服务提供方、运营主体、结构化数据组织名或版权主体出现的公司名称统一使用 `Jade Rouge Enterprises Limited`；品牌名仍按既有规则使用中文“喀理”或其他语言 `Kali`，产品名仍使用“亿秀”或 `Yixiu`。
 - 2026-07-30：版本递增规则自 `1.5.1` 起生效；后续每次项目更新或发布均只递增最后一段版本号一次，例如 `1.5.1 -> 1.5.2`，使用 `npm run version:patch` 同步更新 `package.json` 与 `package-lock.json`，不自动改动主版本或次版本。
 - 2026-07-31：工作台所有协议详情页统一不展示“查看全文”或“查看正式全文”入口，也不再保留外部正式协议 URL；协议正文必须自洽，不引用已移除的“下方正式全文”。
-- 2026-07-31：Evonet Drop-in 收到 `payment_completed` 后必须立即展示明确的支付成功动效，不等待前端同步接口完成；同时立即刷新积分余额，并因 webhook 发放可能稍晚在短时间内补刷。Drop-in 的 `appearance.colorAction`、选中态、边框和文字色统一使用站点绿色主题。
+- 2026-07-31：Evonet Drop-in 收到 `payment_completed` 后必须立即展示明确的支付成功动效，不等待前端同步接口完成；同时立即刷新积分余额，并因 webhook 发放可能稍晚在短时间内补刷。Drop-in 的 `appearance.colorAction`、选中态、边框和文字色统一使用站点绿色主题；当前 SDK 会拒绝数组格式的 `appearance.borderRadius`，不要传该可选字段。
