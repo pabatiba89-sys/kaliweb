@@ -5906,6 +5906,21 @@ const creditUsageRules = [
 ];
 const getBillingResult = (results, label) => results.find((result) => result.endpoint.label === label) || {};
 const EVONET_DROPIN_CDN = 'https://cdn.jsdelivr.net/npm/cil-dropin-components@latest/dist/index.min.js';
+const EVONET_APPEARANCE = {
+  colorAction: '#00A884',
+  colorBackground: '#FFFFFF',
+  colorBoxStroke: '#DCE9E4',
+  colorDisabled: '#B8CAC4',
+  colorError: '#C84036',
+  colorFormBackground: '#F8FCFA',
+  colorFormBorder: '#CFE2DC',
+  colorInverse: '#FFFFFF',
+  colorBoxFillingOutline: '#00A884',
+  colorPlaceholder: '#82958F',
+  colorPrimary: '#17342F',
+  colorSecondary: '#6A7F79',
+  borderRadius: [16, 16, 12, 12],
+};
 let evonetDropInPromise = null;
 const loadEvonetDropIn = () => {
   if (window.DropInSDK) return Promise.resolve(window.DropInSDK);
@@ -5957,16 +5972,19 @@ const evonetPaymentMessage = (event = {}) => {
 function EvonetPaymentModal({ checkout, language, onClose, onEvent }) {
   const containerId = 'evonet-dropin-app';
   const [status, setStatus] = useState({ tone: 'loading', text: 'Loading secure checkout...' });
+  const paymentCompletedRef = useRef(false);
 
   useEffect(() => {
     let disposed = false;
     let sdk = null;
 
-    const handleEvent = async (event) => {
+    const handleEvent = (event) => {
       if (disposed) return;
+      if (event.type === 'payment_completed' && paymentCompletedRef.current) return;
+      if (event.type === 'payment_completed') paymentCompletedRef.current = true;
       const tone = event.type === 'payment_completed' ? 'success' : event.type === 'payment_cancelled' ? 'idle' : 'error';
       setStatus({ tone, text: evonetPaymentMessage(event) });
-      await onEvent(event);
+      void onEvent(event);
     };
 
     loadEvonetDropIn()
@@ -5980,7 +5998,7 @@ function EvonetPaymentModal({ checkout, language, onClose, onEvent }) {
           locale: language,
           mode: 'embedded',
           environment: checkout.session.environment || 'UAT',
-          appearance: { colorBackground: '#ffffff' },
+          appearance: EVONET_APPEARANCE,
           payment_completed: (event) => handleEvent(event),
           payment_failed: (event) => handleEvent(event),
           payment_not_preformed: (event) => handleEvent(event),
@@ -6018,6 +6036,62 @@ function EvonetPaymentModal({ checkout, language, onClose, onEvent }) {
           <span>{status.text}</span>
         </div>
         <div id={containerId} className="payment-dropin-container" />
+      </section>
+    </div>
+  );
+}
+
+function PaymentSuccessModal({
+  success,
+  language,
+  credits,
+  refreshing,
+  onRefresh,
+  onClose,
+}) {
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
+  const balanceUpdated = success.previousBalance !== null
+    && credits !== null
+    && credits > success.previousBalance;
+
+  return (
+    <div className="payment-modal-backdrop payment-success-backdrop" role="presentation">
+      <section
+        className="payment-success-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="payment-success-title"
+        aria-live="assertive"
+      >
+        <div className="payment-success-icon" aria-hidden="true">
+          <span><Check size={38} strokeWidth={3} /></span>
+          <i />
+        </div>
+        <span className="payment-success-eyebrow">One-time payment</span>
+        <h2 id="payment-success-title">Payment successful. Your credits will update after confirmation.</h2>
+        <div className="payment-success-purchase">
+          <span>{success.plan.title}</span>
+          <strong>{success.plan.creditsText}</strong>
+        </div>
+        <div className={`payment-success-balance${balanceUpdated ? ' is-updated' : ''}`}>
+          {refreshing ? <RefreshCw size={18} className="is-spinning" /> : <Coins size={18} />}
+          <span>{refreshing ? 'Refreshing' : 'Available credits'}</span>
+          {!refreshing && credits !== null && <strong>{formatCreditNumber(credits, language)}</strong>}
+        </div>
+        <div className="payment-success-actions">
+          <button type="button" className="outline-button" onClick={onRefresh} disabled={refreshing}>
+            <RefreshCw size={16} className={refreshing ? 'is-spinning' : ''} />
+            Refresh
+          </button>
+          <button type="button" className="primary-button" onClick={onClose}>Close</button>
+        </div>
       </section>
     </div>
   );
@@ -6086,6 +6160,9 @@ function OverseasBillingPage({ language, authVersion }) {
   const [activeTab, setActiveTab] = useState('purchase');
   const [checkout, setCheckout] = useState(null);
   const [miniProgramPlan, setMiniProgramPlan] = useState(null);
+  const [paymentSuccess, setPaymentSuccess] = useState(null);
+  const [paymentRefreshing, setPaymentRefreshing] = useState(false);
+  const [billingRefreshVersion, setBillingRefreshVersion] = useState(0);
   const [paymentMessage, setPaymentMessage] = useState('');
   const [paymentError, setPaymentError] = useState('');
   const [startingPlanId, setStartingPlanId] = useState('');
@@ -6098,9 +6175,10 @@ function OverseasBillingPage({ language, authVersion }) {
   const [recordDetail, setRecordDetail] = useState(null);
   const [refundRequest, setRefundRequest] = useState(null);
   const recordDetailRequestRef = useRef(0);
-  const { loading, results } = useEndpointGroup(billingBaseConfig, authVersion);
-  const paymentHistory = useBillingHistory('/api/pay/orders', paymentPage, paymentParams, authVersion);
-  const consumptionHistory = useBillingHistory('/api/plan/points-records', consumptionPage, consumptionParams, authVersion);
+  const billingDataVersion = `${authVersion}:${billingRefreshVersion}`;
+  const { loading, results } = useEndpointGroup(billingBaseConfig, billingDataVersion);
+  const paymentHistory = useBillingHistory('/api/pay/orders', paymentPage, paymentParams, billingDataVersion);
+  const consumptionHistory = useBillingHistory('/api/plan/points-records', consumptionPage, consumptionParams, billingDataVersion);
   const currentResult = getBillingResult(results, 'Credit balance');
   const planResult = getBillingResult(results, 'Credit packages');
   const currentPlan = findBillingPlan(currentResult);
@@ -6119,6 +6197,27 @@ function OverseasBillingPage({ language, authVersion }) {
   const creditUsagePercent = creditSummary.granted > 0
     ? Math.min(Math.max((creditSummary.consumed / creditSummary.granted) * 100, 0), 100)
     : 0;
+  useEffect(() => {
+    if (!paymentSuccess) return undefined;
+    setPaymentRefreshing(true);
+    const refreshTimers = [0, 1200, 3000, 6000].map((delay) => window.setTimeout(() => {
+      setBillingRefreshVersion((value) => value + 1);
+    }, delay));
+    const finishTimer = window.setTimeout(() => setPaymentRefreshing(false), 7500);
+    return () => {
+      refreshTimers.forEach((timer) => window.clearTimeout(timer));
+      window.clearTimeout(finishTimer);
+    };
+  }, [paymentSuccess]);
+  useEffect(() => {
+    if (
+      paymentSuccess
+      && paymentSuccess.previousBalance !== null
+      && creditSummary.remaining > paymentSuccess.previousBalance
+    ) {
+      setPaymentRefreshing(false);
+    }
+  }, [creditSummary.remaining, paymentSuccess]);
   const updatedText = formatBillingDate(pick(currentPlan.updated_at, currentPlan.updatedAt, currentPlan.purchased_at, currentPlan.purchasedAt, currentPlan.created_at, currentPlan.createdAt), language);
   const message = currentResult.authMissing
     ? 'Sign in to view your credits and purchase orders.'
@@ -6309,17 +6408,28 @@ function OverseasBillingPage({ language, authVersion }) {
   };
   const handlePaymentEvent = useCallback(async (event) => {
     if (!checkout?.session) return;
-    const result = await reportEvonetOneTimePaymentEvent({ session: checkout.session, event });
     const text = evonetPaymentMessage(event);
     if (event.type === 'payment_completed') {
       setPaymentMessage(text);
+      setPaymentError('');
+      setPaymentSuccess({
+        plan: checkout.plan,
+        previousBalance: billingNumber(creditSummary.remaining),
+      });
       setCheckout(null);
-      window.dispatchEvent(new Event('yixiu-auth-change'));
     } else {
       setPaymentError(text);
     }
-    if (!result.ok && !result.authMissing) setPaymentError(result.message || 'Payment result could not be recorded.');
-  }, [checkout]);
+    const result = await reportEvonetOneTimePaymentEvent({ session: checkout.session, event });
+    if (event.type !== 'payment_completed' && !result.ok && !result.authMissing) {
+      setPaymentError(result.message || 'Payment result could not be recorded.');
+    }
+  }, [checkout, creditSummary.remaining]);
+  const refreshPaymentCredits = () => {
+    setPaymentRefreshing(true);
+    setBillingRefreshVersion((value) => value + 1);
+    window.setTimeout(() => setPaymentRefreshing(false), 1400);
+  };
 
   return (
     <div className="billing-page">
@@ -6629,6 +6739,16 @@ function OverseasBillingPage({ language, authVersion }) {
           language={language}
           catalog={localeCatalog}
           onClose={() => setMiniProgramPlan(null)}
+        />
+      )}
+      {paymentSuccess && (
+        <PaymentSuccessModal
+          success={paymentSuccess}
+          language={language}
+          credits={billingNumber(creditSummary.remaining)}
+          refreshing={paymentRefreshing}
+          onRefresh={refreshPaymentCredits}
+          onClose={() => setPaymentSuccess(null)}
         />
       )}
       {recordDetail && (
