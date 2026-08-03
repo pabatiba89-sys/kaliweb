@@ -73,6 +73,17 @@ if (!/<meta name="robots" content="[^"]*noindex/i.test(appHtml)) {
   errors.push('/app/ must remain noindex');
 }
 
+const indexNowKeyFiles = fs.readdirSync(distDir).filter((file) => /^[a-f0-9]{32}\.txt$/.test(file));
+if (indexNowKeyFiles.length !== 1) {
+  errors.push(`expected exactly one IndexNow key file, found ${indexNowKeyFiles.length}`);
+} else {
+  const keyFile = indexNowKeyFiles[0];
+  const key = path.basename(keyFile, '.txt');
+  if (fs.readFileSync(path.join(distDir, keyFile), 'utf8').trim() !== key) {
+    errors.push('IndexNow key file contents must match its filename');
+  }
+}
+
 if (errors.length > 0) {
   console.error(`SEO output check failed:\n- ${errors.join('\n- ')}`);
   process.exit(1);
