@@ -168,3 +168,4 @@
 - 2026-08-03：SEO 索引边界改为可配置白名单，默认仅英文 `en` 进入 sitemap 并输出完整 hreflang；其他语言页保持可访问，但输出 `noindex` 且不进入 sitemap/hreflang，完成母语审校后再通过 `SEO_INDEXABLE_LOCALES` 逐个开放。`x-default` 固定指向同 slug 的默认索引语言；每次构建后自动校验 robots、canonical、hreflang、sitemap 和工作台 `noindex`。正式域名仍必须在部署环境设置 `SITE_URL`。
 - 2026-08-03：用户确认正式域名为 `https://www.kaliai.fun`；Astro 站点、robots、sitemap、canonical、hreflang、JSON-LD 和 Open Graph 默认统一使用该 origin，部署环境仍可通过 `SITE_URL` 覆盖。
 - 2026-08-03：文案生成对话中，返回 HTML 页面或成组 HTML 标签等异常内容时不得原样展示，统一提示用户重新生成；用户消息支持长按回填输入框并提供复制按钮，系统完整回复也提供复制按钮，流式未完成内容不开放复制。
+- 2026-08-03：SEO 主动提交采用两条路径：Google Search Console 管理 `https://www.kaliai.fun/`，Bing 等支持方使用 IndexNow；公开验证文件位于 `public/`，批量提交脚本为 `scripts/submit-indexnow.mjs`。Google `site:kaliai.fun` 当日仍可看到此前已收录的未审校多语言页面，这些页面继续保持 `noindex`，待母语审校后再逐步开放。
