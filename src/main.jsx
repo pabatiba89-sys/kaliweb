@@ -8795,6 +8795,20 @@ const GENERATED_THINKING_MESSAGES = [
   'جارٍ التفكير',
 ];
 
+const GENERATED_CONTENT_UNAVAILABLE_MESSAGE = '生成内容异常，请重新生成。';
+const isGeneratedMarkupFailure = (value) => {
+  const text = textOf(value);
+  if (!text) return false;
+  const markupTags = text.match(/<\/?(?:html|head|body|main|section|article|div|script|style|title|meta|link)\b[^>]*>/gi) || [];
+  const visibleText = text
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/gi, ' ')
+    .trim();
+  return /<!doctype\s+html|<\/?(?:html|body)\b/i.test(text)
+    || (markupTags.length >= 2 && visibleText.length < 24);
+};
+
 function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVideo, onMakeMusic }) {
   const [flow] = useState(() => (useHotTopicFlow ? getPendingFlow() : null));
   const initialPrompt = flow?.prompt || flow?.topic || '';
@@ -8809,13 +8823,21 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
   ]);
   const [loading, setLoading] = useState(false);
   const [thinkingIndex, setThinkingIndex] = useState(0);
+  const [copiedMessageKey, setCopiedMessageKey] = useState('');
   const chatRef = useRef(null);
+  const inputRef = useRef(null);
+  const longPressRef = useRef(null);
+  const copiedTimerRef = useRef(null);
   const streamAbortRef = useRef(null);
   const authed = Boolean(getAccessToken());
   const isThinking = loading && messages.some((message) => message.role === 'pending');
   const thinkingText = GENERATED_THINKING_MESSAGES[thinkingIndex % GENERATED_THINKING_MESSAGES.length];
 
-  useEffect(() => () => streamAbortRef.current?.abort(), []);
+  useEffect(() => () => {
+    streamAbortRef.current?.abort();
+    window.clearTimeout(longPressRef.current?.timer);
+    window.clearTimeout(copiedTimerRef.current);
+  }, []);
   useEffect(() => {
     if (!isThinking) return undefined;
     const timer = window.setInterval(() => {
@@ -8854,6 +8876,7 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
           setMessages(nextMessages.concat({ role: 'assistant', text: partialText, streaming: true }));
         },
       });
+      if (isGeneratedMarkupFailure(reply.text)) throw new Error(GENERATED_CONTENT_UNAVAILABLE_MESSAGE);
       setMessages(nextMessages.concat({ role: 'assistant', text: reply.text, script: reply.script, generated: true }));
     } catch (error) {
       if (error.name !== 'AbortError') {
@@ -8862,6 +8885,68 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
     } finally {
       if (streamAbortRef.current === controller) streamAbortRef.current = null;
       setLoading(false);
+    }
+  };
+  const fillInputFromMessage = (messageText) => {
+    setInput(messageText);
+    window.requestAnimationFrame(() => {
+      const textarea = inputRef.current;
+      if (!textarea) return;
+      textarea.focus();
+      textarea.setSelectionRange(messageText.length, messageText.length);
+    });
+  };
+  const cancelLongPress = () => {
+    window.clearTimeout(longPressRef.current?.timer);
+    longPressRef.current = null;
+  };
+  const startLongPress = (event, messageText) => {
+    if (event.button !== 0) return;
+    cancelLongPress();
+    const startX = event.clientX;
+    const startY = event.clientY;
+    longPressRef.current = {
+      startX,
+      startY,
+      timer: window.setTimeout(() => {
+        fillInputFromMessage(messageText);
+        longPressRef.current = null;
+      }, 550),
+    };
+  };
+  const moveLongPress = (event) => {
+    const press = longPressRef.current;
+    if (!press) return;
+    if (Math.hypot(event.clientX - press.startX, event.clientY - press.startY) > 10) cancelLongPress();
+  };
+  const copyMessage = async (messageText, messageKey) => {
+    try {
+      let copied = false;
+      if (navigator.clipboard?.writeText) {
+        try {
+          await navigator.clipboard.writeText(messageText);
+          copied = true;
+        } catch {
+          copied = false;
+        }
+      }
+      if (!copied) {
+        const textarea = document.createElement('textarea');
+        textarea.value = messageText;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        copied = document.execCommand('copy');
+        textarea.remove();
+      }
+      if (!copied) throw new Error('copy failed');
+      setCopiedMessageKey(messageKey);
+      window.clearTimeout(copiedTimerRef.current);
+      copiedTimerRef.current = window.setTimeout(() => setCopiedMessageKey(''), 1600);
+    } catch {
+      setCopiedMessageKey('');
     }
   };
   const makeVideo = (message, productionType = 'professional') => {
@@ -8918,8 +9003,10 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
         {flow?.topic && <em>热点：{flow.topic}</em>}
       </section>
       <section className="copy-chat" ref={chatRef} aria-live="polite">
-        {messages.map((message, index) => (
-          <article className={`copy-message copy-message--${message.role} ${message.error ? 'is-error' : ''} ${message.streaming ? 'is-streaming' : ''}`} key={`${message.role}-${index}`}>
+        {messages.map((message, index) => {
+          const messageKey = `${message.role}-${index}`;
+          return (
+          <article className={`copy-message copy-message--${message.role} ${message.error ? 'is-error' : ''} ${message.streaming ? 'is-streaming' : ''}`} key={messageKey}>
             <div className="copy-message__speaker">
               <span className="copy-message__speaker-avatar">
                 <b>{message.role === 'user' ? '我' : agentInitials}</b>
@@ -8930,7 +9017,16 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
               {message.role !== 'user' && <small title={agentName}>{agentName}</small>}
             </div>
             <div className="copy-message__content">
-              <p>
+              <p
+                className={message.role === 'user' ? 'is-long-pressable' : ''}
+                title={message.role === 'user' ? '长按填入输入框' : undefined}
+                onPointerDown={message.role === 'user' ? (event) => startLongPress(event, message.text) : undefined}
+                onPointerMove={message.role === 'user' ? moveLongPress : undefined}
+                onPointerUp={message.role === 'user' ? cancelLongPress : undefined}
+                onPointerCancel={message.role === 'user' ? cancelLongPress : undefined}
+                onPointerLeave={message.role === 'user' ? cancelLongPress : undefined}
+                onContextMenu={message.role === 'user' ? (event) => { event.preventDefault(); fillInputFromMessage(message.text); } : undefined}
+              >
                 {message.role === 'pending' ? (
                   <span className="copy-thinking" key={thinkingText} translate="no">
                     <span>{thinkingText}</span>
@@ -8940,9 +9036,13 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
                   <>{message.text}{message.streaming && <i className="copy-stream-cursor" />}</>
                 )}
               </p>
-              {message.generated && !message.error && (
+              {message.role !== 'pending' && !message.streaming && (
                 <div className="copy-message-actions">
-                  {isMusicAgent ? (
+                  <button className="is-copy" onClick={() => copyMessage(message.text, messageKey)}>
+                    {copiedMessageKey === messageKey ? <Check size={16} /> : <Copy size={16} />}
+                    {copiedMessageKey === messageKey ? '已复制' : '复制'}
+                  </button>
+                  {message.generated && !message.error && (isMusicAgent ? (
                     <button className="is-music" onClick={() => makeMusic(message)}><Music2 size={16} />去制作音乐</button>
                   ) : isProAgent ? (
                     <>
@@ -8953,15 +9053,16 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
                     <>
                       <button className="is-pro-broadcast" onClick={() => makeVideo(message)}><GalleryVerticalEnd size={16} />分镜制作</button>
                     </>
-                  )}
+                  ))}
                 </div>
               )}
             </div>
           </article>
-        ))}
+          );
+        })}
       </section>
       <form className="copy-submit" onSubmit={(event) => { event.preventDefault(); generate(); }}>
-        <textarea value={input} onChange={(event) => setInput(event.target.value)} placeholder="输入你想生成的文案需求" />
+        <textarea ref={inputRef} value={input} onChange={(event) => setInput(event.target.value)} placeholder="输入你想生成的文案需求" />
         <button className="primary-button" disabled={loading || !textOf(input)}>
           <Sparkles size={17} />
           {loading ? '生成中' : '发送'}

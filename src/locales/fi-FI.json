@@ -1791,5 +1791,9 @@
   "香港公司编号": "Hongkongin yrityksen numero",
   "本服务由 JADE ROUGE ENTERPRISES LIMITED（香港公司编号 2799865）提供。公司地址：Hong Kong Special Administrative Region, People’s Republic of China。一般业务及法律通知请发送至 feedback@xyaip.fun；个人信息权利请求请发送至 privacy@xyaip.fun。": "Tämän palvelun tarjoaa JADE ROUGE ENTERPRISES LIMITED (Hongkongin yritysnumero 2799865). Yrityksen osoite: Hongkongin erityishallintoalue, Kiinan kansantasavalta. Yleiset liiketoiminta- ja oikeudelliset ilmoitukset tulee lähettää feedback@xyaip.fun; Henkilötietopyyntöjä varten lähetä ne privacy@xyaip.fun.",
   "6. 执法机关与政府请求": "6. Lainvalvontaviranomaiset ja hallituksen pyynnöt",
-  "我们会逐案审查执法机关或政府部门提出的数据请求。只有在请求具有有效法律程序、范围具体明确且符合必要性与比例原则时，才会依法披露相应数据；无效、非正式或过度宽泛的请求可能被拒绝、质疑或要求缩小范围。": "Käymme läpi lainvalvontaviranomaisten tai viranomaisten tietopyynnöt tapauskohtaisesti. Vasta kun pyynnöllä on tehokkaat oikeudelliset menettelyt, selkeä laajuus ja se noudattaa välttämättömyyden ja suhteellisuuden periaatteita, asiaankuuluvat tiedot paljastetaan lain mukaisesti; Virheelliset, epäviralliset tai liian laajat pyynnöt voidaan hylätä, kyseenalaistaa tai pyytää rajattavaksi."
+  "我们会逐案审查执法机关或政府部门提出的数据请求。只有在请求具有有效法律程序、范围具体明确且符合必要性与比例原则时，才会依法披露相应数据；无效、非正式或过度宽泛的请求可能被拒绝、质疑或要求缩小范围。": "Käymme läpi lainvalvontaviranomaisten tai viranomaisten tietopyynnöt tapauskohtaisesti. Vasta kun pyynnöllä on tehokkaat oikeudelliset menettelyt, selkeä laajuus ja se noudattaa välttämättömyyden ja suhteellisuuden periaatteita, asiaankuuluvat tiedot paljastetaan lain mukaisesti; Virheelliset, epäviralliset tai liian laajat pyynnöt voidaan hylätä, kyseenalaistaa tai pyytää rajattavaksi.",
+  "复制": "Kopioi",
+  "已复制": "Kopioitu",
+  "长按填入输入框": "Käytä uudelleen painamalla pitkään",
+  "生成内容异常，请重新生成。": "Luotua sisältöä ei voida näyttää. Yritä uudelleen."
 }

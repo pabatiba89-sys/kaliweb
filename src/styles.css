@@ -4571,6 +4571,13 @@ html[dir="rtl"] .legal-back-button svg {
   box-shadow: 0 8px 20px rgba(24, 62, 53, 0.06);
 }
 
+.copy-message p.is-long-pressable {
+  touch-action: pan-y;
+  -webkit-touch-callout: none;
+  user-select: none;
+  cursor: text;
+}
+
 .copy-message--user {
   justify-self: end;
 }
@@ -4690,6 +4697,18 @@ html[dir="rtl"] .legal-back-button svg {
 .copy-message-actions button:hover {
   transform: translateY(-1px);
   box-shadow: 0 10px 22px rgba(24, 62, 53, 0.18);
+}
+
+.copy-message-actions .is-copy {
+  border: 1px solid #c9ded8;
+  background: #ffffff;
+  color: #245047;
+  box-shadow: none;
+}
+
+.copy-message-actions .is-copy:hover {
+  border-color: #8fcbbc;
+  background: #effaf6;
 }
 
 .copy-message-actions .is-smart {

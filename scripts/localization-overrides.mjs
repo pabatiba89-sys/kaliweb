@@ -310,6 +310,34 @@ const actionRows = {
   'hi-IN': ['रद्द करें', 'बंद करें', 'हटाएँ', 'अपलोड करें', 'रीफ़्रेश करें', 'और लोड करें', 'डाउनलोड करें', 'सेव करें', 'संपादित करें', 'प्रकाशित करें', 'फिर से कोशिश करें', 'वापस', 'लोड हो रहा है…', 'पूरा हुआ', 'विफल', 'प्रोसेस हो रहा है', 'ड्राफ़्ट', 'तैयार'],
 };
 
+const chatInteractionKeys = ['复制', '已复制', '长按填入输入框', '生成内容异常，请重新生成。'];
+const chatInteractionRows = {
+  'en-US': ['Copy', 'Copied', 'Press and hold to reuse', 'Generated content unavailable. Please try again.'],
+  'zh-CN': ['复制', '已复制', '长按填入输入框', '生成内容异常，请重新生成。'],
+  'zh-TW': ['複製', '已複製', '長按填入輸入框', '生成內容異常，請重新生成。'],
+  'es-MX': ['Copiar', 'Copiado', 'Mantén pulsado para reutilizar', 'No se puede mostrar el contenido generado. Inténtalo de nuevo.'],
+  'fr-FR': ['Copier', 'Copié', 'Appuyez longuement pour réutiliser', 'Le contenu généré ne peut pas être affiché. Réessayez.'],
+  'ru-RU': ['Копировать', 'Скопировано', 'Нажмите и удерживайте, чтобы использовать снова', 'Не удалось отобразить созданный контент. Повторите попытку.'],
+  'de-DE': ['Kopieren', 'Kopiert', 'Zum Wiederverwenden gedrückt halten', 'Der generierte Inhalt kann nicht angezeigt werden. Bitte erneut versuchen.'],
+  'pt-PT': ['Copiar', 'Copiado', 'Mantenha premido para reutilizar', 'Não foi possível apresentar o conteúdo gerado. Tente novamente.'],
+  'ar-AE': ['نسخ', 'تم النسخ', 'اضغط مطولاً لإعادة الاستخدام', 'تعذر عرض المحتوى الذي تم إنشاؤه. حاول مرة أخرى.'],
+  'it-IT': ['Copia', 'Copiato', 'Tieni premuto per riutilizzare', 'Impossibile visualizzare il contenuto generato. Riprova.'],
+  'ja-JP': ['コピー', 'コピー済み', '長押しして再利用', '生成内容を表示できません。もう一度お試しください。'],
+  'ko-KR': ['복사', '복사됨', '길게 눌러 다시 사용', '생성된 콘텐츠를 표시할 수 없습니다. 다시 시도해 주세요.'],
+  'id-ID': ['Salin', 'Disalin', 'Tekan lama untuk menggunakan kembali', 'Konten yang dibuat tidak dapat ditampilkan. Coba lagi.'],
+  'vi-VN': ['Sao chép', 'Đã sao chép', 'Nhấn giữ để sử dụng lại', 'Không thể hiển thị nội dung đã tạo. Vui lòng thử lại.'],
+  'tr-TR': ['Kopyala', 'Kopyalandı', 'Yeniden kullanmak için basılı tutun', 'Oluşturulan içerik görüntülenemiyor. Lütfen tekrar deneyin.'],
+  'nl-NL': ['Kopiëren', 'Gekopieerd', 'Houd ingedrukt om opnieuw te gebruiken', 'De gegenereerde inhoud kan niet worden weergegeven. Probeer het opnieuw.'],
+  'uk-UA': ['Копіювати', 'Скопійовано', 'Натисніть і утримуйте, щоб використати знову', 'Не вдалося показати створений вміст. Спробуйте ще раз.'],
+  'th-TH': ['คัดลอก', 'คัดลอกแล้ว', 'กดค้างเพื่อนำกลับมาใช้', 'ไม่สามารถแสดงเนื้อหาที่สร้างได้ โปรดลองอีกครั้ง'],
+  'pl-PL': ['Kopiuj', 'Skopiowano', 'Przytrzymaj, aby użyć ponownie', 'Nie można wyświetlić wygenerowanej treści. Spróbuj ponownie.'],
+  'ro-RO': ['Copiază', 'Copiat', 'Ține apăsat pentru a reutiliza', 'Conținutul generat nu poate fi afișat. Încearcă din nou.'],
+  'el-GR': ['Αντιγραφή', 'Αντιγράφηκε', 'Πατήστε παρατεταμένα για επαναχρησιμοποίηση', 'Δεν είναι δυνατή η εμφάνιση του περιεχομένου που δημιουργήθηκε. Δοκιμάστε ξανά.'],
+  'cs-CZ': ['Kopírovat', 'Zkopírováno', 'Podržením znovu použijete', 'Vygenerovaný obsah nelze zobrazit. Zkuste to znovu.'],
+  'fi-FI': ['Kopioi', 'Kopioitu', 'Käytä uudelleen painamalla pitkään', 'Luotua sisältöä ei voida näyttää. Yritä uudelleen.'],
+  'hi-IN': ['कॉपी करें', 'कॉपी हो गया', 'दोबारा उपयोग करने के लिए दबाकर रखें', 'जनरेट किया गया कंटेंट दिखाया नहीं जा सका। फिर से कोशिश करें।'],
+};
+
 const workflowKeys = [
   'HOT TOPIC TO VIDEO',
   'MAIN FLOW',
@@ -1000,6 +1028,7 @@ export const workspaceLocalizationOverrides = Object.fromEntries(Object.entries(
   accountSecurityKeys.forEach((key, index) => { overrides[key] = accountSecurityRows[locale][index]; });
   billingKeys.forEach((key, index) => { overrides[key] = billingRows[locale][index]; });
   paymentKeys.forEach((key, index) => { overrides[key] = paymentRows[locale][index]; });
+  chatInteractionKeys.forEach((key, index) => { overrides[key] = chatInteractionRows[locale][index]; });
   Object.assign(overrides, affiliateOverrides[locale] || {});
   return [locale, overrides];
 }));
