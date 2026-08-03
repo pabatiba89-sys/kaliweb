@@ -1,17 +1,41 @@
 ---
 import PublicLayout from '../../layouts/PublicLayout.astro';
-import { getPage, pagePath, pagesByLocale, supportedLocales } from '../../site/content.js';
+import { pagePath, pagesByLocale, supportedLocales } from '../../site/content.js';
 import { translateText } from '../../site/localization.js';
 import { brandName } from '../../site/localization.js';
 
+type TextPair = [string, string];
+type PublicPage = {
+  slug: string;
+  contentType?: string;
+  title: string;
+  description: string;
+  eyebrow: string;
+  headline: string;
+  lead: string;
+  bullets: string[];
+  faq: TextPair[];
+  groups: Array<{ title: string; description: string; links: string[] }>;
+  roadmap: TextPair[];
+  useWhen: string[];
+  beforeYouStart: string[];
+  visual: { label: string; stages: string[]; image: string };
+  steps: Array<{ title: string; body: string; details?: string[] }>;
+  checkpoints: string[];
+  mistakes: string[];
+  recovery: string[];
+  related: string[];
+  sections: TextPair[];
+};
+
 export function getStaticPaths() {
-  return supportedLocales.flatMap((lang) => pagesByLocale[lang].map((page) => ({ params: { lang, slug: page.slug }, props: { lang, page } })));
+  return supportedLocales.flatMap((lang) => (pagesByLocale[lang] as PublicPage[]).map((page) => ({ params: { lang, slug: page.slug }, props: { lang, page } })));
 }
 
-const { lang, page } = Astro.props;
-const t = (value) => translateText(value, lang);
-const allPages = pagesByLocale[lang] || [];
-const findPage = (slug) => allPages.find((item) => item.slug === slug);
+const { lang, page } = Astro.props as { lang: string; page: PublicPage };
+const t = (value: string) => translateText(value, lang);
+const allPages = (pagesByLocale[lang] || []) as PublicPage[];
+const findPage = (slug: string) => allPages.find((item) => item.slug === slug);
 const isHelpIndex = page.contentType === 'helpIndex';
 const isGuide = page.contentType === 'guide';
 const relatedPages = (page.related || []).map(findPage).filter(Boolean);

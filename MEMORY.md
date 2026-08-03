@@ -163,3 +163,6 @@
 - 2026-07-31：执法机关数据请求规则参考 TikTok Law Enforcement Guidelines 的结构，但不得与用户合同的 Governing Law 混为一谈。公开站应提供独立执法请求指引，覆盖官方提交渠道、请求主体与法律程序核验、明确账号和数据范围、必要性与比例原则、逐案审查、用户通知、数据保全、紧急请求及跨境司法协助；香港法律适用与香港法院非专属管辖条款继续保留。
 - 2026-07-31：公开站翻译生成器原先每批 40 条，遇到执法请求指引等长篇法律文案会触发翻译服务 `400077 maximum request size exceeded`；批次已降为每批 10 条，后续长文多语言同步继续使用小批次，避免整次生成在写入前失败。
 - 2026-07-31：Workbench `/app/` 内不展示深绿色全站页脚；协议、隐私、支付、退款和执法请求等公开法律入口只保留在公开官网页脚，工作台内通过实际业务流程中的协议入口访问。
+- 2026-08-03：SEO 基线审计确认公开层本地可成功构建 456 个可索引 URL（24 种语言 × 19 页），每页已有独立 H1、title、description、canonical、hreflang 和 JSON-LD，`/app/` 保持 `noindex`。但默认 canonical 域名 `kali.xyaip.fun` 当日无法解析且未查到 Google 收录；正式 SEO 开始前必须先绑定可访问的正式域名，用 `SITE_URL` 生成一致的 canonical/sitemap/hreflang，再接入 Search Console 和 Bing Webmaster。
+- 2026-08-03：多语言 SEO 审计发现所有 432 个非首页公开页的 `x-default` 都误指向英文首页 `/en/`，应指向对应英文 slug；现有多语言机器翻译中存在明显术语和语句质量问题，未完成市场选择和母语审校前不应一次性提交全部 24 种语言收录。
+- 2026-08-03：SEO 索引边界改为可配置白名单，默认仅英文 `en` 进入 sitemap 并输出完整 hreflang；其他语言页保持可访问，但输出 `noindex` 且不进入 sitemap/hreflang，完成母语审校后再通过 `SEO_INDEXABLE_LOCALES` 逐个开放。`x-default` 固定指向同 slug 的默认索引语言；每次构建后自动校验 robots、canonical、hreflang、sitemap 和工作台 `noindex`。正式域名仍必须在部署环境设置 `SITE_URL`。

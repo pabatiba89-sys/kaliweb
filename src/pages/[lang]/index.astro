@@ -5,14 +5,33 @@ import { pagesByLocale, pagePath, supportedLocales } from '../../site/content.js
 import { translateText } from '../../site/localization.js';
 import { brandName } from '../../site/localization.js';
 
+type HomePage = {
+  title: string;
+  description: string;
+  eyebrow: string;
+  headline: string;
+  lead: string;
+  proof: string[];
+  sectionTitle: string;
+  sectionLead: string;
+};
+
+type ProductPage = {
+  slug: string;
+  eyebrow: string;
+  headline: string;
+  description: string;
+  title: string;
+};
+
 export function getStaticPaths() {
   return supportedLocales.map((lang) => ({ params: { lang }, props: { lang } }));
 }
 
-const { lang } = Astro.props;
-const home = homeByLocale[lang];
-const t = (value) => translateText(value, lang);
-const products = pagesByLocale[lang].filter((page) => ['ai-video-generator', 'digital-human', 'voice-cloning', 'ai-music-generator'].includes(page.slug));
+const { lang } = Astro.props as { lang: string };
+const home = homeByLocale[lang] as HomePage;
+const t = (value: string) => translateText(value, lang);
+const products = (pagesByLocale[lang] as ProductPage[]).filter((page) => ['ai-video-generator', 'digital-human', 'voice-cloning', 'ai-music-generator'].includes(page.slug));
 const schema = {
   '@type': 'SoftwareApplication',
   name: brandName(lang),

@@ -1,18 +1,21 @@
 {
   "name": "yixiu-overseas-site",
-  "version": "1.5.8",
+  "version": "1.5.9",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "astro dev --host 127.0.0.1",
     "prebuild": "node scripts/check-locale-boundaries.mjs",
     "build": "astro build",
+    "postbuild": "npm run seo:check",
     "preview": "astro preview --host 127.0.0.1",
     "i18n:generate": "node scripts/generate-translations.mjs",
     "i18n:update": "node scripts/generate-translations.mjs --missing-only --changed-only --scope=credits",
     "site:i18n:generate": "node scripts/generate-site-translations.mjs",
     "version:patch": "npm version patch --no-git-tag-version",
-    "check": "astro check"
+    "check": "astro check",
+    "seo:check": "node scripts/check-seo-output.mjs",
+    "verify": "npm run check && npm run build"
   },
   "dependencies": {
     "@astrojs/react": "^6.0.1",
@@ -24,6 +27,7 @@
     "vite": "^7.0.2"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.10",
     "wrangler": "4.110.0"
   }
 }

@@ -9,7 +9,10 @@ import {
 } from '../site/content.js';
 import { translateText } from '../site/localization.js';
 import { brandName } from '../site/localization.js';
+import { defaultSeoLocale, indexableLocales, isIndexableLocale } from '../site/seo.js';
 import '../site/public.css';
+
+type SchemaEntry = Record<string, unknown>;
 
 const {
   locale = 'en',
@@ -18,15 +21,24 @@ const {
   slug = '',
   eyebrow = '',
   schema = [],
-} = Astro.props;
+} = Astro.props as {
+  locale?: string;
+  title: string;
+  description: string;
+  slug?: string;
+  eyebrow?: string;
+  schema?: SchemaEntry | SchemaEntry[];
+};
 const copy = localeMeta[locale];
-const t = (value) => translateText(value, locale);
+const t = (value: string) => translateText(value, locale);
 const canonicalPath = pagePath(locale, slug);
 const canonical = new URL(canonicalPath, Astro.site);
-const alternates = supportedLocales.map((code) => ({
+const shouldIndex = isIndexableLocale(locale);
+const alternates = shouldIndex ? indexableLocales.map((code) => ({
   code: localeMeta[code].hreflang,
   href: new URL(pagePath(code, slug), Astro.site),
-}));
+})) : [];
+const xDefault = new URL(pagePath(defaultSeoLocale, slug), Astro.site);
 const graph = Array.isArray(schema) ? schema : [schema];
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -64,10 +76,10 @@ const jsonLd = {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="robots" content={shouldIndex ? 'index, follow, max-image-preview:large' : 'noindex, follow, noarchive'} />
     <link rel="canonical" href={canonical} />
     {alternates.map((item) => <link rel="alternate" hreflang={item.code} href={item.href} />)}
-    <link rel="alternate" hreflang="x-default" href={new URL('/en/', Astro.site)} />
+    {shouldIndex && <link rel="alternate" hreflang="x-default" href={xDefault} />}
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={brandName(locale)} />
     <meta property="og:title" content={title} />
@@ -82,7 +94,7 @@ const jsonLd = {
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={new URL('/og.png', Astro.site)} />
     <script is:inline src="/invite-attribution.js"></script>
-    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   </head>
   <body>
     <a class="skip-link" href="#main">{t('Skip to content')}</a>
