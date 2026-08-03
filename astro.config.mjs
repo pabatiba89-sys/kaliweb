@@ -1,7 +1,8 @@
 import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
+import { DEFAULT_SITE_URL } from './src/site/site-config.js';
 
-const site = process.env.SITE_URL || 'https://kali.xyaip.fun';
+const site = process.env.SITE_URL || DEFAULT_SITE_URL;
 
 export default defineConfig({
   site,

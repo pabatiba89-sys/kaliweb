@@ -1,9 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { defaultSeoLocale, indexableLocales } from '../src/site/seo.js';
+import { DEFAULT_SITE_URL } from '../src/site/site-config.js';
 
 const distDir = path.resolve('dist');
-const placeholderOrigin = 'https://kali.xyaip.fun';
 const errors = [];
 
 const htmlFiles = fs.readdirSync(distDir, { recursive: true })
@@ -58,6 +58,11 @@ const expectedUrls = [...canonicalByFile.entries()]
   .filter(([file]) => indexableLocales.includes(file.split('/')[0]))
   .map(([, canonical]) => canonical)
   .sort();
+const configuredOrigin = new URL(process.env.SITE_URL || DEFAULT_SITE_URL).origin;
+
+if (expectedUrls.some((url) => new URL(url).origin !== configuredOrigin)) {
+  errors.push(`canonical URLs must use the configured origin ${configuredOrigin}`);
+}
 
 if (JSON.stringify([...sitemapUrls].sort()) !== JSON.stringify(expectedUrls)) {
   errors.push('sitemap URLs do not exactly match indexable public pages');
@@ -71,11 +76,6 @@ if (!/<meta name="robots" content="[^"]*noindex/i.test(appHtml)) {
 if (errors.length > 0) {
   console.error(`SEO output check failed:\n- ${errors.join('\n- ')}`);
   process.exit(1);
-}
-
-const origin = new URL(expectedUrls[0]).origin;
-if (!process.env.SITE_URL && origin === placeholderOrigin) {
-  console.warn(`SEO output check warning: SITE_URL is not set; canonical URLs still use ${placeholderOrigin}.`);
 }
 
 console.log(`SEO output check passed: ${expectedUrls.length} indexable URL(s), locales: ${indexableLocales.join(', ')}.`);

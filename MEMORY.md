@@ -166,3 +166,4 @@
 - 2026-08-03：SEO 基线审计确认公开层本地可成功构建 456 个可索引 URL（24 种语言 × 19 页），每页已有独立 H1、title、description、canonical、hreflang 和 JSON-LD，`/app/` 保持 `noindex`。但默认 canonical 域名 `kali.xyaip.fun` 当日无法解析且未查到 Google 收录；正式 SEO 开始前必须先绑定可访问的正式域名，用 `SITE_URL` 生成一致的 canonical/sitemap/hreflang，再接入 Search Console 和 Bing Webmaster。
 - 2026-08-03：多语言 SEO 审计发现所有 432 个非首页公开页的 `x-default` 都误指向英文首页 `/en/`，应指向对应英文 slug；现有多语言机器翻译中存在明显术语和语句质量问题，未完成市场选择和母语审校前不应一次性提交全部 24 种语言收录。
 - 2026-08-03：SEO 索引边界改为可配置白名单，默认仅英文 `en` 进入 sitemap 并输出完整 hreflang；其他语言页保持可访问，但输出 `noindex` 且不进入 sitemap/hreflang，完成母语审校后再通过 `SEO_INDEXABLE_LOCALES` 逐个开放。`x-default` 固定指向同 slug 的默认索引语言；每次构建后自动校验 robots、canonical、hreflang、sitemap 和工作台 `noindex`。正式域名仍必须在部署环境设置 `SITE_URL`。
+- 2026-08-03：用户确认正式域名为 `https://www.kaliai.fun`；Astro 站点、robots、sitemap、canonical、hreflang、JSON-LD 和 Open Graph 默认统一使用该 origin，部署环境仍可通过 `SITE_URL` 覆盖。

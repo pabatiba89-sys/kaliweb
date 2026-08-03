@@ -1,5 +1,7 @@
+import { DEFAULT_SITE_URL } from '../site/site-config.js';
+
 export function GET({ site }) {
-  const origin = site || new URL('https://kali.xyaip.fun');
+  const origin = site || new URL(DEFAULT_SITE_URL);
   const body = [
     'User-agent: *',
     'Allow: /',
