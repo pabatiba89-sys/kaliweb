@@ -169,3 +169,4 @@
 - 2026-08-03：用户确认正式域名为 `https://www.kaliai.fun`；Astro 站点、robots、sitemap、canonical、hreflang、JSON-LD 和 Open Graph 默认统一使用该 origin，部署环境仍可通过 `SITE_URL` 覆盖。
 - 2026-08-03：文案生成对话中，返回 HTML 页面或成组 HTML 标签等异常内容时不得原样展示，统一提示用户重新生成；用户消息支持长按回填输入框并提供复制按钮，系统完整回复也提供复制按钮，流式未完成内容不开放复制。
 - 2026-08-03：SEO 主动提交采用两条路径：Google Search Console 管理 `https://www.kaliai.fun/`，Bing 等支持方使用 IndexNow；公开验证文件位于 `public/`，批量提交脚本为 `scripts/submit-indexnow.mjs`。Google `site:kaliai.fun` 当日仍可看到此前已收录的未审校多语言页面，这些页面继续保持 `noindex`，待母语审校后再逐步开放。
+- 2026-08-04：Google Search Console 使用网址前缀资源 `https://www.kaliai.fun/`；所有权采用公开首页 HTML 标记验证，标记配置位于 `src/site/site-config.js`，构建后由 `scripts/check-seo-output.mjs` 自动检查，保持该标记可避免所有权失效。

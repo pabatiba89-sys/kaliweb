@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { defaultSeoLocale, indexableLocales } from '../src/site/seo.js';
-import { DEFAULT_SITE_URL } from '../src/site/site-config.js';
+import { DEFAULT_SITE_URL, GOOGLE_SITE_VERIFICATION } from '../src/site/site-config.js';
 
 const distDir = path.resolve('dist');
 const errors = [];
@@ -24,11 +24,13 @@ for (const file of publicFiles) {
   const slugPath = slugParts.length > 0 ? `${slugParts.join('/')}/` : '';
   const shouldIndex = indexableLocales.includes(locale);
   const robots = match(html, /<meta name="robots" content="([^"]+)">/i);
+  const googleVerification = match(html, /<meta name="google-site-verification" content="([^"]+)">/i);
   const canonical = match(html, /<link rel="canonical" href="([^"]+)">/i);
   const hreflangs = [...html.matchAll(/<link rel="alternate" hreflang="([^"]+)" href="([^"]+)">/gi)]
     .map((entry) => ({ code: entry[1], href: entry[2] }));
 
   if (!canonical) errors.push(`${file}: missing canonical URL`);
+  if (googleVerification !== GOOGLE_SITE_VERIFICATION) errors.push(`${file}: missing Google site verification`);
   canonicalByFile.set(file, canonical);
 
   if (shouldIndex) {

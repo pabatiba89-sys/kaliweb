@@ -10,6 +10,7 @@ import {
 import { translateText } from '../site/localization.js';
 import { brandName } from '../site/localization.js';
 import { defaultSeoLocale, indexableLocales, isIndexableLocale } from '../site/seo.js';
+import { GOOGLE_SITE_VERIFICATION } from '../site/site-config.js';
 import '../site/public.css';
 
 type SchemaEntry = Record<string, unknown>;
@@ -76,6 +77,7 @@ const jsonLd = {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <meta name="google-site-verification" content={GOOGLE_SITE_VERIFICATION} />
     <meta name="robots" content={shouldIndex ? 'index, follow, max-image-preview:large' : 'noindex, follow, noarchive'} />
     <link rel="canonical" href={canonical} />
     {alternates.map((item) => <link rel="alternate" hreflang={item.code} href={item.href} />)}
