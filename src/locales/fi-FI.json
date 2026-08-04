@@ -1795,5 +1795,17 @@
   "复制": "Kopioi",
   "已复制": "Kopioitu",
   "长按填入输入框": "Käytä uudelleen painamalla pitkään",
-  "生成内容异常，请重新生成。": "Luotua sisältöä ei voida näyttää. Yritä uudelleen."
+  "生成内容异常，请重新生成。": "Luotua sisältöä ei voida näyttää. Yritä uudelleen.",
+  "Text to Speech": "Teksti puheeksi",
+  "文字转语音": "Teksti puheeksi",
+  "输入文案，选择你已授权并完成训练的克隆声音，生成可试听和下载的语音。": "Syötä teksti, valitse valtuutettu ja koulutettu klooniääni ja luo kuunneltava ja ladattava äänitiedosto.",
+  "输入文字": "Syötä teksti",
+  "输入要转换为语音的文字……": "Syötä puheeksi muunnettava teksti…",
+  "选择克隆声音": "Valitse klooniääni",
+  "还没有可用的克隆声音": "Klooniääniä ei ole käytettävissä",
+  "生成设置": "Luontiasetukset",
+  "音频格式": "Äänimuoto",
+  "生成语音": "Luo puhe",
+  "生成记录": "Luontihistoria",
+  "仅可使用本人或已获得充分授权的克隆声音。": "Käytä vain omaa klooniääntäsi tai ääntä, jonka käyttöön sinulla on täydet oikeudet."
 }

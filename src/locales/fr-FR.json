@@ -1803,5 +1803,17 @@
   "复制": "Copier",
   "已复制": "Copié",
   "长按填入输入框": "Appuyez longuement pour réutiliser",
-  "生成内容异常，请重新生成。": "Le contenu généré ne peut pas être affiché. Réessayez."
+  "生成内容异常，请重新生成。": "Le contenu généré ne peut pas être affiché. Réessayez.",
+  "Text to Speech": "Synthèse vocale",
+  "文字转语音": "Synthèse vocale",
+  "输入文案，选择你已授权并完成训练的克隆声音，生成可试听和下载的语音。": "Saisissez un texte, choisissez une voix clonée autorisée et entraînée, puis générez un audio à écouter et télécharger.",
+  "输入文字": "Saisir le texte",
+  "输入要转换为语音的文字……": "Saisissez le texte à convertir en voix…",
+  "选择克隆声音": "Choisir une voix clonée",
+  "还没有可用的克隆声音": "Aucune voix clonée disponible",
+  "生成设置": "Paramètres de génération",
+  "音频格式": "Format audio",
+  "生成语音": "Générer la voix",
+  "生成记录": "Historique des générations",
+  "仅可使用本人或已获得充分授权的克隆声音。": "Utilisez uniquement votre propre voix clonée ou une voix pour laquelle vous disposez d’une autorisation complète."
 }

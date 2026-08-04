@@ -35,6 +35,15 @@ export const pageConfigs = {
     ],
     actions: ['Train digital human', 'Image-to-avatar', 'Clone voice', 'Use public asset'],
   },
+  speech: {
+    title: 'Text to Speech',
+    description: 'Turn text into downloadable audio with an authorized cloned voice.',
+    endpoints: [
+      { label: 'Cloned voices', path: '/api/ai-voice/list' },
+      { label: 'Speech tasks', path: '/api/ai-voice/tts' },
+    ],
+    actions: ['Select cloned voice', 'Generate speech', 'Download audio'],
+  },
   music: {
     title: 'Music Studio',
     description: 'Generate songs, instrumentals, voice-based music, and music videos.',

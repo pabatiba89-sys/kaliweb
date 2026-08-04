@@ -1149,5 +1149,17 @@
   "复制": "Copy",
   "已复制": "Copied",
   "长按填入输入框": "Press and hold to reuse",
-  "生成内容异常，请重新生成。": "Generated content unavailable. Please try again."
+  "生成内容异常，请重新生成。": "Generated content unavailable. Please try again.",
+  "Text to Speech": "Text to Speech",
+  "文字转语音": "Text to Speech",
+  "输入文案，选择你已授权并完成训练的克隆声音，生成可试听和下载的语音。": "Enter a script, choose an authorized trained voice, and generate audio you can preview and download.",
+  "输入文字": "Enter text",
+  "输入要转换为语音的文字……": "Enter text to convert to speech…",
+  "选择克隆声音": "Select a cloned voice",
+  "还没有可用的克隆声音": "No cloned voices are ready",
+  "生成设置": "Generation settings",
+  "音频格式": "Audio format",
+  "生成语音": "Generate speech",
+  "生成记录": "Generation history",
+  "仅可使用本人或已获得充分授权的克隆声音。": "Only use your own cloned voice or a voice you are fully authorized to use."
 }
