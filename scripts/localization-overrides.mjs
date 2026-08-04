@@ -456,6 +456,59 @@ const supportRows = {
   'hi-IN': ['सहायक प्रवेश', 'अवतार और आवाज़ें', 'मीडिया लाइब्रेरी', 'वीडियो टेम्पलेट', 'संगीत', 'छवियाँ'],
 };
 
+const ttsKeys = [
+  'title',
+  'description',
+  'input',
+  'placeholder',
+  'selectVoice',
+  'noVoice',
+  'settings',
+  'format',
+  'generate',
+  'history',
+  'consent',
+];
+const ttsAliases = {
+  title: ['Text to Speech', '文字转语音'],
+  description: ['输入文案，选择你已授权并完成训练的克隆声音，生成可试听和下载的语音。'],
+  input: ['输入文字'],
+  placeholder: ['输入要转换为语音的文字……'],
+  selectVoice: ['选择克隆声音'],
+  noVoice: ['还没有可用的克隆声音'],
+  settings: ['生成设置'],
+  format: ['音频格式'],
+  generate: ['生成语音'],
+  history: ['生成记录'],
+  consent: ['仅可使用本人或已获得充分授权的克隆声音。'],
+};
+const ttsRows = {
+  'en-US': ['Text to Speech', 'Enter a script, choose an authorized trained voice, and generate audio you can preview and download.', 'Enter text', 'Enter text to convert to speech…', 'Select a cloned voice', 'No cloned voices are ready', 'Generation settings', 'Audio format', 'Generate speech', 'Generation history', 'Only use your own cloned voice or a voice you are fully authorized to use.'],
+  'zh-CN': ['文字转语音', '输入文案，选择你已授权并完成训练的克隆声音，生成可试听和下载的语音。', '输入文字', '输入要转换为语音的文字……', '选择克隆声音', '还没有可用的克隆声音', '生成设置', '音频格式', '生成语音', '生成记录', '仅可使用本人或已获得充分授权的克隆声音。'],
+  'zh-TW': ['文字轉語音', '輸入文案，選擇已授權並完成訓練的克隆聲音，生成可試聽及下載的語音。', '輸入文字', '輸入要轉換為語音的文字……', '選擇克隆聲音', '尚無可用的克隆聲音', '生成設定', '音訊格式', '生成語音', '生成記錄', '僅可使用本人或已獲得充分授權的克隆聲音。'],
+  'es-MX': ['Texto a voz', 'Ingresa un guion, elige una voz clonada autorizada y entrenada, y genera audio para escuchar y descargar.', 'Ingresar texto', 'Ingresa el texto que deseas convertir en voz…', 'Seleccionar voz clonada', 'No hay voces clonadas disponibles', 'Ajustes de generación', 'Formato de audio', 'Generar voz', 'Historial de generación', 'Usa solo tu propia voz clonada o una voz para la que tengas autorización suficiente.'],
+  'fr-FR': ['Synthèse vocale', 'Saisissez un texte, choisissez une voix clonée autorisée et entraînée, puis générez un audio à écouter et télécharger.', 'Saisir le texte', 'Saisissez le texte à convertir en voix…', 'Choisir une voix clonée', 'Aucune voix clonée disponible', 'Paramètres de génération', 'Format audio', 'Générer la voix', 'Historique des générations', 'Utilisez uniquement votre propre voix clonée ou une voix pour laquelle vous disposez d’une autorisation complète.'],
+  'ru-RU': ['Текст в речь', 'Введите текст, выберите авторизованный обученный клон голоса и создайте аудио для прослушивания и скачивания.', 'Введите текст', 'Введите текст для озвучивания…', 'Выберите клонированный голос', 'Нет доступных клонированных голосов', 'Настройки генерации', 'Формат аудио', 'Создать речь', 'История генерации', 'Используйте только свой клонированный голос или голос, на использование которого у вас есть полное разрешение.'],
+  'de-DE': ['Text zu Sprache', 'Geben Sie einen Text ein, wählen Sie eine autorisierte trainierte Klonstimme und erstellen Sie Audio zum Anhören und Herunterladen.', 'Text eingeben', 'Text eingeben, der gesprochen werden soll…', 'Klonstimme auswählen', 'Keine Klonstimme verfügbar', 'Generierungseinstellungen', 'Audioformat', 'Sprache generieren', 'Generierungsverlauf', 'Verwenden Sie nur Ihre eigene Klonstimme oder eine Stimme, für die Sie vollständig autorisiert sind.'],
+  'pt-PT': ['Texto para voz', 'Introduza um texto, escolha uma voz clonada autorizada e treinada e gere áudio para ouvir e transferir.', 'Introduzir texto', 'Introduza o texto a converter em voz…', 'Selecionar voz clonada', 'Não existem vozes clonadas disponíveis', 'Definições de geração', 'Formato de áudio', 'Gerar voz', 'Histórico de geração', 'Utilize apenas a sua própria voz clonada ou uma voz para a qual tenha autorização completa.'],
+  'ar-AE': ['تحويل النص إلى كلام', 'أدخل النص واختر صوتًا مستنسخًا ومدرّبًا ومصرحًا به، ثم أنشئ ملفًا صوتيًا للاستماع والتنزيل.', 'إدخال النص', 'أدخل النص الذي تريد تحويله إلى كلام…', 'اختيار صوت مستنسخ', 'لا توجد أصوات مستنسخة جاهزة', 'إعدادات الإنشاء', 'تنسيق الصوت', 'إنشاء الصوت', 'سجل الإنشاء', 'استخدم صوتك المستنسخ فقط أو صوتًا لديك تصريح كامل لاستخدامه.'],
+  'it-IT': ['Sintesi vocale', 'Inserisci un testo, scegli una voce clonata autorizzata e addestrata e genera un audio da ascoltare e scaricare.', 'Inserisci testo', 'Inserisci il testo da convertire in voce…', 'Seleziona voce clonata', 'Nessuna voce clonata disponibile', 'Impostazioni di generazione', 'Formato audio', 'Genera voce', 'Cronologia generazioni', 'Usa solo la tua voce clonata o una voce per cui disponi di un’autorizzazione completa.'],
+  'ja-JP': ['テキスト読み上げ', '原稿を入力し、許可を得て学習済みのクローン音声を選択して、試聴・ダウンロードできる音声を生成します。', 'テキストを入力', '音声に変換するテキストを入力…', 'クローン音声を選択', '利用できるクローン音声がありません', '生成設定', '音声形式', '音声を生成', '生成履歴', 'ご本人のクローン音声、または十分な使用許可を得た音声のみ使用してください。'],
+  'ko-KR': ['텍스트 음성 변환', '원고를 입력하고 사용 권한이 있으며 학습이 완료된 복제 음성을 선택해 미리 듣고 다운로드할 수 있는 음성을 생성하세요.', '텍스트 입력', '음성으로 변환할 텍스트 입력…', '복제 음성 선택', '사용 가능한 복제 음성이 없습니다', '생성 설정', '오디오 형식', '음성 생성', '생성 기록', '본인의 복제 음성 또는 충분한 사용 권한을 받은 음성만 사용하세요.'],
+  'id-ID': ['Teks ke Suara', 'Masukkan naskah, pilih suara kloning terlatih yang diizinkan, lalu buat audio untuk diputar dan diunduh.', 'Masukkan teks', 'Masukkan teks yang akan diubah menjadi suara…', 'Pilih suara kloning', 'Belum ada suara kloning yang siap', 'Pengaturan pembuatan', 'Format audio', 'Buat suara', 'Riwayat pembuatan', 'Gunakan hanya suara kloning milik Anda atau suara yang sepenuhnya Anda izinkan untuk digunakan.'],
+  'vi-VN': ['Chuyển văn bản thành giọng nói', 'Nhập nội dung, chọn giọng nói nhân bản đã được cấp quyền và huấn luyện, rồi tạo âm thanh để nghe thử và tải xuống.', 'Nhập văn bản', 'Nhập văn bản cần chuyển thành giọng nói…', 'Chọn giọng nói nhân bản', 'Chưa có giọng nói nhân bản khả dụng', 'Cài đặt tạo', 'Định dạng âm thanh', 'Tạo giọng nói', 'Lịch sử tạo', 'Chỉ sử dụng giọng nói nhân bản của bạn hoặc giọng nói mà bạn đã được cấp đầy đủ quyền sử dụng.'],
+  'tr-TR': ['Metinden Sese', 'Metni girin, yetkili ve eğitilmiş bir klon ses seçin, ardından dinleyip indirebileceğiniz sesi oluşturun.', 'Metin girin', 'Sese dönüştürülecek metni girin…', 'Klon ses seçin', 'Hazır klon ses yok', 'Oluşturma ayarları', 'Ses biçimi', 'Ses oluştur', 'Oluşturma geçmişi', 'Yalnızca kendi klon sesinizi veya kullanma yetkisine tam olarak sahip olduğunuz bir sesi kullanın.'],
+  'nl-NL': ['Tekst naar spraak', 'Voer een tekst in, kies een geautoriseerde getrainde kloonstem en genereer audio om te beluisteren en te downloaden.', 'Tekst invoeren', 'Voer tekst in om naar spraak om te zetten…', 'Kloonstem kiezen', 'Geen kloonstemmen beschikbaar', 'Generatie-instellingen', 'Audioformaat', 'Spraak genereren', 'Generatiegeschiedenis', 'Gebruik alleen je eigen kloonstem of een stem waarvoor je volledige toestemming hebt.'],
+  'uk-UA': ['Текст у мовлення', 'Введіть текст, виберіть авторизований навчений клон голосу та створіть аудіо для прослуховування й завантаження.', 'Введіть текст', 'Введіть текст для озвучення…', 'Виберіть клонований голос', 'Немає доступних клонованих голосів', 'Налаштування генерації', 'Формат аудіо', 'Створити мовлення', 'Історія генерації', 'Використовуйте лише власний клонований голос або голос, на використання якого маєте повний дозвіл.'],
+  'th-TH': ['แปลงข้อความเป็นเสียงพูด', 'ป้อนข้อความ เลือกเสียงโคลนที่ได้รับอนุญาตและฝึกแล้ว จากนั้นสร้างเสียงสำหรับฟังตัวอย่างและดาวน์โหลด', 'ป้อนข้อความ', 'ป้อนข้อความที่ต้องการแปลงเป็นเสียงพูด…', 'เลือกเสียงโคลน', 'ยังไม่มีเสียงโคลนที่พร้อมใช้งาน', 'การตั้งค่าการสร้าง', 'รูปแบบเสียง', 'สร้างเสียงพูด', 'ประวัติการสร้าง', 'ใช้เฉพาะเสียงโคลนของคุณเองหรือเสียงที่คุณได้รับอนุญาตให้ใช้อย่างครบถ้วนเท่านั้น'],
+  'pl-PL': ['Tekst na mowę', 'Wpisz tekst, wybierz autoryzowany wytrenowany klon głosu i wygeneruj audio do odsłuchania i pobrania.', 'Wpisz tekst', 'Wpisz tekst do zamiany na mowę…', 'Wybierz klon głosu', 'Brak dostępnych klonów głosu', 'Ustawienia generowania', 'Format audio', 'Generuj mowę', 'Historia generowania', 'Używaj wyłącznie własnego klonu głosu lub głosu, do którego masz pełne upoważnienie.'],
+  'ro-RO': ['Text în vorbire', 'Introdu textul, alege o voce clonată autorizată și antrenată, apoi generează audio pentru ascultare și descărcare.', 'Introdu text', 'Introdu textul de transformat în vorbire…', 'Alege vocea clonată', 'Nu există voci clonate disponibile', 'Setări de generare', 'Format audio', 'Generează voce', 'Istoric generări', 'Folosește doar propria voce clonată sau o voce pentru care ai autorizație deplină.'],
+  'el-GR': ['Μετατροπή κειμένου σε ομιλία', 'Εισαγάγετε κείμενο, επιλέξτε μια εξουσιοδοτημένη εκπαιδευμένη κλωνοποιημένη φωνή και δημιουργήστε ήχο για ακρόαση και λήψη.', 'Εισαγωγή κειμένου', 'Εισαγάγετε κείμενο για μετατροπή σε ομιλία…', 'Επιλογή κλωνοποιημένης φωνής', 'Δεν υπάρχουν διαθέσιμες κλωνοποιημένες φωνές', 'Ρυθμίσεις δημιουργίας', 'Μορφή ήχου', 'Δημιουργία ομιλίας', 'Ιστορικό δημιουργίας', 'Χρησιμοποιήστε μόνο τη δική σας κλωνοποιημένη φωνή ή φωνή για την οποία έχετε πλήρη εξουσιοδότηση.'],
+  'cs-CZ': ['Text na řeč', 'Zadejte text, vyberte autorizovaný vytrénovaný klon hlasu a vytvořte zvuk k poslechu a stažení.', 'Zadejte text', 'Zadejte text k převodu na řeč…', 'Vyberte klon hlasu', 'Nejsou k dispozici žádné klony hlasu', 'Nastavení generování', 'Formát zvuku', 'Generovat řeč', 'Historie generování', 'Používejte pouze vlastní klon hlasu nebo hlas, k jehož použití máte úplné oprávnění.'],
+  'fi-FI': ['Teksti puheeksi', 'Syötä teksti, valitse valtuutettu ja koulutettu klooniääni ja luo kuunneltava ja ladattava äänitiedosto.', 'Syötä teksti', 'Syötä puheeksi muunnettava teksti…', 'Valitse klooniääni', 'Klooniääniä ei ole käytettävissä', 'Luontiasetukset', 'Äänimuoto', 'Luo puhe', 'Luontihistoria', 'Käytä vain omaa klooniääntäsi tai ääntä, jonka käyttöön sinulla on täydet oikeudet.'],
+  'hi-IN': ['टेक्स्ट से स्पीच', 'टेक्स्ट दर्ज करें, अधिकृत और प्रशिक्षित क्लोन आवाज़ चुनें, फिर सुनने और डाउनलोड करने योग्य ऑडियो बनाएँ।', 'टेक्स्ट दर्ज करें', 'स्पीच में बदलने के लिए टेक्स्ट दर्ज करें…', 'क्लोन आवाज़ चुनें', 'कोई क्लोन आवाज़ तैयार नहीं है', 'जनरेशन सेटिंग', 'ऑडियो फ़ॉर्मैट', 'स्पीच बनाएँ', 'जनरेशन इतिहास', 'केवल अपनी क्लोन आवाज़ या ऐसी आवाज़ का उपयोग करें जिसके उपयोग की आपको पूरी अनुमति है।'],
+};
+
 const accountSecurityKeys = [
   'Reset password',
   'Enter your account email and we will send password reset instructions.',
@@ -1025,6 +1078,7 @@ export const workspaceLocalizationOverrides = Object.fromEntries(Object.entries(
   workflowKeys.forEach((key, index) => { overrides[key] = workflowRows[locale][index]; });
   homeKeys.forEach((key, index) => { overrides[key] = homeRows[locale][index]; });
   supportKeys.forEach((key, index) => { overrides[key] = supportRows[locale][index]; });
+  ttsKeys.forEach((key, index) => ttsAliases[key].forEach((source) => { overrides[source] = ttsRows[locale][index]; }));
   accountSecurityKeys.forEach((key, index) => { overrides[key] = accountSecurityRows[locale][index]; });
   billingKeys.forEach((key, index) => { overrides[key] = billingRows[locale][index]; });
   paymentKeys.forEach((key, index) => { overrides[key] = paymentRows[locale][index]; });

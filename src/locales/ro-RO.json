@@ -1804,5 +1804,17 @@
   "复制": "Copiază",
   "已复制": "Copiat",
   "长按填入输入框": "Ține apăsat pentru a reutiliza",
-  "生成内容异常，请重新生成。": "Conținutul generat nu poate fi afișat. Încearcă din nou."
+  "生成内容异常，请重新生成。": "Conținutul generat nu poate fi afișat. Încearcă din nou.",
+  "Text to Speech": "Text în vorbire",
+  "文字转语音": "Text în vorbire",
+  "输入文案，选择你已授权并完成训练的克隆声音，生成可试听和下载的语音。": "Introdu textul, alege o voce clonată autorizată și antrenată, apoi generează audio pentru ascultare și descărcare.",
+  "输入文字": "Introdu text",
+  "输入要转换为语音的文字……": "Introdu textul de transformat în vorbire…",
+  "选择克隆声音": "Alege vocea clonată",
+  "还没有可用的克隆声音": "Nu există voci clonate disponibile",
+  "生成设置": "Setări de generare",
+  "音频格式": "Format audio",
+  "生成语音": "Generează voce",
+  "生成记录": "Istoric generări",
+  "仅可使用本人或已获得充分授权的克隆声音。": "Folosește doar propria voce clonată sau o voce pentru care ai autorizație deplină."
 }

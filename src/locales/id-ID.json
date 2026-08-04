@@ -1818,5 +1818,17 @@
   "复制": "Salin",
   "已复制": "Disalin",
   "长按填入输入框": "Tekan lama untuk menggunakan kembali",
-  "生成内容异常，请重新生成。": "Konten yang dibuat tidak dapat ditampilkan. Coba lagi."
+  "生成内容异常，请重新生成。": "Konten yang dibuat tidak dapat ditampilkan. Coba lagi.",
+  "Text to Speech": "Teks ke Suara",
+  "文字转语音": "Teks ke Suara",
+  "输入文案，选择你已授权并完成训练的克隆声音，生成可试听和下载的语音。": "Masukkan naskah, pilih suara kloning terlatih yang diizinkan, lalu buat audio untuk diputar dan diunduh.",
+  "输入文字": "Masukkan teks",
+  "输入要转换为语音的文字……": "Masukkan teks yang akan diubah menjadi suara…",
+  "选择克隆声音": "Pilih suara kloning",
+  "还没有可用的克隆声音": "Belum ada suara kloning yang siap",
+  "生成设置": "Pengaturan pembuatan",
+  "音频格式": "Format audio",
+  "生成语音": "Buat suara",
+  "生成记录": "Riwayat pembuatan",
+  "仅可使用本人或已获得充分授权的克隆声音。": "Gunakan hanya suara kloning milik Anda atau suara yang sepenuhnya Anda izinkan untuk digunakan."
 }

@@ -1774,5 +1774,17 @@
   "复制": "Kopiëren",
   "已复制": "Gekopieerd",
   "长按填入输入框": "Houd ingedrukt om opnieuw te gebruiken",
-  "生成内容异常，请重新生成。": "De gegenereerde inhoud kan niet worden weergegeven. Probeer het opnieuw."
+  "生成内容异常，请重新生成。": "De gegenereerde inhoud kan niet worden weergegeven. Probeer het opnieuw.",
+  "Text to Speech": "Tekst naar spraak",
+  "文字转语音": "Tekst naar spraak",
+  "输入文案，选择你已授权并完成训练的克隆声音，生成可试听和下载的语音。": "Voer een tekst in, kies een geautoriseerde getrainde kloonstem en genereer audio om te beluisteren en te downloaden.",
+  "输入文字": "Tekst invoeren",
+  "输入要转换为语音的文字……": "Voer tekst in om naar spraak om te zetten…",
+  "选择克隆声音": "Kloonstem kiezen",
+  "还没有可用的克隆声音": "Geen kloonstemmen beschikbaar",
+  "生成设置": "Generatie-instellingen",
+  "音频格式": "Audioformaat",
+  "生成语音": "Spraak genereren",
+  "生成记录": "Generatiegeschiedenis",
+  "仅可使用本人或已获得充分授权的克隆声音。": "Gebruik alleen je eigen kloonstem of een stem waarvoor je volledige toestemming hebt."
 }

@@ -171,3 +171,5 @@
 - 2026-08-03：SEO 主动提交采用两条路径：Google Search Console 管理 `https://www.kaliai.fun/`，Bing 等支持方使用 IndexNow；公开验证文件位于 `public/`，批量提交脚本为 `scripts/submit-indexnow.mjs`。Google `site:kaliai.fun` 当日仍可看到此前已收录的未审校多语言页面，这些页面继续保持 `noindex`，待母语审校后再逐步开放。
 - 2026-08-04：Google Search Console 使用网址前缀资源 `https://www.kaliai.fun/`；所有权采用公开首页 HTML 标记验证，标记配置位于 `src/site/site-config.js`，构建后由 `scripts/check-seo-output.mjs` 自动检查，保持该标记可避免所有权失效。
 - 2026-08-04：Google Search Console 已自动验证 `https://www.kaliai.fun/` 的所有权，并成功提交 `/sitemap.xml`。首次提交后列表可能短暂显示“无法抓取”；当日已确认正式地址对普通请求和 Googlebot User-Agent 均返回 `200 application/xml`，且 robots 允许搜索抓取，应先等待 Google 后台重试，不要为即时状态盲目改动正常配置。
+- 2026-08-04：工作台文字转语音使用独立页面 `/app/?page=speech`，只显示当前用户/团队中已训练成功且有上游 `speakerId` 的克隆声音；创建、列表和详情轮询统一调用自有 `/api/ai-voice/tts` 接口，前端不暴露闪剪凭据或依赖供应商响应形状，便于后续切换到 xyaip.fun。
+- 2026-08-04：文字转语音高曝光文案维护在 `scripts/localization-overrides.mjs` 并同步 24 个工作台语言包；当日自动翻译依赖的 Microsoft auth 端点返回 404，因此应用 curated overrides 完成本次本地化，不在失败后留下部分写入状态。

@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   ArrowLeft,
   AlertCircle,
+  AudioLines,
   Bell,
   BellRing,
   BookOpen,
@@ -165,6 +166,7 @@ const navItems = [
   { id: 'assistant', label: 'AI Assistant', icon: Bot },
   { id: 'video', label: 'Video Studio', icon: Video },
   { id: 'assets', label: 'Asset Studio', icon: Layers3 },
+  { id: 'speech', label: 'Text to Speech', icon: AudioLines },
   { id: 'music', label: 'Music Studio', icon: Music2 },
   { id: 'image', label: 'Image Studio', icon: Image },
   { id: 'materials', label: 'Materials', icon: Library },
@@ -325,6 +327,12 @@ const supportCards = [
     title: '音乐',
     icon: Music2,
     color: '#a05b12',
+  },
+  {
+    id: 'speech',
+    title: '文字转语音',
+    icon: AudioLines,
+    color: '#16857f',
   },
   {
     id: 'image',
@@ -496,6 +504,7 @@ const notificationIconMap = {
   human: UserRound,
   imageHuman: Sparkles,
   voice: Mic2,
+  speech: AudioLines,
   music: Music2,
 };
 
@@ -1551,8 +1560,13 @@ const normalizeVoiceAsset = (item = {}, index = 0) => {
   const status = audioUrl && !rawStatus ? { key: 'success', label: '成功' } : normalizeStatus(rawStatus);
   const speed = Number(item.voice_speed || item.voiceSpeed || item.speed) || 1;
   const languages = Array.isArray(item.langs) ? item.langs.join(' / ') : pick(item.langs, item.languages, item.language);
+  const voiceId = pick(item.voiceId, item.voice_id);
+  const speakerId = pick(item.speakerId, item.speaker_id);
   return {
-    id: pick(item.voiceId, item.voice_id, item.speakerId, item.speaker_id, item.taskId, item.task_id, item.id, `voice-${index}`),
+    id: pick(voiceId, speakerId, item.taskId, item.task_id, item.id, `voice-${index}`),
+    voiceId,
+    speakerId,
+    language: pick(item.language, Array.isArray(item.langs) ? item.langs[0] : item.langs) || 'zh-CN',
     title: pick(item.custom_tag, item.name, item.title, item.voiceName, item.voice_name, item.speakerName, item.speaker_name) || `克隆声音 ${index + 1}`,
     meta: [pick(item.gender, item.sex), languages, pick(item.created_at, item.createdAt, item.create_time, item.createTime), `语速 ${speed}x`].filter(Boolean).join(' · '),
     audioUrl,
@@ -3375,7 +3389,7 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
               </div>
               <label className="training-field">
                 <span>语种</span>
-                <select value={voiceForm.language} onChange={(event) => updateVoice('language', event.target.value)}>{VOICE_LANGUAGE_OPTIONS.map((language) => <option key={language.value} value={language.value}>{language.label} · {language.value}</option>)}</select>
+                <select translate="no" value={voiceForm.language} onChange={(event) => updateVoice('language', event.target.value)}>{VOICE_LANGUAGE_OPTIONS.map((language) => <option key={language.value} value={language.value}>{language.label} · {language.value}</option>)}</select>
               </label>
               <div className="voice-consent">
                 <label><input type="checkbox" checked={voiceForm.agreement} onChange={(event) => updateVoice('agreement', event.target.checked)} /><span>我已阅读并同意</span></label>
@@ -3443,6 +3457,241 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
         </aside>
       </div>
       </>}
+    </div>
+  );
+}
+
+const TTS_POLL_INTERVAL_MS = 8000;
+
+const normalizeTtsTask = (item = {}, index = 0) => {
+  const requestPayload = item.request && typeof item.request === 'object' ? item.request : {};
+  const voice = item.voice && typeof item.voice === 'object' ? item.voice : {};
+  const result = item.result && typeof item.result === 'object' ? item.result : {};
+  const audioUrl = getApiMediaUrl(pick(item.audio_url, item.audioUrl, result.audioUrl, result.audio_url, result.url));
+  const subtitle = pick(item.subtitle, result.subtitle, result.subtitles);
+  return {
+    id: textOf(pick(item.task_id, item.taskId, item.id, `tts-task-${index}`)),
+    text: textOf(pick(requestPayload.text, item.text, result.text)),
+    voiceName: textOf(pick(voice.name, voice.voice_name, item.voiceName, item.voice_name)) || '克隆声音',
+    voiceId: textOf(pick(voice.voice_id, voice.voiceId, requestPayload.speakerId, requestPayload.speaker_id)),
+    language: textOf(pick(requestPayload.language, voice.language)),
+    codec: textOf(requestPayload.codec || 'mp3').toUpperCase(),
+    speedRatio: Number(requestPayload.speedRatio ?? requestPayload.speed_ratio) || 1,
+    volume: Number(requestPayload.volume) || 1,
+    duration: Number(pick(result.duration, item.duration)) || 0,
+    audioUrl,
+    subtitle: Array.isArray(subtitle) ? subtitle : [],
+    status: normalizeStatus(item.status || (audioUrl ? 'succeeded' : 'processing')),
+    error: textOf(pick(item.error_msg, item.errorMsg, item.refresh_error, item.message)),
+    createdAt: textOf(pick(item.created_at, item.createdAt, item.updated_at, item.updatedAt)),
+    raw: item,
+  };
+};
+
+const getTtsTaskItems = (result = {}) => {
+  const payloads = [result.data, result.raw?.data, result.raw];
+  for (const payload of payloads) {
+    if (Array.isArray(payload)) return payload;
+    if (Array.isArray(payload?.list)) return payload.list;
+    if (Array.isArray(payload?.items)) return payload.items;
+  }
+  return [];
+};
+
+function TextToSpeechPage({ authVersion, onLogin, onOpenAssets }) {
+  const [voices, setVoices] = useState([]);
+  const [tasks, setTasks] = useState([]);
+  const [form, setForm] = useState({ text: '', speakerId: '', language: 'zh-CN', speedRatio: 1, volume: 1, codec: 'mp3' });
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [message, setMessage] = useState('');
+  const pollingRef = useRef(false);
+  const authed = Boolean(getAccessToken());
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    const [voiceResult, taskResult] = await Promise.all([
+      apiFetch('/api/ai-voice/list', { params: { page: 1, page_size: 100 }, timeoutMs: 12000 }),
+      apiFetch('/api/ai-voice/tts', { params: { page: 1, page_size: 50 }, timeoutMs: 12000 }),
+    ]);
+
+    if (voiceResult.authMissing || taskResult.authMissing) {
+      setVoices([]);
+      setTasks([]);
+      setMessage('登录后即可使用克隆声音生成语音。');
+      setLoading(false);
+      return;
+    }
+
+    const nextVoices = getVoiceItems(voiceResult)
+      .map(normalizeVoiceAsset)
+      .filter((voice) => voice.speakerId && voice.status.key === 'success');
+    setVoices(nextVoices);
+    setTasks(getTtsTaskItems(taskResult).map(normalizeTtsTask));
+    setForm((current) => {
+      if (nextVoices.some((voice) => voice.speakerId === current.speakerId)) return current;
+      const first = nextVoices[0];
+      return first ? {
+        ...current,
+        speakerId: first.speakerId,
+        language: first.language || 'zh-CN',
+        speedRatio: Number(first.speed) || 1,
+      } : current;
+    });
+    setMessage(!voiceResult.ok ? voiceResult.message || '克隆声音加载失败' : !taskResult.ok ? taskResult.message || '生成记录加载失败' : '');
+    setLoading(false);
+  }, [authVersion]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const refreshProcessingTasks = useCallback(async () => {
+    if (pollingRef.current) return;
+    const pendingIds = tasks.filter((task) => task.status.key === 'processing').slice(0, 5).map((task) => task.id);
+    if (!pendingIds.length) return;
+    pollingRef.current = true;
+    try {
+      const results = await Promise.all(pendingIds.map((taskId) => apiFetch(`/api/ai-voice/tts/${encodeURIComponent(taskId)}`, { timeoutMs: 45000 })));
+      const updates = new Map(results.filter((result) => result.ok && result.data).map((result) => {
+        const task = normalizeTtsTask(result.data);
+        return [task.id, task];
+      }));
+      if (updates.size) setTasks((current) => current.map((task) => updates.get(task.id) || task));
+    } finally {
+      pollingRef.current = false;
+    }
+  }, [tasks]);
+
+  useEffect(() => {
+    if (!tasks.some((task) => task.status.key === 'processing')) return undefined;
+    const timer = window.setInterval(refreshProcessingTasks, TTS_POLL_INTERVAL_MS);
+    return () => window.clearInterval(timer);
+  }, [refreshProcessingTasks, tasks]);
+
+  const update = (key, value) => setForm((current) => ({ ...current, [key]: value }));
+  const selectVoice = (speakerId) => {
+    const voice = voices.find((item) => item.speakerId === speakerId);
+    setForm((current) => ({
+      ...current,
+      speakerId,
+      language: voice?.language || current.language,
+      speedRatio: Number(voice?.speed) || current.speedRatio,
+    }));
+  };
+
+  const submit = async () => {
+    const text = form.text.trim();
+    if (!authed) {
+      onLogin();
+      return;
+    }
+    if (!text) {
+      setMessage('请输入要转换为语音的文字。');
+      return;
+    }
+    if (!form.speakerId) {
+      setMessage('请先选择一个已完成的克隆声音。');
+      return;
+    }
+
+    setSubmitting(true);
+    setMessage('');
+    const result = await apiFetch('/api/ai-voice/tts', {
+      method: 'POST',
+      timeoutMs: 70000,
+      body: {
+        text,
+        speakerId: form.speakerId,
+        language: form.language,
+        speedRatio: Number(form.speedRatio),
+        volume: Number(form.volume),
+        codec: form.codec,
+        returnSubtitle: true,
+      },
+    });
+    setSubmitting(false);
+    if (!result.ok) {
+      setMessage(result.authMissing ? '请先登录后再生成语音。' : result.message || '语音生成任务提交失败');
+      return;
+    }
+
+    const task = normalizeTtsTask(result.data || result.raw?.data || {});
+    setTasks((current) => [task, ...current.filter((item) => item.id !== task.id)]);
+    setMessage('语音生成任务已提交，完成后可在下方试听和下载。');
+  };
+
+  const selectedVoice = voices.find((voice) => voice.speakerId === form.speakerId);
+
+  return (
+    <div className="tts-page">
+      <section className="tts-hero">
+        <div>
+          <span>CLONED VOICE STUDIO</span>
+          <h1>文字转语音</h1>
+          <p>输入文案，选择你已授权并完成训练的克隆声音，生成可试听和下载的语音。</p>
+        </div>
+        <div className="tts-hero__signal" aria-hidden="true"><AudioLines size={36} /><i /><i /><i /><i /></div>
+      </section>
+
+      <div className="tts-create-grid">
+        <section className="tts-compose-card">
+          <div className="tts-section-head"><span>01</span><div><strong>输入文字</strong><small>生成内容将使用所选克隆声音朗读</small></div><em>{form.text.length} 字符</em></div>
+          <textarea value={form.text} onChange={(event) => update('text', event.target.value)} placeholder="输入要转换为语音的文字……" />
+          <div className="tts-voice-block">
+            <div className="tts-section-head"><span>02</span><div><strong>选择克隆声音</strong><small>仅展示已经训练完成的声音</small></div></div>
+            {loading ? (
+              <div className="tts-loading"><RefreshCw className="is-spinning" size={20} />正在加载声音…</div>
+            ) : voices.length ? (
+              <div className="tts-voice-grid">
+                {voices.map((voice) => (
+                  <button key={voice.speakerId} className={form.speakerId === voice.speakerId ? 'is-active' : ''} onClick={() => selectVoice(voice.speakerId)}>
+                    <span>{voice.cover ? <img src={voice.cover} alt="" /> : <Mic2 size={20} />}</span>
+                    <span><strong>{voice.title}</strong><small>{voice.language} · {Number(voice.speed).toFixed(1)}x</small></span>
+                    {form.speakerId === voice.speakerId && <Check size={16} />}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="tts-no-voice"><Mic2 size={28} /><div><strong>还没有可用的克隆声音</strong><p>先录制或上传本人授权的声音完成训练。</p></div><button className="outline-button" onClick={onOpenAssets}>去克隆声音</button></div>
+            )}
+          </div>
+        </section>
+
+        <aside className="tts-settings-card">
+          <div className="tts-section-head"><span>03</span><div><strong>生成设置</strong><small>{selectedVoice?.title || '等待选择声音'}</small></div></div>
+          <label className="tts-field"><span>语种</span><select translate="no" value={form.language} onChange={(event) => update('language', event.target.value)}>{VOICE_LANGUAGE_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label} · {option.value}</option>)}</select></label>
+          <label className="tts-range-field"><span><b>语速</b><em>{Number(form.speedRatio).toFixed(1)}x</em></span><input type="range" min="0.5" max="2" step="0.1" value={form.speedRatio} onChange={(event) => update('speedRatio', Number(event.target.value))} /></label>
+          <label className="tts-range-field"><span><b>音量</b><em>{Number(form.volume).toFixed(1)}x</em></span><input type="range" min="0.5" max="2" step="0.1" value={form.volume} onChange={(event) => update('volume', Number(event.target.value))} /></label>
+          <div className="tts-format-field"><span>音频格式</span><div>{['mp3', 'wav'].map((codec) => <button key={codec} className={form.codec === codec ? 'is-active' : ''} onClick={() => update('codec', codec)}>{codec.toUpperCase()}</button>)}</div></div>
+          {message && <div className={`tts-message ${/失败|请|没有|无法/.test(message) ? 'is-error' : ''}`}>{message}</div>}
+          <button className="primary-button tts-submit" onClick={submit} disabled={submitting || loading || !voices.length}><Sparkles size={18} />{submitting ? '正在提交…' : '生成语音'}</button>
+          <p className="tts-consent-note"><ShieldCheck size={14} />仅可使用本人或已获得充分授权的克隆声音。</p>
+        </aside>
+      </div>
+
+      <section className="tts-history">
+        <div className="tts-history__head"><div><span>OUTPUTS</span><h2>生成记录</h2></div><button className="outline-button" onClick={() => { load(); refreshProcessingTasks(); }} disabled={loading}><RefreshCw className={loading ? 'is-spinning' : ''} size={16} />刷新</button></div>
+        {loading && !tasks.length ? (
+          <div className="tts-history-empty"><RefreshCw className="is-spinning" size={24} />正在加载生成记录…</div>
+        ) : tasks.length ? (
+          <div className="tts-task-list">
+            {tasks.map((task) => (
+              <article className={`tts-task-card is-${task.status.key}`} key={task.id}>
+                <span className="tts-task-card__icon">{task.status.key === 'processing' ? <RefreshCw className="is-spinning" size={21} /> : task.status.key === 'failed' ? <AlertCircle size={21} /> : <AudioLines size={21} />}</span>
+                <div className="tts-task-card__body">
+                  <div className="tts-task-card__title"><strong>{task.text || '语音生成任务'}</strong><span className={`state-dot state-dot--${task.status.key}`}>{task.status.label}</span></div>
+                  <small>{[task.voiceName, task.language, task.codec, `${task.speedRatio.toFixed(1)}x`, task.duration ? formatDuration(task.duration) : '', task.createdAt].filter(Boolean).join(' · ')}</small>
+                  {task.audioUrl ? <audio controls preload="none" src={task.audioUrl} /> : task.status.key === 'processing' ? <p>正在生成，页面会自动更新结果。</p> : task.error ? <p className="is-error">{task.error}</p> : null}
+                </div>
+                {task.audioUrl && <a className="tts-download" href={task.audioUrl} download target="_blank" rel="noreferrer"><Download size={16} />下载</a>}
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="tts-history-empty"><AudioLines size={30} /><strong>{authed ? '还没有生成记录' : '登录后查看生成记录'}</strong><p>{authed ? '完成第一次文字转语音后，结果会显示在这里。' : '登录后即可使用你的克隆声音。'}</p>{!authed && <button className="primary-button" onClick={onLogin}>去登录</button>}</div>
+        )}
+      </section>
     </div>
   );
 }
@@ -9693,6 +9942,7 @@ const getInitialWorkspacePage = () => {
   const page = new URLSearchParams(window.location.search).get('page');
   if (page === 'password-reset') return 'password-reset';
   if (page === 'video') return 'video';
+  if (page === 'speech') return 'speech';
   return 'home';
 };
 
@@ -9770,6 +10020,7 @@ const notificationKindConfig = {
   human: { label: '数字人训练', destination: 'assets', assetMode: 'video' },
   imageHuman: { label: '图片数字人训练', destination: 'assets', assetMode: 'image' },
   voice: { label: '声音训练', destination: 'assets', assetMode: 'voice' },
+  speech: { label: '语音合成', destination: 'speech' },
   music: { label: '音乐制作', destination: 'music' },
 };
 
@@ -9779,6 +10030,7 @@ const getOfficialNotificationKind = (item = {}) => {
   if (taskType === 'human_image') return 'imageHuman';
   if (['video_mix', 'video_clip'].includes(taskType) || notificationType === 'video_mix') return 'smartVideo';
   if (notificationType === 'image' || taskType === 'gpt_image_2_image') return 'image';
+  if (taskType === 'text_to_speech') return 'speech';
   if (notificationType === 'voice' || taskType === 'voice') return 'voice';
   if (notificationType === 'ai_human' || ['human_video', 'human_voice'].includes(taskType)) return 'human';
   if (['music', 'music_video', 'music_voice'].includes(notificationType) || taskType.startsWith('suno_')) return 'music';
@@ -9790,6 +10042,7 @@ const getOfficialNotificationDestination = (item = {}, kind) => {
   const path = textOf(item.target_path || item.targetPath).toLowerCase();
   if (/image-generation/.test(path)) return { destination: 'image', assetMode: '' };
   if (/music-generated/.test(path)) return { destination: 'music', assetMode: '' };
+  if (/text-to-speech/.test(path)) return { destination: 'speech', assetMode: '' };
   if (/aihuman\?type=voice/.test(path)) return { destination: 'assets', assetMode: 'voice' };
   if (/aihuman\?type=video|mix-video-production/.test(path)) return { destination: 'video', assetMode: '' };
   if (/aihuman/.test(path)) return { destination: 'assets', assetMode: kind === 'imageHuman' ? 'image' : 'video' };
@@ -10015,6 +10268,8 @@ export default function App() {
     const url = new URL(window.location.href);
     if (id === 'password-reset') {
       url.searchParams.set('page', 'password-reset');
+    } else if (id === 'speech') {
+      url.searchParams.set('page', 'speech');
     } else {
       url.searchParams.delete('page');
     }
@@ -10296,6 +10551,15 @@ export default function App() {
                 onLogin={() => setLoginOpen(true)}
                 onOpenLyrics={() => selectNav('assistant')}
                 onOpenBilling={() => selectNav('billing')}
+              />
+            ) : active === 'speech' ? (
+              <TextToSpeechPage
+                authVersion={authVersion}
+                onLogin={() => setLoginOpen(true)}
+                onOpenAssets={() => {
+                  setAssetInitialMode('voice');
+                  setActive('assets');
+                }}
               />
             ) : active === 'video' ? (
               <VideoStudioPage

@@ -1858,5 +1858,17 @@
   "复制": "Sao chép",
   "已复制": "Đã sao chép",
   "长按填入输入框": "Nhấn giữ để sử dụng lại",
-  "生成内容异常，请重新生成。": "Không thể hiển thị nội dung đã tạo. Vui lòng thử lại."
+  "生成内容异常，请重新生成。": "Không thể hiển thị nội dung đã tạo. Vui lòng thử lại.",
+  "Text to Speech": "Chuyển văn bản thành giọng nói",
+  "文字转语音": "Chuyển văn bản thành giọng nói",
+  "输入文案，选择你已授权并完成训练的克隆声音，生成可试听和下载的语音。": "Nhập nội dung, chọn giọng nói nhân bản đã được cấp quyền và huấn luyện, rồi tạo âm thanh để nghe thử và tải xuống.",
+  "输入文字": "Nhập văn bản",
+  "输入要转换为语音的文字……": "Nhập văn bản cần chuyển thành giọng nói…",
+  "选择克隆声音": "Chọn giọng nói nhân bản",
+  "还没有可用的克隆声音": "Chưa có giọng nói nhân bản khả dụng",
+  "生成设置": "Cài đặt tạo",
+  "音频格式": "Định dạng âm thanh",
+  "生成语音": "Tạo giọng nói",
+  "生成记录": "Lịch sử tạo",
+  "仅可使用本人或已获得充分授权的克隆声音。": "Chỉ sử dụng giọng nói nhân bản của bạn hoặc giọng nói mà bạn đã được cấp đầy đủ quyền sử dụng."
 }

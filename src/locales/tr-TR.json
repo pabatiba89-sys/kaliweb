@@ -1792,5 +1792,17 @@
   "复制": "Kopyala",
   "已复制": "Kopyalandı",
   "长按填入输入框": "Yeniden kullanmak için basılı tutun",
-  "生成内容异常，请重新生成。": "Oluşturulan içerik görüntülenemiyor. Lütfen tekrar deneyin."
+  "生成内容异常，请重新生成。": "Oluşturulan içerik görüntülenemiyor. Lütfen tekrar deneyin.",
+  "Text to Speech": "Metinden Sese",
+  "文字转语音": "Metinden Sese",
+  "输入文案，选择你已授权并完成训练的克隆声音，生成可试听和下载的语音。": "Metni girin, yetkili ve eğitilmiş bir klon ses seçin, ardından dinleyip indirebileceğiniz sesi oluşturun.",
+  "输入文字": "Metin girin",
+  "输入要转换为语音的文字……": "Sese dönüştürülecek metni girin…",
+  "选择克隆声音": "Klon ses seçin",
+  "还没有可用的克隆声音": "Hazır klon ses yok",
+  "生成设置": "Oluşturma ayarları",
+  "音频格式": "Ses biçimi",
+  "生成语音": "Ses oluştur",
+  "生成记录": "Oluşturma geçmişi",
+  "仅可使用本人或已获得充分授权的克隆声音。": "Yalnızca kendi klon sesinizi veya kullanma yetkisine tam olarak sahip olduğunuz bir sesi kullanın."
 }
