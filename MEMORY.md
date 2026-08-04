@@ -170,3 +170,4 @@
 - 2026-08-03：文案生成对话中，返回 HTML 页面或成组 HTML 标签等异常内容时不得原样展示，统一提示用户重新生成；用户消息支持长按回填输入框并提供复制按钮，系统完整回复也提供复制按钮，流式未完成内容不开放复制。
 - 2026-08-03：SEO 主动提交采用两条路径：Google Search Console 管理 `https://www.kaliai.fun/`，Bing 等支持方使用 IndexNow；公开验证文件位于 `public/`，批量提交脚本为 `scripts/submit-indexnow.mjs`。Google `site:kaliai.fun` 当日仍可看到此前已收录的未审校多语言页面，这些页面继续保持 `noindex`，待母语审校后再逐步开放。
 - 2026-08-04：Google Search Console 使用网址前缀资源 `https://www.kaliai.fun/`；所有权采用公开首页 HTML 标记验证，标记配置位于 `src/site/site-config.js`，构建后由 `scripts/check-seo-output.mjs` 自动检查，保持该标记可避免所有权失效。
+- 2026-08-04：Google Search Console 已自动验证 `https://www.kaliai.fun/` 的所有权，并成功提交 `/sitemap.xml`。首次提交后列表可能短暂显示“无法抓取”；当日已确认正式地址对普通请求和 Googlebot User-Agent 均返回 `200 application/xml`，且 robots 允许搜索抓取，应先等待 Google 后台重试，不要为即时状态盲目改动正常配置。
