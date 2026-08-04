@@ -3466,19 +3466,28 @@ const TTS_POLL_INTERVAL_MS = 8000;
 const normalizeTtsTask = (item = {}, index = 0) => {
   const requestPayload = item.request && typeof item.request === 'object' ? item.request : {};
   const voice = item.voice && typeof item.voice === 'object' ? item.voice : {};
+  const speech = item.speech && typeof item.speech === 'object' ? item.speech : {};
   const result = item.result && typeof item.result === 'object' ? item.result : {};
   const audioUrl = getApiMediaUrl(pick(item.audio_url, item.audioUrl, result.audioUrl, result.audio_url, result.url));
   const subtitle = pick(item.subtitle, result.subtitle, result.subtitles);
+  const creditsRemaining = pick(item.credits_remaining, item.creditsRemaining);
   return {
     id: textOf(pick(item.task_id, item.taskId, item.id, `tts-task-${index}`)),
-    text: textOf(pick(requestPayload.text, item.text, result.text)),
-    voiceName: textOf(pick(voice.name, voice.voice_name, item.voiceName, item.voice_name)) || '克隆声音',
-    voiceId: textOf(pick(voice.voice_id, voice.voiceId, requestPayload.speakerId, requestPayload.speaker_id)),
-    language: textOf(pick(requestPayload.language, voice.language)),
-    codec: textOf(requestPayload.codec || 'mp3').toUpperCase(),
-    speedRatio: Number(requestPayload.speedRatio ?? requestPayload.speed_ratio) || 1,
-    volume: Number(requestPayload.volume) || 1,
-    duration: Number(pick(result.duration, item.duration)) || 0,
+    text: textOf(pick(requestPayload.text, speech.text, item.text, result.text)),
+    voiceName: textOf(pick(voice.name, voice.voice_name, speech.voice_name, item.voiceName, item.voice_name)) || '克隆声音',
+    voiceId: textOf(pick(voice.voice_id, voice.voiceId, speech.voice_id, requestPayload.speakerId, requestPayload.speaker_id)),
+    language: textOf(pick(requestPayload.language, voice.language, speech.language)),
+    codec: textOf(pick(requestPayload.codec, speech.codec, 'mp3')).toUpperCase(),
+    speedRatio: Number(pick(requestPayload.speedRatio, requestPayload.speed_ratio, speech.speed_ratio)) || 1,
+    volume: Number(pick(requestPayload.volume, speech.volume)) || 1,
+    duration: Number(pick(item.actual_seconds, item.actualSeconds, speech.actual_seconds, result.duration, item.duration)) || 0,
+    estimatedSeconds: Number(pick(item.estimated_seconds, item.estimatedSeconds, speech.estimated_seconds)) || 0,
+    actualSeconds: Number(pick(item.actual_seconds, item.actualSeconds, speech.actual_seconds)) || 0,
+    creditsCharged: Number(pick(item.credits_charged, item.creditsCharged, speech.credits_charged)) || 0,
+    creditsRemaining: creditsRemaining !== undefined && creditsRemaining !== null && creditsRemaining !== '' && Number.isFinite(Number(creditsRemaining))
+      ? Number(creditsRemaining)
+      : null,
+    settlementStatus: textOf(pick(item.settlement_status, item.settlementStatus, speech.settlement_status)),
     audioUrl,
     subtitle: Array.isArray(subtitle) ? subtitle : [],
     status: normalizeStatus(item.status || (audioUrl ? 'succeeded' : 'processing')),
