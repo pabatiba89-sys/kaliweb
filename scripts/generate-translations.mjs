@@ -40,6 +40,7 @@ const localeTargets = {
 };
 const localeOverrides = {
   'en-US': {
+    '制作数字人': 'Creating AI-generated avatars videos',
     '消息通知': 'Notifications',
     '全部已读': 'Mark all as read',
     '登录后查看任务通知': 'Sign in to view task notifications',
@@ -458,7 +459,7 @@ const localeOverrides = {
 
 const navigationKeys = ['Home', 'Hot Trends', 'AI Assistant', 'Video Studio', 'Asset Studio', 'Music Studio', 'Image Studio', 'Materials', 'Templates', 'Billing', 'Settings', 'Sign in', 'Sign out', 'New Video', 'Collapse'];
 const navigationOverrides = {
-  'en-US': ['Home', 'Trends', 'AI Assistant', 'Video', 'Assets', 'Music', 'Images', 'Media', 'Templates', 'Plans & billing', 'Settings', 'Sign in', 'Sign out', 'New video', 'Collapse'],
+  'en-US': ['Home', 'Hot Topics', 'AI Assistant', 'Video', 'Assets', 'Music', 'Images', 'Media', 'Templates', 'Plans & billing', 'Settings', 'Sign in', 'Sign out', 'New video', 'Collapse'],
   'zh-CN': ['首页', '热点', 'AI 助手', '视频', '资产', '音乐', '图片', '素材', '模板', '套餐与账单', '设置', '登录', '退出', '新建视频', '收起'],
   'zh-TW': ['首頁', '熱點', 'AI 助手', '影片', '資產', '音樂', '圖片', '素材', '範本', '方案與帳單', '設定', '登入', '登出', '新增影片', '收合'],
   'es-MX': ['Inicio', 'Tendencias', 'Asistente de IA', 'Video', 'Recursos', 'Música', 'Imágenes', 'Contenido', 'Plantillas', 'Planes y facturación', 'Configuración', 'Iniciar sesión', 'Cerrar sesión', 'Nuevo video', 'Contraer'],
