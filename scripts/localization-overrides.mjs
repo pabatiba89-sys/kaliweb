@@ -338,6 +338,33 @@ const chatInteractionRows = {
   'hi-IN': ['कॉपी करें', 'कॉपी हो गया', 'दोबारा उपयोग करने के लिए दबाकर रखें', 'कॉपी रास्ता भटक गई। कृपया इसे फिर से जनरेट करें।'],
 };
 
+const regenerateLabels = {
+  'en-US': 'Regenerate',
+  'zh-CN': '重新生成',
+  'zh-TW': '重新生成',
+  'es-MX': 'Volver a generar',
+  'fr-FR': 'Régénérer',
+  'ru-RU': 'Создать заново',
+  'de-DE': 'Neu generieren',
+  'pt-PT': 'Gerar novamente',
+  'ar-AE': 'إنشاء من جديد',
+  'it-IT': 'Genera di nuovo',
+  'ja-JP': '再生成',
+  'ko-KR': '다시 생성',
+  'id-ID': 'Buat ulang',
+  'vi-VN': 'Tạo lại',
+  'tr-TR': 'Yeniden oluştur',
+  'nl-NL': 'Opnieuw genereren',
+  'uk-UA': 'Створити знову',
+  'th-TH': 'สร้างใหม่',
+  'pl-PL': 'Wygeneruj ponownie',
+  'ro-RO': 'Generează din nou',
+  'el-GR': 'Δημιουργία ξανά',
+  'cs-CZ': 'Vygenerovat znovu',
+  'fi-FI': 'Luo uudelleen',
+  'hi-IN': 'फिर से जनरेट करें',
+};
+
 const workflowKeys = [
   'HOT TOPIC TO VIDEO',
   'MAIN FLOW',
@@ -1083,6 +1110,7 @@ export const workspaceLocalizationOverrides = Object.fromEntries(Object.entries(
   billingKeys.forEach((key, index) => { overrides[key] = billingRows[locale][index]; });
   paymentKeys.forEach((key, index) => { overrides[key] = paymentRows[locale][index]; });
   chatInteractionKeys.forEach((key, index) => { overrides[key] = chatInteractionRows[locale][index]; });
+  overrides['重新生成'] = regenerateLabels[locale];
   Object.assign(overrides, affiliateOverrides[locale] || {});
   return [locale, overrides];
 }));

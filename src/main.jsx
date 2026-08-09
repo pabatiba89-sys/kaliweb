@@ -9291,6 +9291,11 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
                     {copiedMessageKey === messageKey ? <Check size={16} /> : <Copy size={16} />}
                     {copiedMessageKey === messageKey ? '已复制' : '复制'}
                   </button>
+                  {message.role === 'user' && (
+                    <button className="is-regenerate" onClick={() => generate(message.text)} disabled={loading}>
+                      <RefreshCw size={16} />重新生成
+                    </button>
+                  )}
                   {message.generated && !message.error && (isMusicAgent ? (
                     <button className="is-music" onClick={() => makeMusic(message)}><Music2 size={16} />去制作音乐</button>
                   ) : isProAgent ? (

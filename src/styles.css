@@ -5198,6 +5198,13 @@ html[dir="rtl"] .legal-back-button svg {
   box-shadow: 0 10px 22px rgba(24, 62, 53, 0.18);
 }
 
+.copy-message-actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
 .copy-message-actions .is-copy {
   border: 1px solid #c9ded8;
   background: #ffffff;
@@ -5208,6 +5215,10 @@ html[dir="rtl"] .legal-back-button svg {
 .copy-message-actions .is-copy:hover {
   border-color: #8fcbbc;
   background: #effaf6;
+}
+
+.copy-message-actions .is-regenerate {
+  background: #00a884;
 }
 
 .copy-message-actions .is-smart {

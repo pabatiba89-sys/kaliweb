@@ -1816,5 +1816,6 @@
   "生成语音": "Générer la voix",
   "生成记录": "Historique des générations",
   "仅可使用本人或已获得充分授权的克隆声音。": "Utilisez uniquement votre propre voix clonée ou une voix pour laquelle vous disposez d’une autorisation complète.",
-  "文案迷路了，请重新生成。": "Le texte s’est égaré. Générez-le à nouveau."
+  "文案迷路了，请重新生成。": "Le texte s’est égaré. Générez-le à nouveau.",
+  "重新生成": "Régénérer"
 }
