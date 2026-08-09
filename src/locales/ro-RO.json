@@ -1816,5 +1816,6 @@
   "音频格式": "Format audio",
   "生成语音": "Generează voce",
   "生成记录": "Istoric generări",
-  "仅可使用本人或已获得充分授权的克隆声音。": "Folosește doar propria voce clonată sau o voce pentru care ai autorizație deplină."
+  "仅可使用本人或已获得充分授权的克隆声音。": "Folosește doar propria voce clonată sau o voce pentru care ai autorizație deplină.",
+  "文案迷路了，请重新生成。": "Textul s-a rătăcit. Generează-l din nou."
 }

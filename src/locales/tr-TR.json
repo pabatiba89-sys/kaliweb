@@ -1804,5 +1804,6 @@
   "音频格式": "Ses biçimi",
   "生成语音": "Ses oluştur",
   "生成记录": "Oluşturma geçmişi",
-  "仅可使用本人或已获得充分授权的克隆声音。": "Yalnızca kendi klon sesinizi veya kullanma yetkisine tam olarak sahip olduğunuz bir sesi kullanın."
+  "仅可使用本人或已获得充分授权的克隆声音。": "Yalnızca kendi klon sesinizi veya kullanma yetkisine tam olarak sahip olduğunuz bir sesi kullanın.",
+  "文案迷路了，请重新生成。": "Metin yolunu kaybetti. Lütfen yeniden oluşturun."
 }

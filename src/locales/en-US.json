@@ -1161,5 +1161,6 @@
   "音频格式": "Audio format",
   "生成语音": "Generate speech",
   "生成记录": "Generation history",
-  "仅可使用本人或已获得充分授权的克隆声音。": "Only use your own cloned voice or a voice you are fully authorized to use."
+  "仅可使用本人或已获得充分授权的克隆声音。": "Only use your own cloned voice or a voice you are fully authorized to use.",
+  "文案迷路了，请重新生成。": "The copy wandered off. Please generate it again."
 }

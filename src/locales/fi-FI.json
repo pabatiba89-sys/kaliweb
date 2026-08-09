@@ -1807,5 +1807,6 @@
   "音频格式": "Äänimuoto",
   "生成语音": "Luo puhe",
   "生成记录": "Luontihistoria",
-  "仅可使用本人或已获得充分授权的克隆声音。": "Käytä vain omaa klooniääntäsi tai ääntä, jonka käyttöön sinulla on täydet oikeudet."
+  "仅可使用本人或已获得充分授权的克隆声音。": "Käytä vain omaa klooniääntäsi tai ääntä, jonka käyttöön sinulla on täydet oikeudet.",
+  "文案迷路了，请重新生成。": "Teksti eksyi matkalla. Luo se uudelleen."
 }

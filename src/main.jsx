@@ -82,6 +82,7 @@ import {
   uploadFile,
 } from './api';
 import { getInitialLocale, languages, translateStatic, useAutoTranslate, useLocaleCatalog } from './i18n';
+import { GENERATED_CONTENT_UNAVAILABLE_MESSAGE, isGeneratedMarkupFailure } from './generatedContent';
 import { pageConfigs } from './pageConfig';
 import packageJson from '../package.json';
 import './styles.css';
@@ -9053,20 +9054,6 @@ const GENERATED_THINKING_MESSAGES = [
   'جارٍ التفكير',
 ];
 
-const GENERATED_CONTENT_UNAVAILABLE_MESSAGE = '生成内容异常，请重新生成。';
-const isGeneratedMarkupFailure = (value) => {
-  const text = textOf(value);
-  if (!text) return false;
-  const markupTags = text.match(/<\/?(?:html|head|body|main|section|article|div|script|style|title|meta|link)\b[^>]*>/gi) || [];
-  const visibleText = text
-    .replace(/<!--[\s\S]*?-->/g, '')
-    .replace(/<[^>]+>/g, '')
-    .replace(/&nbsp;/gi, ' ')
-    .trim();
-  return /<!doctype\s+html|<\/?(?:html|body)\b/i.test(text)
-    || (markupTags.length >= 2 && visibleText.length < 24);
-};
-
 function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVideo, onMakeMusic }) {
   const [flow] = useState(() => (useHotTopicFlow ? getPendingFlow() : null));
   const initialPrompt = flow?.prompt || flow?.topic || '';
@@ -9131,6 +9118,10 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
         messages: nextMessages,
         signal: controller.signal,
         onProgress: (partialText) => {
+          if (isGeneratedMarkupFailure(partialText)) {
+            controller.abort();
+            throw new Error(GENERATED_CONTENT_UNAVAILABLE_MESSAGE);
+          }
           setMessages(nextMessages.concat({ role: 'assistant', text: partialText, streaming: true }));
         },
       });
