@@ -67,7 +67,9 @@ const isApiRequest = (pathname) =>
   pathname === '/api' ||
   pathname.startsWith('/api/') ||
   pathname === '/login' ||
-  pathname.startsWith('/login/');
+  pathname.startsWith('/login/') ||
+  pathname === '/mcp' ||
+  pathname.startsWith('/mcp/');
 
 export default {
   async fetch(request, env) {

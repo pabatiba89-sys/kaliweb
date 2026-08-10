@@ -20,6 +20,8 @@ import {
   Cuboid,
   Download,
   Edit3,
+  Eye,
+  EyeOff,
   ExternalLink,
   FileVideo,
   Fingerprint,
@@ -45,6 +47,7 @@ import {
   Settings,
   ShieldCheck,
   ScanFace,
+  Server,
   Sparkles,
   TrendingUp,
   Trash2,
@@ -76,6 +79,7 @@ import {
   rememberInviteCode,
   reportEvonetOneTimePaymentEvent,
   requestPasswordReset,
+  refreshUserToken,
   sendPhoneVerificationCode,
   storeSession,
   toList,
@@ -7536,16 +7540,65 @@ function AffiliatePage({ language, authVersion, onLogin }) {
   );
 }
 
-function SettingsPage({ authVersion, onLogin, onLogout }) {
+const decodeUserTokenPayload = (token) => {
+  try {
+    const encodedPayload = String(token || '').split('.')[1];
+    if (!encodedPayload) return {};
+    const paddedPayload = encodedPayload.replace(/-/g, '+').replace(/_/g, '/').padEnd(Math.ceil(encodedPayload.length / 4) * 4, '=');
+    const bytes = Uint8Array.from(window.atob(paddedPayload), (character) => character.charCodeAt(0));
+    return JSON.parse(new TextDecoder().decode(bytes));
+  } catch {
+    return {};
+  }
+};
+
+const getUserTokenExpiry = (token) => {
+  const expiresAt = Number(decodeUserTokenPayload(token).exp);
+  return Number.isFinite(expiresAt) && expiresAt > 0 ? expiresAt * 1000 : 0;
+};
+
+const formatUserTokenExpiry = (timestamp, locale = 'en-US') => {
+  if (!timestamp) return 'Not available';
+  try {
+    return new Intl.DateTimeFormat(locale, {
+      year: 'numeric',
+      month: 'short',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+      timeZoneName: 'short',
+    }).format(timestamp);
+  } catch {
+    return new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    }).format(timestamp);
+  }
+};
+
+function SettingsPage({ language, authVersion, onLogin, onLogout }) {
   const [profile, setProfile] = useState(() => readStoredUser());
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const [phoneForm, setPhoneForm] = useState({ countryCode: '+1', phone: '', code: '' });
   const [busy, setBusy] = useState('');
+  const [userToken, setUserToken] = useState(() => getAccessToken());
+  const [tokenVisible, setTokenVisible] = useState(false);
+  const [tokenMessage, setTokenMessage] = useState({ text: '', error: false });
   const token = getAccessToken();
+  const tokenExpiresAt = getUserTokenExpiry(userToken);
+  const tokenExpired = tokenExpiresAt > 0 && tokenExpiresAt <= Date.now();
+  const mcpServerUrl = import.meta.env.VITE_MCP_SERVER_URL || `${window.location.origin}/mcp`;
+  const codexConfig = `[mcp_servers.kali]\nurl = "${mcpServerUrl}"\nbearer_token_env_var = "KALI_USER_TOKEN"`;
 
   useEffect(() => {
+    setUserToken(token);
     if (!token) {
       setProfile({});
       return undefined;
@@ -7570,6 +7623,48 @@ function SettingsPage({ authVersion, onLogin, onLogout }) {
 
   const updatePassword = (key, value) => setPasswordForm((current) => ({ ...current, [key]: value }));
   const updatePhone = (key, value) => setPhoneForm((current) => ({ ...current, [key]: value }));
+
+  const copyTokenText = async (value, successMessage) => {
+    try {
+      let copied = false;
+      if (navigator.clipboard?.writeText) {
+        try {
+          await navigator.clipboard.writeText(value);
+          copied = true;
+        } catch {
+          copied = false;
+        }
+      }
+      if (!copied) {
+        const textarea = document.createElement('textarea');
+        textarea.value = value;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        copied = document.execCommand('copy');
+        textarea.remove();
+      }
+      if (!copied) throw new Error('copy failed');
+      setTokenMessage({ text: successMessage, error: false });
+    } catch {
+      setTokenMessage({ text: 'Copy failed. Please copy it manually.', error: true });
+    }
+  };
+
+  const refreshToken = async () => {
+    setBusy('refresh-token');
+    setTokenMessage({ text: '', error: false });
+    const result = await refreshUserToken();
+    setBusy('');
+    if (!result.ok || !result.token) {
+      setTokenMessage({ text: result.message || 'Token refresh is not available yet', error: true });
+      return;
+    }
+    setUserToken(result.token);
+    setTokenMessage({ text: 'Token refreshed.', error: false });
+  };
 
   const submitPassword = async (event) => {
     event.preventDefault();
@@ -7728,6 +7823,72 @@ function SettingsPage({ authVersion, onLogin, onLogout }) {
             {busy === 'bind-phone' ? 'Binding' : 'Bind phone'}
           </button>
         </form>
+
+        <article className="settings-card settings-mcp-card">
+          <header>
+            <Server size={20} />
+            <div>
+              <h2>Connect Codex / MCP</h2>
+              <p>Use your account token to connect Codex or another MCP client.</p>
+            </div>
+          </header>
+
+          <div className="settings-token-field">
+            <div className="settings-token-label">
+              <span>User token</span>
+              {tokenExpired && <strong>Expired</strong>}
+            </div>
+            <div className="settings-token-row">
+              <input
+                type={tokenVisible ? 'text' : 'password'}
+                value={userToken}
+                readOnly
+                spellCheck="false"
+                aria-label="User token"
+              />
+              <button type="button" className="outline-button" onClick={() => setTokenVisible((visible) => !visible)}>
+                {tokenVisible ? <EyeOff size={16} /> : <Eye size={16} />}
+                {tokenVisible ? 'Hide token' : 'Show token'}
+              </button>
+              <button type="button" className="outline-button" onClick={() => copyTokenText(userToken, 'Token copied.')}>
+                <Copy size={16} />
+                Copy token
+              </button>
+              <button type="button" className="outline-button" onClick={refreshToken} disabled={busy === 'refresh-token'}>
+                <RefreshCw className={busy === 'refresh-token' ? 'is-spinning' : ''} size={16} />
+                {busy === 'refresh-token' ? 'Refreshing' : 'Refresh token'}
+              </button>
+            </div>
+          </div>
+
+          <dl className="settings-mcp-meta">
+            <div><dt>MCP server URL</dt><dd>{mcpServerUrl}</dd></div>
+            <div><dt>Token expires</dt><dd>{formatUserTokenExpiry(tokenExpiresAt, language)}</dd></div>
+          </dl>
+
+          <div className="settings-token-warning">
+            <ShieldCheck size={17} />
+            <span>Keep this token private. Anyone with it can access your Kali account until it expires.</span>
+          </div>
+
+          <div className="settings-codex-config">
+            <div>
+              <strong>Codex configuration</strong>
+              <button type="button" className="outline-button" onClick={() => copyTokenText(codexConfig, 'Configuration copied.')}>
+                <Copy size={16} />
+                Copy configuration
+              </button>
+            </div>
+            <pre><code>{codexConfig}</code></pre>
+            <small>Set KALI_USER_TOKEN in your environment. After saving, restart Codex and use /mcp to verify the connection.</small>
+          </div>
+
+          {tokenMessage.text && (
+            <div className={`settings-token-message${tokenMessage.error ? ' is-error' : ''}`} role="status">
+              {tokenMessage.text}
+            </div>
+          )}
+        </article>
       </section>
     </div>
   );
@@ -10592,6 +10753,7 @@ export default function App() {
               />
             ) : active === 'settings' ? (
               <SettingsPage
+                language={language}
                 authVersion={authVersion}
                 onLogin={() => setLoginOpen(true)}
                 onLogout={logout}

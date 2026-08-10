@@ -10,6 +10,7 @@ const AUTH_ENDPOINTS = {
   changePassword: ['/api/user/password/change', '/api/user/change-password', '/api/user/reset-password'],
   sendPhoneCode: ['/api/user/phone/send-code', '/api/user/send-phone-code', '/api/sms/send'],
   bindPhone: ['/api/user/phone/bind', '/api/user/bind-phone', '/api/user/mobile/bind'],
+  refreshToken: ['/api/user/token/refresh', '/api/user/refresh-token'],
 };
 const PAYMENT_ENDPOINTS = {
   evonetOneTimeSession: ['/api/pay/evonet/create_session'],
@@ -358,6 +359,27 @@ export async function bindPhoneNumber({ countryCode, phone, code }) {
       verification_code: code,
     },
   }, 'Phone binding is not available yet');
+}
+
+export async function refreshUserToken() {
+  const result = await apiFetchAny(AUTH_ENDPOINTS.refreshToken, {
+    method: 'POST',
+    timeoutMs: 10000,
+  }, 'Token refresh is not available yet');
+
+  if (!result.ok) return result;
+
+  const nextToken = result.data?.token || result.data?.access_token || result.data?.accessToken;
+  if (!nextToken) {
+    return {
+      ...result,
+      ok: false,
+      message: 'Token refresh returned no token',
+    };
+  }
+
+  storeSession({ ...result.data, token: nextToken });
+  return { ...result, token: nextToken };
 }
 
 export async function createEvonetOneTimePaymentSession({ plan, locale }) {
