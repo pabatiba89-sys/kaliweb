@@ -176,3 +176,4 @@
 - 2026-08-04：文字转语音高曝光文案维护在 `scripts/localization-overrides.mjs` 并同步 24 个工作台语言包；当日自动翻译依赖的 Microsoft auth 端点返回 404，因此应用 curated overrides 完成本次本地化，不在失败后留下部分写入状态。
 - 2026-08-04：文字转语音按预估秒数预扣积分，后端成功归档七牛后按实际秒数多退少补；前端任务解析需兼容顶层和 `speech` 对象中的 `estimated_seconds/actual_seconds/credits_charged/settlement_status`，只用持久化 `audio_url` 播放成品，不把 `provider_audio_url` 当长期资源。
 - 2026-08-08：英文界面术语按用户指定统一：`制作数字人` 使用 `Creating AI-generated avatars videos`，`热点追踪` 使用 `Hot Topics`；对应高曝光文案应写入翻译 override，避免重新生成语言包后回退。
+- 2026-08-10：SEO 关键词调研与落地只作用于当前可索引的英文页面；Google 不使用 `meta keywords` 排名，因此实现以页面级 title、description 和结构化数据为主，关键词标签只作补充。其他语言完成母语关键词调研并开放索引后再分别配置，禁止直接复用英文词簇。
