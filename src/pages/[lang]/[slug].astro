@@ -3,6 +3,7 @@ import PublicLayout from '../../layouts/PublicLayout.astro';
 import { pagePath, pagesByLocale, supportedLocales } from '../../site/content.js';
 import { translateText } from '../../site/localization.js';
 import { brandName } from '../../site/localization.js';
+import { getSeoMetadata } from '../../site/seo.js';
 
 type TextPair = [string, string];
 type PublicPage = {
@@ -34,6 +35,7 @@ export function getStaticPaths() {
 
 const { lang, page } = Astro.props as { lang: string; page: PublicPage };
 const t = (value: string) => translateText(value, lang);
+const seo = getSeoMetadata(lang, page.slug, page);
 const allPages = (pagesByLocale[lang] || []) as PublicPage[];
 const findPage = (slug: string) => allPages.find((item) => item.slug === slug);
 const isHelpIndex = page.contentType === 'helpIndex';
@@ -41,8 +43,9 @@ const isGuide = page.contentType === 'guide';
 const relatedPages = (page.related || []).map(findPage).filter(Boolean);
 const pageSchema = {
   '@type': 'WebPage',
-  name: page.title,
-  description: page.description,
+  name: seo.title,
+  description: seo.description,
+  ...(seo.keywords.length > 0 ? { keywords: seo.keywords.join(', ') } : {}),
   url: new URL(pagePath(lang, page.slug), Astro.site),
   isPartOf: { '@id': `${Astro.site}#website` },
   about: { '@id': `${Astro.site}#organization` },
@@ -60,7 +63,7 @@ const faqSchema = {
   mainEntity: page.faq.map(([question, answer]) => ({ '@type': 'Question', name: question, acceptedAnswer: { '@type': 'Answer', text: answer } })),
 };
 ---
-<PublicLayout locale={lang} slug={page.slug} title={`${page.title} | ${brandName(lang)}`} description={page.description} eyebrow={page.eyebrow} schema={[pageSchema, howToSchema, faqSchema].filter(Boolean)}>
+<PublicLayout locale={lang} slug={page.slug} title={`${seo.title} | ${brandName(lang)}`} description={seo.description} keywords={seo.keywords} eyebrow={page.eyebrow} schema={[pageSchema, howToSchema, faqSchema].filter(Boolean)}>
   <section class:list={['page-hero', { 'help-hero': isHelpIndex || isGuide }]}>
     <div><p class="eyebrow">{page.eyebrow}</p><h1>{page.headline}</h1><p class="hero-lead">{page.lead}</p>{!isHelpIndex && !isGuide && <div class="hero-actions"><a class="primary-cta" href="/app/">{t('Open the workspace')} <span>↗</span></a><a class="text-cta" href={pagePath(lang, 'contact')}>{t('Talk to the team')} <span>→</span></a></div>}</div>
     <aside><p>{isGuide ? t('IN THIS GUIDE') : t('WHAT YOU CAN DO')}</p><ul>{page.bullets.map((bullet) => <li><span>✓</span>{bullet}</li>)}</ul></aside>

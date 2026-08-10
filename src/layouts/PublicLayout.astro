@@ -19,6 +19,7 @@ const {
   locale = 'en',
   title,
   description,
+  keywords = [],
   slug = '',
   eyebrow = '',
   schema = [],
@@ -26,6 +27,7 @@ const {
   locale?: string;
   title: string;
   description: string;
+  keywords?: string[];
   slug?: string;
   eyebrow?: string;
   schema?: SchemaEntry | SchemaEntry[];
@@ -41,6 +43,7 @@ const alternates = shouldIndex ? indexableLocales.map((code) => ({
 })) : [];
 const xDefault = new URL(pagePath(defaultSeoLocale, slug), Astro.site);
 const graph = Array.isArray(schema) ? schema : [schema];
+const keywordContent = [...new Set(keywords.map((keyword) => keyword.trim()).filter(Boolean))].join(', ');
 const jsonLd = {
   '@context': 'https://schema.org',
   '@graph': [
@@ -77,6 +80,7 @@ const jsonLd = {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    {shouldIndex && keywordContent && <meta name="keywords" content={keywordContent} />}
     <meta name="google-site-verification" content={GOOGLE_SITE_VERIFICATION} />
     <meta name="robots" content={shouldIndex ? 'index, follow, max-image-preview:large' : 'noindex, follow, noarchive'} />
     <link rel="canonical" href={canonical} />

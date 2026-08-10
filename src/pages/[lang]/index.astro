@@ -4,6 +4,7 @@ import { homeByLocale } from '../../site/home.js';
 import { pagesByLocale, pagePath, supportedLocales } from '../../site/content.js';
 import { translateText } from '../../site/localization.js';
 import { brandName } from '../../site/localization.js';
+import { getSeoMetadata } from '../../site/seo.js';
 
 type HomePage = {
   title: string;
@@ -30,6 +31,7 @@ export function getStaticPaths() {
 
 const { lang } = Astro.props as { lang: string };
 const home = homeByLocale[lang] as HomePage;
+const seo = getSeoMetadata(lang, '', home);
 const t = (value: string) => translateText(value, lang);
 const products = (pagesByLocale[lang] as ProductPage[]).filter((page) => ['ai-video-generator', 'digital-human', 'voice-cloning', 'ai-music-generator'].includes(page.slug));
 const schema = {
@@ -38,11 +40,12 @@ const schema = {
   applicationCategory: 'MultimediaApplication',
   operatingSystem: 'Web',
   url: new URL(pagePath(lang), Astro.site),
-  description: home.description,
+  description: seo.description,
+  ...(seo.keywords.length > 0 ? { keywords: seo.keywords.join(', ') } : {}),
   publisher: { '@id': `${Astro.site}#organization` },
 };
 ---
-<PublicLayout locale={lang} title={home.title} description={home.description} schema={schema}>
+<PublicLayout locale={lang} title={seo.title} description={seo.description} keywords={seo.keywords} schema={schema}>
   <section class="home-hero">
     <div class="hero-copy">
       <p class="eyebrow">{home.eyebrow}</p>

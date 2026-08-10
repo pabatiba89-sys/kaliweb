@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { defaultSeoLocale, indexableLocales } from '../src/site/seo.js';
+import { defaultSeoLocale, getSeoMetadata, indexableLocales } from '../src/site/seo.js';
 import { DEFAULT_SITE_URL, GOOGLE_SITE_VERIFICATION } from '../src/site/site-config.js';
 
 const distDir = path.resolve('dist');
@@ -24,6 +24,7 @@ for (const file of publicFiles) {
   const slugPath = slugParts.length > 0 ? `${slugParts.join('/')}/` : '';
   const shouldIndex = indexableLocales.includes(locale);
   const robots = match(html, /<meta name="robots" content="([^"]+)">/i);
+  const keywords = match(html, /<meta name="keywords" content="([^"]+)">/i);
   const googleVerification = match(html, /<meta name="google-site-verification" content="([^"]+)">/i);
   const canonical = match(html, /<link rel="canonical" href="([^"]+)">/i);
   const hreflangs = [...html.matchAll(/<link rel="alternate" hreflang="([^"]+)" href="([^"]+)">/gi)]
@@ -34,6 +35,13 @@ for (const file of publicFiles) {
   canonicalByFile.set(file, canonical);
 
   if (shouldIndex) {
+    const researchedSeo = getSeoMetadata(locale, slugParts.join('/'));
+    if (researchedSeo.keywords.length > 0) {
+      const expectedKeywords = researchedSeo.keywords.join(', ');
+      if (keywords !== expectedKeywords) errors.push(`${file}: researched SEO keywords are missing or stale`);
+      if (!html.includes(`\"keywords\":\"${expectedKeywords}\"`)) errors.push(`${file}: structured data is missing researched SEO keywords`);
+    }
+
     if (!robots.includes('index') || robots.includes('noindex')) {
       errors.push(`${file}: indexable locale does not use an index robots directive`);
     }
@@ -50,6 +58,7 @@ for (const file of publicFiles) {
     }
   } else {
     if (!robots.includes('noindex')) errors.push(`${file}: unreviewed locale must be noindex`);
+    if (keywords) errors.push(`${file}: noindex locale must not publish English SEO keywords`);
     if (hreflangs.length > 0) errors.push(`${file}: noindex locale must not publish hreflang alternates`);
   }
 }
