@@ -1848,7 +1848,7 @@
   "Codex configuration": "Konfigurasi Codex",
   "Configuration copied.": "Konfigurasi disalin.",
   "Copy configuration": "Salin konfigurasi",
-  "Set KALI_USER_TOKEN in your environment. After saving, restart Codex and use /mcp to verify the connection.": "Atur KALI_USER_TOKEN di lingkungan Anda. Setelah menyimpan, mulai ulang Codex dan gunakan /mcp untuk memverifikasi koneksi.",
+  "Set KALIAI_TOKEN in your environment. After saving, restart Codex and use /mcp to verify the connection.": "Atur KALIAI_TOKEN di lingkungan Anda. Setelah menyimpan, mulai ulang Codex dan gunakan /mcp untuk memverifikasi koneksi.",
   "Token refresh is not available yet": "Pembaruan token belum tersedia",
   "Token refresh returned no token": "Pembaruan tidak mengembalikan token",
   "Token refreshed.": "Token diperbarui."

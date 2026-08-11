@@ -1818,7 +1818,7 @@
   "Codex configuration": "Codex-Konfiguration",
   "Configuration copied.": "Konfiguration kopiert.",
   "Copy configuration": "Konfiguration kopieren",
-  "Set KALI_USER_TOKEN in your environment. After saving, restart Codex and use /mcp to verify the connection.": "Setzen Sie KALI_USER_TOKEN in Ihrer Umgebung. Starten Sie Codex nach dem Speichern neu und prüfen Sie die Verbindung mit /mcp.",
+  "Set KALIAI_TOKEN in your environment. After saving, restart Codex and use /mcp to verify the connection.": "Setzen Sie KALIAI_TOKEN in Ihrer Umgebung. Starten Sie Codex nach dem Speichern neu und prüfen Sie die Verbindung mit /mcp.",
   "Token refresh is not available yet": "Die Token-Aktualisierung ist noch nicht verfügbar",
   "Token refresh returned no token": "Die Aktualisierung hat kein Token zurückgegeben",
   "Token refreshed.": "Token aktualisiert."

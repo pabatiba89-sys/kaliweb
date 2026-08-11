@@ -1001,7 +1001,7 @@
   "Codex configuration": "Codex 配置",
   "Configuration copied.": "配置已复制。",
   "Copy configuration": "复制配置",
-  "Set KALI_USER_TOKEN in your environment. After saving, restart Codex and use /mcp to verify the connection.": "在环境变量中设置 KALI_USER_TOKEN。保存后重启 Codex，并使用 /mcp 验证连接。",
+  "Set KALIAI_TOKEN in your environment. After saving, restart Codex and use /mcp to verify the connection.": "在环境变量中设置 KALIAI_TOKEN。保存后重启 Codex，并使用 /mcp 验证连接。",
   "Token refresh is not available yet": "暂时无法刷新 Token",
   "Token refresh returned no token": "刷新接口未返回 Token",
   "Token refreshed.": "Token 已刷新。"

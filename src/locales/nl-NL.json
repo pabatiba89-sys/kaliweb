@@ -1804,7 +1804,7 @@
   "Codex configuration": "Codex-configuratie",
   "Configuration copied.": "Configuratie gekopieerd.",
   "Copy configuration": "Configuratie kopiëren",
-  "Set KALI_USER_TOKEN in your environment. After saving, restart Codex and use /mcp to verify the connection.": "Stel KALI_USER_TOKEN in je omgeving in. Start Codex na het opslaan opnieuw en gebruik /mcp om de verbinding te controleren.",
+  "Set KALIAI_TOKEN in your environment. After saving, restart Codex and use /mcp to verify the connection.": "Stel KALIAI_TOKEN in je omgeving in. Start Codex na het opslaan opnieuw en gebruik /mcp om de verbinding te controleren.",
   "Token refresh is not available yet": "Token vernieuwen is nog niet beschikbaar",
   "Token refresh returned no token": "Het vernieuwen leverde geen token op",
   "Token refreshed.": "Token vernieuwd."

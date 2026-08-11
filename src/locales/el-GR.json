@@ -1890,7 +1890,7 @@
   "Codex configuration": "Ρύθμιση Codex",
   "Configuration copied.": "Η ρύθμιση αντιγράφηκε.",
   "Copy configuration": "Αντιγραφή ρύθμισης",
-  "Set KALI_USER_TOKEN in your environment. After saving, restart Codex and use /mcp to verify the connection.": "Ορίστε το KALI_USER_TOKEN στο περιβάλλον σας. Μετά την αποθήκευση, επανεκκινήστε το Codex και χρησιμοποιήστε /mcp για επαλήθευση της σύνδεσης.",
+  "Set KALIAI_TOKEN in your environment. After saving, restart Codex and use /mcp to verify the connection.": "Ορίστε το KALIAI_TOKEN στο περιβάλλον σας. Μετά την αποθήκευση, επανεκκινήστε το Codex και χρησιμοποιήστε /mcp για επαλήθευση της σύνδεσης.",
   "Token refresh is not available yet": "Η ανανέωση token δεν είναι ακόμη διαθέσιμη",
   "Token refresh returned no token": "Η ανανέωση δεν επέστρεψε token",
   "Token refreshed.": "Το token ανανεώθηκε."

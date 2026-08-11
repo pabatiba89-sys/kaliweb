@@ -1822,7 +1822,7 @@
   "Codex configuration": "Codex yapılandırması",
   "Configuration copied.": "Yapılandırma kopyalandı.",
   "Copy configuration": "Yapılandırmayı kopyala",
-  "Set KALI_USER_TOKEN in your environment. After saving, restart Codex and use /mcp to verify the connection.": "Ortamınızda KALI_USER_TOKEN ayarlayın. Kaydettikten sonra Codex’i yeniden başlatın ve bağlantıyı /mcp ile doğrulayın.",
+  "Set KALIAI_TOKEN in your environment. After saving, restart Codex and use /mcp to verify the connection.": "Ortamınızda KALIAI_TOKEN ayarlayın. Kaydettikten sonra Codex’i yeniden başlatın ve bağlantıyı /mcp ile doğrulayın.",
   "Token refresh is not available yet": "Token yenileme henüz kullanılamıyor",
   "Token refresh returned no token": "Yenileme bir Token döndürmedi",
   "Token refreshed.": "Token yenilendi."

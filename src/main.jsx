@@ -7594,8 +7594,8 @@ function SettingsPage({ language, authVersion, onLogin, onLogout }) {
   const token = getAccessToken();
   const tokenExpiresAt = getUserTokenExpiry(userToken);
   const tokenExpired = tokenExpiresAt > 0 && tokenExpiresAt <= Date.now();
-  const mcpServerUrl = import.meta.env.VITE_MCP_SERVER_URL || `${window.location.origin}/mcp`;
-  const codexConfig = `[mcp_servers.kali]\nurl = "${mcpServerUrl}"\nbearer_token_env_var = "KALI_USER_TOKEN"`;
+  const mcpServerUrl = import.meta.env.VITE_MCP_SERVER_URL || 'https://mcp.kaliai.fun/mcp';
+  const codexConfig = `[mcp_servers.kali]\nurl = "${mcpServerUrl}"\nbearer_token_env_var = "KALIAI_TOKEN"`;
 
   useEffect(() => {
     setUserToken(token);
@@ -7880,7 +7880,7 @@ function SettingsPage({ language, authVersion, onLogin, onLogout }) {
               </button>
             </div>
             <pre><code>{codexConfig}</code></pre>
-            <small>Set KALI_USER_TOKEN in your environment. After saving, restart Codex and use /mcp to verify the connection.</small>
+            <small>Set KALIAI_TOKEN in your environment. After saving, restart Codex and use /mcp to verify the connection.</small>
           </div>
 
           {tokenMessage.text && (

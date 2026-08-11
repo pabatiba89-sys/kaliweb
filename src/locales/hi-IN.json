@@ -1921,7 +1921,7 @@
   "Codex configuration": "Codex कॉन्फ़िगरेशन",
   "Configuration copied.": "कॉन्फ़िगरेशन कॉपी हो गया।",
   "Copy configuration": "कॉन्फ़िगरेशन कॉपी करें",
-  "Set KALI_USER_TOKEN in your environment. After saving, restart Codex and use /mcp to verify the connection.": "अपने परिवेश में KALI_USER_TOKEN सेट करें। सहेजने के बाद Codex को पुनः शुरू करें और कनेक्शन जाँचने के लिए /mcp का उपयोग करें।",
+  "Set KALIAI_TOKEN in your environment. After saving, restart Codex and use /mcp to verify the connection.": "अपने परिवेश में KALIAI_TOKEN सेट करें। सहेजने के बाद Codex को पुनः शुरू करें और कनेक्शन जाँचने के लिए /mcp का उपयोग करें।",
   "Token refresh is not available yet": "Token रीफ़्रेश अभी उपलब्ध नहीं है",
   "Token refresh returned no token": "रीफ़्रेश ने कोई Token नहीं लौटाया",
   "Token refreshed.": "Token रीफ़्रेश हो गया।"

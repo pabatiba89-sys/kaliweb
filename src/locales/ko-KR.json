@@ -1889,7 +1889,7 @@
   "Codex configuration": "Codex 구성",
   "Configuration copied.": "구성을 복사했습니다.",
   "Copy configuration": "구성 복사",
-  "Set KALI_USER_TOKEN in your environment. After saving, restart Codex and use /mcp to verify the connection.": "환경에 KALI_USER_TOKEN을 설정하세요. 저장 후 Codex를 다시 시작하고 /mcp로 연결을 확인하세요.",
+  "Set KALIAI_TOKEN in your environment. After saving, restart Codex and use /mcp to verify the connection.": "환경에 KALIAI_TOKEN을 설정하세요. 저장 후 Codex를 다시 시작하고 /mcp로 연결을 확인하세요.",
   "Token refresh is not available yet": "Token 새로 고침은 아직 사용할 수 없습니다",
   "Token refresh returned no token": "새로 고침에서 Token을 반환하지 않았습니다",
   "Token refreshed.": "Token을 새로 고쳤습니다."

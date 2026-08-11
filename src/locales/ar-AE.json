@@ -1885,7 +1885,7 @@
   "Codex configuration": "إعداد Codex",
   "Configuration copied.": "تم نسخ الإعداد.",
   "Copy configuration": "نسخ الإعداد",
-  "Set KALI_USER_TOKEN in your environment. After saving, restart Codex and use /mcp to verify the connection.": "عيّن KALI_USER_TOKEN في بيئتك. بعد الحفظ، أعد تشغيل Codex واستخدم /mcp للتحقق من الاتصال.",
+  "Set KALIAI_TOKEN in your environment. After saving, restart Codex and use /mcp to verify the connection.": "عيّن KALIAI_TOKEN في بيئتك. بعد الحفظ، أعد تشغيل Codex واستخدم /mcp للتحقق من الاتصال.",
   "Token refresh is not available yet": "تحديث الرمز غير متاح بعد",
   "Token refresh returned no token": "لم يُرجع التحديث أي رمز",
   "Token refreshed.": "تم تحديث الرمز."

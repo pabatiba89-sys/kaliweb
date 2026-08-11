@@ -1809,7 +1809,7 @@
   "Codex configuration": "Codex 設定",
   "Configuration copied.": "設定已複製。",
   "Copy configuration": "複製設定",
-  "Set KALI_USER_TOKEN in your environment. After saving, restart Codex and use /mcp to verify the connection.": "在環境變數中設定 KALI_USER_TOKEN。儲存後重新啟動 Codex，並使用 /mcp 驗證連線。",
+  "Set KALIAI_TOKEN in your environment. After saving, restart Codex and use /mcp to verify the connection.": "在環境變數中設定 KALIAI_TOKEN。儲存後重新啟動 Codex，並使用 /mcp 驗證連線。",
   "Token refresh is not available yet": "目前無法重新整理 Token",
   "Token refresh returned no token": "重新整理介面未傳回 Token",
   "Token refreshed.": "Token 已重新整理。"

@@ -1834,7 +1834,7 @@
   "Codex configuration": "Configurație Codex",
   "Configuration copied.": "Configurație copiată.",
   "Copy configuration": "Copiază configurația",
-  "Set KALI_USER_TOKEN in your environment. After saving, restart Codex and use /mcp to verify the connection.": "Setează KALI_USER_TOKEN în mediu. După salvare, repornește Codex și folosește /mcp pentru a verifica conexiunea.",
+  "Set KALIAI_TOKEN in your environment. After saving, restart Codex and use /mcp to verify the connection.": "Setează KALIAI_TOKEN în mediu. După salvare, repornește Codex și folosește /mcp pentru a verifica conexiunea.",
   "Token refresh is not available yet": "Reîmprospătarea tokenului nu este încă disponibilă",
   "Token refresh returned no token": "Reîmprospătarea nu a returnat niciun token",
   "Token refreshed.": "Token reîmprospătat."

@@ -177,4 +177,4 @@
 - 2026-08-04：文字转语音按预估秒数预扣积分，后端成功归档七牛后按实际秒数多退少补；前端任务解析需兼容顶层和 `speech` 对象中的 `estimated_seconds/actual_seconds/credits_charged/settlement_status`，只用持久化 `audio_url` 播放成品，不把 `provider_audio_url` 当长期资源。
 - 2026-08-08：英文界面术语按用户指定统一：`制作数字人` 使用 `Creating AI-generated avatars videos`，`热点追踪` 使用 `Hot Topics`；对应高曝光文案应写入翻译 override，避免重新生成语言包后回退。
 - 2026-08-10：SEO 关键词调研与落地只作用于当前可索引的英文页面；Google 不使用 `meta keywords` 排名，因此实现以页面级 title、description 和结构化数据为主，关键词标签只作补充。其他语言完成母语关键词调研并开放索引后再分别配置，禁止直接复用英文词簇。
-- 2026-08-10：账户中心的 Codex/MCP 连接统一复用网站普通用户 JWT：前端从 JWT `exp` 显示到期时间，刷新契约为 `POST /api/user/token/refresh`，同源 `/mcp` 由 Worker 原样转发 Bearer 头；后台 MCP 初始化和工具执行必须复用现有用户 Token 校验中间件，后台仓库继续保持只读。
+- 2026-08-10：账户中心的 Codex/MCP 连接统一复用网站普通用户 JWT：前端从 JWT `exp` 显示到期时间，刷新契约为 `POST /api/user/token/refresh`；正式 MCP 独立服务为 `https://mcp.kaliai.fun/mcp`，健康检查为 `https://mcp.kaliai.fun/health`，Worker 名为 `kalimcp-mcp`，普通用户在客户端使用 `KALIAI_TOKEN`。2026-08-11 已实测健康检查返回 200，无 Token 访问 MCP 返回 401 Bearer；真实用户工具调用仍待在有效 Token 环境验证。后台 MCP 初始化和工具执行必须复用现有用户 Token 校验中间件，后台仓库继续保持只读。

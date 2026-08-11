@@ -1888,7 +1888,7 @@
   "Codex configuration": "Cấu hình Codex",
   "Configuration copied.": "Đã sao chép cấu hình.",
   "Copy configuration": "Sao chép cấu hình",
-  "Set KALI_USER_TOKEN in your environment. After saving, restart Codex and use /mcp to verify the connection.": "Đặt KALI_USER_TOKEN trong môi trường. Sau khi lưu, khởi động lại Codex và dùng /mcp để kiểm tra kết nối.",
+  "Set KALIAI_TOKEN in your environment. After saving, restart Codex and use /mcp to verify the connection.": "Đặt KALIAI_TOKEN trong môi trường. Sau khi lưu, khởi động lại Codex và dùng /mcp để kiểm tra kết nối.",
   "Token refresh is not available yet": "Chưa hỗ trợ làm mới Token",
   "Token refresh returned no token": "Yêu cầu làm mới không trả về Token",
   "Token refreshed.": "Đã làm mới Token."

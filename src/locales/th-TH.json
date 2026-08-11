@@ -1922,7 +1922,7 @@
   "Codex configuration": "การกำหนดค่า Codex",
   "Configuration copied.": "คัดลอกการกำหนดค่าแล้ว",
   "Copy configuration": "คัดลอกการกำหนดค่า",
-  "Set KALI_USER_TOKEN in your environment. After saving, restart Codex and use /mcp to verify the connection.": "ตั้งค่า KALI_USER_TOKEN ในสภาพแวดล้อม หลังบันทึกให้รีสตาร์ท Codex และใช้ /mcp เพื่อตรวจสอบการเชื่อมต่อ",
+  "Set KALIAI_TOKEN in your environment. After saving, restart Codex and use /mcp to verify the connection.": "ตั้งค่า KALIAI_TOKEN ในสภาพแวดล้อม หลังบันทึกให้รีสตาร์ท Codex และใช้ /mcp เพื่อตรวจสอบการเชื่อมต่อ",
   "Token refresh is not available yet": "ยังไม่รองรับการรีเฟรช Token",
   "Token refresh returned no token": "การรีเฟรชไม่ส่งคืน Token",
   "Token refreshed.": "รีเฟรช Token แล้ว"
