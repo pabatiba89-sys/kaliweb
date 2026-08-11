@@ -1499,11 +1499,12 @@ const getAuthVideoLibrary = (response = {}) => {
 const normalizeHuman = (item = {}, index = 0) => {
   const cover = getApiMediaUrl(pick(item.coverUrl, item.coverurl, item.cover_url, item.imageUrl, item.image_url, item.avatarUrl, item.avatar_url, item.thumbnailUrl, item.thumbnail_url, item.firstFrame, item.first_frame));
   const video = getApiMediaUrl(pick(item.video_url, item.videoUrl, item.url, item.filepath));
-  const status = normalizeStatus(pick(item.statusText, item.status_text, item.status, item.train_status, item.trainStatus, item.task_status, item.taskStatus, item.state));
+  const rawStatus = pick(item.statusText, item.status_text, item.status, item.train_status, item.trainStatus, item.task_status, item.taskStatus, item.state);
   const createdAt = pick(item.created_at, item.createdAt, item.create_time, item.createTime);
   const greenScreen = item.isGreenBg ?? item.is_green_bg;
   const aihumanId = pick(item.aihuman_id, item.aihumanId, item.ai_human_id);
   const virtualmanId = pick(item.virtualman_id, item.virtualmanId);
+  const status = !rawStatus && (virtualmanId || aihumanId) ? { key: 'success', label: '成功' } : normalizeStatus(rawStatus);
   return {
     id: pick(virtualmanId, aihumanId, item.humanId, item.human_id, item.taskId, item.task_id, item.id, `${index}`),
     aihumanId,
@@ -2891,6 +2892,19 @@ const getCommonAssetSid = (result = {}) => pick(
   result.raw?.sid,
 );
 
+function AssetStatusBadge({ status }) {
+  const state = status?.key || 'ready';
+  const label = status?.label || '待处理';
+
+  return (
+    <em className={`library-asset-status is-${state}`} aria-label={`状态：${label}`}>
+      {state === 'success' && <CheckCircle2 size={13} aria-hidden="true" />}
+      {state === 'failed' && <AlertCircle size={13} aria-hidden="true" />}
+      <span>{label}</span>
+    </em>
+  );
+}
+
 function AssetLibraryPanel({
   activeTab, onTabChange, query, onQueryChange, humans, voices, commonHumans, commonVoices,
   authed, loading, message, commonHumanHasMore, loadingMoreCommonHumans,
@@ -2929,18 +2943,21 @@ function AssetLibraryPanel({
         <>
           <div className={`asset-library-grid ${isVoice ? 'is-voice' : 'is-human'}`}>
             {visibleAssets.map((asset, index) => isVoice ? (
-              <article className="library-voice-card" key={`${activeTab}-${asset.id}-${index}`}>
+              <article className={`library-voice-card ${isPublic ? '' : `is-${asset.status.key}`}`} key={`${activeTab}-${asset.id}-${index}`}>
                 <div className="library-voice-card__head">
                   <span className="library-voice-avatar">{asset.cover ? <img src={asset.cover} alt="" loading="lazy" /> : <Mic2 size={21} />}</span>
                   <span><strong>{asset.title}</strong><small>{asset.meta || '通用声音'}</small></span>
-                  <em>{isPublic ? '公共' : asset.status.label}</em>
+                  {isPublic ? <em className="library-public-chip">公共</em> : <AssetStatusBadge status={asset.status} />}
                 </div>
                 {asset.audioUrl ? <audio controls preload="none" src={asset.audioUrl} /> : <div className="library-audio-empty">暂无试听音频</div>}
                 <button onClick={() => onUseAsset(asset, 'voice')}>用于视频创作<ChevronRight size={15} /></button>
               </article>
             ) : (
-              <article className="library-human-card" key={`${activeTab}-${asset.id}-${index}`}>
-                <span className="library-human-media">{asset.cover ? <img src={asset.cover} alt={asset.title} loading="lazy" /> : <UserRound size={34} />}{isPublic && <em>公共形象</em>}</span>
+              <article className={`library-human-card ${isPublic ? '' : `is-${asset.status.key}`}`} key={`${activeTab}-${asset.id}-${index}`}>
+                <span className="library-human-media">
+                  {asset.cover ? <img src={asset.cover} alt={asset.title} loading="lazy" /> : <UserRound size={34} />}
+                  {isPublic ? <em className="library-public-chip">公共形象</em> : <AssetStatusBadge status={asset.status} />}
+                </span>
                 <div><strong>{asset.title}</strong><small>{asset.meta || '数字人形象'}</small></div>
                 <button onClick={() => onUseAsset(asset, 'human')}>用于视频创作<ChevronRight size={15} /></button>
               </article>

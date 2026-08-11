@@ -8525,6 +8525,17 @@ video.media-preview {
   box-shadow: 0 7px 18px rgba(24, 62, 53, 0.045);
 }
 
+.library-human-card.is-success,
+.library-voice-card.is-success {
+  border-color: #b9dfd3;
+}
+
+.library-human-card.is-failed,
+.library-voice-card.is-failed {
+  border-color: #efc7c7;
+  background: #fffdfd;
+}
+
 .library-human-card {
   padding: 8px;
   display: grid;
@@ -8550,7 +8561,7 @@ video.media-preview {
   object-fit: cover;
 }
 
-.library-human-media em {
+.library-public-chip {
   position: absolute;
   top: 8px;
   left: 8px;
@@ -8562,6 +8573,43 @@ video.media-preview {
   font-style: normal;
   font-weight: 820;
   backdrop-filter: blur(8px);
+}
+
+.library-asset-status {
+  min-height: 25px;
+  padding: 0 8px;
+  border: 1px solid rgba(93, 113, 106, 0.14);
+  border-radius: 999px;
+  background: rgba(245, 249, 247, 0.94);
+  color: #637972;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 850;
+  line-height: 1;
+  white-space: nowrap;
+  backdrop-filter: blur(8px);
+}
+
+.library-human-media .library-asset-status {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+.library-asset-status.is-success {
+  border-color: rgba(8, 133, 105, 0.2);
+  background: rgba(231, 248, 241, 0.95);
+  color: #087b61;
+}
+
+.library-asset-status.is-failed {
+  border-color: rgba(193, 70, 75, 0.2);
+  background: rgba(255, 239, 239, 0.96);
+  color: #b43f46;
 }
 
 .library-human-card > div {
@@ -8643,7 +8691,8 @@ video.media-preview {
   object-fit: cover;
 }
 
-.library-voice-card__head em {
+.library-voice-card__head .library-public-chip {
+  position: static;
   padding: 5px 7px;
   border-radius: 999px;
   background: #e4f4ee;

@@ -178,3 +178,4 @@
 - 2026-08-08：英文界面术语按用户指定统一：`制作数字人` 使用 `Creating AI-generated avatars videos`，`热点追踪` 使用 `Hot Topics`；对应高曝光文案应写入翻译 override，避免重新生成语言包后回退。
 - 2026-08-10：SEO 关键词调研与落地只作用于当前可索引的英文页面；Google 不使用 `meta keywords` 排名，因此实现以页面级 title、description 和结构化数据为主，关键词标签只作补充。其他语言完成母语关键词调研并开放索引后再分别配置，禁止直接复用英文词簇。
 - 2026-08-10：账户中心的 Codex/MCP 连接统一复用网站普通用户 JWT：前端从 JWT `exp` 显示到期时间，刷新契约为 `POST /api/user/token/refresh`；正式 MCP 独立服务为 `https://mcp.kaliai.fun/mcp`，健康检查为 `https://mcp.kaliai.fun/health`，Worker 名为 `kalimcp-mcp`，普通用户在客户端使用 `KALIAI_TOKEN`。2026-08-11 已实测健康检查返回 200，无 Token 访问 MCP 返回 401 Bearer；真实用户工具调用仍待在有效 Token 环境验证。后台 MCP 初始化和工具执行必须复用现有用户 Token 校验中间件，后台仓库继续保持只读。
+- 2026-08-11：Asset Studio 的个人形象和个人声音卡片统一显示训练状态：成功用绿色勾选，失败用红色警示，处理中和草稿保留中性标识；公共资产继续显示“公共”标识，不混用个人训练状态。
