@@ -3,6 +3,7 @@ import https from 'node:https';
 import { basePages } from '../src/site/content.js';
 import { homeEn } from '../src/site/home.js';
 import { publicUiStrings } from '../src/site/localization.js';
+import { CONTACT_EMAIL } from '../src/contact.js';
 import { siteLocalizationOverrides } from './localization-overrides.mjs';
 
 const targets = {
@@ -71,14 +72,12 @@ const protect = (text) => text
   .replaceAll('JADE ROUGE ENTERPRISES LIMITED', 'LEGAL_COMPANY_TOKEN_9841')
   .replaceAll('Kali', 'KALI_BRAND_TOKEN_9841')
   .replaceAll('Yixiu', 'YIXIU_BRAND_TOKEN_9841')
-  .replaceAll('feedback@xyaip.fun', 'FEEDBACK_EMAIL_TOKEN_9841')
-  .replaceAll('privacy@xyaip.fun', 'PRIVACY_EMAIL_TOKEN_9841');
+  .replaceAll(CONTACT_EMAIL, 'CONTACT_EMAIL_TOKEN_9841');
 const restore = (text) => text
   .replaceAll('LEGAL_COMPANY_TOKEN_9841', 'JADE ROUGE ENTERPRISES LIMITED')
   .replaceAll('KALI_BRAND_TOKEN_9841', 'Kali')
   .replaceAll('YIXIU_BRAND_TOKEN_9841', 'Yixiu')
-  .replaceAll('FEEDBACK_EMAIL_TOKEN_9841', 'feedback@xyaip.fun')
-  .replaceAll('PRIVACY_EMAIL_TOKEN_9841', 'privacy@xyaip.fun');
+  .replaceAll('CONTACT_EMAIL_TOKEN_9841', CONTACT_EMAIL);
 
 const existingCatalogs = (incremental || requestedLocale)
   ? JSON.parse(await fs.readFile(new URL('../src/site/site-translations.json', import.meta.url), 'utf8'))

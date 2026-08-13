@@ -63,6 +63,7 @@ import {
   LEGAL_COMPANY_NAME,
   LEGAL_COMPANY_NUMBER,
 } from './company.js';
+import { CONTACT_EMAIL, OFFICIAL_SOCIAL_LINKS } from './contact.js';
 import {
   apiFetch,
   bindInviteCode,
@@ -289,13 +290,13 @@ const legalDocuments = {
     sections: [
       ['1. 可审核退款的情形', '重复扣款、扣款金额错误、因经核实的平台故障导致已付款服务未交付，以及适用法律要求或经审核同意的未使用购买，可提交退款申请。'],
       ['2. 通常不退款的情形', '已消耗额度、已完成的生成任务、已经下载或交付的数字结果、已经发生的第三方成本，以及因违反平台规则受到限制的账号，除适用法律另有强制要求外通常不退款。'],
-      ['3. 申请方式', '请发送邮件至 feedback@xyaip.fun，提供账号邮箱、订单或支付编号、购买日期、金额、申请原因和必要证据。不要提供密码、验证码或完整银行卡信息。'],
+      ['3. 申请方式', '请发送邮件至 pabatiba89@gmail.com，提供账号邮箱、订单或支付编号、购买日期、金额、申请原因和必要证据。不要提供密码、验证码或完整银行卡信息。'],
       ['4. 审核与到账', '我们会结合使用记录和支付记录审核。获批退款将尽可能原路退回；最终到账时间取决于支付服务商和金融机构。取消续费不会自动产生当前账期退款。'],
     ],
   },
 };
 
-const legalProviderNotice = '本服务由 JADE ROUGE ENTERPRISES LIMITED（香港公司编号 2799865）提供。公司地址：Hong Kong Special Administrative Region, People’s Republic of China。一般业务及法律通知请发送至 feedback@xyaip.fun；个人信息权利请求请发送至 privacy@xyaip.fun。';
+const legalProviderNotice = '本服务由 JADE ROUGE ENTERPRISES LIMITED（香港公司编号 2799865）提供。公司地址：Hong Kong Special Administrative Region, People’s Republic of China。一般业务、法律通知及个人信息权利请求请发送至 pabatiba89@gmail.com。';
 
 const agreementCards = [
   ['legal-user', '账号与服务', '登录、注册、账号与服务使用规则'],
@@ -9824,7 +9825,7 @@ function LegalDocumentPage({ document, onOpen }) {
           </section>
           <div className="legal-contact-line">
             <Mail size={18} />
-            <span>如需行使个人信息权利或撤回授权，请联系 <a href="mailto:privacy@xyaip.fun">privacy@xyaip.fun</a></span>
+            <span>如需行使个人信息权利或撤回授权，请联系 <a href="mailto:pabatiba89@gmail.com">pabatiba89@gmail.com</a></span>
           </div>
         </article>
       </div>
@@ -9872,11 +9873,8 @@ function ContactPage({ onOpen }) {
         onBack={() => onOpen('home')}
       />
       <section className="contact-grid">
-        <a href="mailto:feedback@xyaip.fun" className="contact-card">
-          <span><Mail size={22} /></span><div><small>PRODUCT SUPPORT</small><strong>产品反馈与商务合作</strong><p>feedback@xyaip.fun</p></div><ExternalLink size={17} />
-        </a>
-        <a href="mailto:privacy@xyaip.fun" className="contact-card">
-          <span><ShieldCheck size={22} /></span><div><small>PRIVACY REQUEST</small><strong>隐私、删除与撤回授权</strong><p>privacy@xyaip.fun</p></div><ExternalLink size={17} />
+        <a href={`mailto:${CONTACT_EMAIL}`} className="contact-card">
+          <span><Mail size={22} /></span><div><small>CONTACT EMAIL</small><strong>产品、商务与隐私事务</strong><p>{CONTACT_EMAIL}</p></div><ExternalLink size={17} />
         </a>
       </section>
       <section className="contact-guide">
@@ -9894,29 +9892,26 @@ function ContactPage({ onOpen }) {
 }
 
 function MediaAccountsPage({ onOpen }) {
-  const channels = [
-    ['微信公众号', '国内产品动态与使用教程'],
-    ['抖音 / 视频号', '产品演示与视频创作案例'],
-    ['小红书 / Bilibili', '创作方法、流程拆解与更新日志'],
-    ['TikTok / YouTube', '海外版产品演示与创作实践'],
-    ['LinkedIn', '海外业务动态与合作信息'],
-  ];
   return (
     <div className="public-page">
       <PublicPageHeader
         eyebrow="OFFICIAL CHANNELS"
         title="官方媒体账号"
-        description="官方账号正在统一认证和建设中，这里将成为唯一的对外账号索引。"
+        description="Kali 官方社交媒体账号索引。"
         onBack={() => onOpen('home')}
       />
       <section className="media-channel-grid">
-        {channels.map(([name, description]) => (
-          <article key={name}><span className="media-channel-icon"><Globe2 size={21} /></span><div><strong>{name}</strong><p>{description}</p></div><em>筹备中</em></article>
+        {OFFICIAL_SOCIAL_LINKS.map(({ name, url, handle }) => (
+          <a className="media-channel-card" key={name} href={url} target="_blank" rel="noopener noreferrer">
+            <span className="media-channel-icon"><Globe2 size={21} /></span>
+            <div><strong>{name}</strong><small>{handle}</small></div>
+            <ExternalLink className="media-channel-link-icon" size={17} />
+          </a>
         ))}
       </section>
       <section className="media-safety-note">
         <ShieldCheck size={21} />
-        <div><strong>账号安全提醒</strong><p>当前未公布可验证的官方媒体 ID。任何以 Kali 或 Yixiu 名义索要密码、验证码或转账的账号均不可信。如需核验，请发送邮件至 <a href="mailto:feedback@xyaip.fun">feedback@xyaip.fun</a>。</p></div>
+        <div><strong>账号安全提醒</strong><p>请仅通过本页公布的链接访问官方账号。任何以 Kali 或 Yixiu 名义索要密码、验证码或转账的账号均不可信。如需核验，请发送邮件至 <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>。</p></div>
       </section>
     </div>
   );

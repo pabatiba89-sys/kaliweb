@@ -15,6 +15,8 @@
 
 ## 已知事实
 
+- 2026-08-13：喀理（Kali）当前官方媒体账号为 TikTok `https://www.tiktok.com/@kaliai.fun`、Facebook `https://www.facebook.com/profile.php?id=61591606214859`、Instagram `https://www.instagram.com/kaliai2026/`、YouTube `https://www.youtube.com/channel/UCALWkDaVTLVy1rq6doyAPuw`、X `https://x.com/pabatiba`；官网及对外资料中的官方媒体链接以此列表为准。
+- 2026-08-13：喀理网站统一联系邮箱为 `pabatiba89@gmail.com`，适用于产品、商务、隐私、退款及法律通知等联系场景；旧的 `feedback@xyaip.fun` 和 `privacy@xyaip.fun` 不再对外展示。
 - 2026-07-08：当前工作区初始为空，`~/.codex/templates/` 不存在；已创建最小可用 `AGENTS.md` 和 `MEMORY.md`。
 - 2026-07-08：yixiu 小程序源码位于 `/Users/yuerocky/Desktop/yixiu`，技术栈为 JavaScript、WXML、Less、TDesign MiniProgram；API 基地址为 `https://yixiuapi.xyaip.fun`。
 - 2026-07-08：已学习 yixiu 小程序并沉淀调研笔记到 `docs/yixiu-miniapp-study.md`。核心业务是“热点捕捉 -> AI 创作 -> 数字人/声音/音乐/图片资产 -> 视频生产 -> 发布/管理 -> 套餐付费”的 AI 内容生产工作台。
@@ -137,6 +139,7 @@
 - 2026-07-16：海外 Billing 页套餐列表不能只依赖 DOM 静态翻译；接口返回的中文套餐名和额度单位需在显示层映射为英文源词，再用 `translateStatic` + 当前语言包本地化。新增套餐相关词条应写入 `scripts/localization-overrides.mjs` 后运行 `npm run i18n:generate -- --apply-overrides` 同步 24 个工作台语言包。
 - 2026-07-16：Evonet 支付先只接单次支付，不做订阅。前端 Billing 页通过 `POST /api/pay/evonet/create_session` 创建 Drop-in session，请求体为 `plan_id`、可选 `email`、`currency`；响应从 `data.pay_params.sessionID/sessionID` 和 `data.sdk_environment/pay_params.environment` 初始化 Drop-in。Drop-in 回调只调用 `POST /api/pay/evonet/sync`，提交 `order_no + payload`。`POST /api/pay/evonet/webhook` 只给 Evonet 调用，成功返回纯文本 `SUCCESS`，只有 webhook 会把订单改成已支付并发放套餐；Evonet `KeyID`/`SignKey`、`POST /interaction`、订单落库和套餐生效都必须在后端处理。
 - 2026-08-05：Evonet Drop-in 的 Google Pay 审核域名使用 `kaliai.fun`，提交给 Evonet 的支付流程为“进入结账页 -> 选择 Google Pay -> 在 Google Pay 支付面板选择卡片并确认 -> Google Pay 返回支付令牌给 Evonet -> Evonet 处理并返回结果”；Apple Pay 测试验证文件公开路径为 `https://kaliai.fun/.well-known/apple-developer-merchantid-domain-association`，验证文件由 Evonet 提供并需原样发布。
+- 2026-08-07：Apple Pay 不显示的排查边界：`kaliai.fun` 与 `www.kaliai.fun` 的验证文件均可访问且内容正确；非中文 Billing 会进入 Evonet Drop-in，前端和现有 `/interaction` 请求都未传 `enabledPaymentMethod`，因此支付方式由 Evonet 商户签约/后台开通状态自动决定。`zh-CN`/`zh-TW` 仍按既定规则直接展示微信小程序码，不会创建 Evonet session。UAT 自测还必须满足 Evonet 指定的 Apple 设备、系统、地区/IP、Sandbox 账号及 Wallet 测试卡条件。
 - 2026-07-24：文案生成结果进入视频制作时必须新开工作台页面；点击制作按钮先写入 `mix_video_production_prefill_draft`，再打开 `/app/?page=video&creator=prefill`，新页面启动时读取本地预填草稿并自动进入对应制作模式。
 - 2026-07-24：视频制作页重新选择数字人后，提交给后端的数字人业务 ID 必须优先使用资源返回的 `virtualman_id`（兼容 `virtualmanId`），为空时再使用 `aihuman_id`（兼容 `aihumanId/ai_human_id`）；不能用列表通用 `id` 或训练任务 ID 代替。提交体需同时带 `virtualmanId/aiHumanId/aihuman_id/ai_human_id` 别名。
 - 2026-07-24：视频制作提交素材时必须把素材时长一起传给后端；普通 `materials[]` 和 Pro `scenes[].materials[]` 都应包含秒数 `duration`，并兼容 `durationSeconds/duration_seconds` 别名。图片按 2 秒计，未知视频沿用当前校验兜底时长。
@@ -176,7 +179,10 @@
 - 2026-08-04：工作台文字转语音使用独立页面 `/app/?page=speech`，只显示当前用户/团队中已训练成功且有上游 `speakerId` 的克隆声音；创建、列表和详情轮询统一调用自有 `/api/ai-voice/tts` 接口，前端不暴露闪剪凭据或依赖供应商响应形状，便于后续切换到 xyaip.fun。
 - 2026-08-04：文字转语音高曝光文案维护在 `scripts/localization-overrides.mjs` 并同步 24 个工作台语言包；当日自动翻译依赖的 Microsoft auth 端点返回 404，因此应用 curated overrides 完成本次本地化，不在失败后留下部分写入状态。
 - 2026-08-04：文字转语音按预估秒数预扣积分，后端成功归档七牛后按实际秒数多退少补；前端任务解析需兼容顶层和 `speech` 对象中的 `estimated_seconds/actual_seconds/credits_charged/settlement_status`，只用持久化 `audio_url` 播放成品，不把 `provider_audio_url` 当长期资源。
+- 2026-08-04：用户明确要求本项目后续不得修改后台代码；后台仓库 `/Users/yuerocky/Desktop/social-auto-upload-baijiahao/小程序后端` 视为只读。若前端需求依赖后台变更，只输出接口或改动需求，不直接编辑、提交或发布后台代码。
 - 2026-08-08：英文界面术语按用户指定统一：`制作数字人` 使用 `Creating AI-generated avatars videos`，`热点追踪` 使用 `Hot Topics`；对应高曝光文案应写入翻译 override，避免重新生成语言包后回退。
 - 2026-08-10：SEO 关键词调研与落地只作用于当前可索引的英文页面；Google 不使用 `meta keywords` 排名，因此实现以页面级 title、description 和结构化数据为主，关键词标签只作补充。其他语言完成母语关键词调研并开放索引后再分别配置，禁止直接复用英文词簇。
 - 2026-08-10：账户中心的 Codex/MCP 连接统一复用网站普通用户 JWT：前端从 JWT `exp` 显示到期时间，刷新契约为 `POST /api/user/token/refresh`；正式 MCP 独立服务为 `https://mcp.kaliai.fun/mcp`，健康检查为 `https://mcp.kaliai.fun/health`，Worker 名为 `kalimcp-mcp`，普通用户在客户端使用 `KALIAI_TOKEN`。2026-08-11 已实测健康检查返回 200，无 Token 访问 MCP 返回 401 Bearer；真实用户工具调用仍待在有效 Token 环境验证。后台 MCP 初始化和工具执行必须复用现有用户 Token 校验中间件，后台仓库继续保持只读。
 - 2026-08-11：Asset Studio 的个人形象和个人声音卡片统一显示训练状态：成功用绿色勾选，失败用红色警示，处理中和草稿保留中性标识；公共资产继续显示“公共”标识，不混用个人训练状态。
+- 2026-08-12：邀请奖励的统一产品口径：被邀请用户完成积分充值后，邀请人获得该笔充值积分数量 20% 的奖励积分；对外文案不得表述为现金佣金、被邀请人折扣或被邀请人获得 20%。
+- 2026-08-13：前期社媒获客的核心人群收窄为对内容结果负责的老板和业务操盘手；短视频内容先打“没时间拍、不会剪辑、人力/外包成本高、内容无法持续”等痛点，再用 Kali 的真实工作流程说明如何降低时间与制作门槛。每条约 10 秒、独立成立、无字幕，原则上只讲一个痛点和一个结果；邀请奖励单独做内容，不默认塞入每条产品视频。

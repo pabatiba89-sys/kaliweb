@@ -11,6 +11,7 @@ import { translateText } from '../site/localization.js';
 import { brandName } from '../site/localization.js';
 import { defaultSeoLocale, indexableLocales, isIndexableLocale } from '../site/seo.js';
 import { GOOGLE_SITE_VERIFICATION } from '../site/site-config.js';
+import { CONTACT_EMAIL, OFFICIAL_SOCIAL_LINKS } from '../contact.js';
 import '../site/public.css';
 
 type SchemaEntry = Record<string, unknown>;
@@ -53,7 +54,8 @@ const jsonLd = {
       name: LEGAL_COMPANY_NAME,
       alternateName: brandName(locale),
       url: Astro.site,
-      email: 'feedback@xyaip.fun',
+      email: CONTACT_EMAIL,
+      sameAs: OFFICIAL_SOCIAL_LINKS.map(({ url }) => url),
       identifier: LEGAL_COMPANY_NUMBER,
       address: {
         '@type': 'PostalAddress',
@@ -137,8 +139,9 @@ const jsonLd = {
       </div>
       <div class="footer-links">
         <div><strong>{t('Product')}</strong><a href={pagePath(locale, 'ai-video-generator')}>{t('AI video')}</a><a href={pagePath(locale, 'digital-human')}>{t('Digital humans')}</a><a href={pagePath(locale, 'voice-cloning')}>{t('Voice cloning')}</a><a href={pagePath(locale, 'ai-music-generator')}>{t('AI music')}</a></div>
-        <div><strong>{t('Company')}</strong><a href={pagePath(locale, 'about')}>{copy.about}</a><a href={pagePath(locale, 'contact')}>{copy.contact}</a><a href="mailto:feedback@xyaip.fun">{t('Product feedback')}</a></div>
-        <div><strong>{t('Legal')}</strong><a href={pagePath(locale, 'terms-of-service')}>{t('Terms of service')}</a><a href={pagePath(locale, 'privacy-policy')}>{t('Privacy policy')}</a><a href={pagePath(locale, 'law-enforcement-guidelines')}>{t('Law enforcement guidelines')}</a><a href={pagePath(locale, 'payment-policy')}>{t('Payment policy')}</a><a href={pagePath(locale, 'refund-policy')}>{t('Refund policy')}</a><a href="mailto:privacy@xyaip.fun">{t('Privacy requests')}</a></div>
+        <div><strong>{t('Company')}</strong><a href={pagePath(locale, 'about')}>{copy.about}</a><a href={pagePath(locale, 'contact')}>{copy.contact}</a><a href={`mailto:${CONTACT_EMAIL}`}>{t('Product feedback')}</a></div>
+        <div><strong>Social</strong>{OFFICIAL_SOCIAL_LINKS.map(({ name, url }) => <a href={url} target="_blank" rel="noopener noreferrer">{name}</a>)}</div>
+        <div><strong>{t('Legal')}</strong><a href={pagePath(locale, 'terms-of-service')}>{t('Terms of service')}</a><a href={pagePath(locale, 'privacy-policy')}>{t('Privacy policy')}</a><a href={pagePath(locale, 'law-enforcement-guidelines')}>{t('Law enforcement guidelines')}</a><a href={pagePath(locale, 'payment-policy')}>{t('Payment policy')}</a><a href={pagePath(locale, 'refund-policy')}>{t('Refund policy')}</a><a href={`mailto:${CONTACT_EMAIL}`}>{t('Privacy requests')}</a></div>
       </div>
       <div class="footer-bottom"><span>© 2026 {LEGAL_COMPANY_NAME} · {LEGAL_COMPANY_NUMBER}</span><span>{LEGAL_COMPANY_ADDRESS}</span><span>{eyebrow || t('Kali · Yixiu')}</span></div>
     </footer>
