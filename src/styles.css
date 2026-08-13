@@ -5564,10 +5564,36 @@ html[dir="rtl"] .legal-back-button svg {
 
 .hot-row__main h3 {
   margin: 0;
+  overflow: hidden;
   color: #10252b;
   font-size: 15px;
   line-height: 1.2;
   font-weight: 920;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hot-row__heat {
+  min-width: 0;
+  color: #d86f16;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 3px;
+  font-size: 11px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.hot-row__heat > span {
+  font-size: 11px;
+}
+
+.hot-row__heat b {
+  max-width: 72px;
+  overflow: hidden;
+  font-weight: 850;
+  text-overflow: ellipsis;
 }
 
 .hot-empty,

@@ -8131,13 +8131,29 @@ const categoryFrom = (value) => {
   return trendCategories.find((item) => item.aliases.some((alias) => alias && name.includes(alias))) || trendCategories[0];
 };
 const categoryRequest = (category) => category.aliases.find((alias) => /^[a-z]+$/i.test(alias)) || category.key;
-const normalizeTopic = (item = {}, index = 0) => ({
-  id: pick(item.id, item.item_id, item.uuid, item.simHash, item.url, `${index}`),
-  rank: Number(item.rank || item.index || item.sort || index + 1),
-  title: pick(item.title, item.name, item.keyword, item.hot_title, item.topic, `热点 ${index + 1}`),
-  summary: pick(item.summary, item.desc, item.description, item.subtitle, item.content, item.reason, item.brief),
-  url: pick(item.url, item.link),
-});
+const normalizeTopic = (item = {}, index = 0) => {
+  const heat = pick(
+    item.hotScore,
+    item.hot_score,
+    item.heat,
+    item.hot,
+    item.score,
+    item.count,
+    item.views,
+    item.viewCount,
+    item.view_count,
+    item.popularity,
+  );
+
+  return {
+    id: pick(item.id, item.item_id, item.uuid, item.simHash, item.url, `${index}`),
+    rank: Number(item.rank || item.index || item.sort || index + 1),
+    title: pick(item.title, item.name, item.keyword, item.hot_title, item.topic, `热点 ${index + 1}`),
+    summary: pick(item.summary, item.desc, item.description, item.subtitle, item.content, item.reason, item.brief),
+    heat,
+    url: pick(item.url, item.link),
+  };
+};
 const makeBoard = (source = {}, index = 0) => {
   const rawCategory = pick(source.category, source.cat_name, source.channel, source.type_name, source.tab, source.name, '综合');
   const category = categoryFrom(rawCategory);
@@ -8209,7 +8225,7 @@ const normalizeMediaBoards = (response = {}) => {
           topics: [],
         };
       }
-      boards[source].topics.push({ ...normalizeTopic(item, index), heat: '' });
+      boards[source].topics.push(normalizeTopic(item, index));
       return boards;
     }, {}),
   ).sort((a, b) => {
@@ -9709,6 +9725,12 @@ function HotTrendsPage({ onTopicSelect }) {
                   <span className="hot-row__main">
                     <h3>{topic.title}</h3>
                   </span>
+                  {topic.heat && (
+                    <span className="hot-row__heat" aria-label={`热度 ${topic.heat}`}>
+                      <span aria-hidden="true">🔥</span>
+                      <b>{topic.heat}</b>
+                    </span>
+                  )}
                 </button>
               ))}
               {!board.topics.length && (
