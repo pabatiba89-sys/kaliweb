@@ -17,6 +17,7 @@
 
 - 2026-08-13：喀理（Kali）当前官方媒体账号为 TikTok `https://www.tiktok.com/@kaliai.fun`、Facebook `https://www.facebook.com/profile.php?id=61591606214859`、Instagram `https://www.instagram.com/kaliai2026/`、YouTube `https://www.youtube.com/channel/UCALWkDaVTLVy1rq6doyAPuw`、X `https://x.com/pabatiba`；官网及对外资料中的官方媒体链接以此列表为准。
 - 2026-08-13：喀理网站统一联系邮箱为 `pabatiba89@gmail.com`，适用于产品、商务、隐私、退款及法律通知等联系场景；旧的 `feedback@xyaip.fun` 和 `privacy@xyaip.fun` 不再对外展示。
+- 2026-08-13：视频制作列表接口 `/api/video/production/list` 已在每条记录的 `creator_user` 中返回制作者公开信息；视频卡片应优先展示 `creator_user.nickname`，缺失时再兼容其他姓名字段，并支持按制作者名称搜索。
 - 2026-07-08：当前工作区初始为空，`~/.codex/templates/` 不存在；已创建最小可用 `AGENTS.md` 和 `MEMORY.md`。
 - 2026-07-08：yixiu 小程序源码位于 `/Users/yuerocky/Desktop/yixiu`，技术栈为 JavaScript、WXML、Less、TDesign MiniProgram；API 基地址为 `https://yixiuapi.xyaip.fun`。
 - 2026-07-08：已学习 yixiu 小程序并沉淀调研笔记到 `docs/yixiu-miniapp-study.md`。核心业务是“热点捕捉 -> AI 创作 -> 数字人/声音/音乐/图片资产 -> 视频生产 -> 发布/管理 -> 套餐付费”的 AI 内容生产工作台。

@@ -3983,8 +3983,46 @@ const normalizeVideoRecord = (item = {}, index = 0) => {
   const voiceName = videoText(video.voiceName, video.voice_name, video.speakerName, video.speaker_name);
   const videoTemplateName = videoText(video.videoTemplateName, video.video_template_name, video.styleName, video.style_name);
   const coverTemplateName = videoText(video.coverTemplateName, video.cover_template_name);
-  const creator = videoObject(video.creator || video.creator_user || video.creatorUser || video.user || video.user_info);
-  const creatorName = videoText(video.creatorName, video.creator_name, creator.nickname, creator.nickName, creator.name, video.userName, video.user_name);
+  const creator = videoObject(
+    video.creator_user ||
+    video.creatorUser ||
+    video.creator ||
+    video.creator_info ||
+    video.creatorInfo ||
+    video.created_by_user ||
+    video.createdByUser ||
+    video.created_by ||
+    video.createdBy ||
+    video.user_info ||
+    video.userInfo ||
+    video.user,
+  );
+  const creatorNickname = videoText(
+    creator.nickname,
+    creator.nickName,
+    creator.nick_name,
+    video.creatorNickname,
+    video.creator_nickname,
+    video.createdByNickname,
+    video.created_by_nickname,
+    video.nickname,
+    video.nickName,
+    video.nick_name,
+  );
+  const creatorName = creatorNickname || videoText(
+    video.creatorName,
+    video.creator_name,
+    video.createdByName,
+    video.created_by_name,
+    creator.displayName,
+    creator.display_name,
+    creator.realName,
+    creator.real_name,
+    creator.name,
+    video.userName,
+    video.user_name,
+    video.username,
+  );
   const creatorPhone = videoText(video.creatorPhone, video.creator_phone, creator.phone, creator.mobile);
   const maskedPhone = creatorPhone.length >= 7 ? `${creatorPhone.slice(0, 3)}****${creatorPhone.slice(-4)}` : creatorPhone;
   const successful = status.key === 'success';
@@ -4006,6 +4044,8 @@ const normalizeVideoRecord = (item = {}, index = 0) => {
     videoTemplateName,
     coverTemplateName,
     createdAt: videoText(video.createTime, video.created_at, video.createdAt, video.created_time),
+    creatorNickname,
+    creatorDisplayName: creatorNickname || creatorName,
     creatorText: creatorName && maskedPhone ? `${creatorName}（${maskedPhone}）` : creatorName || maskedPhone,
     canPublish: successful && Boolean(videoUrl),
     canAssignTeam: successful && Boolean(videoUrl),
@@ -4240,7 +4280,7 @@ function VideoStudioPage({ authVersion, onLogin, onNewVideo }) {
     const keyword = query.trim().toLowerCase();
     return videos.filter((video) => {
       const statusMatches = statusFilter === 'all' || video.status.key === statusFilter;
-      const queryMatches = !keyword || [video.title, video.topic, video.script, video.humanName, video.voiceName, video.taskId].some((value) => String(value || '').toLowerCase().includes(keyword));
+      const queryMatches = !keyword || [video.title, video.topic, video.script, video.humanName, video.voiceName, video.creatorDisplayName, video.creatorText, video.taskId].some((value) => String(value || '').toLowerCase().includes(keyword));
       return statusMatches && queryMatches;
     });
   }, [videos, query, statusFilter]);
@@ -4462,7 +4502,7 @@ function VideoStudioPage({ authVersion, onLogin, onNewVideo }) {
       {loading ? <div className="video-empty-state"><RefreshCw className="is-spinning" size={30} /><strong>正在同步{studioConfig.syncLabel}记录</strong></div> : !token ? <div className="video-empty-state"><FileVideo size={38} /><strong>登录后查看视频制作记录</strong><p>登录后可查看状态、进入详情并保存或发布视频。</p><button className="primary-button" onClick={onLogin}>登录</button></div> : visibleVideos.length ? <>
         <section className="video-record-grid">{visibleVideos.map((video, index) => <article className="video-record-card" key={`${video.id}-${index}`}>
           <button className="video-record-media" onClick={() => openDetail(video)} aria-label={`查看 ${video.title} 详情`}>{video.coverUrl ? <img src={video.coverUrl} alt="" loading="lazy" /> : <span><Play size={28} /></span>}<em className={`state-chip--${video.status.key}`}>{video.status.label}</em><i>AI 生成</i></button>
-          <button className="video-record-body" onClick={() => openDetail(video)}><span className="video-record-heading"><strong>{video.title}</strong><ChevronRight size={17} /></span><small>{[video.humanName, video.voiceName].filter(Boolean).join(' · ') || '未记录形象和声音'}</small>{video.topic && <small>话题：{video.topic}</small>}<p>{video.script || '暂无文案摘要'}</p>{video.failureReason && <b>失败原因：{video.failureReason}</b>}<time>{video.createdAt || video.taskId || '等待制作信息'}</time></button>
+          <button className="video-record-body" onClick={() => openDetail(video)}><span className="video-record-heading"><strong>{video.title}</strong><ChevronRight size={17} /></span><small>{[video.humanName, video.voiceName].filter(Boolean).join(' · ') || '未记录形象和声音'}</small>{video.topic && <small>话题：{video.topic}</small>}<p>{video.script || '暂无文案摘要'}</p>{video.failureReason && <b>失败原因：{video.failureReason}</b>}<span className="video-record-footer">{video.creatorDisplayName && <small className="video-record-creator"><UserRound size={13} />{video.creatorDisplayName}</small>}<time>{video.createdAt || video.taskId || '等待制作信息'}</time></span></button>
         </article>)}</section>
         {hasMore && statusFilter === 'all' && !query && <button className="video-load-more" onClick={() => loadVideos({ nextPage: page + 1, append: true })} disabled={loadingMore}>{loadingMore ? '加载中…' : '加载更多视频'}</button>}
       </> : <div className="video-empty-state"><Video size={38} /><strong>{message || (videos.length ? '没有符合筛选条件的视频' : `还没有${studioConfig.emptyLabel}制作记录`)}</strong><p>{videos.length ? '更换状态或搜索关键词后再试。' : `点击制作，提交第一条${studioConfig.emptyLabel}。`}</p>{!videos.length && <button className="primary-button" onClick={() => onNewVideo({ productionType: studioConfig.key })}>开始制作</button>}</div>}

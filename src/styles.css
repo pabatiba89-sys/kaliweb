@@ -1574,11 +1574,33 @@
   white-space: nowrap;
 }
 
-.video-record-body time {
+.video-record-footer {
   margin-top: auto;
   padding-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.video-record-footer time {
+  flex: 0 0 auto;
   color: #8a9b96;
   font-size: 11px;
+}
+
+.video-record-body .video-record-creator {
+  min-width: 0;
+  margin-top: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--green-dark);
+  font-weight: 750;
+}
+
+.video-record-creator svg {
+  flex: 0 0 auto;
 }
 
 .video-load-more {
