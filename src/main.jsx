@@ -9309,11 +9309,13 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
   const longPressRef = useRef(null);
   const copiedTimerRef = useRef(null);
   const streamAbortRef = useRef(null);
+  const generatingRef = useRef(false);
   const authed = Boolean(getAccessToken());
   const isThinking = loading && messages.some((message) => message.role === 'pending');
   const thinkingText = GENERATED_THINKING_MESSAGES[thinkingIndex % GENERATED_THINKING_MESSAGES.length];
 
   useEffect(() => () => {
+    generatingRef.current = false;
     streamAbortRef.current?.abort();
     window.clearTimeout(longPressRef.current?.timer);
     window.clearTimeout(copiedTimerRef.current);
@@ -9337,7 +9339,8 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
       onLogin();
       return;
     }
-    if (!prompt || loading) return;
+    if (!prompt || generatingRef.current) return;
+    generatingRef.current = true;
     const userMessage = { role: 'user', text: prompt };
     const nextMessages = messages.concat(userMessage);
     setThinkingIndex(0);
@@ -9368,6 +9371,7 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
       }
     } finally {
       if (streamAbortRef.current === controller) streamAbortRef.current = null;
+      generatingRef.current = false;
       setLoading(false);
     }
   };
