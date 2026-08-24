@@ -178,6 +178,7 @@ const navItems = [
   { id: 'materials', label: 'Materials', icon: Library },
   { id: 'templates', label: 'Templates', icon: GalleryVerticalEnd },
   { id: 'billing', label: 'Credits & orders', icon: CircleDollarSign },
+  { id: 'team', label: 'Team Center', icon: Building2 },
   { id: 'affiliate', label: 'Affiliate Center', icon: UsersRound },
   { id: 'settings', label: 'Settings', icon: Settings },
 ];
@@ -7952,6 +7953,437 @@ function SettingsPage({ language, authVersion, onLogin, onLogout }) {
   );
 }
 
+const normalizeTeamMember = (member = {}, index = 0) => ({
+  id: member.id ?? member.user_id ?? member.userId ?? `team-member-${index}`,
+  email: textOf(member.email || member.mail),
+  phone: textOf(member.phone || member.mobile),
+  nickname: textOf(member.nickname || member.real_name || member.realName || member.name),
+  avatar: textOf(member.avatar_url || member.avatarUrl || member.avatar),
+  loginType: textOf(member.login_type || member.loginType),
+  status: Number(member.status ?? 1),
+  isOwner: agentBoolean(member.is_owner ?? member.isOwner),
+  isCurrentUser: agentBoolean(member.is_current_user ?? member.isCurrentUser),
+  createdAt: textOf(member.created_at || member.createdAt),
+});
+
+const getTeamMemberInitials = (member = {}) => {
+  const source = member.nickname || member.email?.split('@')[0] || member.phone || 'K';
+  return Array.from(source).slice(0, 2).join('').toUpperCase();
+};
+
+const formatTeamMemberDate = (value, locale) => {
+  if (!value) return 'Not available';
+  const normalized = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(value) ? value.replace(' ', 'T') : value;
+  const date = new Date(normalized);
+  if (Number.isNaN(date.getTime())) return value;
+  try {
+    return new Intl.DateTimeFormat(locale || 'en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: '2-digit',
+    }).format(date);
+  } catch {
+    return new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: '2-digit',
+    }).format(date);
+  }
+};
+
+function TeamCenterPage({ language, authVersion, onLogin }) {
+  const [team, setTeam] = useState({ teamPhone: '', canManage: false, total: 0, members: [] });
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState({ text: '', error: false });
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [inviteMethod, setInviteMethod] = useState('email');
+  const [inviteForm, setInviteForm] = useState({ email: '', phone: '', countryCode: '+86' });
+  const [inviteBusy, setInviteBusy] = useState(false);
+  const [inviteResult, setInviteResult] = useState(null);
+  const [removeMember, setRemoveMember] = useState(null);
+  const [removeBusy, setRemoveBusy] = useState(false);
+  const token = getAccessToken();
+
+  const loadTeam = useCallback(async (preserveMessage = false) => {
+    if (!token) {
+      setTeam({ teamPhone: '', canManage: false, total: 0, members: [] });
+      return;
+    }
+    setLoading(true);
+    const result = await apiFetch('/api/user/team/members', { timeoutMs: 10000 });
+    setLoading(false);
+    if (!result.ok) {
+      setMessage({ text: result.message || 'Team members could not be loaded.', error: true });
+      return;
+    }
+    const payload = result.data && typeof result.data === 'object' ? result.data : {};
+    const members = toList(payload).map(normalizeTeamMember);
+    setTeam({
+      teamPhone: textOf(payload.team_phone || payload.teamPhone),
+      canManage: agentBoolean(payload.can_manage ?? payload.canManage),
+      total: Number(payload.total ?? members.length) || members.length,
+      members,
+    });
+    if (!preserveMessage) setMessage({ text: '', error: false });
+  }, [token, authVersion]);
+
+  useEffect(() => {
+    loadTeam();
+  }, [loadTeam]);
+
+  const openInvite = () => {
+    setInviteMethod('email');
+    setInviteForm({ email: '', phone: '', countryCode: '+86' });
+    setMessage({ text: '', error: false });
+    setInviteOpen(true);
+  };
+
+  const submitInvite = async (event) => {
+    event.preventDefault();
+    const email = inviteForm.email.trim().toLowerCase();
+    const phone = inviteForm.phone.replace(/[^\d]/g, '');
+    if (inviteMethod === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setMessage({ text: 'Enter a valid email address.', error: true });
+      return;
+    }
+    if (inviteMethod === 'phone' && phone.length < 6) {
+      setMessage({ text: 'Enter a valid phone number.', error: true });
+      return;
+    }
+    setInviteBusy(true);
+    setMessage({ text: '', error: false });
+    const body = inviteMethod === 'email'
+      ? { email }
+      : {
+        phone,
+        countryCode: inviteForm.countryCode,
+        country_code: inviteForm.countryCode,
+      };
+    const result = await apiFetch('/api/user/team/members', {
+      method: 'POST',
+      body,
+      timeoutMs: 10000,
+    });
+    setInviteBusy(false);
+    if (!result.ok) {
+      setMessage({ text: result.message || 'Team member could not be added.', error: true });
+      return;
+    }
+    const member = normalizeTeamMember(result.data?.member || {});
+    const defaultPassword = textOf(result.data?.default_password || result.data?.defaultPassword);
+    setInviteOpen(false);
+    setInviteResult({
+      member,
+      defaultPassword,
+      created: agentBoolean(result.data?.created),
+      alreadyMember: agentBoolean(result.data?.already_member ?? result.data?.alreadyMember),
+      method: inviteMethod,
+    });
+    setMessage({
+      text: result.data?.already_member ? 'This person is already in your team.' : 'Team member added successfully.',
+      error: false,
+    });
+    await loadTeam(true);
+  };
+
+  const confirmRemove = async () => {
+    if (!removeMember?.id) return;
+    setRemoveBusy(true);
+    setMessage({ text: '', error: false });
+    const result = await apiFetch(`/api/user/team/members/${encodeURIComponent(removeMember.id)}`, {
+      method: 'DELETE',
+      timeoutMs: 10000,
+    });
+    setRemoveBusy(false);
+    if (!result.ok) {
+      setMessage({ text: result.message || 'Team member could not be removed.', error: true });
+      return;
+    }
+    setRemoveMember(null);
+    setMessage({ text: 'Team member removed. Their account and history were kept.', error: false });
+    await loadTeam(true);
+  };
+
+  const copyPassword = async () => {
+    if (!inviteResult?.defaultPassword) return;
+    try {
+      let copied = false;
+      if (navigator.clipboard?.writeText) {
+        try {
+          await navigator.clipboard.writeText(inviteResult.defaultPassword);
+          copied = true;
+        } catch {
+          copied = false;
+        }
+      }
+      if (!copied) {
+        const textarea = document.createElement('textarea');
+        textarea.value = inviteResult.defaultPassword;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        copied = document.execCommand('copy');
+        textarea.remove();
+      }
+      if (!copied) throw new Error('copy failed');
+      setMessage({ text: 'Initial password copied.', error: false });
+    } catch {
+      setMessage({ text: 'Copy failed. Please copy the password manually.', error: true });
+    }
+  };
+
+  if (!token) {
+    return (
+      <div className="team-page">
+        <section className="team-hero">
+          <div>
+            <span>TEAM WORKSPACE</span>
+            <h1>Team Center</h1>
+            <p>See everyone who shares your team workspace.</p>
+          </div>
+        </section>
+        <div className="team-empty">
+          <UsersRound size={36} />
+          <strong>Sign in to view your team.</strong>
+          <button type="button" className="primary-button" onClick={onLogin}>Sign in</button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="team-page">
+      <section className="team-hero">
+        <div>
+          <span>TEAM WORKSPACE</span>
+          <h1>Team Center</h1>
+          <p>View your team, invite collaborators, and keep workspace access up to date.</p>
+        </div>
+        {team.canManage && (
+          <button type="button" className="primary-button" onClick={openInvite}>
+            <UserPlus size={18} />
+            Invite member
+          </button>
+        )}
+      </section>
+
+      {message.text && (
+        <div className={`team-message${message.error ? ' is-error' : ''}`} role="status">
+          {message.error ? <AlertCircle size={18} /> : <CheckCircle2 size={18} />}
+          <span>{message.text}</span>
+        </div>
+      )}
+
+      <section className="team-summary-grid" aria-busy={loading}>
+        <article>
+          <span className="team-summary-icon"><UsersRound size={20} /></span>
+          <div><small>Team members</small><strong>{team.total}</strong></div>
+        </article>
+        <article>
+          <span className="team-summary-icon"><ShieldCheck size={20} /></span>
+          <div><small>Your access</small><strong>{team.canManage ? 'Team owner' : 'Member'}</strong></div>
+        </article>
+        <article>
+          <span className="team-summary-icon"><Building2 size={20} /></span>
+          <div><small>Team account</small><strong title={team.teamPhone}>{team.teamPhone || 'Not available'}</strong></div>
+        </article>
+      </section>
+
+      <section className="team-members-panel" aria-busy={loading}>
+        <header>
+          <div>
+            <span>MEMBERS</span>
+            <h2>Your team</h2>
+            <p>{team.canManage ? 'You can invite and remove members.' : 'Only the team owner can change membership.'}</p>
+          </div>
+          <button type="button" className="team-refresh-button" onClick={() => loadTeam()} disabled={loading} aria-label="Refresh team members">
+            <RefreshCw className={loading ? 'is-spinning' : ''} size={18} />
+          </button>
+        </header>
+
+        {loading && !team.members.length ? (
+          <div className="team-list-empty">Loading team members...</div>
+        ) : !team.members.length ? (
+          <div className="team-list-empty">No team members found.</div>
+        ) : (
+          <div className="team-member-list" role="list">
+            {team.members.map((member) => (
+              <article className="team-member-row" key={member.id} role="listitem">
+                <div className="team-member-person">
+                  <span className={`team-member-avatar${member.avatar ? ' has-image' : ''}`}>
+                    {member.avatar ? <img src={member.avatar} alt="" /> : getTeamMemberInitials(member)}
+                  </span>
+                  <div>
+                    <strong>{member.nickname || member.email || member.phone || 'Unnamed member'}</strong>
+                    <span>{member.email || member.phone || 'No contact details'}</span>
+                  </div>
+                </div>
+                <div className="team-member-meta">
+                  <small>Account</small>
+                  <strong>{member.email ? 'Email' : member.phone ? 'Phone' : member.loginType || 'Member'}</strong>
+                </div>
+                <div className="team-member-meta">
+                  <small>Joined</small>
+                  <strong>{formatTeamMemberDate(member.createdAt, language)}</strong>
+                </div>
+                <div className="team-member-badges">
+                  {member.isOwner && <span className="is-owner"><ShieldCheck size={14} />Owner</span>}
+                  {member.isCurrentUser && <span>You</span>}
+                  {!member.isOwner && !member.isCurrentUser && <span>{member.status === 1 ? 'Active' : 'Unavailable'}</span>}
+                </div>
+                <div className="team-member-actions">
+                  {team.canManage && !member.isOwner && !member.isCurrentUser ? (
+                    <button type="button" onClick={() => setRemoveMember(member)} aria-label={`Remove ${member.nickname || member.email || member.phone || 'member'}`}>
+                      <Trash2 size={17} />
+                      <span>Remove</span>
+                    </button>
+                  ) : <span aria-hidden="true" />}
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {inviteOpen && (
+        <div className="team-modal-layer" role="presentation">
+          <form className="team-modal" onSubmit={submitInvite} role="dialog" aria-modal="true" aria-labelledby="team-invite-title">
+            <header>
+              <div>
+                <span>ADD TEAM MEMBER</span>
+                <h2 id="team-invite-title">Invite a member</h2>
+                <p>Add someone by email address or phone number.</p>
+              </div>
+              <button type="button" onClick={() => setInviteOpen(false)} aria-label="Close invite form"><X size={19} /></button>
+            </header>
+
+            <div className="team-invite-tabs" role="tablist" aria-label="Invitation method">
+              <button type="button" className={inviteMethod === 'email' ? 'is-active' : ''} onClick={() => setInviteMethod('email')} role="tab" aria-selected={inviteMethod === 'email'}>
+                <Mail size={17} />Email
+              </button>
+              <button type="button" className={inviteMethod === 'phone' ? 'is-active' : ''} onClick={() => setInviteMethod('phone')} role="tab" aria-selected={inviteMethod === 'phone'}>
+                <Phone size={17} />Phone
+              </button>
+            </div>
+
+            {message.text && message.error && (
+              <div className="team-inline-message is-error" role="alert"><AlertCircle size={17} /><span>{message.text}</span></div>
+            )}
+
+            {inviteMethod === 'email' ? (
+              <label className="team-field">
+                <span>Email address</span>
+                <input type="email" autoFocus value={inviteForm.email} onChange={(event) => setInviteForm((current) => ({ ...current, email: event.target.value }))} placeholder="name@example.com" required />
+                <small>If the email is new, an account will be created and the initial password will appear once.</small>
+              </label>
+            ) : (
+              <div className="team-phone-fields">
+                <label className="team-field">
+                  <span>Country code</span>
+                  <select value={inviteForm.countryCode} onChange={(event) => setInviteForm((current) => ({ ...current, countryCode: event.target.value }))}>
+                    {phoneCountryCodes.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
+                  </select>
+                </label>
+                <label className="team-field">
+                  <span>Phone number</span>
+                  <input type="tel" inputMode="tel" autoFocus value={inviteForm.phone} onChange={(event) => setInviteForm((current) => ({ ...current, phone: event.target.value.replace(/[^\d\s()-]/g, '') }))} placeholder="138 0013 8000" required />
+                  <small>The member joins after verifying this phone number.</small>
+                </label>
+              </div>
+            )}
+
+            <footer>
+              <button type="button" className="outline-button" onClick={() => setInviteOpen(false)}>Cancel</button>
+              <button type="submit" className="primary-button" disabled={inviteBusy}>
+                <UserPlus size={17} />
+                {inviteBusy ? 'Adding member' : 'Add member'}
+              </button>
+            </footer>
+          </form>
+        </div>
+      )}
+
+      {inviteResult && (
+        <div className="team-modal-layer" role="presentation">
+          <section className="team-modal team-result-modal" role="dialog" aria-modal="true" aria-labelledby="team-result-title">
+            <header>
+              <div>
+                <span>MEMBER ADDED</span>
+                <h2 id="team-result-title">{inviteResult.alreadyMember ? 'Already in your team' : 'Invitation ready'}</h2>
+              </div>
+              <button type="button" onClick={() => setInviteResult(null)} aria-label="Close invitation result"><X size={19} /></button>
+            </header>
+            <div className="team-result-person">
+              <span className="team-member-avatar">{getTeamMemberInitials(inviteResult.member)}</span>
+              <div>
+                <strong>{inviteResult.member.nickname || inviteResult.member.email || inviteResult.member.phone || 'Team member'}</strong>
+                <span>{inviteResult.member.email || inviteResult.member.phone}</span>
+              </div>
+            </div>
+            {inviteResult.defaultPassword ? (
+              <div className="team-password-card">
+                <span>Initial password · shown once</span>
+                <div>
+                  <code>{inviteResult.defaultPassword}</code>
+                  <button type="button" onClick={copyPassword}><Copy size={16} />Copy</button>
+                </div>
+                <p>Send it securely and ask the member to change it immediately after the first sign-in.</p>
+              </div>
+            ) : inviteResult.method === 'phone' && inviteResult.created ? (
+              <div className="team-result-note"><Phone size={18} /><span>The account is waiting to be claimed. Team access will carry over after the member verifies this phone number.</span></div>
+            ) : (
+              <div className="team-result-note"><CheckCircle2 size={18} /><span>No password was created. The member can use their existing account.</span></div>
+            )}
+            {message.text && /copied|copy failed/i.test(message.text) && (
+              <div className={`team-inline-message${message.error ? ' is-error' : ''}`} role="status">
+                {message.error ? <AlertCircle size={17} /> : <CheckCircle2 size={17} />}
+                <span>{message.text}</span>
+              </div>
+            )}
+            <footer>
+              <button type="button" className="primary-button" onClick={() => setInviteResult(null)}>Done</button>
+            </footer>
+          </section>
+        </div>
+      )}
+
+      {removeMember && (
+        <div className="team-modal-layer" role="presentation">
+          <section className="team-modal team-remove-modal" role="alertdialog" aria-modal="true" aria-labelledby="team-remove-title">
+            <header>
+              <div>
+                <span>REMOVE ACCESS</span>
+                <h2 id="team-remove-title">Remove this member?</h2>
+              </div>
+              <button type="button" onClick={() => setRemoveMember(null)} aria-label="Close remove confirmation"><X size={19} /></button>
+            </header>
+            <div className="team-result-person">
+              <span className="team-member-avatar">{getTeamMemberInitials(removeMember)}</span>
+              <div>
+                <strong>{removeMember.nickname || removeMember.email || removeMember.phone || 'Team member'}</strong>
+                <span>{removeMember.email || removeMember.phone}</span>
+              </div>
+            </div>
+            <p className="team-remove-copy">This only removes team access. Their account, tasks, and history will not be deleted.</p>
+            {message.text && message.error && (
+              <div className="team-inline-message is-error" role="alert"><AlertCircle size={17} /><span>{message.text}</span></div>
+            )}
+            <footer>
+              <button type="button" className="outline-button" onClick={() => setRemoveMember(null)} disabled={removeBusy}>Cancel</button>
+              <button type="button" className="team-danger-button" onClick={confirmRemove} disabled={removeBusy}>
+                <Trash2 size={17} />
+                {removeBusy ? 'Removing' : 'Remove member'}
+              </button>
+            </footer>
+          </section>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function BillingPage({ language, authVersion }) {
   return <OverseasBillingPage language={language} authVersion={authVersion} />;
 }
@@ -10823,6 +11255,12 @@ export default function App() {
               />
             ) : active === 'billing' ? (
               <BillingPage language={language} authVersion={authVersion} />
+            ) : active === 'team' ? (
+              <TeamCenterPage
+                language={language}
+                authVersion={authVersion}
+                onLogin={() => setLoginOpen(true)}
+              />
             ) : active === 'affiliate' ? (
               <AffiliatePage
                 language={language}
