@@ -9549,33 +9549,10 @@ video.media-preview {
 
 .login-card {
   width: min(620px, 100%);
-  max-height: calc(100dvh - 48px);
-  overflow-y: auto;
 }
 
 .login-grid {
   grid-template-columns: 1fr;
-}
-
-.google-login-section {
-  width: min(400px, 100%);
-  min-height: 44px;
-  margin: 0 auto 10px;
-  display: grid;
-  place-items: center;
-  transition: opacity 160ms ease;
-}
-
-.google-login-section.is-disabled {
-  pointer-events: none;
-  opacity: 0.48;
-}
-
-.google-signin-button {
-  width: 100%;
-  min-height: 44px;
-  display: grid;
-  place-items: center;
 }
 
 .login-inline-action {

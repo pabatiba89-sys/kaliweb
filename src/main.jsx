@@ -77,7 +77,6 @@ import {
   emailLogin,
   getAccessToken,
   getPendingInviteCode,
-  googleLogin,
   rememberInviteCode,
   reportEvonetOneTimePaymentEvent,
   requestPasswordReset,
@@ -94,45 +93,6 @@ import packageJson from '../package.json';
 import './styles.css';
 
 const APP_VERSION = `v${packageJson.version}`;
-const GOOGLE_CLIENT_ID = String(import.meta.env.PUBLIC_GOOGLE_CLIENT_ID || '').trim();
-const GOOGLE_IDENTITY_SCRIPT_ID = 'google-identity-services';
-const GOOGLE_IDENTITY_SCRIPT_URL = 'https://accounts.google.com/gsi/client';
-
-let googleIdentityScriptPromise;
-let googleIdentityClientId = '';
-let activeGoogleCredentialHandler = null;
-
-const loadGoogleIdentityServices = () => {
-  if (window.google?.accounts?.id) return Promise.resolve(window.google.accounts.id);
-  if (googleIdentityScriptPromise) return googleIdentityScriptPromise;
-
-  googleIdentityScriptPromise = new Promise((resolve, reject) => {
-    const existing = document.getElementById(GOOGLE_IDENTITY_SCRIPT_ID);
-    const script = existing || document.createElement('script');
-    const handleLoad = () => {
-      if (window.google?.accounts?.id) {
-        resolve(window.google.accounts.id);
-      } else {
-        reject(new Error('Not available'));
-      }
-    };
-    const handleError = () => reject(new Error('Not available'));
-
-    script.addEventListener('load', handleLoad, { once: true });
-    script.addEventListener('error', handleError, { once: true });
-    if (!existing) {
-      script.id = GOOGLE_IDENTITY_SCRIPT_ID;
-      script.src = GOOGLE_IDENTITY_SCRIPT_URL;
-      script.async = true;
-      document.head.appendChild(script);
-    }
-  }).catch((error) => {
-    googleIdentityScriptPromise = undefined;
-    throw error;
-  });
-
-  return googleIdentityScriptPromise;
-};
 
 const copy = {
   en: {
@@ -10540,64 +10500,7 @@ function PasswordResetPage({ initialEmail = '', onBackToLogin }) {
   );
 }
 
-function GoogleSignInButton({ clientId, locale, disabled, onCredential, onUnavailable }) {
-  const buttonRef = useRef(null);
-  const credentialHandlerRef = useRef(onCredential);
-  const unavailableHandlerRef = useRef(onUnavailable);
-
-  useEffect(() => {
-    credentialHandlerRef.current = onCredential;
-    unavailableHandlerRef.current = onUnavailable;
-  }, [onCredential, onUnavailable]);
-
-  useEffect(() => {
-    activeGoogleCredentialHandler = disabled ? null : (response) => credentialHandlerRef.current?.(response);
-    return () => {
-      activeGoogleCredentialHandler = null;
-    };
-  }, [disabled]);
-
-  useEffect(() => {
-    let cancelled = false;
-    if (!clientId || !buttonRef.current) return undefined;
-
-    loadGoogleIdentityServices().then((googleIdentity) => {
-      if (cancelled || !buttonRef.current) return;
-      if (googleIdentityClientId !== clientId) {
-        googleIdentity.initialize({
-          client_id: clientId,
-          callback: (response) => activeGoogleCredentialHandler?.(response),
-          auto_select: false,
-          ux_mode: 'popup',
-        });
-        googleIdentityClientId = clientId;
-      }
-
-      const width = Math.min(400, Math.max(200, Math.floor(buttonRef.current.getBoundingClientRect().width)));
-      buttonRef.current.replaceChildren();
-      googleIdentity.renderButton(buttonRef.current, {
-        type: 'standard',
-        theme: 'outline',
-        size: 'large',
-        text: 'continue_with',
-        shape: 'rectangular',
-        logo_alignment: 'left',
-        width,
-        locale,
-      });
-    }).catch(() => {
-      if (!cancelled) unavailableHandlerRef.current?.();
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [clientId, locale]);
-
-  return <div ref={buttonRef} className="google-signin-button" translate="no" />;
-}
-
-function LoginModal({ open, language, initialInviteCode, onClose, onSuccess, onOpenInfo, onForgotPassword }) {
+function LoginModal({ open, initialInviteCode, onClose, onSuccess, onOpenInfo, onForgotPassword }) {
   const [form, setForm] = useState({
     email: '',
     password: '',
@@ -10616,14 +10519,6 @@ function LoginModal({ open, language, initialInviteCode, onClose, onSuccess, onO
   if (!open) return null;
 
   const update = (key, value) => setForm((current) => ({ ...current, [key]: value }));
-  const completeLogin = (result, inviteCode) => {
-    if (!result.ok || !storeSession(result.data)) return false;
-    if (inviteCode) rememberInviteCode(inviteCode, { overwrite: true });
-    setStatus({ loading: false, message: 'Signed in successfully' });
-    onSuccess(inviteCode);
-    onClose();
-    return true;
-  };
   const submit = async (event) => {
     event.preventDefault();
 
@@ -10635,57 +10530,29 @@ function LoginModal({ open, language, initialInviteCode, onClose, onSuccess, onO
     const inviteCode = form.inviteCode || getPendingInviteCode();
     const result = await emailLogin({ ...form, inviteCode });
 
-    if (completeLogin(result, inviteCode)) return;
+    if (result.ok && storeSession(result.data)) {
+      if (inviteCode) rememberInviteCode(inviteCode, { overwrite: true });
+      setStatus({ loading: false, message: 'Signed in successfully' });
+      onSuccess(inviteCode);
+      onClose();
+      return;
+    }
 
     if (/邀请码无效|最多6位|自己的邀请码/i.test(String(result.message || ''))) {
       clearPendingInviteCode();
     }
     setStatus({ loading: false, message: result.message || 'Email login failed' });
   };
-  const submitGoogleCredential = async (response) => {
-    if (!form.agreement) {
-      setStatus({ loading: false, message: '请先阅读并同意用户服务协议和隐私政策' });
-      return;
-    }
-    if (!response?.credential) {
-      setStatus({ loading: false, message: 'Not available' });
-      return;
-    }
-
-    setStatus({ loading: true, message: 'Signing in' });
-    const inviteCode = form.inviteCode || getPendingInviteCode();
-    const result = await googleLogin({ credential: response.credential, inviteCode });
-    if (completeLogin(result, inviteCode)) return;
-
-    if (/邀请码无效|最多6位|自己的邀请码/i.test(String(result.message || ''))) {
-      clearPendingInviteCode();
-    }
-    setStatus({ loading: false, message: result.message || 'Not available' });
-  };
 
   return (
-    <div className="modal-layer" role="dialog" aria-modal="true" aria-label="Sign in">
+    <div className="modal-layer" role="dialog" aria-modal="true" aria-label="Email login">
       <form className="modal-card login-card" onSubmit={submit}>
         <button type="button" className="modal-close" onClick={onClose} aria-label="Close">
           <X size={18} />
         </button>
-        <h2>Sign in</h2>
+        <h2>Email login</h2>
+        <p>Use your email and password to access the workspace.</p>
         <div className="modal-grid login-grid">
-          {GOOGLE_CLIENT_ID && (
-            <div
-              className={`google-login-section${!form.agreement || status.loading ? ' is-disabled' : ''}`}
-              aria-disabled={!form.agreement || status.loading}
-              inert={!form.agreement || status.loading ? '' : undefined}
-            >
-              <GoogleSignInButton
-                clientId={GOOGLE_CLIENT_ID}
-                locale={language}
-                disabled={!form.agreement || status.loading}
-                onCredential={submitGoogleCredential}
-                onUnavailable={() => setStatus({ loading: false, message: 'Not available' })}
-              />
-            </div>
-          )}
           <label>
             <span>Email</span>
             <input type="email" value={form.email} onChange={(event) => update('email', event.target.value)} required />
@@ -11420,7 +11287,6 @@ export default function App() {
       </main>
       <LoginModal
         open={loginOpen}
-        language={language}
         initialInviteCode={pendingInviteCode}
         onClose={() => setLoginOpen(false)}
         onSuccess={refreshAuth}

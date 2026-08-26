@@ -15,8 +15,6 @@
 
 ## 已知事实
 
-- 2026-08-26：工作台 Google 登录前端采用 Google Identity Services 官方按钮与 popup 回调，Astro 构建变量为 `PUBLIC_GOOGLE_CLIENT_ID`，回调凭证提交 `POST /api/user/google_login` 后复用现有网站 JWT 会话和邀请码归因；浏览器不校验身份或签发网站 Token。后台仍保持只读，完整闭环需后台用 `GOOGLE_WEB_CLIENT_ID` 校验 Google ID token 的签名、`aud/iss/exp`，以 `sub` 绑定唯一 `users.google_sub`，详细契约在 `docs/google-sign-in-backend-contract.md`。
-
 - 2026-08-13：喀理（Kali）当前官方媒体账号为 TikTok `https://www.tiktok.com/@kaliai.fun`、Facebook `https://www.facebook.com/profile.php?id=61591606214859`、Instagram `https://www.instagram.com/kaliai2026/`、YouTube `https://www.youtube.com/channel/UCALWkDaVTLVy1rq6doyAPuw`、X `https://x.com/pabatiba`；官网及对外资料中的官方媒体链接以此列表为准。
 - 2026-08-13：喀理网站统一联系邮箱为 `pabatiba89@gmail.com`，适用于产品、商务、隐私、退款及法律通知等联系场景；旧的 `feedback@xyaip.fun` 和 `privacy@xyaip.fun` 不再对外展示。
 - 2026-08-13：视频制作列表接口 `/api/video/production/list` 已在每条记录的 `creator_user` 中返回制作者公开信息；视频卡片应优先展示 `creator_user.nickname`，缺失时再兼容其他姓名字段，并支持按制作者名称搜索。
