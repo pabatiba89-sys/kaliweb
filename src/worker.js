@@ -79,7 +79,17 @@ export default {
     }
 
     if (!isApiRequest(url.pathname)) {
-      return env.ASSETS.fetch(request);
+      const response = await env.ASSETS.fetch(request);
+      if (url.pathname === '/app' || url.pathname === '/app/') {
+        const headers = new Headers(response.headers);
+        headers.set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+        return new Response(response.body, {
+          status: response.status,
+          statusText: response.statusText,
+          headers,
+        });
+      }
+      return response;
     }
 
     const upstreamUrl = new URL(`${url.pathname}${url.search}`, API_ORIGIN);

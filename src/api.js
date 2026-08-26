@@ -5,6 +5,7 @@ const PENDING_INVITE_CODE_KEY = 'kali_pending_invite_code';
 const PENDING_INVITE_CAPTURED_AT_KEY = 'kali_pending_invite_captured_at';
 const PENDING_INVITE_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
 const AUTH_ENDPOINTS = {
+  googleLogin: ['/api/user/google_login'],
   forgotPassword: ['/api/user/password/forgot', '/api/user/forgot-password', '/api/user/reset-password/request'],
   resetPassword: ['/api/user/password/reset', '/api/user/password/reset-with-code', '/api/user/reset-password/confirm', '/api/user/reset-password'],
   changePassword: ['/api/user/password/change', '/api/user/change-password', '/api/user/reset-password'],
@@ -217,6 +218,22 @@ async function apiFetchAny(paths, options, fallbackMessage) {
     if (result.status && result.status !== 404 && result.status !== 405) return result;
   }
   return lastResult || { ok: false, status: 0, message: fallbackMessage, data: null };
+}
+
+export async function googleLogin({ credential, inviteCode }) {
+  const normalizedInviteCode = normalizeInviteCode(inviteCode);
+  return apiFetchAny(AUTH_ENDPOINTS.googleLogin, {
+    method: 'POST',
+    auth: false,
+    timeoutMs: 10000,
+    body: {
+      credential,
+      ...(normalizedInviteCode ? {
+        inviteCode: normalizedInviteCode,
+        invite_code: normalizedInviteCode,
+      } : {}),
+    },
+  }, 'Not available');
 }
 
 const hasBoundInviter = (user = {}) => {

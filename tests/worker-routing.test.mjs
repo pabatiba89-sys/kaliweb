@@ -18,3 +18,12 @@ test('keeps non-API routes on the static asset binding', async () => {
 
   assert.equal(await response.text(), 'asset');
 });
+
+test('allows Google sign-in popups on the workspace page', async () => {
+  const response = await worker.fetch(new Request('https://www.kaliai.fun/app/'), {
+    ASSETS: { fetch: () => new Response('workspace') },
+  });
+
+  assert.equal(response.headers.get('Cross-Origin-Opener-Policy'), 'same-origin-allow-popups');
+  assert.equal(await response.text(), 'workspace');
+});
