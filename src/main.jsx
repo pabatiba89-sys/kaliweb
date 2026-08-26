@@ -1121,6 +1121,7 @@ const VIDEO_EXTENSIONS = ['mp4', 'mov'];
 const MAX_VIDEO_DURATION = 60;
 const MAX_TRAINING_VIDEO_DURATION = 120;
 const MAX_VOICE_DURATION = 120;
+const DIGITAL_HUMAN_TRAINING_ATH_TEXT = 'kali';
 const MAX_VIDEO_SIDE = 2000;
 const MAX_VIDEO_SIZE = 500 * 1024 * 1024;
 const VIDEO_PRODUCTION_TYPES = {
@@ -3262,6 +3263,7 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
       authorizationVideoUrl: authVideoUrl,
       authorization_text: authorizationText,
       authorizationText,
+      ath_text: DIGITAL_HUMAN_TRAINING_ATH_TEXT,
       ...(isUploadedAuthVideo ? { authText: uploadedAuthText } : {}),
     });
     const result = await apiFetch('/api/aihuman/train', {
@@ -3288,6 +3290,7 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
       custom_tag: textOf(form.name),
       customTag: textOf(form.name),
       name: textOf(form.name),
+      ath_text: DIGITAL_HUMAN_TRAINING_ATH_TEXT,
       ...(isUploadedAuthVideo ? { authText: uploadedAuthText } : {}),
     });
     const result = await apiFetch('/api/aihuman/image/train', {

@@ -15,6 +15,7 @@
 
 ## 已知事实
 
+- 2026-08-26：数字人训练的两个提交接口 `/api/aihuman/train` 和 `/api/aihuman/image/train` 都必须无条件携带 `ath_text: "kali"`；字段名按后端契约保留为 `ath_text`，不改成 `auth_text`。
 - 2026-08-13：喀理（Kali）当前官方媒体账号为 TikTok `https://www.tiktok.com/@kaliai.fun`、Facebook `https://www.facebook.com/profile.php?id=61591606214859`、Instagram `https://www.instagram.com/kaliai2026/`、YouTube `https://www.youtube.com/channel/UCALWkDaVTLVy1rq6doyAPuw`、X `https://x.com/pabatiba`；官网及对外资料中的官方媒体链接以此列表为准。
 - 2026-08-13：喀理网站统一联系邮箱为 `pabatiba89@gmail.com`，适用于产品、商务、隐私、退款及法律通知等联系场景；旧的 `feedback@xyaip.fun` 和 `privacy@xyaip.fun` 不再对外展示。
 - 2026-08-13：视频制作列表接口 `/api/video/production/list` 已在每条记录的 `creator_user` 中返回制作者公开信息；视频卡片应优先展示 `creator_user.nickname`，缺失时再兼容其他姓名字段，并支持按制作者名称搜索。
