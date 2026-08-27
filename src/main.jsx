@@ -178,6 +178,7 @@ const navItems = [
   { id: 'image', label: 'Image Studio', icon: Image },
   { id: 'materials', label: 'Materials', icon: Library },
   { id: 'templates', label: 'Templates', icon: GalleryVerticalEnd },
+  { id: 'presets', label: 'Packaging Presets', icon: Cuboid },
   { id: 'billing', label: 'Credits & orders', icon: CircleDollarSign },
   { id: 'team', label: 'Team Center', icon: Building2 },
   { id: 'affiliate', label: 'Affiliate Center', icon: UsersRound },
@@ -5273,6 +5274,7 @@ const normalizeCreatorPreset = (item = {}, index = 0) => {
       title: videoText(item.coverTemplateName, item.cover_template_name),
       cover: getApiMediaUrl(videoText(item.coverTemplateImageUrl, item.cover_template_image_url, item.coverTemplatePreviewUrl, item.cover_template_preview_url)),
     },
+    raw: item,
   };
 };
 
@@ -5292,6 +5294,238 @@ const hydrateCreatorPresetVoice = (preset, voices) => {
     },
   };
 };
+
+const hydratePackagingPreset = (preset, resources) => {
+  const match = (type, value) => resources[type]?.find((item) => String(item.id) === String(value?.id));
+  return {
+    ...preset,
+    human: { ...preset.human, ...(match('human', preset.human) || {}) },
+    voice: { ...preset.voice, ...(match('voice', preset.voice) || {}) },
+    videoTemplate: { ...preset.videoTemplate, ...(match('videoTemplate', preset.videoTemplate) || {}) },
+    coverTemplate: { ...preset.coverTemplate, ...(match('coverTemplate', preset.coverTemplate) || {}) },
+  };
+};
+
+const emptyPackagingEditor = () => ({
+  mode: 'create',
+  id: '',
+  human: {},
+  voice: {},
+  videoTemplate: {},
+  coverTemplate: {},
+  isDefault: false,
+});
+
+function PackagingPresetsPage({ authVersion, onLogin }) {
+  const token = getAccessToken();
+  const [presets, setPresets] = useState([]);
+  const [resources, setResources] = useState({ human: [], voice: [], videoTemplate: [], coverTemplate: [] });
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState({ text: '', error: false });
+  const [editor, setEditor] = useState(null);
+  const [dialogType, setDialogType] = useState('');
+
+  const normalizePresetList = useCallback((result, nextResources) => (
+    getCreatorPayloadList(result)
+      .map(normalizeCreatorPreset)
+      .map((preset) => hydratePackagingPreset(preset, nextResources))
+  ), []);
+
+  const loadPresets = useCallback(async (nextResources = resources) => {
+    const result = await apiFetch('/api/team-video-preset/list', { timeoutMs: 12000 });
+    if (!result.ok) {
+      setMessage({ text: getResultMessage(result, 'Packaging presets failed to load.'), error: true });
+      return false;
+    }
+    setPresets(normalizePresetList(result, nextResources));
+    return true;
+  }, [normalizePresetList, resources]);
+
+  useEffect(() => {
+    if (!token) {
+      setPresets([]);
+      setResources({ human: [], voice: [], videoTemplate: [], coverTemplate: [] });
+      return undefined;
+    }
+    let ignore = false;
+    const load = async () => {
+      setLoading(true);
+      setMessage({ text: '', error: false });
+      const [ownHumans, commonHumans, ownVoices, commonVoices, videoTemplates, coverTemplates, presetResult] = await Promise.all([
+        apiFetch('/api/aihuman/list', { params: { page: 1, page_size: 50 }, timeoutMs: 12000 }),
+        apiFetch('/api/aihuman/common-list', { params: { page: 1, page_size: 50 }, timeoutMs: 12000 }),
+        apiFetch('/api/ai-voice/list', { params: { page: 1, page_size: 50 }, timeoutMs: 12000 }),
+        apiFetch('/api/ai-voice/common-list', { params: { page: 1, page_size: 50 }, timeoutMs: 12000 }),
+        apiFetch('/api/shanjian/video-templates', { auth: false, params: { page: 1, page_size: 100, scene: 'virtualman' }, timeoutMs: 12000 }),
+        apiFetch('/api/shanjian/cover-templates', { auth: false, params: { page: 1, page_size: 100, scene: 'virtualman' }, timeoutMs: 12000 }),
+        apiFetch('/api/team-video-preset/list', { timeoutMs: 12000 }),
+      ]);
+      if (ignore) return;
+      const uniqueById = (items) => Array.from(new Map(items.filter((item) => item.id).map((item) => [String(item.id), item])).values());
+      const humans = uniqueById([ownHumans, commonHumans]
+        .flatMap((result) => getCreatorPayloadList(result))
+        .map(normalizeHuman)
+        .filter((item) => !['failed', 'processing'].includes(item.status.key)));
+      const voices = uniqueById([ownVoices, commonVoices]
+        .flatMap((result) => getVoiceItems(result).length ? getVoiceItems(result) : getCreatorPayloadList(result))
+        .map(normalizeVoiceAsset)
+        .filter((item) => !['failed', 'processing'].includes(item.status.key)));
+      const nextResources = {
+        human: humans,
+        voice: voices,
+        videoTemplate: getCreatorPayloadList(videoTemplates).map((item, index) => normalizeTemplate(item, index, '视频包装')),
+        coverTemplate: getCreatorPayloadList(coverTemplates).map((item, index) => normalizeTemplate(item, index, '封面包装')),
+      };
+      setResources(nextResources);
+      if (presetResult.ok) {
+        setPresets(normalizePresetList(presetResult, nextResources));
+      } else {
+        setMessage({ text: getResultMessage(presetResult, 'Packaging presets failed to load.'), error: true });
+      }
+      setLoading(false);
+    };
+    load();
+    return () => { ignore = true; };
+  }, [authVersion, normalizePresetList, token]);
+
+  const openEditor = (preset = null) => {
+    setMessage({ text: '', error: false });
+    setEditor(preset ? {
+      mode: 'edit',
+      id: preset.id,
+      human: preset.human || {},
+      voice: preset.voice || {},
+      videoTemplate: preset.videoTemplate || {},
+      coverTemplate: preset.coverTemplate || {},
+      isDefault: Boolean(preset.isDefault),
+    } : emptyPackagingEditor());
+  };
+
+  const savePreset = async () => {
+    if (!editor?.human?.id || !editor?.voice?.id || !editor?.videoTemplate?.id || !editor?.coverTemplate?.id) {
+      setMessage({ text: 'Please complete all four packaging selections.', error: true });
+      return;
+    }
+    setSaving(true);
+    setMessage({ text: '', error: false });
+    const editorMode = editor.mode;
+    const body = {
+      ...(editorMode === 'edit' ? { id: editor.id } : {}),
+      digitalHumanId: editor.human.id,
+      digitalHumanName: editor.human.title,
+      voiceId: editor.voice.id,
+      coverUrl: editor.human.cover || '',
+      clipTemplateId: editor.videoTemplate.id,
+      clipTemplateName: editor.videoTemplate.title,
+      clipTemplateImageUrl: editor.videoTemplate.cover || '',
+      coverTemplateId: editor.coverTemplate.id,
+      coverTemplateName: editor.coverTemplate.title,
+      coverTemplateImageUrl: editor.coverTemplate.cover || '',
+      isDefault: editor.isDefault,
+    };
+    const result = await apiFetch(`/api/team-video-preset/${editorMode === 'edit' ? 'update' : 'create'}`, {
+      method: 'POST',
+      body,
+      timeoutMs: 12000,
+    });
+    if (!result.ok) {
+      setMessage({ text: getResultMessage(result, 'Packaging preset could not be saved.'), error: true });
+      setSaving(false);
+      return;
+    }
+    setEditor(null);
+    setDialogType('');
+    const refreshed = await loadPresets(resources);
+    if (refreshed) setMessage({ text: editorMode === 'edit' ? 'Packaging preset updated.' : 'Packaging preset added.', error: false });
+    setSaving(false);
+  };
+
+  const toggleDefault = async (preset) => {
+    setSaving(true);
+    setMessage({ text: '', error: false });
+    const result = await apiFetch('/api/team-video-preset/set-default', {
+      method: 'POST',
+      body: { id: preset.id, isDefault: !preset.isDefault },
+      timeoutMs: 12000,
+    });
+    if (result.ok) {
+      const refreshed = await loadPresets(resources);
+      if (refreshed) setMessage({ text: preset.isDefault ? 'Default setting removed.' : 'Default setting saved.', error: false });
+    } else {
+      setMessage({ text: getResultMessage(result, 'Default setting could not be changed.'), error: true });
+    }
+    setSaving(false);
+  };
+
+  const editorRows = [
+    { key: 'human', label: 'Digital human', hint: 'Choose a digital human', icon: UserRound },
+    { key: 'voice', label: 'Voice', hint: 'Choose a voice', icon: AudioLines },
+    { key: 'videoTemplate', label: 'Video packaging', hint: 'Choose video packaging', icon: Video },
+    { key: 'coverTemplate', label: 'Cover packaging', hint: 'Choose cover packaging', icon: Image },
+  ];
+  const previewRows = [
+    { key: 'human', label: 'Digital human', icon: UserRound },
+    { key: 'videoTemplate', label: 'Video packaging', icon: Video },
+    { key: 'coverTemplate', label: 'Cover packaging', icon: Image },
+  ];
+
+  return (
+    <div className="packaging-presets-page">
+      <section className="packaging-presets-hero">
+        <div><span>REUSABLE PRODUCTION SETUP</span><h1>Packaging Presets</h1><p>Save a digital human, voice, video package and cover package as one reusable setup.</p></div>
+        <button className="primary-button" disabled={loading} onClick={() => token ? openEditor() : onLogin()}><Plus size={18} />Add preset</button>
+      </section>
+      {message.text && <div className={`packaging-presets-message ${message.error ? 'is-error' : ''}`}>{message.text}</div>}
+      {loading ? (
+        <div className="packaging-presets-empty"><RefreshCw className="is-spinning" size={28} /><strong>Loading packaging presets…</strong></div>
+      ) : !token ? (
+        <div className="packaging-presets-empty"><Cuboid size={38} /><strong>Sign in to manage packaging presets</strong><p>Preset combinations are shared with video production.</p><button className="primary-button" onClick={onLogin}>Sign in</button></div>
+      ) : presets.length ? (
+        <section className="packaging-preset-grid">
+          {presets.map((preset) => (
+            <article className={`packaging-preset-card ${preset.isDefault ? 'is-default' : ''}`} key={preset.id}>
+              <header>
+                <span className="packaging-preset-avatar">{preset.human.cover ? <img src={preset.human.cover} alt="" /> : <UserRound size={27} />}</span>
+                <div><h2>{preset.human.title || preset.title}</h2><p>Voice: {preset.voice.title || preset.voice.id || 'Not selected'}</p></div>
+                <span className={`packaging-preset-state ${preset.isDefault ? 'is-default' : ''}`}>{preset.isDefault ? 'Default' : 'Optional'}</span>
+                <button className={`packaging-default-switch ${preset.isDefault ? 'is-on' : ''}`} type="button" role="switch" aria-checked={preset.isDefault} aria-label="Toggle default" disabled={saving} onClick={() => toggleDefault(preset)}><i /></button>
+              </header>
+              <div className="packaging-preset-previews">
+                {previewRows.map(({ key, label, icon: Icon }) => {
+                  const item = preset[key] || {};
+                  return <div key={key}><span>{item.cover ? <img src={item.cover} alt="" loading="lazy" /> : <Icon size={28} />}</span><small>{label}</small><strong>{item.title || 'Not selected'}</strong></div>;
+                })}
+              </div>
+              <footer><button type="button" onClick={() => openEditor(preset)}><Edit3 size={16} />Edit</button></footer>
+            </article>
+          ))}
+        </section>
+      ) : (
+        <div className="packaging-presets-empty"><Cuboid size={38} /><strong>No packaging presets yet</strong><p>Add a reusable setup for faster video production.</p><button className="primary-button" onClick={() => openEditor()}><Plus size={17} />Add preset</button></div>
+      )}
+
+      {editor && (
+        <div className="video-action-layer packaging-editor-layer" role="dialog" aria-modal="true" aria-label={editor.mode === 'edit' ? 'Edit packaging preset' : 'Add packaging preset'}>
+          <button className="video-action-layer__mask" aria-label="Close" onClick={() => !saving && setEditor(null)} />
+          <section className="packaging-editor-dialog">
+            <header><div><span>PACKAGING PRESET</span><h2>{editor.mode === 'edit' ? 'Edit packaging preset' : 'Add packaging preset'}</h2><p>Choose the resources used together for video production.</p></div><button type="button" onClick={() => !saving && setEditor(null)} aria-label="Close"><X size={19} /></button></header>
+            <div className="packaging-editor-selectors">
+              {editorRows.map(({ key, label, hint, icon: Icon }) => {
+                const item = editor[key] || {};
+                return <button type="button" key={key} onClick={() => setDialogType(key)}><i><Icon size={20} /></i><span><strong>{label}</strong><small>{item.title || hint}</small></span>{item.cover && <img src={item.cover} alt="" />}<ChevronRight size={18} /></button>;
+              })}
+              <div className="packaging-editor-default"><span><strong>Use as default</strong><small>Default presets can be applied directly in video production.</small></span><button className={`packaging-default-switch ${editor.isDefault ? 'is-on' : ''}`} type="button" role="switch" aria-checked={editor.isDefault} onClick={() => setEditor((current) => ({ ...current, isDefault: !current.isDefault }))}><i /></button></div>
+            </div>
+            {message.text && message.error && <div className="packaging-presets-message is-error">{message.text}</div>}
+            <footer><button type="button" className="outline-button" onClick={() => setEditor(null)} disabled={saving}>Cancel</button><button type="button" className="primary-button" onClick={savePreset} disabled={saving}>{saving ? <RefreshCw className="is-spinning" size={17} /> : <Check size={17} />}{saving ? 'Saving…' : 'Save preset'}</button></footer>
+          </section>
+        </div>
+      )}
+      {editor && dialogType && <VideoCreatorDialog type={dialogType} options={resources[dialogType] || []} selected={editor[dialogType]} loading={false} hasMore={false} loadingMore={false} loadMessage="" onClose={() => setDialogType('')} onSelect={(option) => { setEditor((current) => ({ ...current, [dialogType]: option })); setDialogType(''); }} />}
+    </div>
+  );
+}
 
 const getCreatorMaterialDuration = (item = {}) => item.type === 'image' ? 2 : Number(item.duration) || MAX_VIDEO_DURATION;
 
@@ -10977,6 +11211,7 @@ const getInitialWorkspacePage = () => {
   if (page === 'password-reset') return 'password-reset';
   if (page === 'video') return 'video';
   if (page === 'speech') return 'speech';
+  if (page === 'presets') return 'presets';
   return 'home';
 };
 
@@ -11304,6 +11539,8 @@ export default function App() {
       url.searchParams.set('page', 'password-reset');
     } else if (id === 'speech') {
       url.searchParams.set('page', 'speech');
+    } else if (id === 'presets') {
+      url.searchParams.set('page', 'presets');
     } else {
       url.searchParams.delete('page');
     }
@@ -11566,6 +11803,11 @@ export default function App() {
             ) : active === 'templates' ? (
               <TemplatesPage
                 authVersion={authVersion}
+              />
+            ) : active === 'presets' ? (
+              <PackagingPresetsPage
+                authVersion={authVersion}
+                onLogin={() => setLoginOpen(true)}
               />
             ) : active === 'image' ? (
               <ImageStudioPage
