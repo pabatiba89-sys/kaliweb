@@ -5318,8 +5318,13 @@ const emptyPackagingEditor = () => ({
 
 function PackagingPresetsPage({ authVersion, onLogin }) {
   const token = getAccessToken();
+  const resourceLoadingRef = useRef({ videoTemplate: false, coverTemplate: false });
   const [presets, setPresets] = useState([]);
   const [resources, setResources] = useState({ human: [], voice: [], videoTemplate: [], coverTemplate: [] });
+  const [resourcePaging, setResourcePaging] = useState({
+    videoTemplate: { page: 1, cursor: '', hasMore: false, loadingMore: false, message: '' },
+    coverTemplate: { page: 1, cursor: '', hasMore: false, loadingMore: false, message: '' },
+  });
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ text: '', error: false });
@@ -5346,6 +5351,10 @@ function PackagingPresetsPage({ authVersion, onLogin }) {
     if (!token) {
       setPresets([]);
       setResources({ human: [], voice: [], videoTemplate: [], coverTemplate: [] });
+      setResourcePaging({
+        videoTemplate: { page: 1, cursor: '', hasMore: false, loadingMore: false, message: '' },
+        coverTemplate: { page: 1, cursor: '', hasMore: false, loadingMore: false, message: '' },
+      });
       return undefined;
     }
     let ignore = false;
@@ -5378,6 +5387,22 @@ function PackagingPresetsPage({ authVersion, onLogin }) {
         coverTemplate: getCreatorPayloadList(coverTemplates).map((item, index) => normalizeTemplate(item, index, '封面包装')),
       };
       setResources(nextResources);
+      setResourcePaging({
+        videoTemplate: {
+          page: 1,
+          cursor: getTemplateNextCursor(videoTemplates),
+          hasMore: videoTemplates.ok && getTemplateHasMore({ result: videoTemplates, cursor: '', list: getCreatorPayloadList(videoTemplates), page: 1 }),
+          loadingMore: false,
+          message: videoTemplates.ok ? '' : getResultMessage(videoTemplates, 'Video packaging templates failed to load.'),
+        },
+        coverTemplate: {
+          page: 1,
+          cursor: getTemplateNextCursor(coverTemplates),
+          hasMore: coverTemplates.ok && getTemplateHasMore({ result: coverTemplates, cursor: '', list: getCreatorPayloadList(coverTemplates), page: 1 }),
+          loadingMore: false,
+          message: coverTemplates.ok ? '' : getResultMessage(coverTemplates, 'Cover packaging templates failed to load.'),
+        },
+      });
       if (presetResult.ok) {
         setPresets(normalizePresetList(presetResult, nextResources));
       } else {
@@ -5388,6 +5413,59 @@ function PackagingPresetsPage({ authVersion, onLogin }) {
     load();
     return () => { ignore = true; };
   }, [authVersion, normalizePresetList, token]);
+
+  const loadMorePackagingTemplates = async (type) => {
+    if (!['videoTemplate', 'coverTemplate'].includes(type)) return;
+    const paging = resourcePaging[type];
+    if (!paging?.hasMore || paging.loadingMore || resourceLoadingRef.current[type]) return;
+
+    resourceLoadingRef.current[type] = true;
+    setResourcePaging((current) => ({
+      ...current,
+      [type]: { ...current[type], loadingMore: true, message: '' },
+    }));
+
+    const nextPage = paging.page + 1;
+    const result = await apiFetch(type === 'videoTemplate' ? '/api/shanjian/video-templates' : '/api/shanjian/cover-templates', {
+      auth: false,
+      params: {
+        page: nextPage,
+        page_size: TEMPLATE_PAGE_SIZE,
+        pageSize: TEMPLATE_PAGE_SIZE,
+        limit: TEMPLATE_PAGE_SIZE,
+        scene: 'virtualman',
+        ...(paging.cursor ? { sid: paging.cursor } : {}),
+      },
+      timeoutMs: 12000,
+    });
+    const rawItems = getCreatorPayloadList(result);
+    const normalized = rawItems.map((item, index) => normalizeTemplate(
+      item,
+      resources[type].length + index,
+      type === 'videoTemplate' ? '视频包装' : '封面包装',
+    ));
+    const existingIds = new Set(resources[type].map((item) => String(item.id)));
+    const uniqueItems = normalized.filter((item) => !existingIds.has(String(item.id)));
+    const nextCursor = getTemplateNextCursor(result);
+    const cursorProgressed = Boolean(nextCursor && nextCursor !== paging.cursor);
+
+    if (result.ok && uniqueItems.length) {
+      setResources((current) => ({ ...current, [type]: current[type].concat(uniqueItems) }));
+    }
+    setResourcePaging((current) => ({
+      ...current,
+      [type]: {
+        page: result.ok ? nextPage : current[type].page,
+        cursor: result.ok ? nextCursor : current[type].cursor,
+        hasMore: result.ok
+          ? getTemplateHasMore({ result, cursor: paging.cursor, list: rawItems, page: nextPage }) && (uniqueItems.length > 0 || cursorProgressed)
+          : current[type].hasMore,
+        loadingMore: false,
+        message: result.ok ? '' : getResultMessage(result, 'Templates failed to load. Please retry.'),
+      },
+    }));
+    resourceLoadingRef.current[type] = false;
+  };
 
   const openEditor = (preset = null) => {
     setMessage({ text: '', error: false });
@@ -5522,7 +5600,7 @@ function PackagingPresetsPage({ authVersion, onLogin }) {
           </section>
         </div>
       )}
-      {editor && dialogType && <VideoCreatorDialog type={dialogType} options={resources[dialogType] || []} selected={editor[dialogType]} loading={false} hasMore={false} loadingMore={false} loadMessage="" onClose={() => setDialogType('')} onSelect={(option) => { setEditor((current) => ({ ...current, [dialogType]: option })); setDialogType(''); }} />}
+      {editor && dialogType && <VideoCreatorDialog type={dialogType} options={resources[dialogType] || []} selected={editor[dialogType]} loading={false} hasMore={resourcePaging[dialogType]?.hasMore || false} loadingMore={resourcePaging[dialogType]?.loadingMore || false} loadMessage={resourcePaging[dialogType]?.message || ''} onClose={() => setDialogType('')} onSelect={(option) => { setEditor((current) => ({ ...current, [dialogType]: option })); setDialogType(''); }} onLoadMore={() => loadMorePackagingTemplates(dialogType)} />}
     </div>
   );
 }
