@@ -15,7 +15,7 @@
 
 ## 已知事实
 
-- 2026-08-27：Asset Studio 的视频数字人、图生数字人和声音克隆提交共用阶段式进度反馈；文件上传使用真实上传百分比，其余按“准备素材 -> 提交任务 -> 同步资产”节点推进，颜色依次切换为青色、蓝色、紫色，完成为绿色、失败为红色。
+- 2026-08-27：Asset Studio 的视频数字人、图生数字人和声音克隆提交共用阶段式进度反馈；文件上传使用真实上传百分比，其余按“准备素材 -> 提交任务 -> 同步资产”节点推进，整个提交按钮作为高可见度进度条并随阶段变色。带上传进度的请求不再使用固定总时长中断，而是在连续 5 分钟没有任何传输活动时才判定超时。
 - 2026-08-26：数字人训练的两个提交接口 `/api/aihuman/train` 和 `/api/aihuman/image/train` 都必须无条件携带 `ath_text: "kali"`；字段名按后端契约保留为 `ath_text`，不改成 `auth_text`。
 - 2026-08-13：喀理（Kali）当前官方媒体账号为 TikTok `https://www.tiktok.com/@kaliai.fun`、Facebook `https://www.facebook.com/profile.php?id=61591606214859`、Instagram `https://www.instagram.com/kaliai2026/`、YouTube `https://www.youtube.com/channel/UCALWkDaVTLVy1rq6doyAPuw`、X `https://x.com/pabatiba`；官网及对外资料中的官方媒体链接以此列表为准。
 - 2026-08-13：喀理网站统一联系邮箱为 `pabatiba89@gmail.com`，适用于产品、商务、隐私、退款及法律通知等联系场景；旧的 `feedback@xyaip.fun` 和 `privacy@xyaip.fun` 不再对外展示。

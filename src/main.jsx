@@ -3508,22 +3508,24 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
           )}
           {message && <div className="form-message">{message}</div>}
           <div className={`training-submit-area ${submitting ? `is-progressing is-${submitProgressPhase}` : ''}`}>
-            {submitting && submitProgress && (
-              <span
-                className="training-submit-progress"
-                role="progressbar"
-                aria-label={submitProgress.label}
-                aria-valuemin="0"
-                aria-valuemax="100"
-                aria-valuenow={submitProgressPercent}
-              >
-                <span className="training-submit-progress__fill" style={{ width: `${submitProgressPercent}%` }} />
-              </span>
-            )}
             <button className="primary-button training-submit" onClick={submitTraining} disabled={submitting}>
-              {submitting ? <RefreshCw className="is-spinning" size={17} /> : <Sparkles size={17} />}
-              <span>{submitting ? submitProgress?.label || '提交中' : mode === 'video' ? '提交数字人训练' : mode === 'image' ? '提交图生数字人' : '提交声音克隆'}</span>
-              {submitting && <strong className="training-submit__percent">{submitProgressPercent}%</strong>}
+              {submitting && submitProgress && (
+                <span
+                  className="training-submit-progress"
+                  role="progressbar"
+                  aria-label={submitProgress.label}
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                  aria-valuenow={submitProgressPercent}
+                >
+                  <span className="training-submit-progress__fill" style={{ width: `${submitProgressPercent}%` }} />
+                </span>
+              )}
+              <span className="training-submit__content" aria-live="polite">
+                {submitting ? <RefreshCw className="is-spinning" size={17} /> : <Sparkles size={17} />}
+                <span>{submitting ? submitProgress?.label || '提交中' : mode === 'video' ? '提交数字人训练' : mode === 'image' ? '提交图生数字人' : '提交声音克隆'}</span>
+                {submitting && <strong className="training-submit__percent">{submitProgressPercent}%</strong>}
+              </span>
             </button>
           </div>
         </section>

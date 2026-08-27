@@ -122,7 +122,7 @@ export async function apiFetch(path, { method = 'GET', body, auth = true, params
   }
 }
 
-export async function uploadFile(file, { source = 'material', timeoutMs = 180000, onProgress } = {}) {
+export async function uploadFile(file, { source = 'material', timeoutMs = 300000, onProgress } = {}) {
   const token = getAccessToken();
 
   if (!token) {
@@ -140,15 +140,33 @@ export async function uploadFile(file, { source = 'material', timeoutMs = 180000
   if (typeof onProgress === 'function' && typeof XMLHttpRequest !== 'undefined') {
     return new Promise((resolve) => {
       const xhr = new XMLHttpRequest();
-      const timer = window.setTimeout(() => xhr.abort(), timeoutMs);
       const url = new URL(normalizeUrl('/api/file/upload'), window.location.origin);
+      let inactivityTimer = null;
+      let abortedByInactivity = false;
+
+      const clearInactivityTimer = () => {
+        if (inactivityTimer !== null) window.clearTimeout(inactivityTimer);
+        inactivityTimer = null;
+      };
+      const resetInactivityTimer = () => {
+        clearInactivityTimer();
+        if (!timeoutMs) return;
+        inactivityTimer = window.setTimeout(() => {
+          abortedByInactivity = true;
+          xhr.abort();
+        }, timeoutMs);
+      };
 
       xhr.upload.onprogress = (event) => {
+        resetInactivityTimer();
         if (!event.lengthComputable) return;
         onProgress(Math.max(0, Math.min(100, Math.round((event.loaded / event.total) * 100))));
       };
+      xhr.upload.onloadstart = resetInactivityTimer;
+      xhr.upload.onload = resetInactivityTimer;
+      xhr.onprogress = resetInactivityTimer;
       xhr.onload = () => {
-        window.clearTimeout(timer);
+        clearInactivityTimer();
         const payload = (() => {
           try {
             return JSON.parse(xhr.responseText || '{}');
@@ -167,15 +185,16 @@ export async function uploadFile(file, { source = 'material', timeoutMs = 180000
         });
       };
       xhr.onerror = () => {
-        window.clearTimeout(timer);
+        clearInactivityTimer();
         resolve({ ok: false, status: 0, message: 'Network request failed', data: null });
       };
       xhr.onabort = () => {
-        window.clearTimeout(timer);
-        resolve({ ok: false, status: 0, message: 'Request timed out', data: null });
+        clearInactivityTimer();
+        resolve({ ok: false, status: 0, message: abortedByInactivity ? 'Request timed out' : 'Network request failed', data: null });
       };
       xhr.open('POST', url.toString());
       xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+      resetInactivityTimer();
       xhr.send(formData);
     });
   }
