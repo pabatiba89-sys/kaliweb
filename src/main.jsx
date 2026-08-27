@@ -10,6 +10,7 @@ import {
   Building2,
   CalendarDays,
   Check,
+  ChevronDown,
   ChevronRight,
   CircleDollarSign,
   CheckCircle2,
@@ -2975,6 +2976,91 @@ function AssetLibraryPanel({
   );
 }
 
+function AuthVideoSelect({ videos, selectedKey, onChange, title, emptyLabel }) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState('');
+  const rootRef = useRef(null);
+  const triggerRef = useRef(null);
+  const searchRef = useRef(null);
+  const selected = videos.find((video) => video.key === selectedKey) || null;
+  const keyword = query.trim().toLowerCase();
+  const visibleVideos = keyword
+    ? videos.filter((video) => `${video.name} ${video.meta}`.toLowerCase().includes(keyword))
+    : videos;
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const closeOnOutsidePress = (event) => {
+      if (!rootRef.current?.contains(event.target)) setOpen(false);
+    };
+    const closeOnEscape = (event) => {
+      if (event.key !== 'Escape') return;
+      setOpen(false);
+      triggerRef.current?.focus();
+    };
+    document.addEventListener('pointerdown', closeOnOutsidePress);
+    document.addEventListener('keydown', closeOnEscape);
+    window.setTimeout(() => searchRef.current?.focus(), 0);
+    return () => {
+      document.removeEventListener('pointerdown', closeOnOutsidePress);
+      document.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [open]);
+
+  const chooseVideo = (key) => {
+    onChange(key);
+    setQuery('');
+    setOpen(false);
+    triggerRef.current?.focus();
+  };
+
+  return (
+    <div className={`auth-video-select ${open ? 'is-open' : ''}`} ref={rootRef}>
+      <button
+        type="button"
+        className="auth-video-select__trigger"
+        ref={triggerRef}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        disabled={!videos.length}
+        onClick={() => setOpen((current) => !current)}
+      >
+        <span className="auth-video-select__icon"><Video size={19} /></span>
+        <span className="auth-video-select__value">
+          <strong>{selected?.name || emptyLabel}</strong>
+          <small>{selected?.meta || title}</small>
+        </span>
+        <em>{videos.length}</em>
+        <ChevronDown className="auth-video-select__chevron" size={18} />
+      </button>
+      {open && (
+        <div className="auth-video-select__menu">
+          <label className="auth-video-select__search">
+            <Search size={16} />
+            <input ref={searchRef} value={query} onChange={(event) => setQuery(event.target.value)} placeholder={title} />
+          </label>
+          <div className="auth-video-select__options" role="listbox" aria-label={title}>
+            {visibleVideos.map((video) => (
+              <button
+                type="button"
+                role="option"
+                aria-selected={selectedKey === video.key}
+                key={video.key}
+                className={selectedKey === video.key ? 'is-active' : ''}
+                onClick={() => chooseVideo(video.key)}
+              >
+                <span><strong>{video.name}</strong><small>{video.meta}</small></span>
+                {selectedKey === video.key && <Check size={17} />}
+              </button>
+            ))}
+            {!visibleVideos.length && <div className="auth-video-select__empty">{emptyLabel}</div>}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsset, initialImageId = '', initialMode = '' }) {
   const [view, setView] = useState(initialImageId ? 'create' : 'library');
   const [mode, setMode] = useState(initialMode || (initialImageId ? 'image' : 'video'));
@@ -3501,8 +3587,14 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
                 <span><button onClick={() => onOpenInfo('legal-avatar')}>《数字人形象授权协议》</button><button onClick={() => onOpenInfo('legal-image')}>《形象信息采集与使用协议》</button></span>
               </div>
               <div className="auth-video-picker">
-                <div className="asset-section-head"><strong>团队授权视频</strong><span>{authVideos.length ? `${authVideos.length} 条可选` : '没有团队视频时可上传新视频'}</span></div>
-                <div className="auth-video-list">{authVideos.map((video) => <button key={video.key} className={selectedAuthKey === video.key ? 'is-active' : ''} onClick={() => setSelectedAuthKey(video.key)}><Video size={16} /><span><strong>{video.name}</strong><small>{video.meta}</small></span>{selectedAuthKey === video.key && <Check size={16} />}</button>)}{!authVideos.length && <div className="asset-empty">暂无团队授权视频</div>}</div>
+                <div className="asset-section-head"><strong>团队授权视频</strong>{!authVideos.length && <span>没有团队视频时可上传新视频</span>}</div>
+                <AuthVideoSelect
+                  videos={authVideos}
+                  selectedKey={selectedAuthKey}
+                  onChange={setSelectedAuthKey}
+                  title={translateStatic('团队授权视频', language, localeCatalog)}
+                  emptyLabel={translateStatic('暂无团队授权视频', language, localeCatalog)}
+                />
               </div>
             </>
           )}

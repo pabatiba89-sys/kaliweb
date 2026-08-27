@@ -1,4 +1,5 @@
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
+const UPLOAD_API_BASE = (import.meta.env.VITE_UPLOAD_API_BASE_URL || 'https://yixiuapi.xyaip.fun').replace(/\/+$/, '');
 const AUTH_KEYS = ['access_token', 'token', 'accessToken'];
 const EMAIL_LOGIN_URL = '/api/user/email_login';
 const PENDING_INVITE_CODE_KEY = 'kali_pending_invite_code';
@@ -73,6 +74,73 @@ const normalizeUrl = (path) => {
   return `${API_BASE}${path.startsWith('/') ? path : `/${path}`}`;
 };
 
+const normalizeUploadApiUrl = (path) => `${UPLOAD_API_BASE}${path.startsWith('/') ? path : `/${path}`}`;
+
+const isDirectStorageFile = (file) => {
+  const mimeType = String(file?.type || '').toLowerCase();
+  if (mimeType.startsWith('image/') || mimeType.startsWith('video/')) return true;
+  return /\.(?:avif|gif|jpe?g|png|webp|3gp|avi|mkv|mov|mp4|m4v|webm)$/i.test(String(file?.name || ''));
+};
+
+const xhrUploadForm = (url, formData, { authorization = '', timeoutMs = 300000, onProgress } = {}) => new Promise((resolve) => {
+  const xhr = new XMLHttpRequest();
+  let inactivityTimer = null;
+  let abortedByInactivity = false;
+
+  const clearInactivityTimer = () => {
+    if (inactivityTimer !== null) window.clearTimeout(inactivityTimer);
+    inactivityTimer = null;
+  };
+  const resetInactivityTimer = () => {
+    clearInactivityTimer();
+    if (!timeoutMs) return;
+    inactivityTimer = window.setTimeout(() => {
+      abortedByInactivity = true;
+      xhr.abort();
+    }, timeoutMs);
+  };
+
+  xhr.upload.onprogress = (event) => {
+    resetInactivityTimer();
+    if (!event.lengthComputable || typeof onProgress !== 'function') return;
+    onProgress(Math.max(0, Math.min(100, Math.round((event.loaded / event.total) * 100))));
+  };
+  xhr.upload.onloadstart = resetInactivityTimer;
+  xhr.upload.onload = resetInactivityTimer;
+  xhr.onprogress = resetInactivityTimer;
+  xhr.onload = () => {
+    clearInactivityTimer();
+    const payload = (() => {
+      try {
+        return JSON.parse(xhr.responseText || '{}');
+      } catch {
+        return {};
+      }
+    })();
+    const code = payload?.code;
+    const businessOk = code === undefined || code === null || code === 0 || code === 200 || code === '0' || code === '200';
+    resolve({
+      ok: xhr.status >= 200 && xhr.status < 300 && businessOk,
+      status: xhr.status,
+      message: payload?.message || payload?.msg || payload?.error || xhr.statusText,
+      data: unwrapPayload(payload),
+      raw: payload,
+    });
+  };
+  xhr.onerror = () => {
+    clearInactivityTimer();
+    resolve({ ok: false, status: 0, message: 'Network request failed', data: null });
+  };
+  xhr.onabort = () => {
+    clearInactivityTimer();
+    resolve({ ok: false, status: 0, message: abortedByInactivity ? 'Request timed out' : 'Network request failed', data: null });
+  };
+  xhr.open('POST', url);
+  if (authorization) xhr.setRequestHeader('Authorization', authorization);
+  resetInactivityTimer();
+  xhr.send(formData);
+});
+
 export async function apiFetch(path, { method = 'GET', body, auth = true, params, timeoutMs = 4500 } = {}) {
   const token = getAccessToken();
 
@@ -129,79 +197,76 @@ export async function uploadFile(file, { source = 'material', timeoutMs = 300000
     return { ok: false, authMissing: true, status: 0, message: 'Sign in required', data: null };
   }
 
-  const formData = new FormData();
-  formData.append('file', file, file.name);
-  formData.append('filename', file.name);
-  formData.append('file_name', file.name);
-  formData.append('name', file.name);
-  formData.append('source', source);
-  formData.append('data_size', String(file.size || 0));
+  const buildApiFormData = () => {
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+    formData.append('filename', file.name);
+    formData.append('file_name', file.name);
+    formData.append('name', file.name);
+    formData.append('source', source);
+    formData.append('data_size', String(file.size || 0));
+    return formData;
+  };
 
-  if (typeof onProgress === 'function' && typeof XMLHttpRequest !== 'undefined') {
-    return new Promise((resolve) => {
-      const xhr = new XMLHttpRequest();
-      const url = new URL(normalizeUrl('/api/file/upload'), window.location.origin);
-      let inactivityTimer = null;
-      let abortedByInactivity = false;
+  if (typeof XMLHttpRequest !== 'undefined' && isDirectStorageFile(file)) {
+    const tokenResult = await apiFetch(normalizeUploadApiUrl('/api/qiniu/direct-upload-token'), {
+      method: 'POST',
+      body: { filename: file.name },
+      timeoutMs: 30000,
+    });
+    const uploadConfig = tokenResult.data || {};
 
-      const clearInactivityTimer = () => {
-        if (inactivityTimer !== null) window.clearTimeout(inactivityTimer);
-        inactivityTimer = null;
-      };
-      const resetInactivityTimer = () => {
-        clearInactivityTimer();
-        if (!timeoutMs) return;
-        inactivityTimer = window.setTimeout(() => {
-          abortedByInactivity = true;
-          xhr.abort();
-        }, timeoutMs);
+    if (tokenResult.ok && uploadConfig.token && uploadConfig.key && uploadConfig.url) {
+      const maxSize = Number(uploadConfig.maxSize) || 0;
+      if (maxSize && Number(file.size) > maxSize) {
+        return { ok: false, status: 413, message: '文件超过上传大小限制', data: null };
+      }
+
+      const qiniuFormData = new FormData();
+      qiniuFormData.append('token', uploadConfig.token);
+      qiniuFormData.append('key', uploadConfig.key);
+      qiniuFormData.append('file', file, file.name);
+      const endpoints = [...new Set([uploadConfig.uploadUrl, uploadConfig.uploadUrlBackup].filter(Boolean))];
+      let lastDirectResult = null;
+      let highestProgress = 0;
+      const reportProgress = (percent) => {
+        highestProgress = Math.max(highestProgress, percent);
+        if (typeof onProgress === 'function') onProgress(highestProgress);
       };
 
-      xhr.upload.onprogress = (event) => {
-        resetInactivityTimer();
-        if (!event.lengthComputable) return;
-        onProgress(Math.max(0, Math.min(100, Math.round((event.loaded / event.total) * 100))));
-      };
-      xhr.upload.onloadstart = resetInactivityTimer;
-      xhr.upload.onload = resetInactivityTimer;
-      xhr.onprogress = resetInactivityTimer;
-      xhr.onload = () => {
-        clearInactivityTimer();
-        const payload = (() => {
-          try {
-            return JSON.parse(xhr.responseText || '{}');
-          } catch {
-            return {};
-          }
-        })();
-        const code = payload?.code;
-        const businessOk = code === undefined || code === null || code === 0 || code === 200 || code === '0' || code === '200';
-        resolve({
-          ok: xhr.status >= 200 && xhr.status < 300 && businessOk,
-          status: xhr.status,
-          message: payload?.message || payload?.msg || payload?.error || xhr.statusText,
-          data: unwrapPayload(payload),
-          raw: payload,
-        });
-      };
-      xhr.onerror = () => {
-        clearInactivityTimer();
-        resolve({ ok: false, status: 0, message: 'Network request failed', data: null });
-      };
-      xhr.onabort = () => {
-        clearInactivityTimer();
-        resolve({ ok: false, status: 0, message: abortedByInactivity ? 'Request timed out' : 'Network request failed', data: null });
-      };
-      xhr.open('POST', url.toString());
-      xhr.setRequestHeader('Authorization', `Bearer ${token}`);
-      resetInactivityTimer();
-      xhr.send(formData);
+      for (const endpoint of endpoints) {
+        const result = await xhrUploadForm(endpoint, qiniuFormData, { timeoutMs, onProgress: reportProgress });
+        if (result.ok) {
+          return {
+            ...result,
+            data: {
+              ...(result.data || {}),
+              key: result.data?.key || uploadConfig.key,
+              url: uploadConfig.url,
+              filepath: uploadConfig.url,
+              filesize: result.data?.fsize || file.size || 0,
+            },
+          };
+        }
+        lastDirectResult = result;
+        if (result.status >= 400 && result.status < 500) return result;
+      }
+
+      if (lastDirectResult?.status >= 400 && lastDirectResult.status < 500) return lastDirectResult;
+    }
+  }
+
+  if (typeof XMLHttpRequest !== 'undefined') {
+    return xhrUploadForm(normalizeUploadApiUrl('/api/file/upload'), buildApiFormData(), {
+      authorization: `Bearer ${token}`,
+      timeoutMs,
+      onProgress,
     });
   }
 
-  return apiFetch('/api/file/upload', {
+  return apiFetch(normalizeUploadApiUrl('/api/file/upload'), {
     method: 'POST',
-    body: formData,
+    body: buildApiFormData(),
     timeoutMs,
   });
 }
