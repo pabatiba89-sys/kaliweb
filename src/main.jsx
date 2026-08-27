@@ -2999,6 +2999,7 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
   const [recordingSeconds, setRecordingSeconds] = useState(0);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [submitProgress, setSubmitProgress] = useState(null);
   const [message, setMessage] = useState('');
   const recorderRef = useRef(null);
   const recordingChunksRef = useRef([]);
@@ -3116,6 +3117,13 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
 
   const update = (key, value) => setForm((current) => ({ ...current, [key]: value }));
   const updateVoice = (key, value) => setVoiceForm((current) => ({ ...current, [key]: value }));
+  const updateSubmitProgress = (percent, label, status = 'active') => {
+    setSubmitProgress({
+      percent: Math.max(0, Math.min(100, Math.round(percent))),
+      label,
+      status,
+    });
+  };
   const pickVideo = async (event, key) => {
     const file = event.target.files?.[0] || null;
     event.target.value = '';
@@ -3198,9 +3206,15 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
       setMessage(error?.name === 'NotAllowedError' ? '需要允许麦克风权限才能录音' : '录音启动失败，请改为上传声音文件');
     }
   };
-  const uploadTrainingVideo = async (video, source) => {
+  const uploadTrainingVideo = async (video, source, { progressStart = 0, progressEnd = 100 } = {}) => {
     if (!video?.file) throw new Error('请先选择视频文件');
-    const result = await uploadFile(video.file, { source });
+    const result = await uploadFile(video.file, {
+      source,
+      onProgress: (uploadPercent) => {
+        const percent = progressStart + ((progressEnd - progressStart) * uploadPercent) / 100;
+        updateSubmitProgress(percent, '正在上传');
+      },
+    });
     if (!result.ok) throw new Error(getResultMessage(result, '视频上传失败'));
     const url = getUploadedUrl(result);
     if (!url) throw new Error('视频上传未返回可用地址');
@@ -3215,8 +3229,9 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
     if (!result.ok) throw new Error(getResultMessage(result, '授权视频保存失败'));
     return getAuthVideoId(result) || getAuthVideoId(result.raw) || getAuthVideoId(result.data);
   };
-  const resolveAuthVideo = async () => {
+  const resolveAuthVideo = async ({ progressStart = 45, progressEnd = 76 } = {}) => {
     if (!form.authVideo?.file && selectedAuthVideo?.authorizationVideoId) {
+      updateSubmitProgress(progressEnd, '提交中');
       return {
         authorizationVideoId: selectedAuthVideo.authorizationVideoId,
         authVideoUrl: selectedAuthVideo.url,
@@ -3224,9 +3239,12 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
       };
     }
     if (!form.authVideo?.file) throw new Error('请选择团队授权视频或上传新的授权视频');
-    const url = await uploadTrainingVideo(form.authVideo, 'aihuman-auth-video');
+    const uploadEnd = Math.max(progressStart, progressEnd - 10);
+    const url = await uploadTrainingVideo(form.authVideo, 'aihuman-auth-video', { progressStart, progressEnd: uploadEnd });
+    updateSubmitProgress(Math.min(progressEnd - 5, uploadEnd + 4), '提交中');
     let authorizationVideoId = await saveAuthVideo(url);
     if (!authorizationVideoId) {
+      updateSubmitProgress(Math.min(progressEnd - 2, uploadEnd + 7), '同步资产');
       const refreshed = await apiFetch('/api/aihuman/auth-videos', { timeoutMs: 8000 });
       const library = getAuthVideoLibrary(refreshed);
       const created = library.videos.find((item) => item.url === url) || library.selected;
@@ -3235,6 +3253,7 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
       if (created?.key) setSelectedAuthKey(created.key);
     }
     if (!authorizationVideoId) throw new Error('授权视频缺少 ID，请重新选择或上传');
+    updateSubmitProgress(progressEnd, '提交中');
     return {
       authorizationVideoId,
       authVideoUrl: url,
@@ -3242,12 +3261,14 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
     };
   };
   const submitVideoTraining = async () => {
+    updateSubmitProgress(5, '提交中');
     const name = textOf(form.name);
     if (!name) throw new Error('请输入数字人名称');
     if (!form.profileVideo?.file) throw new Error('请上传个人形象视频');
     if (!profileAgreement) throw new Error('请先同意数字人形象授权和形象信息采集协议');
-    const videoUrl = await uploadTrainingVideo(form.profileVideo, 'aihuman-profile-video');
-    const { authorizationVideoId, authVideoUrl, isUploadedAuthVideo } = await resolveAuthVideo();
+    updateSubmitProgress(10, '正在上传');
+    const videoUrl = await uploadTrainingVideo(form.profileVideo, 'aihuman-profile-video', { progressStart: 10, progressEnd: 42 });
+    const { authorizationVideoId, authVideoUrl, isUploadedAuthVideo } = await resolveAuthVideo({ progressStart: 45, progressEnd: 76 });
     const payload = omitEmpty({
       name,
       custom_tag: name,
@@ -3266,18 +3287,21 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
       ath_text: DIGITAL_HUMAN_TRAINING_ATH_TEXT,
       ...(isUploadedAuthVideo ? { authText: uploadedAuthText } : {}),
     });
+    updateSubmitProgress(84, '提交中');
     const result = await apiFetch('/api/aihuman/train', {
       method: 'POST',
       timeoutMs: 20000,
       body: payload,
     });
     if (!result.ok) throw new Error(getResultMessage(result, '数字人训练提交失败'));
+    updateSubmitProgress(94, '提交中');
     return result;
   };
   const submitImageTraining = async () => {
+    updateSubmitProgress(5, '提交中');
     if (!selectedImage?.id) throw new Error('请选择 AI 形象图');
     if (!profileAgreement) throw new Error('请先同意数字人形象授权和形象信息采集协议');
-    const { authorizationVideoId, authVideoUrl, isUploadedAuthVideo } = await resolveAuthVideo();
+    const { authorizationVideoId, authVideoUrl, isUploadedAuthVideo } = await resolveAuthVideo({ progressStart: 12, progressEnd: 76 });
     const payload = omitEmpty({
       generatedImageId: selectedImage.id,
       generated_image_id: selectedImage.id,
@@ -3293,23 +3317,30 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
       ath_text: DIGITAL_HUMAN_TRAINING_ATH_TEXT,
       ...(isUploadedAuthVideo ? { authText: uploadedAuthText } : {}),
     });
+    updateSubmitProgress(84, '提交中');
     const result = await apiFetch('/api/aihuman/image/train', {
       method: 'POST',
       timeoutMs: 20000,
       body: payload,
     });
     if (!result.ok) throw new Error(getResultMessage(result, '图生数字人提交失败'));
+    updateSubmitProgress(94, '提交中');
     return result;
   };
   const submitVoiceTraining = async () => {
+    updateSubmitProgress(5, '提交中');
     if (!voiceForm.audio?.file) throw new Error('请录制或上传声音文件');
     if (!voiceForm.agreement) throw new Error('请先同意声纹授权协议');
-    const uploadResult = await uploadFile(voiceForm.audio.file, { source: 'ai-voice-training' });
+    const uploadResult = await uploadFile(voiceForm.audio.file, {
+      source: 'ai-voice-training',
+      onProgress: (uploadPercent) => updateSubmitProgress(12 + (uploadPercent * 0.6), '正在上传'),
+    });
     if (!uploadResult.ok) throw new Error(getResultMessage(uploadResult, '声音上传失败'));
     const audioUrl = getUploadedUrl(uploadResult);
     if (!audioUrl) throw new Error('声音上传未返回可用地址');
     const fallbackName = voiceForm.audio.name.replace(/\.[^.]+$/, '');
     const voiceName = textOf(voiceForm.name) || fallbackName || '我的声音';
+    updateSubmitProgress(84, '提交中');
     const result = await apiFetch('/api/ai-voice/train', {
       method: 'POST',
       timeoutMs: 20000,
@@ -3332,6 +3363,7 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
       },
     });
     if (!result.ok) throw new Error(getResultMessage(result, '声音克隆提交失败'));
+    updateSubmitProgress(94, '提交中');
     return result;
   };
   const submitTraining = async () => {
@@ -3341,6 +3373,7 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
     }
     if (submitting) return;
     setSubmitting(true);
+    updateSubmitProgress(3, '提交中');
     setMessage('');
     try {
       const result = mode === 'video' ? await submitVideoTraining() : mode === 'image' ? await submitImageTraining() : await submitVoiceTraining();
@@ -3350,13 +3383,34 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
       setForm((current) => ({ ...current, profileVideo: null, authVideo: null }));
       if (mode === 'voice') setVoiceForm((current) => ({ ...current, name: '', audio: null, agreement: false }));
       else setProfileAgreement(false);
+      updateSubmitProgress(97, '同步资产');
       await loadAssets();
+      updateSubmitProgress(100, '完成', 'complete');
+      await new Promise((resolve) => window.setTimeout(resolve, 500));
     } catch (error) {
       setMessage(error.message || '提交失败，请重试');
+      setSubmitProgress((current) => ({
+        percent: Math.max(8, current?.percent || 0),
+        label: '提交失败',
+        status: 'error',
+      }));
+      await new Promise((resolve) => window.setTimeout(resolve, 650));
     } finally {
       setSubmitting(false);
+      setSubmitProgress(null);
     }
   };
+
+  const submitProgressPercent = submitProgress?.percent || 0;
+  const submitProgressPhase = submitProgress?.status === 'complete'
+    ? 'complete'
+    : submitProgress?.status === 'error'
+      ? 'error'
+      : submitProgressPercent < 45
+        ? 'upload'
+        : submitProgressPercent < 82
+          ? 'prepare'
+          : 'submit';
 
   return (
     <div className="asset-page">
@@ -3453,10 +3507,25 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
             </>
           )}
           {message && <div className="form-message">{message}</div>}
-          <button className="primary-button training-submit" onClick={submitTraining} disabled={submitting}>
-            <Sparkles size={17} />
-            <span>{submitting ? '提交中' : mode === 'video' ? '提交数字人训练' : mode === 'image' ? '提交图生数字人' : '提交声音克隆'}</span>
-          </button>
+          <div className={`training-submit-area ${submitting ? `is-progressing is-${submitProgressPhase}` : ''}`}>
+            {submitting && submitProgress && (
+              <span
+                className="training-submit-progress"
+                role="progressbar"
+                aria-label={submitProgress.label}
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-valuenow={submitProgressPercent}
+              >
+                <span className="training-submit-progress__fill" style={{ width: `${submitProgressPercent}%` }} />
+              </span>
+            )}
+            <button className="primary-button training-submit" onClick={submitTraining} disabled={submitting}>
+              {submitting ? <RefreshCw className="is-spinning" size={17} /> : <Sparkles size={17} />}
+              <span>{submitting ? submitProgress?.label || '提交中' : mode === 'video' ? '提交数字人训练' : mode === 'image' ? '提交图生数字人' : '提交声音克隆'}</span>
+              {submitting && <strong className="training-submit__percent">{submitProgressPercent}%</strong>}
+            </button>
+          </div>
         </section>
         <aside className="asset-side-panel">
           <div className="asset-section-head">
