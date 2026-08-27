@@ -1501,6 +1501,7 @@ const getAuthVideoLibrary = (response = {}) => {
   };
 };
 const normalizeHuman = (item = {}, index = 0) => {
+  const recordId = pick(item.id, item.recordId, item.record_id, item.aiHumanRecordId, item.ai_human_record_id);
   const cover = getApiMediaUrl(pick(item.coverUrl, item.coverurl, item.cover_url, item.imageUrl, item.image_url, item.avatarUrl, item.avatar_url, item.thumbnailUrl, item.thumbnail_url, item.firstFrame, item.first_frame));
   const video = getApiMediaUrl(pick(item.video_url, item.videoUrl, item.url, item.filepath));
   const rawStatus = pick(item.statusText, item.status_text, item.status, item.train_status, item.trainStatus, item.task_status, item.taskStatus, item.state);
@@ -1510,7 +1511,9 @@ const normalizeHuman = (item = {}, index = 0) => {
   const virtualmanId = pick(item.virtualman_id, item.virtualmanId);
   const status = !rawStatus && (virtualmanId || aihumanId) ? { key: 'success', label: '成功' } : normalizeStatus(rawStatus);
   return {
-    id: pick(virtualmanId, aihumanId, item.humanId, item.human_id, item.taskId, item.task_id, item.id, `${index}`),
+    id: pick(virtualmanId, aihumanId, item.humanId, item.human_id, item.taskId, item.task_id, recordId, `${index}`),
+    recordId,
+    taskId: pick(item.taskId, item.task_id),
     aihumanId,
     aihuman_id: aihumanId,
     aiHumanId: aihumanId,
@@ -1564,6 +1567,7 @@ const getVoiceItems = (result = {}) => {
   return [];
 };
 const normalizeVoiceAsset = (item = {}, index = 0) => {
+  const recordId = pick(item.id, item.recordId, item.record_id);
   const audioUrl = getApiMediaUrl(pick(item.audio_url, item.audioUrl, item.preview_url, item.previewUrl, item.demo_url, item.demoUrl, item.url));
   const cover = getApiMediaUrl(pick(item.coverUrl, item.cover_url, item.avatarUrl, item.avatar_url, item.imageUrl, item.image_url));
   const rawStatus = pick(item.statusText, item.status_text, item.status, item.train_status, item.trainStatus, item.task_status, item.taskStatus, item.state);
@@ -1573,7 +1577,9 @@ const normalizeVoiceAsset = (item = {}, index = 0) => {
   const voiceId = pick(item.voiceId, item.voice_id);
   const speakerId = pick(item.speakerId, item.speaker_id);
   return {
-    id: pick(voiceId, speakerId, item.taskId, item.task_id, item.id, `voice-${index}`),
+    id: pick(voiceId, speakerId, item.taskId, item.task_id, recordId, `voice-${index}`),
+    recordId,
+    taskId: pick(item.taskId, item.task_id),
     voiceId,
     speakerId,
     language: pick(item.language, Array.isArray(item.langs) ? item.langs[0] : item.langs) || 'zh-CN',
@@ -2914,6 +2920,13 @@ function AssetLibraryPanel({
   authed, loading, message, commonHumanHasMore, loadingMoreCommonHumans,
   onLoadMoreCommonHumans, onLogin, onRefresh, onUseAsset,
 }) {
+  const [editTarget, setEditTarget] = useState(null);
+  const [editName, setEditName] = useState('');
+  const [editCoverFile, setEditCoverFile] = useState(null);
+  const [editCoverPreview, setEditCoverPreview] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [actionBusy, setActionBusy] = useState(false);
+  const [actionMessage, setActionMessage] = useState('');
   const tabs = [
     ['mine-human', '我的形象', humans.length],
     ['public-human', '公共形象', commonHumans.length],
@@ -2925,6 +2938,152 @@ function AssetLibraryPanel({
   const assets = activeTab === 'public-human' ? commonHumans : activeTab === 'mine-human' ? humans : activeTab === 'public-voice' ? commonVoices : voices;
   const keyword = query.trim().toLowerCase();
   const visibleAssets = keyword ? assets.filter((asset) => `${asset.title} ${asset.meta}`.toLowerCase().includes(keyword)) : assets;
+
+  useEffect(() => () => {
+    if (editCoverPreview?.startsWith('blob:')) URL.revokeObjectURL(editCoverPreview);
+  }, [editCoverPreview]);
+
+  useEffect(() => {
+    if (!editTarget && !deleteTarget) return undefined;
+    const closeOnEscape = (event) => {
+      if (event.key !== 'Escape' || actionBusy) return;
+      setEditTarget(null);
+      setDeleteTarget(null);
+      setEditCoverFile(null);
+      setEditCoverPreview('');
+      setActionMessage('');
+    };
+    document.addEventListener('keydown', closeOnEscape);
+    return () => document.removeEventListener('keydown', closeOnEscape);
+  }, [editTarget, deleteTarget, actionBusy]);
+
+  const openEdit = (asset, type) => {
+    setEditTarget({ asset, type });
+    setEditName(asset.title || '');
+    setEditCoverFile(null);
+    setEditCoverPreview(asset.cover || '');
+    setActionMessage('');
+  };
+
+  const closeEdit = () => {
+    if (actionBusy) return;
+    setEditTarget(null);
+    setEditCoverFile(null);
+    setEditCoverPreview('');
+    setActionMessage('');
+  };
+
+  const chooseEditCover = (event) => {
+    const file = event.target.files?.[0] || null;
+    event.target.value = '';
+    if (!file) return;
+    if (!file.type.startsWith('image/') && !/\.(?:avif|gif|jpe?g|png|webp)$/i.test(file.name)) {
+      setActionMessage('请上传封面图片');
+      return;
+    }
+    setEditCoverFile(file);
+    setEditCoverPreview(URL.createObjectURL(file));
+    setActionMessage('');
+  };
+
+  const getAssetPayload = (asset, type) => {
+    const raw = asset.raw || {};
+    const recordId = pick(asset.recordId, raw.id, raw.recordId, raw.record_id);
+    const taskId = pick(asset.taskId, raw.taskId, raw.task_id);
+    if (type === 'human') {
+      const aihumanId = pick(asset.aihumanId, asset.aihuman_id, raw.aihumanId, raw.aihuman_id, raw.ai_human_id);
+      const virtualmanId = pick(asset.virtualmanId, asset.virtualman_id, raw.virtualmanId, raw.virtualman_id);
+      return omitEmpty({
+        id: recordId,
+        aiHumanRecordId: recordId,
+        ai_human_record_id: recordId,
+        aiHumanId: aihumanId,
+        aihumanId,
+        aihuman_id: aihumanId,
+        virtualmanId,
+        virtualman_id: virtualmanId,
+        taskId,
+        task_id: taskId,
+      });
+    }
+    const voiceId = pick(asset.voiceId, raw.voiceId, raw.voice_id);
+    const speakerId = pick(asset.speakerId, raw.speakerId, raw.speaker_id);
+    return omitEmpty({
+      id: recordId,
+      voiceId,
+      voice_id: voiceId,
+      speakerId,
+      speaker_id: speakerId,
+      taskId,
+      task_id: taskId,
+    });
+  };
+
+  const saveAssetEdit = async (event) => {
+    event.preventDefault();
+    if (!editTarget || actionBusy) return;
+    const name = textOf(editName);
+    if (!name) return;
+    setActionBusy(true);
+    setActionMessage('');
+    try {
+      let coverUrl = editTarget.asset.cover || '';
+      if (editCoverFile) {
+        const uploadResult = await uploadFile(editCoverFile, { source: `${editTarget.type}-asset-cover` });
+        if (!uploadResult.ok) throw new Error(getResultMessage(uploadResult, '素材保存失败'));
+        coverUrl = getUploadedUrl(uploadResult);
+        if (!coverUrl) throw new Error('素材保存失败');
+      }
+      const identity = getAssetPayload(editTarget.asset, editTarget.type);
+      const result = await apiFetch(editTarget.type === 'human' ? '/api/aihuman/update' : '/api/ai-voice/update', {
+        method: 'POST',
+        timeoutMs: 12000,
+        body: omitEmpty({
+          ...identity,
+          name,
+          title: name,
+          custom_tag: name,
+          customTag: name,
+          cover: coverUrl,
+          cover_url: coverUrl,
+          coverurl: coverUrl,
+          coverUrl,
+          image_url: coverUrl,
+          imageUrl: coverUrl,
+        }),
+      });
+      if (!result.ok) throw new Error(getResultMessage(result, '素材保存失败'));
+      await onRefresh();
+      setEditTarget(null);
+      setEditCoverFile(null);
+      setEditCoverPreview('');
+    } catch (error) {
+      setActionMessage(error.message || '素材保存失败');
+    } finally {
+      setActionBusy(false);
+    }
+  };
+
+  const confirmDeleteAsset = async () => {
+    if (!deleteTarget || actionBusy) return;
+    setActionBusy(true);
+    setActionMessage('');
+    const { asset, type } = deleteTarget;
+    try {
+      const result = await apiFetch(type === 'human' ? '/api/aihuman/delete' : '/api/ai-voice/delete', {
+        method: 'POST',
+        timeoutMs: 12000,
+        body: getAssetPayload(asset, type),
+      });
+      if (!result.ok) throw new Error(getResultMessage(result, '删除失败'));
+      await onRefresh();
+      setDeleteTarget(null);
+    } catch (error) {
+      setActionMessage(error.message || '删除失败');
+    } finally {
+      setActionBusy(false);
+    }
+  };
 
   return (
     <section className="asset-library-panel">
@@ -2954,7 +3113,10 @@ function AssetLibraryPanel({
                   {isPublic ? <em className="library-public-chip">公共</em> : <AssetStatusBadge status={asset.status} />}
                 </div>
                 {asset.audioUrl ? <audio controls preload="none" src={asset.audioUrl} /> : <div className="library-audio-empty">暂无试听音频</div>}
-                <button onClick={() => onUseAsset(asset, 'voice')}>用于视频创作<ChevronRight size={15} /></button>
+                <div className="library-asset-actions">
+                  {!isPublic && asset.status.key === 'success' && <button className="is-edit" onClick={() => openEdit(asset, 'voice')}><Edit3 size={14} />编辑</button>}
+                  {!isPublic && asset.status.key === 'failed' ? <button className="is-delete" onClick={() => { setDeleteTarget({ asset, type: 'voice' }); setActionMessage(''); }}><Trash2 size={14} />删除</button> : asset.status.key === 'success' || isPublic ? <button className="is-use" onClick={() => onUseAsset(asset, 'voice')}>用于视频创作<ChevronRight size={15} /></button> : <button className="is-pending" disabled>{asset.status.label}</button>}
+                </div>
               </article>
             ) : (
               <article className={`library-human-card ${isPublic ? '' : `is-${asset.status.key}`}`} key={`${activeTab}-${asset.id}-${index}`}>
@@ -2963,7 +3125,10 @@ function AssetLibraryPanel({
                   {isPublic ? <em className="library-public-chip">公共形象</em> : <AssetStatusBadge status={asset.status} />}
                 </span>
                 <div><strong>{asset.title}</strong><small>{asset.meta || '数字人形象'}</small></div>
-                <button onClick={() => onUseAsset(asset, 'human')}>用于视频创作<ChevronRight size={15} /></button>
+                <div className="library-asset-actions">
+                  {!isPublic && asset.status.key === 'success' && <button className="is-edit" onClick={() => openEdit(asset, 'human')}><Edit3 size={14} />编辑</button>}
+                  {!isPublic && asset.status.key === 'failed' ? <button className="is-delete" onClick={() => { setDeleteTarget({ asset, type: 'human' }); setActionMessage(''); }}><Trash2 size={14} />删除</button> : asset.status.key === 'success' || isPublic ? <button className="is-use" onClick={() => onUseAsset(asset, 'human')}>用于视频创作<ChevronRight size={15} /></button> : <button className="is-pending" disabled>{asset.status.label}</button>}
+                </div>
               </article>
             ))}
           </div>
@@ -2971,6 +3136,33 @@ function AssetLibraryPanel({
         </>
       ) : (
         <div className="asset-library-empty"><Library size={32} /><strong>{keyword ? '没有匹配的素材' : isVoice ? '暂无声音素材' : '暂无形象素材'}</strong><p>{keyword ? '换一个关键词试试。' : isPublic ? '公共素材上线后会自动显示。' : '可以切换到“创建资产”开始训练。'}</p></div>
+      )}
+      {editTarget && (
+        <div className="asset-action-layer" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && closeEdit()}>
+          <form className="asset-action-modal" role="dialog" aria-modal="true" aria-labelledby="asset-edit-title" onSubmit={saveAssetEdit}>
+            <header>
+              <div><span>{editTarget.type === 'human' ? '数字人名称' : '声音名称'}</span><h2 id="asset-edit-title">编辑</h2><p>{editTarget.asset.title}</p></div>
+              <button type="button" onClick={closeEdit} disabled={actionBusy} aria-label="关闭"><X size={18} /></button>
+            </header>
+            <label className="asset-action-field"><span>{editTarget.type === 'human' ? '数字人名称' : '声音名称'}</span><input autoFocus value={editName} maxLength={30} onChange={(event) => { setEditName(event.target.value); setActionMessage(''); }} required /></label>
+            <div className="asset-cover-editor">
+              <span className="asset-cover-editor__preview">{editCoverPreview ? <img src={editCoverPreview} alt="当前封面" /> : editTarget.type === 'human' ? <UserRound size={34} /> : <Mic2 size={30} />}</span>
+              <label><Upload size={15} /><span>{editCoverFile ? '重新上传' : '上传封面图片'}</span><input type="file" accept="image/jpeg,image/png,image/webp,image/*" onChange={chooseEditCover} /></label>
+            </div>
+            {actionMessage && <div className="asset-action-message">{actionMessage}</div>}
+            <footer><button type="button" className="outline-button" onClick={closeEdit} disabled={actionBusy}>取消</button><button type="submit" className="primary-button" disabled={!textOf(editName) || actionBusy}>{actionBusy && <RefreshCw className="is-spinning" size={15} />}<span>{editCoverFile && actionBusy ? '正在上传封面…' : '保存'}</span></button></footer>
+          </form>
+        </div>
+      )}
+      {deleteTarget && (
+        <div className="asset-action-layer" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && !actionBusy && setDeleteTarget(null)}>
+          <section className="asset-action-modal asset-delete-modal" role="alertdialog" aria-modal="true" aria-labelledby="asset-delete-title">
+            <header><div><span>{deleteTarget.type === 'human' ? '数字人名称' : '声音名称'}</span><h2 id="asset-delete-title">删除</h2><p>{deleteTarget.asset.title}</p></div><button type="button" onClick={() => setDeleteTarget(null)} disabled={actionBusy} aria-label="关闭"><X size={18} /></button></header>
+            <div className="asset-delete-preview">{deleteTarget.type === 'human' ? <UserRound size={28} /> : <Mic2 size={25} />}<span><strong>{deleteTarget.asset.title}</strong><small>{deleteTarget.asset.status.label}</small></span></div>
+            {actionMessage && <div className="asset-action-message">{actionMessage}</div>}
+            <footer><button type="button" className="outline-button" onClick={() => setDeleteTarget(null)} disabled={actionBusy}>取消</button><button type="button" className="asset-danger-button" onClick={confirmDeleteAsset} disabled={actionBusy}>{actionBusy && <RefreshCw className="is-spinning" size={15} />}删除</button></footer>
+          </section>
+        </div>
       )}
     </section>
   );
