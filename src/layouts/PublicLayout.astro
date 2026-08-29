@@ -24,6 +24,7 @@ const {
   slug = '',
   eyebrow = '',
   schema = [],
+  pageClass = '',
 } = Astro.props as {
   locale?: string;
   title: string;
@@ -32,6 +33,7 @@ const {
   slug?: string;
   eyebrow?: string;
   schema?: SchemaEntry | SchemaEntry[];
+  pageClass?: string;
 };
 const copy = localeMeta[locale];
 const t = (value: string) => translateText(value, locale);
@@ -104,7 +106,7 @@ const jsonLd = {
     <script is:inline src="/invite-attribution.js"></script>
     <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   </head>
-  <body>
+  <body class:list={[pageClass]}>
     <a class="skip-link" href="#main">{t('Skip to content')}</a>
     <header class="site-header">
       <a class="brand" href={pagePath(locale)} aria-label={`${brandName(locale)} home`}>
