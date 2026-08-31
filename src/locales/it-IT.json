@@ -1864,5 +1864,8 @@
   "生成记录加载失败": "Impossibile caricare la cronologia di generazione",
   "还没有生成记录": "Nessuna cronologia di generazione",
   "发送第一条文案需求后，记录会显示在这里。": "Dopo la prima richiesta di testo, il record apparirà qui.",
-  "新对话": "Nuova conversazione"
+  "新对话": "Nuova conversazione",
+  "轮对话": "turni",
+  "第": "Turno",
+  "轮": "turno"
 }

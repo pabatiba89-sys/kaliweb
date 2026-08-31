@@ -1863,5 +1863,8 @@
   "生成记录加载失败": "Istoricul generării nu a putut fi încărcat",
   "还没有生成记录": "Nu există încă istoric de generare",
   "发送第一条文案需求后，记录会显示在这里。": "După prima solicitare de text, înregistrarea va apărea aici.",
-  "新对话": "Conversație nouă"
+  "新对话": "Conversație nouă",
+  "轮对话": "runde",
+  "第": "Runda",
+  "轮": "rundă"
 }

@@ -1872,5 +1872,8 @@
   "生成记录加载失败": "No se pudo cargar el historial de generación",
   "还没有生成记录": "Aún no hay historial de generación",
   "发送第一条文案需求后，记录会显示在这里。": "Después de enviar tu primera solicitud de texto, aparecerá aquí.",
-  "新对话": "Nueva conversación"
+  "新对话": "Nueva conversación",
+  "轮对话": "rondas",
+  "第": "Ronda",
+  "轮": "ronda"
 }

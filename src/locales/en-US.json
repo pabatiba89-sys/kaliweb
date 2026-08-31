@@ -1210,5 +1210,8 @@
   "生成记录加载失败": "Generation history could not be loaded",
   "还没有生成记录": "No generation history yet",
   "发送第一条文案需求后，记录会显示在这里。": "After you send your first copy request, it will appear here.",
-  "新对话": "New conversation"
+  "新对话": "New conversation",
+  "轮对话": "rounds",
+  "第": "Round",
+  "轮": "round"
 }

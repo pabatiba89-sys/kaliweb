@@ -1877,5 +1877,8 @@
   "生成记录加载失败": "Riwayat pembuatan tidak dapat dimuat",
   "还没有生成记录": "Belum ada riwayat pembuatan",
   "发送第一条文案需求后，记录会显示在这里。": "Setelah mengirim permintaan teks pertama, riwayat akan muncul di sini.",
-  "新对话": "Percakapan baru"
+  "新对话": "Percakapan baru",
+  "轮对话": "putaran",
+  "第": "Putaran",
+  "轮": "putaran"
 }

@@ -1847,5 +1847,8 @@
   "生成记录加载失败": "Generierungsverlauf konnte nicht geladen werden",
   "还没有生成记录": "Noch kein Generierungsverlauf",
   "发送第一条文案需求后，记录会显示在这里。": "Nach Ihrer ersten Textanfrage erscheint der Eintrag hier.",
-  "新对话": "Neue Unterhaltung"
+  "新对话": "Neue Unterhaltung",
+  "轮对话": "Runden",
+  "第": "Runde",
+  "轮": "Runde"
 }

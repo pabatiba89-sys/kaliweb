@@ -1917,5 +1917,8 @@
   "生成记录加载失败": "Không thể tải lịch sử tạo",
   "还没有生成记录": "Chưa có lịch sử tạo",
   "发送第一条文案需求后，记录会显示在这里。": "Sau khi gửi yêu cầu nội dung đầu tiên, bản ghi sẽ xuất hiện tại đây.",
-  "新对话": "Cuộc trò chuyện mới"
+  "新对话": "Cuộc trò chuyện mới",
+  "轮对话": "lượt",
+  "第": "Lượt",
+  "轮": "lượt"
 }

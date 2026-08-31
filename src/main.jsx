@@ -10406,6 +10406,14 @@ const formatCopyHistoryTime = (value) => {
   }).format(date);
 };
 
+const getCopyHistoryRoundCount = (item) => {
+  const explicitCount = Number(item?.round_count ?? item?.roundCount ?? item?.user_message_count ?? item?.userMessageCount);
+  if (Number.isFinite(explicitCount) && explicitCount > 0) return Math.floor(explicitCount);
+  const messageCount = Number(item?.message_count ?? item?.messageCount);
+  if (!Number.isFinite(messageCount) || messageCount <= 0) return 0;
+  return Math.ceil(messageCount / 2);
+};
+
 function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVideo, onMakeMusic }) {
   const [flow] = useState(() => (useHotTopicFlow ? getPendingFlow() : null));
   const initialPrompt = flow?.prompt || flow?.topic || '';
@@ -10422,6 +10430,7 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
   const [thinkingIndex, setThinkingIndex] = useState(0);
   const [copiedMessageKey, setCopiedMessageKey] = useState('');
   const [currentConversationId, setCurrentConversationId] = useState(null);
+  const [currentConversationTitle, setCurrentConversationTitle] = useState('');
   const [conversationInstructionSetId, setConversationInstructionSetId] = useState(agent?.id || null);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [historyItems, setHistoryItems] = useState([]);
@@ -10490,6 +10499,7 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
   const resetConversation = () => {
     if (loading) return;
     setCurrentConversationId(null);
+    setCurrentConversationTitle('');
     setConversationInstructionSetId(agent?.id || null);
     setMessages([{
       role: 'assistant',
@@ -10529,6 +10539,7 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
       text: agent?.desc || '输入你的产品、活动、场景或诉求，生成可直接用于视频制作的文案。',
     }]);
     setCurrentConversationId(conversationId);
+    setCurrentConversationTitle(textOf(conversation.title || item?.title));
     setConversationInstructionSetId(conversation.instruction_set_id || conversation.prompt_id || agent?.id || null);
     setInput('');
     setHistoryOpen(false);
@@ -10567,7 +10578,10 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
         },
       });
       if (isGeneratedMarkupFailure(reply.text)) throw new Error(GENERATED_CONTENT_UNAVAILABLE_MESSAGE);
-      if (reply.conversationId) setCurrentConversationId(reply.conversationId);
+      if (reply.conversationId) {
+        setCurrentConversationId(reply.conversationId);
+        if (!currentConversationId) setCurrentConversationTitle(prompt);
+      }
       setMessages(nextMessages.concat({ role: 'assistant', text: reply.text, script: reply.script, generated: true }));
     } catch (error) {
       if (error.name !== 'AbortError') {
@@ -10708,6 +10722,7 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
               ) : historyItems.length ? historyItems.map((item) => {
                 const lastMessage = item.last_message?.content || '';
                 const instructionName = item.instruction_set?.name || agent?.name || 'Creative Agent';
+                const roundCount = getCopyHistoryRoundCount(item);
                 const active = Number(item.id) === Number(currentConversationId);
                 return (
                   <button
@@ -10718,7 +10733,10 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
                   >
                     <span className="copy-history-item__icon"><Clock3 size={17} /></span>
                     <span className="copy-history-item__body">
-                      <strong>{item.title || '新对话'}</strong>
+                      <span className="copy-history-item__topic">
+                        <strong>{item.title || '新对话'}</strong>
+                        {roundCount > 0 && <span className="copy-history-item__rounds"><b>{roundCount}</b><span>轮对话</span></span>}
+                      </span>
                       <small>{instructionName} · {formatCopyHistoryTime(item.updated_at || item.created_at)}</small>
                       <p>{lastMessage || '暂无文案'}</p>
                     </span>
@@ -10735,13 +10753,24 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
       <section className="copy-context">
         <strong>人工智能生成</strong>
         <span>本页文案由人工智能辅助生成，请结合实际业务核验后使用</span>
-        {flow?.topic && <em>热点：{flow.topic}</em>}
+        {(flow?.topic || currentConversationTitle) && <em>话题：{flow?.topic || currentConversationTitle}</em>}
       </section>
       <section className="copy-chat" ref={chatRef} aria-live="polite">
         {messages.map((message, index) => {
           const messageKey = `${message.role}-${index}`;
+          const roundNumber = message.role === 'user'
+            ? messages.slice(0, index + 1).filter((item) => item.role === 'user').length
+            : 0;
           return (
-          <article className={`copy-message copy-message--${message.role} ${message.error ? 'is-error' : ''} ${message.streaming ? 'is-streaming' : ''}`} key={messageKey}>
+          <React.Fragment key={messageKey}>
+          {roundNumber > 0 && (
+            <div className="copy-round-divider">
+              <span />
+              <b><strong>{roundNumber}</strong><span>轮</span></b>
+              <span />
+            </div>
+          )}
+          <article className={`copy-message copy-message--${message.role} ${message.error ? 'is-error' : ''} ${message.streaming ? 'is-streaming' : ''}`}>
             <div className="copy-message__speaker">
               <span className="copy-message__speaker-avatar">
                 <b>{message.role === 'user' ? '我' : agentInitials}</b>
@@ -10798,6 +10827,7 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
               )}
             </div>
           </article>
+          </React.Fragment>
           );
         })}
       </section>

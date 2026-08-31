@@ -1850,5 +1850,8 @@
   "生成记录加载失败": "Nie udało się załadować historii generowania",
   "还没有生成记录": "Brak historii generowania",
   "发送第一条文案需求后，记录会显示在这里。": "Po wysłaniu pierwszego żądania tekstu wpis pojawi się tutaj.",
-  "新对话": "Nowa rozmowa"
+  "新对话": "Nowa rozmowa",
+  "轮对话": "rund",
+  "第": "Runda",
+  "轮": "runda"
 }

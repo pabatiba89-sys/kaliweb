@@ -1833,5 +1833,8 @@
   "生成记录加载失败": "Generatiegeschiedenis kon niet worden geladen",
   "还没有生成记录": "Nog geen generatiegeschiedenis",
   "发送第一条文案需求后，记录会显示在这里。": "Na je eerste tekstverzoek verschijnt het record hier.",
-  "新对话": "Nieuw gesprek"
+  "新对话": "Nieuw gesprek",
+  "轮对话": "rondes",
+  "第": "Ronde",
+  "轮": "ronde"
 }

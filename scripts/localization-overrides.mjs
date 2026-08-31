@@ -366,6 +366,34 @@ const chatHistoryRows = {
   'hi-IN': ['नया टेक्स्ट', 'जनरेशन इतिहास लोड हो रहा है…', 'जनरेशन इतिहास लोड नहीं हो सका', 'अभी कोई जनरेशन इतिहास नहीं है', 'पहला टेक्स्ट अनुरोध भेजने के बाद रिकॉर्ड यहाँ दिखाई देगा।', 'नई बातचीत'],
 };
 
+const chatRoundKeys = ['轮对话', '轮'];
+const chatRoundRows = {
+  'en-US': ['rounds', 'round'],
+  'zh-CN': ['轮对话', '轮'],
+  'zh-TW': ['輪對話', '輪'],
+  'es-MX': ['rondas', 'ronda'],
+  'fr-FR': ['tours', 'tour'],
+  'ru-RU': ['раундов', 'раунд'],
+  'de-DE': ['Runden', 'Runde'],
+  'pt-PT': ['rondas', 'ronda'],
+  'ar-AE': ['جولات', 'جولة'],
+  'it-IT': ['turni', 'turno'],
+  'ja-JP': ['ラウンド', '回'],
+  'ko-KR': ['회 대화', '회'],
+  'id-ID': ['putaran', 'putaran'],
+  'vi-VN': ['lượt', 'lượt'],
+  'tr-TR': ['tur', 'tur'],
+  'nl-NL': ['rondes', 'ronde'],
+  'uk-UA': ['раундів', 'раунд'],
+  'th-TH': ['รอบ', 'รอบ'],
+  'pl-PL': ['rund', 'runda'],
+  'ro-RO': ['runde', 'rundă'],
+  'el-GR': ['γύροι', 'γύρος'],
+  'cs-CZ': ['kol', 'kolo'],
+  'fi-FI': ['kierrosta', 'kierros'],
+  'hi-IN': ['राउंड', 'राउंड'],
+};
+
 const regenerateLabels = {
   'en-US': 'Regenerate',
   'zh-CN': '重新生成',
@@ -1322,6 +1350,7 @@ export const workspaceLocalizationOverrides = Object.fromEntries(Object.entries(
   paymentKeys.forEach((key, index) => { overrides[key] = paymentRows[locale][index]; });
   chatInteractionKeys.forEach((key, index) => { overrides[key] = chatInteractionRows[locale][index]; });
   chatHistoryKeys.forEach((key, index) => { overrides[key] = chatHistoryRows[locale][index]; });
+  chatRoundKeys.forEach((key, index) => { overrides[key] = chatRoundRows[locale][index]; });
   overrides['重新生成'] = regenerateLabels[locale];
   Object.assign(overrides, affiliateOverrides[locale] || {});
   teamCoreKeys.forEach((key, index) => { overrides[key] = teamCoreRows[locale][index]; });

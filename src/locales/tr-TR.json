@@ -1851,5 +1851,8 @@
   "生成记录加载失败": "Oluşturma geçmişi yüklenemedi",
   "还没有生成记录": "Henüz oluşturma geçmişi yok",
   "发送第一条文案需求后，记录会显示在这里。": "İlk metin isteğinizi gönderdikten sonra kayıt burada görünür.",
-  "新对话": "Yeni konuşma"
+  "新对话": "Yeni konuşma",
+  "轮对话": "tur",
+  "第": "Tur",
+  "轮": "tur"
 }
