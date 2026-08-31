@@ -10269,12 +10269,13 @@ const parseGeneratedResult = (value) => {
     scenes,
   };
 };
-async function requestGeneratedCopy({ prompt, agent, messages, conversationId, instructionSetId, signal, onProgress }) {
+async function requestGeneratedCopy({ prompt, topic, agent, messages, conversationId, instructionSetId, signal, onProgress }) {
   const token = getAccessToken();
   const body = {
     content: buildTypedPrompt(prompt, agent?.type?.value, agent),
     ...(instructionSetId || agent?.id ? { instruction_set_id: instructionSetId || agent.id } : {}),
     ...(conversationId ? { conversation_id: conversationId } : {}),
+    ...(topic ? { topic } : {}),
     messages: messages
       .filter((item) => item.role !== 'pending')
       .slice(-12)
@@ -10291,6 +10292,8 @@ async function requestGeneratedCopy({ prompt, agent, messages, conversationId, i
     signal,
   });
   const responseConversationId = Number(response.headers.get('X-Conversation-Id')) || Number(conversationId) || null;
+  const responseRoundNo = Number(response.headers.get('X-Conversation-Round')) || null;
+  const reusedConversation = response.headers.get('X-Conversation-Reused') === '1';
   if (!response.body || typeof response.body.getReader !== 'function') {
     const raw = await response.text();
     let fallbackReply = '';
@@ -10302,7 +10305,13 @@ async function requestGeneratedCopy({ prompt, agent, messages, conversationId, i
     fallbackReply = selectGeneratedDraftText(normalizeGeneratedText(fallbackReply));
     if (!response.ok || !fallbackReply) throw new Error(fallbackReply || '文案生成失败，请重试');
     onProgress?.(fallbackReply);
-    return { text: fallbackReply, script: parseGeneratedResult(fallbackReply), conversationId: responseConversationId };
+    return {
+      text: fallbackReply,
+      script: parseGeneratedResult(fallbackReply),
+      conversationId: responseConversationId,
+      roundNo: responseRoundNo,
+      reusedConversation,
+    };
   }
 
   const reader = response.body.getReader();
@@ -10377,7 +10386,13 @@ async function requestGeneratedCopy({ prompt, agent, messages, conversationId, i
   }
   reply = selectGeneratedDraftText(normalizeGeneratedText(reply));
   if (!response.ok || !reply) throw new Error(streamError || reply || '文案生成失败，请重试');
-  return { text: reply, script: parseGeneratedResult(reply), conversationId: responseConversationId };
+  return {
+    text: reply,
+    script: parseGeneratedResult(reply),
+    conversationId: responseConversationId,
+    roundNo: responseRoundNo,
+    reusedConversation,
+  };
 }
 
 const GENERATED_THINKING_MESSAGES = [
@@ -10412,6 +10427,32 @@ const getCopyHistoryRoundCount = (item) => {
   const messageCount = Number(item?.message_count ?? item?.messageCount);
   if (!Number.isFinite(messageCount) || messageCount <= 0) return 0;
   return Math.ceil(messageCount / 2);
+};
+
+const normalizeCopyHistoryMessages = (data) => {
+  const storedRounds = Array.isArray(data?.rounds) ? data.rounds : [];
+  const storedMessages = storedRounds.length
+    ? storedRounds.flatMap((round) => {
+      const roundNo = Number(round?.round_no || round?.roundNo) || null;
+      const items = Array.isArray(round?.messages)
+        ? round.messages
+        : [round?.user_message, round?.assistant_message].filter(Boolean);
+      return items.map((message) => ({ ...message, round_no: message?.round_no || roundNo }));
+    })
+    : (Array.isArray(data?.messages) ? data.messages : []);
+
+  return storedMessages
+    .filter((message) => message?.role === 'user' || message?.role === 'assistant')
+    .map((message) => ({
+      role: message.role,
+      text: textOf(message.content),
+      roundNo: Number(message.round_no || message.roundNo) || null,
+      ...(message.role === 'assistant' ? {
+        generated: true,
+        script: parseGeneratedResult(message.content),
+      } : {}),
+    }))
+    .filter((message) => message.text);
 };
 
 function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVideo, onMakeMusic }) {
@@ -10523,23 +10564,13 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
       return;
     }
     const conversation = result.data?.conversation || {};
-    const restoredMessages = (Array.isArray(result.data?.messages) ? result.data.messages : [])
-      .filter((message) => message?.role === 'user' || message?.role === 'assistant')
-      .map((message) => ({
-        role: message.role,
-        text: textOf(message.content),
-        ...(message.role === 'assistant' ? {
-          generated: true,
-          script: parseGeneratedResult(message.content),
-        } : {}),
-      }))
-      .filter((message) => message.text);
+    const restoredMessages = normalizeCopyHistoryMessages(result.data);
     setMessages(restoredMessages.length ? restoredMessages : [{
       role: 'assistant',
       text: agent?.desc || '输入你的产品、活动、场景或诉求，生成可直接用于视频制作的文案。',
     }]);
     setCurrentConversationId(conversationId);
-    setCurrentConversationTitle(textOf(conversation.title || item?.title));
+    setCurrentConversationTitle(textOf(conversation.topic || conversation.title || item?.topic || item?.title));
     setConversationInstructionSetId(conversation.instruction_set_id || conversation.prompt_id || agent?.id || null);
     setInput('');
     setHistoryOpen(false);
@@ -10553,7 +10584,11 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
     }
     if (!prompt || generatingRef.current) return;
     generatingRef.current = true;
-    const userMessage = { role: 'user', text: prompt };
+    const nextRoundNo = messages.reduce((highest, message) => (
+      message.role === 'user' ? Math.max(highest, Number(message.roundNo) || highest + 1) : highest
+    ), 0) + 1;
+    const conversationTopic = textOf(flow?.topic || currentConversationTitle || prompt);
+    const userMessage = { role: 'user', text: prompt, roundNo: nextRoundNo };
     const nextMessages = messages.concat(userMessage);
     setThinkingIndex(0);
     setMessages(nextMessages.concat({ role: 'pending', text: '正在生成文案' }));
@@ -10564,6 +10599,7 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
     try {
       const reply = await requestGeneratedCopy({
         prompt,
+        topic: conversationTopic,
         agent,
         messages: nextMessages,
         conversationId: currentConversationId,
@@ -10574,18 +10610,44 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
             controller.abort();
             throw new Error(GENERATED_CONTENT_UNAVAILABLE_MESSAGE);
           }
-          setMessages(nextMessages.concat({ role: 'assistant', text: partialText, streaming: true }));
+          setMessages(nextMessages.concat({ role: 'assistant', text: partialText, roundNo: nextRoundNo, streaming: true }));
         },
       });
       if (isGeneratedMarkupFailure(reply.text)) throw new Error(GENERATED_CONTENT_UNAVAILABLE_MESSAGE);
       if (reply.conversationId) {
         setCurrentConversationId(reply.conversationId);
-        if (!currentConversationId) setCurrentConversationTitle(prompt);
+        if (!currentConversationId) setCurrentConversationTitle(conversationTopic);
       }
-      setMessages(nextMessages.concat({ role: 'assistant', text: reply.text, script: reply.script, generated: true }));
+      const localMessages = nextMessages.concat({
+        role: 'assistant',
+        text: reply.text,
+        roundNo: reply.roundNo || nextRoundNo,
+        script: reply.script,
+        generated: true,
+      });
+      let restoredReusedConversation = false;
+      if (reply.reusedConversation && !currentConversationId && reply.conversationId) {
+        const historyResult = await apiFetch(`/api/chat/conversations/${reply.conversationId}`, { timeoutMs: 10000 });
+        if (historyResult.ok) {
+          const restoredMessages = normalizeCopyHistoryMessages(historyResult.data);
+          if (restoredMessages.length) {
+            const conversation = historyResult.data?.conversation || {};
+            setMessages(restoredMessages);
+            setCurrentConversationTitle(textOf(conversation.topic || conversation.title || conversationTopic));
+            setConversationInstructionSetId(conversation.instruction_set_id || conversation.prompt_id || agent?.id || null);
+            restoredReusedConversation = true;
+          }
+        }
+      }
+      if (!restoredReusedConversation) setMessages(localMessages);
     } catch (error) {
       if (error.name !== 'AbortError') {
-        setMessages(nextMessages.concat({ role: 'assistant', text: error.message || '文案生成失败，请重试', error: true }));
+        setMessages(nextMessages.concat({
+          role: 'assistant',
+          text: error.message || '文案生成失败，请重试',
+          roundNo: nextRoundNo,
+          error: true,
+        }));
       }
     } finally {
       if (streamAbortRef.current === controller) streamAbortRef.current = null;
@@ -10734,7 +10796,7 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
                     <span className="copy-history-item__icon"><Clock3 size={17} /></span>
                     <span className="copy-history-item__body">
                       <span className="copy-history-item__topic">
-                        <strong>{item.title || '新对话'}</strong>
+                        <strong>{item.topic || item.title || '新对话'}</strong>
                         {roundCount > 0 && <span className="copy-history-item__rounds"><b>{roundCount}</b><span>轮对话</span></span>}
                       </span>
                       <small>{instructionName} · {formatCopyHistoryTime(item.updated_at || item.created_at)}</small>
@@ -10759,7 +10821,7 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
         {messages.map((message, index) => {
           const messageKey = `${message.role}-${index}`;
           const roundNumber = message.role === 'user'
-            ? messages.slice(0, index + 1).filter((item) => item.role === 'user').length
+            ? Number(message.roundNo) || messages.slice(0, index + 1).filter((item) => item.role === 'user').length
             : 0;
           return (
           <React.Fragment key={messageKey}>
