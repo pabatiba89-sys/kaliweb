@@ -10269,11 +10269,12 @@ const parseGeneratedResult = (value) => {
     scenes,
   };
 };
-async function requestGeneratedCopy({ prompt, agent, messages, signal, onProgress }) {
+async function requestGeneratedCopy({ prompt, agent, messages, conversationId, instructionSetId, signal, onProgress }) {
   const token = getAccessToken();
   const body = {
     content: buildTypedPrompt(prompt, agent?.type?.value, agent),
-    ...(agent?.id ? { instruction_set_id: agent.id } : {}),
+    ...(instructionSetId || agent?.id ? { instruction_set_id: instructionSetId || agent.id } : {}),
+    ...(conversationId ? { conversation_id: conversationId } : {}),
     messages: messages
       .filter((item) => item.role !== 'pending')
       .slice(-12)
@@ -10289,6 +10290,7 @@ async function requestGeneratedCopy({ prompt, agent, messages, signal, onProgres
     body: JSON.stringify(body),
     signal,
   });
+  const responseConversationId = Number(response.headers.get('X-Conversation-Id')) || Number(conversationId) || null;
   if (!response.body || typeof response.body.getReader !== 'function') {
     const raw = await response.text();
     let fallbackReply = '';
@@ -10300,7 +10302,7 @@ async function requestGeneratedCopy({ prompt, agent, messages, signal, onProgres
     fallbackReply = selectGeneratedDraftText(normalizeGeneratedText(fallbackReply));
     if (!response.ok || !fallbackReply) throw new Error(fallbackReply || '文案生成失败，请重试');
     onProgress?.(fallbackReply);
-    return { text: fallbackReply, script: parseGeneratedResult(fallbackReply) };
+    return { text: fallbackReply, script: parseGeneratedResult(fallbackReply), conversationId: responseConversationId };
   }
 
   const reader = response.body.getReader();
@@ -10375,7 +10377,7 @@ async function requestGeneratedCopy({ prompt, agent, messages, signal, onProgres
   }
   reply = selectGeneratedDraftText(normalizeGeneratedText(reply));
   if (!response.ok || !reply) throw new Error(streamError || reply || '文案生成失败，请重试');
-  return { text: reply, script: parseGeneratedResult(reply) };
+  return { text: reply, script: parseGeneratedResult(reply), conversationId: responseConversationId };
 }
 
 const GENERATED_THINKING_MESSAGES = [
@@ -10390,6 +10392,19 @@ const GENERATED_THINKING_MESSAGES = [
   'Думаю',
   'جارٍ التفكير',
 ];
+
+const formatCopyHistoryTime = (value) => {
+  const raw = textOf(value);
+  if (!raw) return '';
+  const date = new Date(raw.includes('T') ? raw : raw.replace(' ', 'T'));
+  if (Number.isNaN(date.getTime())) return raw;
+  return new Intl.DateTimeFormat(undefined, {
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date);
+};
 
 function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVideo, onMakeMusic }) {
   const [flow] = useState(() => (useHotTopicFlow ? getPendingFlow() : null));
@@ -10406,6 +10421,13 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
   const [loading, setLoading] = useState(false);
   const [thinkingIndex, setThinkingIndex] = useState(0);
   const [copiedMessageKey, setCopiedMessageKey] = useState('');
+  const [currentConversationId, setCurrentConversationId] = useState(null);
+  const [conversationInstructionSetId, setConversationInstructionSetId] = useState(agent?.id || null);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [historyItems, setHistoryItems] = useState([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [historyMessage, setHistoryMessage] = useState('');
+  const [historyBusyId, setHistoryBusyId] = useState(null);
   const chatRef = useRef(null);
   const inputRef = useRef(null);
   const longPressRef = useRef(null);
@@ -10435,6 +10457,83 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
     chat.scrollTop = chat.scrollHeight;
   }, [messages]);
 
+  const loadHistory = useCallback(async () => {
+    if (!authed) return;
+    setHistoryLoading(true);
+    setHistoryMessage('');
+    const result = await apiFetch('/api/chat/conversations', {
+      params: {
+        page: 1,
+        page_size: 50,
+        ...(agent?.id ? { instruction_set_id: agent.id } : {}),
+      },
+      timeoutMs: 10000,
+    });
+    setHistoryLoading(false);
+    if (!result.ok) {
+      setHistoryItems([]);
+      setHistoryMessage(result.message || '生成记录加载失败');
+      return;
+    }
+    setHistoryItems(toList(result.data));
+  }, [agent?.id, authed]);
+
+  const openHistory = () => {
+    if (!authed) {
+      onLogin();
+      return;
+    }
+    setHistoryOpen(true);
+    loadHistory();
+  };
+
+  const resetConversation = () => {
+    if (loading) return;
+    setCurrentConversationId(null);
+    setConversationInstructionSetId(agent?.id || null);
+    setMessages([{
+      role: 'assistant',
+      text: initialPrompt
+        ? '热点内容已带入输入框，请确认或修改后再发送。'
+        : agent?.desc || '输入你的产品、活动、场景或诉求，生成可直接用于视频制作的文案。',
+    }]);
+    setInput(initialPrompt);
+    setHistoryOpen(false);
+  };
+
+  const restoreConversation = async (item) => {
+    const conversationId = Number(item?.id);
+    if (!conversationId || historyBusyId) return;
+    setHistoryBusyId(conversationId);
+    setHistoryMessage('');
+    const result = await apiFetch(`/api/chat/conversations/${conversationId}`, { timeoutMs: 10000 });
+    setHistoryBusyId(null);
+    if (!result.ok) {
+      setHistoryMessage(result.message || '生成记录加载失败');
+      return;
+    }
+    const conversation = result.data?.conversation || {};
+    const restoredMessages = (Array.isArray(result.data?.messages) ? result.data.messages : [])
+      .filter((message) => message?.role === 'user' || message?.role === 'assistant')
+      .map((message) => ({
+        role: message.role,
+        text: textOf(message.content),
+        ...(message.role === 'assistant' ? {
+          generated: true,
+          script: parseGeneratedResult(message.content),
+        } : {}),
+      }))
+      .filter((message) => message.text);
+    setMessages(restoredMessages.length ? restoredMessages : [{
+      role: 'assistant',
+      text: agent?.desc || '输入你的产品、活动、场景或诉求，生成可直接用于视频制作的文案。',
+    }]);
+    setCurrentConversationId(conversationId);
+    setConversationInstructionSetId(conversation.instruction_set_id || conversation.prompt_id || agent?.id || null);
+    setInput('');
+    setHistoryOpen(false);
+  };
+
   const generate = async (promptText = input) => {
     const prompt = textOf(promptText);
     if (!authed) {
@@ -10456,6 +10555,8 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
         prompt,
         agent,
         messages: nextMessages,
+        conversationId: currentConversationId,
+        instructionSetId: conversationInstructionSetId,
         signal: controller.signal,
         onProgress: (partialText) => {
           if (isGeneratedMarkupFailure(partialText)) {
@@ -10466,6 +10567,7 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
         },
       });
       if (isGeneratedMarkupFailure(reply.text)) throw new Error(GENERATED_CONTENT_UNAVAILABLE_MESSAGE);
+      if (reply.conversationId) setCurrentConversationId(reply.conversationId);
       setMessages(nextMessages.concat({ role: 'assistant', text: reply.text, script: reply.script, generated: true }));
     } catch (error) {
       if (error.name !== 'AbortError') {
@@ -10586,7 +10688,50 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
           <h1>文案生成</h1>
           <span>{agent?.name || 'Creative Agent'}</span>
         </div>
+        <button className="copy-history-trigger" onClick={openHistory}><Clock3 size={17} />生成记录</button>
       </header>
+      {historyOpen && (
+        <div className="copy-history-overlay" role="presentation" onClick={() => setHistoryOpen(false)}>
+          <aside className="copy-history-panel" role="dialog" aria-modal="true" aria-label="生成记录" onClick={(event) => event.stopPropagation()}>
+            <header className="copy-history-panel__head">
+              <div><span>HISTORY</span><h2>生成记录</h2></div>
+              <button onClick={() => setHistoryOpen(false)} aria-label="关闭"><X size={19} /></button>
+            </header>
+            <div className="copy-history-panel__actions">
+              <button onClick={resetConversation} disabled={loading}><Plus size={16} />新建文案</button>
+              <button onClick={loadHistory} disabled={historyLoading}><RefreshCw className={historyLoading ? 'is-spinning' : ''} size={16} />刷新</button>
+            </div>
+            {historyMessage && <div className="copy-history-message"><AlertCircle size={16} />{historyMessage}</div>}
+            <div className="copy-history-list">
+              {historyLoading ? (
+                <div className="copy-history-empty"><RefreshCw className="is-spinning" size={24} /><strong>正在加载生成记录…</strong></div>
+              ) : historyItems.length ? historyItems.map((item) => {
+                const lastMessage = item.last_message?.content || '';
+                const instructionName = item.instruction_set?.name || agent?.name || 'Creative Agent';
+                const active = Number(item.id) === Number(currentConversationId);
+                return (
+                  <button
+                    className={`copy-history-item ${active ? 'is-active' : ''}`}
+                    key={item.id}
+                    onClick={() => restoreConversation(item)}
+                    disabled={Boolean(historyBusyId)}
+                  >
+                    <span className="copy-history-item__icon"><Clock3 size={17} /></span>
+                    <span className="copy-history-item__body">
+                      <strong>{item.title || '新对话'}</strong>
+                      <small>{instructionName} · {formatCopyHistoryTime(item.updated_at || item.created_at)}</small>
+                      <p>{lastMessage || '暂无文案'}</p>
+                    </span>
+                    {Number(historyBusyId) === Number(item.id) ? <RefreshCw className="is-spinning" size={17} /> : <ChevronRight size={17} />}
+                  </button>
+                );
+              }) : (
+                <div className="copy-history-empty"><Clock3 size={28} /><strong>还没有生成记录</strong><p>发送第一条文案需求后，记录会显示在这里。</p></div>
+              )}
+            </div>
+          </aside>
+        </div>
+      )}
       <section className="copy-context">
         <strong>人工智能生成</strong>
         <span>本页文案由人工智能辅助生成，请结合实际业务核验后使用</span>

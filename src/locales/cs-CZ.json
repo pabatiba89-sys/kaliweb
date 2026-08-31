@@ -1840,5 +1840,11 @@
   "Sign in to view your team.": "Přihlaste se a zobrazte svůj tým.",
   "Remove this member?": "Odebrat tohoto člena?",
   "This only removes team access. Their account, tasks, and history will not be deleted.": "Tím se odebere pouze přístup k týmu. Účet, úkoly a historie zůstanou zachovány.",
-  "Remove member": "Odebrat člena"
+  "Remove member": "Odebrat člena",
+  "新建文案": "Nový text",
+  "正在加载生成记录…": "Načítání historie generování…",
+  "生成记录加载失败": "Historii generování se nepodařilo načíst",
+  "还没有生成记录": "Zatím žádná historie generování",
+  "发送第一条文案需求后，记录会显示在这里。": "Po odeslání prvního požadavku na text se záznam zobrazí zde.",
+  "新对话": "Nová konverzace"
 }

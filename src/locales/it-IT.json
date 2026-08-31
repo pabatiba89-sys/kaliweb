@@ -1858,5 +1858,11 @@
   "Sign in to view your team.": "Accedi per visualizzare il tuo team.",
   "Remove this member?": "Rimuovere questo membro?",
   "This only removes team access. Their account, tasks, and history will not be deleted.": "Verrà rimosso solo l’accesso al team. Account, attività e cronologia saranno conservati.",
-  "Remove member": "Rimuovi membro"
+  "Remove member": "Rimuovi membro",
+  "新建文案": "Nuovo testo",
+  "正在加载生成记录…": "Caricamento della cronologia di generazione…",
+  "生成记录加载失败": "Impossibile caricare la cronologia di generazione",
+  "还没有生成记录": "Nessuna cronologia di generazione",
+  "发送第一条文案需求后，记录会显示在这里。": "Dopo la prima richiesta di testo, il record apparirà qui.",
+  "新对话": "Nuova conversazione"
 }

@@ -1912,5 +1912,11 @@
   "Sign in to view your team.": "팀을 보려면 로그인하세요.",
   "Remove this member?": "이 멤버를 제거할까요?",
   "This only removes team access. Their account, tasks, and history will not be deleted.": "팀 접근 권한만 제거됩니다. 계정, 작업 및 기록은 삭제되지 않습니다.",
-  "Remove member": "멤버 제거"
+  "Remove member": "멤버 제거",
+  "新建文案": "새 문안",
+  "正在加载生成记录…": "생성 기록 불러오는 중…",
+  "生成记录加载失败": "생성 기록을 불러오지 못했습니다",
+  "还没有生成记录": "아직 생성 기록이 없습니다",
+  "发送第一条文案需求后，记录会显示在这里。": "첫 문안 요청을 보내면 여기에 기록이 표시됩니다.",
+  "新对话": "새 대화"
 }

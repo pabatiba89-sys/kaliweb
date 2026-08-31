@@ -1856,5 +1856,11 @@
   "Sign in to view your team.": "Connectez-vous pour voir votre équipe.",
   "Remove this member?": "Retirer ce membre ?",
   "This only removes team access. Their account, tasks, and history will not be deleted.": "Cela retire uniquement l’accès à l’équipe. Son compte, ses tâches et son historique seront conservés.",
-  "Remove member": "Retirer le membre"
+  "Remove member": "Retirer le membre",
+  "新建文案": "Nouveau texte",
+  "正在加载生成记录…": "Chargement de l’historique de génération…",
+  "生成记录加载失败": "Impossible de charger l’historique de génération",
+  "还没有生成记录": "Aucun historique de génération",
+  "发送第一条文案需求后，记录会显示在这里。": "Après votre première demande de texte, elle apparaîtra ici.",
+  "新对话": "Nouvelle conversation"
 }

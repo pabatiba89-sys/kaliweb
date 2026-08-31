@@ -4998,6 +4998,219 @@ html[dir="rtl"] .legal-back-button svg {
   font-weight: 850;
 }
 
+.copy-history-trigger {
+  min-height: 42px;
+  margin-inline-start: auto;
+  padding: 0 16px;
+  border: 1px solid #c9e4dd;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #0b796f;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 850;
+  box-shadow: 0 8px 20px rgba(24, 62, 53, 0.08);
+}
+
+.copy-history-trigger:hover {
+  border-color: #8fcbbc;
+  background: #effaf6;
+}
+
+.copy-history-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  padding: 14px;
+  background: rgba(4, 20, 18, 0.42);
+  backdrop-filter: blur(5px);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.copy-history-panel {
+  width: min(430px, 100%);
+  min-height: 0;
+  padding: 18px;
+  border: 1px solid rgba(188, 224, 214, 0.82);
+  border-radius: 24px;
+  background: #f8fcfa;
+  display: grid;
+  grid-template-rows: auto auto auto minmax(0, 1fr);
+  gap: 13px;
+  box-shadow: -18px 0 46px rgba(8, 37, 31, 0.2);
+}
+
+.copy-history-panel__head,
+.copy-history-panel__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.copy-history-panel__head > div {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.copy-history-panel__head span {
+  color: #00a884;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.13em;
+}
+
+.copy-history-panel__head h2 {
+  margin: 0;
+  color: #06141d;
+  font-size: 24px;
+}
+
+.copy-history-panel__head > button {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: #eaf7f3;
+  color: #28574d;
+  display: grid;
+  place-items: center;
+}
+
+.copy-history-panel__actions {
+  justify-content: flex-start;
+}
+
+.copy-history-panel__actions button {
+  min-height: 38px;
+  padding: 0 13px;
+  border-radius: 999px;
+  background: #e8f7f2;
+  color: #0b796f;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.copy-history-panel__actions button:first-child {
+  background: #0b796f;
+  color: #ffffff;
+}
+
+.copy-history-panel__actions button:disabled,
+.copy-history-item:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+.copy-history-message {
+  padding: 10px 12px;
+  border-radius: 13px;
+  background: #fff2f2;
+  color: #a33a3a;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 760;
+}
+
+.copy-history-list {
+  min-height: 0;
+  overflow-y: auto;
+  display: grid;
+  align-content: start;
+  gap: 9px;
+}
+
+.copy-history-item {
+  width: 100%;
+  min-width: 0;
+  padding: 11px;
+  border: 1px solid #d7e9e4;
+  border-radius: 17px;
+  background: #ffffff;
+  color: #527067;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  text-align: start;
+}
+
+.copy-history-item:hover,
+.copy-history-item.is-active {
+  border-color: #79cbb9;
+  background: #eefaf6;
+}
+
+.copy-history-item__icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: #e5f7f1;
+  color: #0b796f;
+  display: grid;
+  place-items: center;
+}
+
+.copy-history-item__body {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.copy-history-item__body strong,
+.copy-history-item__body small,
+.copy-history-item__body p {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.copy-history-item__body strong {
+  color: #12251f;
+  font-size: 14px;
+}
+
+.copy-history-item__body small {
+  color: #6c817a;
+  font-size: 11px;
+}
+
+.copy-history-item__body p {
+  margin: 0;
+  color: #415c54;
+  font-size: 12px;
+}
+
+.copy-history-empty {
+  min-height: 220px;
+  padding: 24px;
+  color: #688078;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.copy-history-empty strong {
+  color: #18342d;
+}
+
+.copy-history-empty p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
 .copy-context {
   padding: 16px 18px;
   border-radius: 20px;
@@ -13849,10 +14062,25 @@ html[dir="rtl"] .training-submit-progress__fill {
 
   .copy-header {
     align-items: flex-start;
+    flex-wrap: wrap;
   }
 
   .copy-header h1 {
     font-size: 36px;
+  }
+
+  .copy-history-trigger {
+    width: 100%;
+    margin-inline-start: 0;
+  }
+
+  .copy-history-overlay {
+    padding: 0;
+  }
+
+  .copy-history-panel {
+    width: 100%;
+    border-radius: 0;
   }
 
   .copy-context {

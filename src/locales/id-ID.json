@@ -1871,5 +1871,11 @@
   "Sign in to view your team.": "Masuk untuk melihat tim Anda.",
   "Remove this member?": "Hapus anggota ini?",
   "This only removes team access. Their account, tasks, and history will not be deleted.": "Ini hanya menghapus akses tim. Akun, tugas, dan riwayatnya tidak akan dihapus.",
-  "Remove member": "Hapus anggota"
+  "Remove member": "Hapus anggota",
+  "新建文案": "Teks baru",
+  "正在加载生成记录…": "Memuat riwayat pembuatan…",
+  "生成记录加载失败": "Riwayat pembuatan tidak dapat dimuat",
+  "还没有生成记录": "Belum ada riwayat pembuatan",
+  "发送第一条文案需求后，记录会显示在这里。": "Setelah mengirim permintaan teks pertama, riwayat akan muncul di sini.",
+  "新对话": "Percakapan baru"
 }

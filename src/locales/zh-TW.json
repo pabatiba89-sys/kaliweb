@@ -1864,5 +1864,11 @@
   "The account is waiting to be claimed. Team access will carry over after the member verifies this phone number.": "該帳號正等待認領。成員驗證此手機號碼後，團隊存取權限會自動繼承。",
   "No password was created. The member can use their existing account.": "沒有建立新密碼，成員可使用現有帳號登入。",
   "REMOVE ACCESS": "移除存取權限",
-  "Removing": "正在移除"
+  "Removing": "正在移除",
+  "新建文案": "新增文案",
+  "正在加载生成记录…": "正在載入生成記錄…",
+  "生成记录加载失败": "生成記錄載入失敗",
+  "还没有生成记录": "尚無生成記錄",
+  "发送第一条文案需求后，记录会显示在这里。": "送出第一個文案需求後，記錄會顯示在這裡。",
+  "新对话": "新對話"
 }

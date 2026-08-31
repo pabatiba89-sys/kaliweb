@@ -1845,5 +1845,11 @@
   "Sign in to view your team.": "Ekibinizi görmek için giriş yapın.",
   "Remove this member?": "Bu üye kaldırılsın mı?",
   "This only removes team access. Their account, tasks, and history will not be deleted.": "Bu işlem yalnızca ekip erişimini kaldırır. Hesap, görevler ve geçmiş silinmez.",
-  "Remove member": "Üyeyi kaldır"
+  "Remove member": "Üyeyi kaldır",
+  "新建文案": "Yeni metin",
+  "正在加载生成记录…": "Oluşturma geçmişi yükleniyor…",
+  "生成记录加载失败": "Oluşturma geçmişi yüklenemedi",
+  "还没有生成记录": "Henüz oluşturma geçmişi yok",
+  "发送第一条文案需求后，记录会显示在这里。": "İlk metin isteğinizi gönderdikten sonra kayıt burada görünür.",
+  "新对话": "Yeni konuşma"
 }

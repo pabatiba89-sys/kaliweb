@@ -1848,5 +1848,11 @@
   "Sign in to view your team.": "Kirjaudu sisään nähdäksesi tiimisi.",
   "Remove this member?": "Poistetaanko tämä jäsen?",
   "This only removes team access. Their account, tasks, and history will not be deleted.": "Tämä poistaa vain tiimin käyttöoikeuden. Tiliä, tehtäviä tai historiaa ei poisteta.",
-  "Remove member": "Poista jäsen"
+  "Remove member": "Poista jäsen",
+  "新建文案": "Uusi teksti",
+  "正在加载生成记录…": "Luontihistoriaa ladataan…",
+  "生成记录加载失败": "Luontihistoriaa ei voitu ladata",
+  "还没有生成记录": "Ei vielä luontihistoriaa",
+  "发送第一条文案需求后，记录会显示在这里。": "Kun lähetät ensimmäisen tekstipyynnön, tietue näkyy täällä.",
+  "新对话": "Uusi keskustelu"
 }

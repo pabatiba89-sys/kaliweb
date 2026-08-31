@@ -1857,5 +1857,11 @@
   "Sign in to view your team.": "Autentifică-te pentru a vedea echipa.",
   "Remove this member?": "Elimini acest membru?",
   "This only removes team access. Their account, tasks, and history will not be deleted.": "Aceasta elimină doar accesul la echipă. Contul, activitățile și istoricul vor fi păstrate.",
-  "Remove member": "Elimină membru"
+  "Remove member": "Elimină membru",
+  "新建文案": "Text nou",
+  "正在加载生成记录…": "Se încarcă istoricul generării…",
+  "生成记录加载失败": "Istoricul generării nu a putut fi încărcat",
+  "还没有生成记录": "Nu există încă istoric de generare",
+  "发送第一条文案需求后，记录会显示在这里。": "După prima solicitare de text, înregistrarea va apărea aici.",
+  "新对话": "Conversație nouă"
 }

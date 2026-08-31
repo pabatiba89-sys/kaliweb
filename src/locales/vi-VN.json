@@ -1911,5 +1911,11 @@
   "Sign in to view your team.": "Đăng nhập để xem đội nhóm.",
   "Remove this member?": "Xóa thành viên này?",
   "This only removes team access. Their account, tasks, and history will not be deleted.": "Thao tác này chỉ xóa quyền truy cập nhóm. Tài khoản, tác vụ và lịch sử vẫn được giữ lại.",
-  "Remove member": "Xóa thành viên"
+  "Remove member": "Xóa thành viên",
+  "新建文案": "Nội dung mới",
+  "正在加载生成记录…": "Đang tải lịch sử tạo…",
+  "生成记录加载失败": "Không thể tải lịch sử tạo",
+  "还没有生成记录": "Chưa có lịch sử tạo",
+  "发送第一条文案需求后，记录会显示在这里。": "Sau khi gửi yêu cầu nội dung đầu tiên, bản ghi sẽ xuất hiện tại đây.",
+  "新对话": "Cuộc trò chuyện mới"
 }

@@ -1204,5 +1204,11 @@
   "Sign in to view your team.": "Sign in to view your team.",
   "Remove this member?": "Remove this member?",
   "This only removes team access. Their account, tasks, and history will not be deleted.": "This only removes team access. Their account, tasks, and history will not be deleted.",
-  "Remove member": "Remove member"
+  "Remove member": "Remove member",
+  "新建文案": "New copy",
+  "正在加载生成记录…": "Loading generation history…",
+  "生成记录加载失败": "Generation history could not be loaded",
+  "还没有生成记录": "No generation history yet",
+  "发送第一条文案需求后，记录会显示在这里。": "After you send your first copy request, it will appear here.",
+  "新对话": "New conversation"
 }

@@ -1056,5 +1056,11 @@
   "The account is waiting to be claimed. Team access will carry over after the member verifies this phone number.": "该账号正等待认领。成员验证此手机号后，团队访问权限会自动继承。",
   "No password was created. The member can use their existing account.": "没有创建新密码，成员可使用现有账号登录。",
   "REMOVE ACCESS": "移除访问权限",
-  "Removing": "正在移除"
+  "Removing": "正在移除",
+  "新建文案": "新建文案",
+  "正在加载生成记录…": "正在加载生成记录…",
+  "生成记录加载失败": "生成记录加载失败",
+  "还没有生成记录": "还没有生成记录",
+  "发送第一条文案需求后，记录会显示在这里。": "发送第一条文案需求后，记录会显示在这里。",
+  "新对话": "新对话"
 }

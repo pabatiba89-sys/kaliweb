@@ -1866,5 +1866,11 @@
   "Sign in to view your team.": "Inicia sesión para ver tu equipo.",
   "Remove this member?": "¿Eliminar a este miembro?",
   "This only removes team access. Their account, tasks, and history will not be deleted.": "Esto solo quita el acceso al equipo. Su cuenta, tareas e historial no se eliminarán.",
-  "Remove member": "Eliminar miembro"
+  "Remove member": "Eliminar miembro",
+  "新建文案": "Nuevo texto",
+  "正在加载生成记录…": "Cargando historial de generación…",
+  "生成记录加载失败": "No se pudo cargar el historial de generación",
+  "还没有生成记录": "Aún no hay historial de generación",
+  "发送第一条文案需求后，记录会显示在这里。": "Después de enviar tu primera solicitud de texto, aparecerá aquí.",
+  "新对话": "Nueva conversación"
 }

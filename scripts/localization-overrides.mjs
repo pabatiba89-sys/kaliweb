@@ -338,6 +338,34 @@ const chatInteractionRows = {
   'hi-IN': ['कॉपी करें', 'कॉपी हो गया', 'दोबारा उपयोग करने के लिए दबाकर रखें', 'कॉपी रास्ता भटक गई। कृपया इसे फिर से जनरेट करें।'],
 };
 
+const chatHistoryKeys = ['新建文案', '正在加载生成记录…', '生成记录加载失败', '还没有生成记录', '发送第一条文案需求后，记录会显示在这里。', '新对话'];
+const chatHistoryRows = {
+  'en-US': ['New copy', 'Loading generation history…', 'Generation history could not be loaded', 'No generation history yet', 'After you send your first copy request, it will appear here.', 'New conversation'],
+  'zh-CN': ['新建文案', '正在加载生成记录…', '生成记录加载失败', '还没有生成记录', '发送第一条文案需求后，记录会显示在这里。', '新对话'],
+  'zh-TW': ['新增文案', '正在載入生成記錄…', '生成記錄載入失敗', '尚無生成記錄', '送出第一個文案需求後，記錄會顯示在這裡。', '新對話'],
+  'es-MX': ['Nuevo texto', 'Cargando historial de generación…', 'No se pudo cargar el historial de generación', 'Aún no hay historial de generación', 'Después de enviar tu primera solicitud de texto, aparecerá aquí.', 'Nueva conversación'],
+  'fr-FR': ['Nouveau texte', 'Chargement de l’historique de génération…', 'Impossible de charger l’historique de génération', 'Aucun historique de génération', 'Après votre première demande de texte, elle apparaîtra ici.', 'Nouvelle conversation'],
+  'ru-RU': ['Новый текст', 'Загрузка истории генерации…', 'Не удалось загрузить историю генерации', 'Истории генерации пока нет', 'После первого запроса на текст запись появится здесь.', 'Новый диалог'],
+  'de-DE': ['Neuer Text', 'Generierungsverlauf wird geladen…', 'Generierungsverlauf konnte nicht geladen werden', 'Noch kein Generierungsverlauf', 'Nach Ihrer ersten Textanfrage erscheint der Eintrag hier.', 'Neue Unterhaltung'],
+  'pt-PT': ['Novo texto', 'A carregar o histórico de geração…', 'Não foi possível carregar o histórico de geração', 'Ainda não existe histórico de geração', 'Depois de enviar o primeiro pedido de texto, o registo aparecerá aqui.', 'Nova conversa'],
+  'ar-AE': ['نص جديد', 'جارٍ تحميل سجل الإنشاء…', 'تعذر تحميل سجل الإنشاء', 'لا يوجد سجل إنشاء بعد', 'بعد إرسال أول طلب نص، سيظهر السجل هنا.', 'محادثة جديدة'],
+  'it-IT': ['Nuovo testo', 'Caricamento della cronologia di generazione…', 'Impossibile caricare la cronologia di generazione', 'Nessuna cronologia di generazione', 'Dopo la prima richiesta di testo, il record apparirà qui.', 'Nuova conversazione'],
+  'ja-JP': ['新しい文案', '生成履歴を読み込み中…', '生成履歴を読み込めませんでした', '生成履歴はまだありません', '最初の文案リクエストを送信すると、ここに履歴が表示されます。', '新しい会話'],
+  'ko-KR': ['새 문안', '생성 기록 불러오는 중…', '생성 기록을 불러오지 못했습니다', '아직 생성 기록이 없습니다', '첫 문안 요청을 보내면 여기에 기록이 표시됩니다.', '새 대화'],
+  'id-ID': ['Teks baru', 'Memuat riwayat pembuatan…', 'Riwayat pembuatan tidak dapat dimuat', 'Belum ada riwayat pembuatan', 'Setelah mengirim permintaan teks pertama, riwayat akan muncul di sini.', 'Percakapan baru'],
+  'vi-VN': ['Nội dung mới', 'Đang tải lịch sử tạo…', 'Không thể tải lịch sử tạo', 'Chưa có lịch sử tạo', 'Sau khi gửi yêu cầu nội dung đầu tiên, bản ghi sẽ xuất hiện tại đây.', 'Cuộc trò chuyện mới'],
+  'tr-TR': ['Yeni metin', 'Oluşturma geçmişi yükleniyor…', 'Oluşturma geçmişi yüklenemedi', 'Henüz oluşturma geçmişi yok', 'İlk metin isteğinizi gönderdikten sonra kayıt burada görünür.', 'Yeni konuşma'],
+  'nl-NL': ['Nieuwe tekst', 'Generatiegeschiedenis laden…', 'Generatiegeschiedenis kon niet worden geladen', 'Nog geen generatiegeschiedenis', 'Na je eerste tekstverzoek verschijnt het record hier.', 'Nieuw gesprek'],
+  'uk-UA': ['Новий текст', 'Завантаження історії генерації…', 'Не вдалося завантажити історію генерації', 'Історії генерації ще немає', 'Після першого запиту на текст запис з’явиться тут.', 'Нова розмова'],
+  'th-TH': ['ข้อความใหม่', 'กำลังโหลดประวัติการสร้าง…', 'ไม่สามารถโหลดประวัติการสร้างได้', 'ยังไม่มีประวัติการสร้าง', 'หลังจากส่งคำขอข้อความครั้งแรก รายการจะแสดงที่นี่', 'การสนทนาใหม่'],
+  'pl-PL': ['Nowy tekst', 'Ładowanie historii generowania…', 'Nie udało się załadować historii generowania', 'Brak historii generowania', 'Po wysłaniu pierwszego żądania tekstu wpis pojawi się tutaj.', 'Nowa rozmowa'],
+  'ro-RO': ['Text nou', 'Se încarcă istoricul generării…', 'Istoricul generării nu a putut fi încărcat', 'Nu există încă istoric de generare', 'După prima solicitare de text, înregistrarea va apărea aici.', 'Conversație nouă'],
+  'el-GR': ['Νέο κείμενο', 'Φόρτωση ιστορικού δημιουργίας…', 'Δεν ήταν δυνατή η φόρτωση του ιστορικού δημιουργίας', 'Δεν υπάρχει ακόμη ιστορικό δημιουργίας', 'Μετά το πρώτο αίτημα κειμένου, η εγγραφή θα εμφανιστεί εδώ.', 'Νέα συνομιλία'],
+  'cs-CZ': ['Nový text', 'Načítání historie generování…', 'Historii generování se nepodařilo načíst', 'Zatím žádná historie generování', 'Po odeslání prvního požadavku na text se záznam zobrazí zde.', 'Nová konverzace'],
+  'fi-FI': ['Uusi teksti', 'Luontihistoriaa ladataan…', 'Luontihistoriaa ei voitu ladata', 'Ei vielä luontihistoriaa', 'Kun lähetät ensimmäisen tekstipyynnön, tietue näkyy täällä.', 'Uusi keskustelu'],
+  'hi-IN': ['नया टेक्स्ट', 'जनरेशन इतिहास लोड हो रहा है…', 'जनरेशन इतिहास लोड नहीं हो सका', 'अभी कोई जनरेशन इतिहास नहीं है', 'पहला टेक्स्ट अनुरोध भेजने के बाद रिकॉर्ड यहाँ दिखाई देगा।', 'नई बातचीत'],
+};
+
 const regenerateLabels = {
   'en-US': 'Regenerate',
   'zh-CN': '重新生成',
@@ -1293,6 +1321,7 @@ export const workspaceLocalizationOverrides = Object.fromEntries(Object.entries(
   billingKeys.forEach((key, index) => { overrides[key] = billingRows[locale][index]; });
   paymentKeys.forEach((key, index) => { overrides[key] = paymentRows[locale][index]; });
   chatInteractionKeys.forEach((key, index) => { overrides[key] = chatInteractionRows[locale][index]; });
+  chatHistoryKeys.forEach((key, index) => { overrides[key] = chatHistoryRows[locale][index]; });
   overrides['重新生成'] = regenerateLabels[locale];
   Object.assign(overrides, affiliateOverrides[locale] || {});
   teamCoreKeys.forEach((key, index) => { overrides[key] = teamCoreRows[locale][index]; });

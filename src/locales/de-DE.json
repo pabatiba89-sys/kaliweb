@@ -1841,5 +1841,11 @@
   "Sign in to view your team.": "Melden Sie sich an, um Ihr Team anzuzeigen.",
   "Remove this member?": "Dieses Mitglied entfernen?",
   "This only removes team access. Their account, tasks, and history will not be deleted.": "Dadurch wird nur der Teamzugriff entfernt. Konto, Aufgaben und Verlauf bleiben erhalten.",
-  "Remove member": "Mitglied entfernen"
+  "Remove member": "Mitglied entfernen",
+  "新建文案": "Neuer Text",
+  "正在加载生成记录…": "Generierungsverlauf wird geladen…",
+  "生成记录加载失败": "Generierungsverlauf konnte nicht geladen werden",
+  "还没有生成记录": "Noch kein Generierungsverlauf",
+  "发送第一条文案需求后，记录会显示在这里。": "Nach Ihrer ersten Textanfrage erscheint der Eintrag hier.",
+  "新对话": "Neue Unterhaltung"
 }

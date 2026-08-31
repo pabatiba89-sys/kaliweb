@@ -1827,5 +1827,11 @@
   "Sign in to view your team.": "Log in om je team te bekijken.",
   "Remove this member?": "Dit lid verwijderen?",
   "This only removes team access. Their account, tasks, and history will not be deleted.": "Hiermee wordt alleen de teamtoegang verwijderd. Account, taken en geschiedenis blijven behouden.",
-  "Remove member": "Lid verwijderen"
+  "Remove member": "Lid verwijderen",
+  "新建文案": "Nieuwe tekst",
+  "正在加载生成记录…": "Generatiegeschiedenis laden…",
+  "生成记录加载失败": "Generatiegeschiedenis kon niet worden geladen",
+  "还没有生成记录": "Nog geen generatiegeschiedenis",
+  "发送第一条文案需求后，记录会显示在这里。": "Na je eerste tekstverzoek verschijnt het record hier.",
+  "新对话": "Nieuw gesprek"
 }
