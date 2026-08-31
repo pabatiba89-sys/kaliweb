@@ -89,6 +89,7 @@ import {
 } from './api';
 import { getInitialLocale, languages, translateStatic, useAutoTranslate, useLocaleCatalog } from './i18n';
 import { GENERATED_CONTENT_UNAVAILABLE_MESSAGE, isGeneratedMarkupFailure } from './generatedContent';
+import { buildAIVideoPayload } from './aiVideo';
 import { pageConfigs } from './pageConfig';
 import packageJson from '../package.json';
 import './styles.css';
@@ -172,6 +173,7 @@ const navItems = [
   { id: 'trends', label: 'Hot Trends', icon: TrendingUp },
   { id: 'assistant', label: 'AI Assistant', icon: Bot },
   { id: 'video', label: 'Video Studio', icon: Video },
+  { id: 'ai-video', label: 'AI Video Lab', icon: FileVideo },
   { id: 'assets', label: 'Asset Studio', icon: Layers3 },
   { id: 'speech', label: 'Text to Speech', icon: AudioLines },
   { id: 'music', label: 'Music Studio', icon: Music2 },
@@ -508,6 +510,7 @@ function Sidebar({ active, collapsed, onSelect, onToggle }) {
 
 const notificationIconMap = {
   video: Video,
+  aiVideo: FileVideo,
   smartVideo: Clapperboard,
   image: Image,
   human: UserRound,
@@ -3889,6 +3892,462 @@ const getTtsTaskItems = (result = {}) => {
   }
   return [];
 };
+
+const AI_VIDEO_ASPECT_RATIOS = ['9:16', '16:9', '1:1', '4:3', '3:4', '21:9'];
+const AI_VIDEO_FALLBACK_MODELS = [
+  { key: 'seedance-2-fast', name: 'Seedance 2.0 Fast', modes: ['text-to-video', 'first-last-frame', 'reference-to-video'], duration: { min: 4, max: 15 }, resolutions: ['480p', '720p'] },
+  { key: 'seedance-2', name: 'Seedance 2.0', modes: ['text-to-video', 'first-last-frame', 'reference-to-video'], duration: { min: 4, max: 15 }, resolutions: ['480p', '720p', '1080p', '4k'] },
+  { key: 'seedance-2-mini', name: 'Seedance 2.0 Mini', modes: ['text-to-video', 'first-last-frame', 'reference-to-video'], duration: { min: 4, max: 15 }, resolutions: ['480p', '720p'] },
+  { key: 'seedance-2-5', name: 'Seedance 2.5', modes: ['text-to-video', 'first-last-frame', 'reference-to-video'], duration: { min: 4, max: 30 }, resolutions: ['480p', '720p', '1080p'] },
+  { key: 'kling-2.6', name: 'Kling 2.6', modes: ['text-to-video', 'image-to-video'], durations: [5, 10] },
+  { key: 'gemini-omni-1.1-flash', name: 'Gemini Omni 1.1 Flash', modes: ['multimodal'], durations: [4, 6, 8, 10], resolutions: ['360p', '720p', '1080p', '4k'] },
+  { key: 'minimax-h3', name: 'MiniMax H3', modes: ['text-to-video', 'image-to-video', 'reference-to-video'], duration: { min: 4, max: 15 }, resolutions: ['768p', '2k'] },
+];
+const AI_VIDEO_MODE_LABELS = {
+  'text-to-video': '文生视频',
+  'image-to-video': '图生视频',
+  'first-last-frame': '首尾帧',
+  'reference-to-video': '参考生视频',
+  multimodal: '多模态参考',
+};
+const createAIVideoReference = (url, type, extra = {}) => ({
+  id: `${type}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+  url,
+  type,
+  ...extra,
+});
+const getAIVideoModes = (model = {}) => {
+  if (model.key === 'gemini-omni-1.1-flash') return ['text-to-video', 'first-last-frame', 'multimodal'];
+  return Array.isArray(model.modes) && model.modes.length ? model.modes : ['text-to-video'];
+};
+const getAIVideoDefaultDuration = (model = {}) => {
+  if (Array.isArray(model.durations) && model.durations.length) return Number(model.durations[0]);
+  return Number(model.duration?.min) || 5;
+};
+const getAIVideoDefaultResolution = (model = {}) => model.resolutions?.[0] || '';
+const normalizeAIVideoRecord = (item = {}, index = 0) => {
+  const result = videoObject(item.result_data || item.resultData);
+  const resultUrls = item.result_urls || item.resultUrls || result.result_urls || result.resultUrls || [];
+  const videoUrl = getApiMediaUrl(videoText(item.video_url, item.videoUrl, Array.isArray(resultUrls) ? resultUrls[0] : resultUrls));
+  const status = normalizeStatus(videoText(item.status, item.task_status, item.taskStatus));
+  return {
+    id: videoText(item.id, item.video_id, item.videoId, `ai-video-${index}`),
+    videoId: videoText(item.id, item.video_id, item.videoId),
+    taskId: videoText(item.task_id, item.taskId),
+    model: videoText(item.model, item.model_key, item.modelKey, item.provider_model, item.providerModel) || 'AI Video',
+    mode: videoText(item.mode),
+    prompt: videoText(item.prompt, item.input?.prompt) || 'AI 视频任务',
+    duration: Number(item.duration) || 0,
+    resolution: videoText(item.resolution),
+    aspectRatio: videoText(item.aspect_ratio, item.aspectRatio),
+    rawCost: videoText(item.raw_credit_cost, item.rawCreditCost),
+    credits: Number(item.charged_credits ?? item.chargedCredits ?? item.credit_cost?.charged_credits ?? 0),
+    status,
+    settlementStatus: videoText(item.settlement_status, item.settlementStatus),
+    videoUrl,
+    lastFrameUrl: getApiMediaUrl(videoText(item.last_frame_url, item.lastFrameUrl, result.last_frame_url, result.lastFrameUrl)),
+    error: videoText(item.error_msg, item.errorMsg, item.archive_error, item.archiveError),
+    createdAt: videoText(item.created_at, item.createdAt),
+    updatedAt: videoText(item.updated_at, item.updatedAt),
+    raw: item,
+  };
+};
+
+function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling }) {
+  const [tab, setTab] = useState('create');
+  const [models, setModels] = useState(AI_VIDEO_FALLBACK_MODELS);
+  const [pricingVersion, setPricingVersion] = useState('');
+  const [form, setForm] = useState({
+    model: 'seedance-2-fast',
+    mode: 'text-to-video',
+    prompt: '',
+    duration: 5,
+    resolution: '480p',
+    aspectRatio: '9:16',
+    generateAudio: true,
+    firstFrameUrl: '',
+    lastFrameUrl: '',
+    seed: '',
+    characterIds: '',
+    audioIds: '',
+  });
+  const [references, setReferences] = useState({ images: [], videos: [], audios: [] });
+  const [urlDrafts, setUrlDrafts] = useState({ images: '', videos: '', audios: '', videoDuration: '' });
+  const [quote, setQuote] = useState(null);
+  const [tasks, setTasks] = useState([]);
+  const [videos, setVideos] = useState([]);
+  const [taskMeta, setTaskMeta] = useState({ page: 1, total: 0 });
+  const [videoMeta, setVideoMeta] = useState({ page: 1, total: 0 });
+  const [loading, setLoading] = useState({ models: true, tasks: true, videos: true });
+  const [busy, setBusy] = useState('');
+  const [message, setMessage] = useState({ text: '', error: false });
+  const [uploadState, setUploadState] = useState({ key: '', progress: 0 });
+  const [detail, setDetail] = useState(null);
+  const authed = Boolean(getAccessToken());
+  const localeCatalog = useLocaleCatalog(language);
+  const tr = useCallback((value) => translateStatic(value, language, localeCatalog), [language, localeCatalog]);
+  const selectedModel = models.find((model) => model.key === form.model) || models[0] || AI_VIDEO_FALLBACK_MODELS[0];
+  const modes = getAIVideoModes(selectedModel);
+  const isSeedance = form.model.startsWith('seedance-');
+  const isKling = form.model === 'kling-2.6';
+  const isOmni = form.model === 'gemini-omni-1.1-flash';
+  const isH3 = form.model === 'minimax-h3';
+  const usesFrames = form.mode === 'first-last-frame' || form.mode === 'image-to-video';
+  const usesReferences = form.mode === 'reference-to-video' || form.mode === 'multimodal';
+  const omniHasVideo = isOmni && references.videos.length > 0;
+
+  const setNotice = (text, error = false) => setMessage({ text, error });
+  const updateForm = (key, value) => {
+    setForm((current) => ({ ...current, [key]: value }));
+    setQuote(null);
+  };
+
+  const loadModels = useCallback(async () => {
+    setLoading((current) => ({ ...current, models: true }));
+    const result = await apiFetch('/api/ai-video/models', { auth: false, timeoutMs: 12000 });
+    const payload = videoObject(result.data);
+    const nextModels = Array.isArray(payload.models) ? payload.models : [];
+    if (result.ok && nextModels.length) {
+      setModels(nextModels);
+      setPricingVersion(videoText(payload.pricing_version, payload.pricingVersion));
+      setForm((current) => {
+        const activeModel = nextModels.find((model) => model.key === current.model) || nextModels[0];
+        if (activeModel.key === current.model) return current;
+        return {
+          ...current,
+          model: activeModel.key,
+          mode: getAIVideoModes(activeModel)[0],
+          duration: getAIVideoDefaultDuration(activeModel),
+          resolution: getAIVideoDefaultResolution(activeModel),
+        };
+      });
+    } else if (!result.ok) {
+      setNotice(result.message || '模型与价格加载失败，当前显示基础配置。', true);
+    }
+    setLoading((current) => ({ ...current, models: false }));
+  }, []);
+
+  const loadTasks = useCallback(async (page = 1, append = false) => {
+    if (!getAccessToken()) {
+      setTasks([]);
+      setTaskMeta({ page: 1, total: 0 });
+      setLoading((current) => ({ ...current, tasks: false }));
+      return;
+    }
+    setLoading((current) => ({ ...current, tasks: true }));
+    const result = await apiFetch('/api/ai-video/tasks', { params: { page, page_size: 24 }, timeoutMs: 15000 });
+    if (result.ok) {
+      const list = toList(result.data).map(normalizeAIVideoRecord);
+      setTasks((current) => append ? [...current, ...list.filter((item) => !current.some((existing) => existing.taskId === item.taskId))] : list);
+      setTaskMeta({ page, total: Number(result.data?.total) || list.length });
+    } else if (!result.authMissing) {
+      setNotice(result.message || '任务列表加载失败。', true);
+    }
+    setLoading((current) => ({ ...current, tasks: false }));
+  }, []);
+
+  const loadVideos = useCallback(async (page = 1, append = false) => {
+    if (!getAccessToken()) {
+      setVideos([]);
+      setVideoMeta({ page: 1, total: 0 });
+      setLoading((current) => ({ ...current, videos: false }));
+      return;
+    }
+    setLoading((current) => ({ ...current, videos: true }));
+    const result = await apiFetch('/api/ai-video/videos', { params: { page, page_size: 24 }, timeoutMs: 15000 });
+    if (result.ok) {
+      const list = toList(result.data).map(normalizeAIVideoRecord);
+      setVideos((current) => append ? [...current, ...list.filter((item) => !current.some((existing) => existing.videoId === item.videoId))] : list);
+      setVideoMeta({ page, total: Number(result.data?.total) || list.length });
+    } else if (!result.authMissing) {
+      setNotice(result.message || '成品列表加载失败。', true);
+    }
+    setLoading((current) => ({ ...current, videos: false }));
+  }, []);
+
+  useEffect(() => {
+    loadModels();
+  }, [loadModels]);
+
+  useEffect(() => {
+    loadTasks();
+    loadVideos();
+  }, [authVersion, loadTasks, loadVideos]);
+
+  const changeModel = (modelKey) => {
+    const model = models.find((item) => item.key === modelKey) || models[0];
+    setForm((current) => ({
+      ...current,
+      model: model.key,
+      mode: getAIVideoModes(model)[0],
+      duration: getAIVideoDefaultDuration(model),
+      resolution: getAIVideoDefaultResolution(model),
+      generateAudio: true,
+      firstFrameUrl: '',
+      lastFrameUrl: '',
+      seed: '',
+      characterIds: '',
+      audioIds: '',
+    }));
+    setReferences({ images: [], videos: [], audios: [] });
+    setQuote(null);
+    setNotice('');
+  };
+
+  const addReference = (type, reference) => {
+    setReferences((current) => ({ ...current, [type]: [...current[type], reference] }));
+    setQuote(null);
+  };
+  const removeReference = (type, id) => {
+    setReferences((current) => ({ ...current, [type]: current[type].filter((item) => item.id !== id) }));
+    setQuote(null);
+  };
+  const addReferenceUrl = (type) => {
+    const url = urlDrafts[type].trim();
+    if (!/^https?:\/\//i.test(url)) {
+      setNotice('请输入有效的 HTTP/HTTPS 素材地址。', true);
+      return;
+    }
+    if (type === 'videos') {
+      const duration = Number(urlDrafts.videoDuration);
+      if (!(duration > 0)) {
+        setNotice('添加参考视频时必须填写视频时长。', true);
+        return;
+      }
+      addReference(type, createAIVideoReference(url, 'video', { name: '参考视频', duration }));
+      setUrlDrafts((current) => ({ ...current, videos: '', videoDuration: '' }));
+    } else {
+      addReference(type, createAIVideoReference(url, type === 'images' ? 'image' : 'audio', { name: type === 'images' ? '参考图片' : '参考音频' }));
+      setUrlDrafts((current) => ({ ...current, [type]: '' }));
+    }
+    setNotice('');
+  };
+
+  const uploadReference = async (file, type, frameKey = '') => {
+    if (!file) return;
+    if (!authed) {
+      onLogin();
+      return;
+    }
+    const uploadKey = frameKey || type;
+    setUploadState({ key: uploadKey, progress: 0 });
+    setNotice('');
+    const duration = type === 'videos' ? await getVideoDuration(file) : type === 'audios' ? await getAudioDuration(file) : 0;
+    const result = await uploadFile(file, {
+      source: 'ai-video-reference',
+      timeoutMs: 300000,
+      onProgress: (progress) => setUploadState({ key: uploadKey, progress }),
+    });
+    const url = getUploadedUrl(result);
+    setUploadState({ key: '', progress: 0 });
+    if (!result.ok || !url) {
+      setNotice(result.message || '参考素材上传失败。', true);
+      return;
+    }
+    if (frameKey) {
+      updateForm(frameKey, url);
+    } else {
+      addReference(type, createAIVideoReference(url, type.slice(0, -1), { name: file.name, duration }));
+    }
+    setNotice('素材上传完成。');
+  };
+
+  const buildPayload = () => buildAIVideoPayload(form, references);
+
+  const requestQuote = async ({ silent = false } = {}) => {
+    if (!authed) {
+      if (!silent) onLogin();
+      return null;
+    }
+    if (!form.prompt.trim()) {
+      if (!silent) setNotice('请先输入视频画面与动作描述。', true);
+      return null;
+    }
+    setBusy('quote');
+    if (!silent) setNotice('');
+    const result = await apiFetch('/api/ai-video/quote', { method: 'POST', body: buildPayload(), timeoutMs: 20000 });
+    setBusy('');
+    if (!result.ok) {
+      setQuote(null);
+      if (!silent) setNotice(result.authMissing ? '请先登录后再试算积分。' : result.message || '积分试算失败。', true);
+      return null;
+    }
+    setQuote(result.data || {});
+    if (!silent) setNotice('积分试算已更新。');
+    return result.data || {};
+  };
+
+  const createVideo = async () => {
+    if (!authed) {
+      onLogin();
+      return;
+    }
+    setNotice('');
+    const nextQuote = await requestQuote({ silent: true });
+    if (!nextQuote) {
+      setNotice('无法完成积分试算，请检查参数后重试。', true);
+      return;
+    }
+    if (nextQuote.affordable === false) {
+      setNotice(`${tr('当前余额不足，需要')} ${nextQuote.charged_credits} ${tr('积分。')}`, true);
+      return;
+    }
+    setBusy('create');
+    const result = await apiFetch('/api/ai-video/create', { method: 'POST', body: buildPayload(), timeoutMs: 90000 });
+    setBusy('');
+    if (!result.ok) {
+      setNotice(result.message || 'AI 视频任务创建失败。', true);
+      return;
+    }
+    const created = normalizeAIVideoRecord(result.data || {});
+    setTasks((current) => [created, ...current.filter((item) => item.taskId !== created.taskId)]);
+    setTaskMeta((current) => ({ ...current, total: current.total + 1 }));
+    setNotice(`${tr('任务已创建，已预扣')} ${created.credits || nextQuote.charged_credits} ${tr('积分。')}`);
+    setTab('tasks');
+  };
+
+  const refreshTask = useCallback(async (task, quiet = false) => {
+    if (!task?.taskId) return null;
+    if (!quiet) setBusy(`task-${task.taskId}`);
+    const result = await apiFetch(`/api/ai-video/tasks/${encodeURIComponent(task.taskId)}`, { params: { refresh: 1 }, timeoutMs: 50000 });
+    if (!quiet) setBusy('');
+    if (!result.ok && !result.data) {
+      if (!quiet) setNotice(result.message || '任务刷新失败。', true);
+      return null;
+    }
+    const next = normalizeAIVideoRecord(result.data || task.raw);
+    setTasks((current) => current.map((item) => item.taskId === next.taskId ? next : item));
+    if (next.status.key === 'success') loadVideos();
+    if (!quiet) setNotice(next.status.key === 'processing' ? '任务仍在生成中。' : next.status.key === 'failed' ? next.error || '任务生成失败，积分会按规则退回。' : '视频已生成并完成归档。', next.status.key === 'failed');
+    return next;
+  }, [loadVideos]);
+
+  useEffect(() => {
+    if (tab !== 'tasks') return undefined;
+    const pending = tasks.filter((task) => task.status.key === 'processing').slice(0, 3);
+    if (!pending.length) return undefined;
+    const timer = window.setInterval(() => pending.forEach((task) => refreshTask(task, true)), 30000);
+    return () => window.clearInterval(timer);
+  }, [refreshTask, tab, tasks]);
+
+  const openDetail = async (record, kind) => {
+    setDetail({ ...record, kind, loading: true });
+    const path = kind === 'video'
+      ? `/api/ai-video/videos/${encodeURIComponent(record.videoId)}`
+      : `/api/ai-video/tasks/${encodeURIComponent(record.taskId)}`;
+    const result = await apiFetch(path, { params: kind === 'task' ? { refresh: 0 } : undefined, timeoutMs: 15000 });
+    if (!result.ok) {
+      setDetail((current) => ({ ...current, loading: false, error: result.message || '详情加载失败。' }));
+      return;
+    }
+    setDetail({ ...normalizeAIVideoRecord(result.data || {}), kind, loading: false });
+  };
+
+  const renderReferenceList = (type, accept, label) => (
+    <div className="ai-video-reference-group">
+      <div className="ai-video-reference-group__head"><strong>{label}</strong><small>{references[type].length} {tr('个')}</small></div>
+      <div className={`ai-video-url-add${type === 'videos' ? ' has-duration' : ''}`}>
+        <input value={urlDrafts[type]} onChange={(event) => setUrlDrafts((current) => ({ ...current, [type]: event.target.value }))} placeholder="粘贴 HTTP/HTTPS 地址" />
+        {type === 'videos' && <input type="number" min="0.1" step="0.1" value={urlDrafts.videoDuration} onChange={(event) => setUrlDrafts((current) => ({ ...current, videoDuration: event.target.value }))} placeholder="秒" />}
+        <button type="button" onClick={() => addReferenceUrl(type)}><Plus size={15} />添加</button>
+      </div>
+      <label className="ai-video-upload-button"><Upload size={15} />{uploadState.key === type ? `${tr('上传')} ${uploadState.progress}%` : '本地上传'}<input type="file" accept={accept} onChange={(event) => { uploadReference(event.target.files?.[0], type); event.target.value = ''; }} /></label>
+      {references[type].length > 0 && <div className="ai-video-reference-list">{references[type].map((item) => <div key={item.id}><span>{type === 'images' ? <Image size={16} /> : type === 'videos' ? <FileVideo size={16} /> : <AudioLines size={16} />}</span><p><strong>{item.name || item.url}</strong><small>{type === 'videos' && item.duration ? `${Number(item.duration).toFixed(1)} ${tr('秒')} · ` : ''}{item.url}</small></p><button type="button" onClick={() => removeReference(type, item.id)} aria-label="删除素材"><X size={15} /></button></div>)}</div>}
+    </div>
+  );
+
+  const durationOptions = Array.isArray(selectedModel.durations) ? selectedModel.durations : [];
+  const rawPricing = videoObject(selectedModel.pricing);
+  const pricingLines = (() => {
+    if (isSeedance) return Object.entries(rawPricing).map(([resolution, price]) => `${resolution.toUpperCase()} · ${tr('输出')} ${price.output_per_second} ${tr('积分/秒')}${price.input_video_per_second ? ` · ${tr('输入视频')} ${price.input_video_per_second} ${tr('积分/秒')}` : ''}`);
+    if (isKling) return Object.entries(rawPricing).map(([duration, price]) => `${duration} ${tr('秒')} · ${tr('无声')} ${price.without_audio} ${tr('积分')} · ${tr('有声')} ${price.with_audio} ${tr('积分')}`);
+    if (isH3) return Object.entries(rawPricing).map(([resolution, price]) => `${resolution.toUpperCase()} · ${price.per_second} ${tr('积分/秒')} · ${tr('超出 5 张后每张')} ${price.extra_image} ${tr('积分')}`);
+    if (isOmni) {
+      const lines = ['standard', '4k'].filter((tier) => rawPricing[tier]).map((tier) => `${tier === '4k' ? '4K' : tr('标准')} · ${Object.entries(rawPricing[tier]).map(([seconds, credits]) => `${seconds} ${tr('秒')} ${credits} ${tr('积分')}`).join(' · ')}`);
+      if (rawPricing.with_video) lines.push(`${tr('视频输入')} · ${tr('标准')} ${rawPricing.with_video.standard} ${tr('积分')} · 4K ${rawPricing.with_video['4k']} ${tr('积分')}`);
+      return lines;
+    }
+    return [];
+  })();
+
+  return (
+    <div className="ai-video-page">
+      <section className="ai-video-hero">
+        <div><span>ONE PROMPT · MULTIPLE VIDEO MODELS</span><h1>AI Video Lab</h1><p>选择模型与参考素材，先试算整数积分，再提交生成。失败任务会按规则退回预扣积分。</p></div>
+        <div className="ai-video-hero__stats"><div><strong>{models.length}</strong><span>可用模型</span></div><div><strong>{tasks.filter((item) => item.status.key === 'processing').length}</strong><span>生成中</span></div><div><strong>{videoMeta.total || videos.length}</strong><span>已完成</span></div></div>
+      </section>
+
+      <nav className="ai-video-tabs" aria-label="AI 视频页面">
+        {[['create', '创建视频', Sparkles], ['tasks', '生成任务', Clock3], ['videos', '成片库', GalleryVerticalEnd]].map(([key, label, Icon]) => <button type="button" key={key} className={tab === key ? 'is-active' : ''} onClick={() => setTab(key)}><Icon size={17} /><span>{label}</span>{key === 'tasks' && taskMeta.total > 0 ? <em>{taskMeta.total}</em> : null}</button>)}
+      </nav>
+
+      {message.text && <div className={`ai-video-message${message.error ? ' is-error' : ''}`} role="status">{message.error ? <AlertCircle size={17} /> : <CheckCircle2 size={17} />}<span>{message.text}</span><button type="button" onClick={() => setNotice('')} aria-label="关闭"><X size={15} /></button></div>}
+
+      {tab === 'create' ? (
+        <div className="ai-video-create-grid">
+          <section className="ai-video-compose-card">
+            <div className="ai-video-section-head"><span>01</span><div><strong>选择模型与生成方式</strong><small>价格和可用参数来自当前模型配置</small></div>{loading.models && <RefreshCw className="is-spinning" size={17} />}</div>
+            <div className="ai-video-model-row">
+              <label><span>模型</span><select translate="no" value={form.model} onChange={(event) => changeModel(event.target.value)}>{models.map((model) => <option key={model.key} value={model.key}>{model.name}</option>)}</select></label>
+              <div className="ai-video-mode-switch"><span>生成方式</span><div>{modes.map((mode) => <button type="button" key={mode} className={form.mode === mode ? 'is-active' : ''} onClick={() => updateForm('mode', mode)}>{AI_VIDEO_MODE_LABELS[mode] || mode}</button>)}</div></div>
+            </div>
+
+            <div className="ai-video-section-head"><span>02</span><div><strong>描述你想要的画面</strong><small>建议写清主体、动作、环境、镜头和氛围</small></div><em>{form.prompt.length}</em></div>
+            <textarea className="ai-video-prompt" value={form.prompt} onChange={(event) => updateForm('prompt', event.target.value)} placeholder="例如：A woman walking through a neon city street, cinematic tracking shot, reflections on wet pavement..." />
+
+            <div className="ai-video-section-head"><span>03</span><div><strong>生成参数</strong><small>{selectedModel.name}</small></div></div>
+            <div className="ai-video-settings-grid">
+              {!omniHasVideo && <label><span>时长</span>{durationOptions.length ? <select value={form.duration} onChange={(event) => updateForm('duration', Number(event.target.value))}>{durationOptions.map((value) => <option key={value} value={value}>{value} {tr('秒')}</option>)}</select> : <div className="ai-video-range"><input type="range" min={selectedModel.duration?.min || 4} max={selectedModel.duration?.max || 15} step="1" value={form.duration} onChange={(event) => updateForm('duration', Number(event.target.value))} /><strong>{form.duration} {tr('秒')}</strong></div>}</label>}
+              {omniHasVideo && <div className="ai-video-static-field"><span>时长</span><strong>由输入视频决定</strong></div>}
+              {selectedModel.resolutions?.length > 0 && <label><span>分辨率</span><select value={form.resolution} onChange={(event) => updateForm('resolution', event.target.value)}>{selectedModel.resolutions.map((value) => <option key={value} value={value}>{String(value).toUpperCase()}</option>)}</select></label>}
+              {!(usesFrames && isH3) && <label><span>画面比例</span><select value={form.aspectRatio} onChange={(event) => updateForm('aspectRatio', event.target.value)}>{AI_VIDEO_ASPECT_RATIOS.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>}
+              {(isSeedance || isKling) ? <label className="ai-video-toggle-field"><span>生成声音</span><button type="button" className={form.generateAudio ? 'is-active' : ''} onClick={() => updateForm('generateAudio', !form.generateAudio)}><i />{form.generateAudio ? '开启' : '关闭'}</button></label> : <div className="ai-video-static-field"><span>声音</span><strong>模型默认生成</strong></div>}
+              {isOmni && <label><span>Seed（可选）</span><input type="number" value={form.seed} onChange={(event) => updateForm('seed', event.target.value)} placeholder="随机" /></label>}
+            </div>
+
+            {(usesFrames || usesReferences) && <div className="ai-video-reference-panel">
+              <div className="ai-video-section-head"><span>04</span><div><strong>参考素材</strong><small>{usesFrames ? '上传首帧，可按模型能力补充尾帧' : '图片、视频和音频会共同影响生成结果'}</small></div></div>
+              {usesFrames ? <div className="ai-video-frame-grid">
+                {[['firstFrameUrl', '首帧', true], ['lastFrameUrl', '尾帧', !isKling]].filter(([, , visible]) => visible).map(([key, label]) => <div key={key}><span>{label}</span>{form[key] ? <figure><img src={form[key]} alt="" /><button type="button" onClick={() => updateForm(key, '')}><Trash2 size={15} />移除</button></figure> : <><input value={form[key]} onChange={(event) => updateForm(key, event.target.value)} placeholder="粘贴图片地址" /><label><Upload size={16} />{uploadState.key === key ? `${tr('上传')} ${uploadState.progress}%` : `${tr('上传')} ${tr(label)}`}<input type="file" accept="image/*" onChange={(event) => { uploadReference(event.target.files?.[0], 'images', key); event.target.value = ''; }} /></label></>}</div>)}
+              </div> : <div className="ai-video-reference-columns">
+                {renderReferenceList('images', 'image/*', '参考图片')}
+                {renderReferenceList('videos', 'video/*', '参考视频')}
+                {!isOmni && renderReferenceList('audios', 'audio/*', '参考音频')}
+                {isOmni && <div className="ai-video-reference-group ai-video-id-fields"><label><span>Character IDs（逗号分隔）</span><input value={form.characterIds} onChange={(event) => updateForm('characterIds', event.target.value)} placeholder="最多 3 个" /></label><label><span>Audio IDs（逗号分隔）</span><input value={form.audioIds} onChange={(event) => updateForm('audioIds', event.target.value)} placeholder="最多 3 个" /></label></div>}
+              </div>}
+            </div>}
+          </section>
+
+          <aside className="ai-video-quote-card">
+            <div className="ai-video-section-head"><span>05</span><div><strong>积分试算</strong><small>{pricingVersion || '所有计费项合计后向上取整'}</small></div></div>
+            <div className="ai-video-quote-model"><span>{selectedModel.name}</span><strong>{AI_VIDEO_MODE_LABELS[form.mode] || form.mode}</strong></div>
+            <dl className="ai-video-quote-spec"><div><dt>输出</dt><dd>{omniHasVideo ? '跟随输入视频' : `${form.duration} ${tr('秒')}`}{form.resolution ? ` · ${String(form.resolution).toUpperCase()}` : ''}</dd></div><div><dt>比例</dt><dd>{form.aspectRatio || '自适应'}</dd></div><div><dt>参考素材</dt><dd>{references.images.length + references.videos.length + references.audios.length + Number(Boolean(form.firstFrameUrl)) + Number(Boolean(form.lastFrameUrl))} {tr('个')}</dd></div></dl>
+            <div className="ai-video-quote-result">{quote ? <><span>本次预计扣除</span><strong>{quote.charged_credits}<small>{tr('积分')}</small></strong><p>{tr('原始费用')} {quote.raw_credit_cost}, {tr('最终统一向上取整')}</p><div><span>当前余额</span><b>{quote.credits_remaining}</b></div>{quote.affordable === false && <em>余额不足，请先购买积分</em>}</> : <><Coins size={32} /><strong>尚未试算</strong><p>填写参数后获取本次生成的准确整数积分。</p></>}</div>
+            {pricingLines.length > 0 && <details className="ai-video-pricing-details"><summary>查看当前模型价格</summary><ul>{pricingLines.map((line) => <li key={line}>{line}</li>)}</ul></details>}
+            <button type="button" className="outline-button ai-video-quote-button" onClick={() => requestQuote()} disabled={Boolean(busy) || loading.models}><Coins size={17} />{busy === 'quote' ? '试算中…' : '试算积分'}</button>
+            <button type="button" className="primary-button ai-video-create-button" onClick={createVideo} disabled={Boolean(busy) || Boolean(uploadState.key)}><Sparkles size={18} />{busy === 'create' ? '正在创建任务…' : '创建 AI 视频'}</button>
+            {quote?.affordable === false && <button type="button" className="ai-video-buy-link" onClick={onOpenBilling}>购买积分</button>}
+            <p className="ai-video-safety-note"><ShieldCheck size={14} />仅上传你拥有或已获授权的素材；任务失败时按后端结算状态幂等退款。</p>
+          </aside>
+        </div>
+      ) : tab === 'tasks' ? (
+        <section className="ai-video-library">
+          <header><div><span>GENERATION QUEUE</span><h2>生成任务</h2><p>任务完成后会自动归档，并出现在成片库。</p></div><button type="button" className="outline-button" onClick={() => loadTasks()} disabled={loading.tasks}><RefreshCw className={loading.tasks ? 'is-spinning' : ''} size={16} />刷新全部</button></header>
+          {!authed ? <div className="ai-video-empty"><FileVideo size={34} /><strong>登录后查看任务</strong><button type="button" className="primary-button" onClick={onLogin}>去登录</button></div> : loading.tasks && !tasks.length ? <div className="ai-video-empty"><RefreshCw className="is-spinning" size={30} /><strong>正在加载任务…</strong></div> : tasks.length ? <div className="ai-video-task-list">{tasks.map((task) => <article className={`ai-video-task is-${task.status.key}`} key={task.taskId || task.id}><button type="button" className="ai-video-task__main" onClick={() => openDetail(task, 'task')}><span>{task.status.key === 'processing' ? <RefreshCw className="is-spinning" size={20} /> : task.status.key === 'failed' ? <AlertCircle size={20} /> : <CheckCircle2 size={20} />}</span><div><strong>{task.prompt}</strong><small>{[task.model, AI_VIDEO_MODE_LABELS[task.mode] || task.mode, task.duration ? `${task.duration} ${tr('秒')}` : '', task.resolution?.toUpperCase(), task.createdAt].filter(Boolean).join(' · ')}</small>{task.error && <p>{task.error}</p>}</div><em className={`state-dot state-dot--${task.status.key}`}>{task.status.label}</em></button><div className="ai-video-task__cost"><span>{task.credits || '—'} {tr('积分')}</span><button type="button" onClick={() => refreshTask(task)} disabled={busy === `task-${task.taskId}` || task.status.key !== 'processing'}><RefreshCw className={busy === `task-${task.taskId}` ? 'is-spinning' : ''} size={15} />刷新</button></div></article>)}</div> : <div className="ai-video-empty"><Clock3 size={34} /><strong>还没有 AI 视频任务</strong><p>创建后会在这里显示生成与归档进度。</p><button type="button" className="primary-button" onClick={() => setTab('create')}>创建视频</button></div>}
+          {tasks.length < taskMeta.total && <button type="button" className="load-more-button" onClick={() => loadTasks(taskMeta.page + 1, true)} disabled={loading.tasks}>{loading.tasks ? '加载中…' : '加载更多'}</button>}
+        </section>
+      ) : (
+        <section className="ai-video-library">
+          <header><div><span>ARCHIVED OUTPUTS</span><h2>成片库</h2><p>这里只展示已成功归档的永久视频。</p></div><button type="button" className="outline-button" onClick={() => loadVideos()} disabled={loading.videos}><RefreshCw className={loading.videos ? 'is-spinning' : ''} size={16} />刷新</button></header>
+          {!authed ? <div className="ai-video-empty"><GalleryVerticalEnd size={34} /><strong>登录后查看成片</strong><button type="button" className="primary-button" onClick={onLogin}>去登录</button></div> : loading.videos && !videos.length ? <div className="ai-video-empty"><RefreshCw className="is-spinning" size={30} /><strong>正在加载成片…</strong></div> : videos.length ? <div className="ai-video-output-grid">{videos.map((video) => <article key={video.videoId || video.id}><button type="button" className="ai-video-output__preview" onClick={() => openDetail(video, 'video')}>{video.videoUrl ? <video src={video.videoUrl} muted playsInline preload="metadata" /> : video.lastFrameUrl ? <img src={video.lastFrameUrl} alt="" /> : <FileVideo size={34} />}<span><Play size={18} /></span></button><div><strong>{video.prompt}</strong><small>{[video.model, video.duration ? `${video.duration} ${tr('秒')}` : '', video.resolution?.toUpperCase(), `${video.credits} ${tr('积分')}`].filter(Boolean).join(' · ')}</small><p>{video.createdAt}</p></div><footer><button type="button" onClick={() => openDetail(video, 'video')}><Eye size={15} />查看</button>{video.videoUrl && <a href={video.videoUrl} download target="_blank" rel="noreferrer"><Download size={15} />下载</a>}</footer></article>)}</div> : <div className="ai-video-empty"><GalleryVerticalEnd size={34} /><strong>还没有已完成视频</strong><p>任务生成并归档成功后会自动出现在这里。</p><button type="button" className="primary-button" onClick={() => setTab('create')}>创建视频</button></div>}
+          {videos.length < videoMeta.total && <button type="button" className="load-more-button" onClick={() => loadVideos(videoMeta.page + 1, true)} disabled={loading.videos}>{loading.videos ? '加载中…' : '加载更多'}</button>}
+        </section>
+      )}
+
+      {detail && <div className="ai-video-modal-layer" onMouseDown={(event) => { if (event.target === event.currentTarget) setDetail(null); }}><section className="ai-video-modal" role="dialog" aria-modal="true" aria-label="AI 视频详情"><header><div><span>{detail.kind === 'video' ? 'VIDEO OUTPUT' : 'GENERATION TASK'}</span><h2>{detail.kind === 'video' ? '成片详情' : '任务详情'}</h2></div><button type="button" onClick={() => setDetail(null)} aria-label="关闭"><X size={18} /></button></header>{detail.loading ? <div className="ai-video-modal-loading"><RefreshCw className="is-spinning" size={28} />正在加载详情…</div> : <>{detail.videoUrl && <video className="ai-video-modal-video" src={detail.videoUrl} controls playsInline preload="metadata" poster={detail.lastFrameUrl || undefined} />}<div className="ai-video-modal-copy"><strong>{detail.prompt}</strong><span className={`state-dot state-dot--${detail.status.key}`}>{detail.status.label}</span></div><dl><div><dt>模型</dt><dd>{detail.model}</dd></div><div><dt>生成方式</dt><dd>{AI_VIDEO_MODE_LABELS[detail.mode] || detail.mode || '—'}</dd></div><div><dt>规格</dt><dd>{[detail.duration ? `${detail.duration} 秒` : '', detail.resolution?.toUpperCase(), detail.aspectRatio].filter(Boolean).join(' · ') || '—'}</dd></div><div><dt>积分</dt><dd>{detail.credits || '—'}</dd></div><div><dt>结算状态</dt><dd>{detail.settlementStatus || '—'}</dd></div><div><dt>创建时间</dt><dd>{detail.createdAt || '—'}</dd></div></dl>{(detail.error || detail.errorMessage) && <p className="ai-video-modal-error">{detail.error || detail.errorMessage}</p>}<footer>{detail.kind === 'task' && detail.status.key === 'processing' && <button type="button" className="outline-button" onClick={async () => { const next = await refreshTask(detail); if (next) setDetail({ ...next, kind: 'task', loading: false }); }}><RefreshCw size={16} />刷新任务</button>}{detail.videoUrl && <a className="primary-button" href={detail.videoUrl} download target="_blank" rel="noreferrer"><Download size={16} />下载视频</a>}</footer></>}</section></div>}
+    </div>
+  );
+}
 
 function TextToSpeechPage({ authVersion, onLogin, onOpenAssets }) {
   const [voices, setVoices] = useState([]);
@@ -11525,6 +11984,7 @@ const getInitialWorkspacePage = () => {
   const page = new URLSearchParams(window.location.search).get('page');
   if (page === 'password-reset') return 'password-reset';
   if (page === 'video') return 'video';
+  if (page === 'ai-video') return 'ai-video';
   if (page === 'speech') return 'speech';
   if (page === 'presets') return 'presets';
   return 'home';
@@ -11599,6 +12059,7 @@ const formatNotificationTime = (timestamp) => {
 
 const notificationKindConfig = {
   video: { label: '视频制作', destination: 'video' },
+  aiVideo: { label: 'AI 视频', destination: 'ai-video' },
   smartVideo: { label: '智能成片', destination: 'video' },
   image: { label: '图片生成', destination: 'image' },
   human: { label: '数字人训练', destination: 'assets', assetMode: 'video' },
@@ -11612,6 +12073,7 @@ const getOfficialNotificationKind = (item = {}) => {
   const taskType = textOf(item.task_type || item.taskType).toLowerCase();
   const notificationType = textOf(item.notification_type || item.notificationType).toLowerCase();
   if (taskType === 'human_image') return 'imageHuman';
+  if (taskType === 'ai_video' || notificationType === 'ai_video') return 'aiVideo';
   if (['video_mix', 'video_clip'].includes(taskType) || notificationType === 'video_mix') return 'smartVideo';
   if (notificationType === 'image' || taskType === 'gpt_image_2_image') return 'image';
   if (taskType === 'text_to_speech') return 'speech';
@@ -11627,6 +12089,7 @@ const getOfficialNotificationDestination = (item = {}, kind) => {
   if (/image-generation/.test(path)) return { destination: 'image', assetMode: '' };
   if (/music-generated/.test(path)) return { destination: 'music', assetMode: '' };
   if (/text-to-speech/.test(path)) return { destination: 'speech', assetMode: '' };
+  if (/ai-video/.test(path)) return { destination: 'ai-video', assetMode: '' };
   if (/aihuman\?type=voice/.test(path)) return { destination: 'assets', assetMode: 'voice' };
   if (/aihuman\?type=video|mix-video-production/.test(path)) return { destination: 'video', assetMode: '' };
   if (/aihuman/.test(path)) return { destination: 'assets', assetMode: kind === 'imageHuman' ? 'image' : 'video' };
@@ -11854,6 +12317,8 @@ export default function App() {
       url.searchParams.set('page', 'password-reset');
     } else if (id === 'speech') {
       url.searchParams.set('page', 'speech');
+    } else if (id === 'ai-video') {
+      url.searchParams.set('page', 'ai-video');
     } else if (id === 'presets') {
       url.searchParams.set('page', 'presets');
     } else {
@@ -12151,6 +12616,13 @@ export default function App() {
                   setAssetInitialMode('voice');
                   setActive('assets');
                 }}
+              />
+            ) : active === 'ai-video' ? (
+              <AIVideoLabPage
+                authVersion={authVersion}
+                language={language}
+                onLogin={() => setLoginOpen(true)}
+                onOpenBilling={() => selectNav('billing')}
               />
             ) : active === 'video' ? (
               <VideoStudioPage

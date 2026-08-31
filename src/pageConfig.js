@@ -23,6 +23,16 @@ export const pageConfigs = {
     ],
     actions: ['New video', 'Schedule publish', 'Assign team'],
   },
+  'ai-video': {
+    title: 'AI Video Lab',
+    description: 'Generate videos with multiple AI models, estimate credits before creation, and manage finished outputs.',
+    endpoints: [
+      { label: 'AI video models', path: '/api/ai-video/models', auth: false },
+      { label: 'AI video tasks', path: '/api/ai-video/tasks' },
+      { label: 'Finished AI videos', path: '/api/ai-video/videos' },
+    ],
+    actions: ['Create AI video', 'Estimate credits', 'Download video'],
+  },
   assets: {
     title: 'Asset Studio',
     description: 'Train digital humans from profile videos or generated images, then manage cloned voices and shared assets.',
