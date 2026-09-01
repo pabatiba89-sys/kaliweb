@@ -3974,6 +3974,8 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling }) {
   const [references, setReferences] = useState({ images: [], videos: [], audios: [] });
   const [urlDrafts, setUrlDrafts] = useState({ images: '', videos: '', audios: '', videoDuration: '' });
   const [quote, setQuote] = useState(null);
+  const [quoteLoading, setQuoteLoading] = useState(false);
+  const [quoteError, setQuoteError] = useState('');
   const [tasks, setTasks] = useState([]);
   const [videos, setVideos] = useState([]);
   const [taskMeta, setTaskMeta] = useState({ page: 1, total: 0 });
@@ -3983,6 +3985,7 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling }) {
   const [message, setMessage] = useState({ text: '', error: false });
   const [uploadState, setUploadState] = useState({ key: '', progress: 0 });
   const [detail, setDetail] = useState(null);
+  const quoteRequestRef = useRef(0);
   const authed = Boolean(getAccessToken());
   const localeCatalog = useLocaleCatalog(language);
   const tr = useCallback((value) => translateStatic(value, language, localeCatalog), [language, localeCatalog]);
@@ -4000,6 +4003,7 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling }) {
   const updateForm = (key, value) => {
     setForm((current) => ({ ...current, [key]: value }));
     setQuote(null);
+    setQuoteError('');
   };
 
   const loadModels = useCallback(async () => {
@@ -4091,16 +4095,19 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling }) {
     }));
     setReferences({ images: [], videos: [], audios: [] });
     setQuote(null);
+    setQuoteError('');
     setNotice('');
   };
 
   const addReference = (type, reference) => {
     setReferences((current) => ({ ...current, [type]: [...current[type], reference] }));
     setQuote(null);
+    setQuoteError('');
   };
   const removeReference = (type, id) => {
     setReferences((current) => ({ ...current, [type]: current[type].filter((item) => item.id !== id) }));
     setQuote(null);
+    setQuoteError('');
   };
   const addReferenceUrl = (type) => {
     const url = urlDrafts[type].trim();
@@ -4163,12 +4170,16 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling }) {
       if (!silent) setNotice('请先输入视频画面与动作描述。', true);
       return null;
     }
-    setBusy('quote');
+    const requestId = ++quoteRequestRef.current;
+    setQuoteLoading(true);
+    setQuoteError('');
     if (!silent) setNotice('');
     const result = await apiFetch('/api/ai-video/quote', { method: 'POST', body: buildPayload(), timeoutMs: 20000 });
-    setBusy('');
+    if (requestId !== quoteRequestRef.current) return null;
+    setQuoteLoading(false);
     if (!result.ok) {
       setQuote(null);
+      setQuoteError(result.authMissing ? '登录后自动计算积分。' : result.message || '积分自动计算失败，请检查参数。');
       if (!silent) setNotice(result.authMissing ? '请先登录后再试算积分。' : result.message || '积分试算失败。', true);
       return null;
     }
@@ -4177,22 +4188,59 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling }) {
     return result.data || {};
   };
 
+  useEffect(() => {
+    if (!authed || loading.models || !form.prompt.trim()) {
+      quoteRequestRef.current += 1;
+      setQuoteLoading(false);
+      setQuoteError('');
+      if (!authed) setQuote(null);
+      return undefined;
+    }
+
+    const requestId = ++quoteRequestRef.current;
+    const timer = window.setTimeout(async () => {
+      if (requestId !== quoteRequestRef.current) return;
+      setQuoteLoading(true);
+      setQuoteError('');
+      const result = await apiFetch('/api/ai-video/quote', {
+        method: 'POST',
+        body: buildAIVideoPayload(form, references),
+        timeoutMs: 20000,
+      });
+      if (requestId !== quoteRequestRef.current) return;
+      setQuoteLoading(false);
+      if (result.ok) {
+        setQuote(result.data || {});
+        return;
+      }
+      setQuote(null);
+      setQuoteError(result.authMissing ? '登录后自动计算积分。' : result.message || '积分自动计算失败，请检查参数。');
+    }, 600);
+
+    return () => {
+      window.clearTimeout(timer);
+      if (quoteRequestRef.current === requestId) quoteRequestRef.current += 1;
+    };
+  }, [authed, authVersion, form, loading.models, references]);
+
   const createVideo = async () => {
     if (!authed) {
       onLogin();
       return;
     }
     setNotice('');
+    setBusy('create');
     const nextQuote = await requestQuote({ silent: true });
     if (!nextQuote) {
+      setBusy('');
       setNotice('无法完成积分试算，请检查参数后重试。', true);
       return;
     }
     if (nextQuote.affordable === false) {
+      setBusy('');
       setNotice(`${tr('当前余额不足，需要')} ${nextQuote.charged_credits} ${tr('积分。')}`, true);
       return;
     }
-    setBusy('create');
     const result = await apiFetch('/api/ai-video/create', { method: 'POST', body: buildPayload(), timeoutMs: 90000 });
     setBusy('');
     if (!result.ok) {
@@ -4273,7 +4321,7 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling }) {
   return (
     <div className="ai-video-page">
       <section className="ai-video-hero">
-        <div><span>ONE PROMPT · MULTIPLE VIDEO MODELS</span><h1>AI Video Lab</h1><p>选择模型与参考素材，先试算整数积分，再提交生成。失败任务会按规则退回预扣积分。</p></div>
+        <div><span>ONE PROMPT · MULTIPLE VIDEO MODELS</span><h1>AI Video Lab</h1><p>选择模型与参考素材，系统自动计算整数积分，再提交生成。失败任务会按规则退回预扣积分。</p></div>
         <div className="ai-video-hero__stats"><div><strong>{models.length}</strong><span>可用模型</span></div><div><strong>{tasks.filter((item) => item.status.key === 'processing').length}</strong><span>生成中</span></div><div><strong>{videoMeta.total || videos.length}</strong><span>已完成</span></div></div>
       </section>
 
@@ -4322,9 +4370,8 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling }) {
             <div className="ai-video-section-head"><span>05</span><div><strong>积分试算</strong><small>{pricingVersion || '所有计费项合计后向上取整'}</small></div></div>
             <div className="ai-video-quote-model"><span>{selectedModel.name}</span><strong>{AI_VIDEO_MODE_LABELS[form.mode] || form.mode}</strong></div>
             <dl className="ai-video-quote-spec"><div><dt>输出</dt><dd>{omniHasVideo ? '跟随输入视频' : `${form.duration} ${tr('秒')}`}{form.resolution ? ` · ${String(form.resolution).toUpperCase()}` : ''}</dd></div><div><dt>比例</dt><dd>{form.aspectRatio || '自适应'}</dd></div><div><dt>参考素材</dt><dd>{references.images.length + references.videos.length + references.audios.length + Number(Boolean(form.firstFrameUrl)) + Number(Boolean(form.lastFrameUrl))} {tr('个')}</dd></div></dl>
-            <div className="ai-video-quote-result">{quote ? <><span>本次预计扣除</span><strong>{quote.charged_credits}<small>{tr('积分')}</small></strong><p>{tr('原始费用')} {quote.raw_credit_cost}, {tr('最终统一向上取整')}</p><div><span>当前余额</span><b>{quote.credits_remaining}</b></div>{quote.affordable === false && <em>余额不足，请先购买积分</em>}</> : <><Coins size={32} /><strong>尚未试算</strong><p>填写参数后获取本次生成的准确整数积分。</p></>}</div>
+            <div className="ai-video-quote-result">{quote ? <><span>本次预计扣除</span><strong>{quote.charged_credits}<small>{tr('积分')}</small></strong><p>{tr('原始费用')} {quote.raw_credit_cost}, {tr('最终统一向上取整')}</p><div><span>当前余额</span><b>{quote.credits_remaining}</b></div>{quote.affordable === false && <em>余额不足，请先购买积分</em>}</> : quoteLoading ? <><RefreshCw className="is-spinning" size={30} /><strong>正在自动计算…</strong><p>参数变化后会自动更新积分。</p></> : quoteError ? <><AlertCircle size={30} /><strong>暂时无法计算</strong><p>{quoteError}</p></> : !authed ? <><Coins size={32} /><strong>登录后自动计算</strong><p>登录后填写参数，积分会自动更新。</p></> : <><Coins size={32} /><strong>等待填写参数</strong><p>输入画面描述后自动计算积分。</p></>}</div>
             {pricingLines.length > 0 && <details className="ai-video-pricing-details"><summary>查看当前模型价格</summary><ul>{pricingLines.map((line) => <li key={line}>{line}</li>)}</ul></details>}
-            <button type="button" className="outline-button ai-video-quote-button" onClick={() => requestQuote()} disabled={Boolean(busy) || loading.models}><Coins size={17} />{busy === 'quote' ? '试算中…' : '试算积分'}</button>
             <button type="button" className="primary-button ai-video-create-button" onClick={createVideo} disabled={Boolean(busy) || Boolean(uploadState.key)}><Sparkles size={18} />{busy === 'create' ? '正在创建任务…' : '创建 AI 视频'}</button>
             {quote?.affordable === false && <button type="button" className="ai-video-buy-link" onClick={onOpenBilling}>购买积分</button>}
             <p className="ai-video-safety-note"><ShieldCheck size={14} />仅上传你拥有或已获授权的素材；任务失败时按后端结算状态幂等退款。</p>

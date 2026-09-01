@@ -2073,5 +2073,13 @@
   "有声": "With audio",
   "超出 5 张后每张": "Each image after the first 5",
   "视频输入": "Video input",
-  "最终统一向上取整": "rounded up once at the end"
+  "最终统一向上取整": "rounded up once at the end",
+  "正在自动计算…": "Calculating automatically…",
+  "参数变化后会自动更新积分。": "The credit estimate updates automatically when settings change.",
+  "暂时无法计算": "Unable to calculate right now",
+  "登录后自动计算": "Sign in for automatic calculation",
+  "登录后填写参数，积分会自动更新。": "Sign in and complete the settings to update the credit estimate automatically.",
+  "等待填写参数": "Waiting for settings",
+  "输入画面描述后自动计算积分。": "Enter a video description to calculate credits automatically.",
+  "选择模型与参考素材，系统自动计算整数积分，再提交生成。失败任务会按规则退回预扣积分。": "Choose a model and reference media. The system calculates the integer credit estimate automatically before creation. Failed tasks are refunded according to the settlement rules."
 }
