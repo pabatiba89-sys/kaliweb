@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { buildAIVideoPayload } from '../src/aiVideo.js';
+import { buildAIVideoPayload, getAIVideoRemakeDraft } from '../src/aiVideo.js';
 
 const baseForm = {
   prompt: 'A neon city walk',
@@ -73,4 +73,42 @@ test('keeps the explicit MiniMax H3 mode and frame inputs', () => {
   assert.equal(payload.mode, 'image-to-video');
   assert.equal(payload.first_frame_url, 'https://example.com/first.jpg');
   assert.equal(payload.last_frame_url, 'https://example.com/last.jpg');
+});
+
+test('restores an AI video detail into an editable remake draft', () => {
+  const draft = getAIVideoRemakeDraft({
+    model: 'seedance-2-fast',
+    mode: 'reference-to-video',
+    prompt: 'A cinematic tea-house conversation',
+    duration: 8,
+    resolution: '480p',
+    aspectRatio: '9:16',
+    raw: {
+      generate_audio: true,
+      input: {
+        prompt: 'A cinematic tea-house conversation',
+        reference_image_urls: ['https://example.com/person.jpg'],
+        reference_video_urls: ['https://example.com/motion.mp4'],
+        reference_audio_urls: ['https://example.com/music.mp3'],
+      },
+      pricing_snapshot: { input_video_seconds: '6' },
+    },
+  });
+
+  assert.equal(draft.form.prompt, 'A cinematic tea-house conversation');
+  assert.equal(draft.form.mode, 'reference-to-video');
+  assert.equal(draft.references.images[0].url, 'https://example.com/person.jpg');
+  assert.equal(draft.references.videos[0].duration, 6);
+  assert.equal(draft.references.audios[0].url, 'https://example.com/music.mp3');
+});
+
+test('derives Gemini frame mode instead of trusting its generic stored mode', () => {
+  const draft = getAIVideoRemakeDraft({
+    model: 'gemini-omni-1.1-flash',
+    mode: 'multimodal',
+    raw: { input: { prompt: 'Animate this frame', first_frame_url: 'https://example.com/first.jpg' } },
+  });
+
+  assert.equal(draft.form.mode, 'first-last-frame');
+  assert.equal(draft.form.firstFrameUrl, 'https://example.com/first.jpg');
 });

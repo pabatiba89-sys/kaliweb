@@ -2,6 +2,84 @@ const withoutEmptyValues = (payload = {}) => Object.fromEntries(
   Object.entries(payload).filter(([, value]) => value !== undefined && value !== null && value !== ''),
 );
 
+const objectOf = (value) => (value && typeof value === 'object' && !Array.isArray(value) ? value : {});
+const firstValue = (...values) => values.find((value) => value !== undefined && value !== null && value !== '');
+const listOf = (value) => {
+  if (Array.isArray(value)) return value;
+  if (value === undefined || value === null || value === '') return [];
+  return [value];
+};
+const urlOf = (value) => typeof value === 'string' ? value : value?.url || value?.src || '';
+const booleanOf = (value, fallback = true) => {
+  if (value === undefined || value === null || value === '') return fallback;
+  if (typeof value === 'boolean') return value;
+  return !['0', 'false', 'no', 'off'].includes(String(value).trim().toLowerCase());
+};
+
+export function getAIVideoRemakeDraft(record = {}) {
+  const source = objectOf(record.raw || record);
+  const input = objectOf(firstValue(source.input, source.input_json, record.input));
+  const pricing = objectOf(firstValue(source.pricing_snapshot, source.pricingSnapshot, record.pricingSnapshot));
+  const model = String(firstValue(record.model, source.model, source.model_key, source.modelKey) || 'seedance-2-fast');
+  const prompt = String(firstValue(record.prompt, source.prompt, input.prompt) || '');
+  const firstFrameUrl = String(firstValue(input.first_frame_url, input.firstFrameUrl) || '');
+  const lastFrameUrl = String(firstValue(input.last_frame_url, input.lastFrameUrl) || '');
+  const imageUrls = listOf(firstValue(input.reference_image_urls, input.referenceImageUrls, input.image_urls, input.imageUrls)).map(urlOf).filter(Boolean);
+  const videoUrls = listOf(firstValue(input.reference_video_urls, input.referenceVideoUrls, input.video_list, input.videoList)).map(urlOf).filter(Boolean);
+  const audioUrls = listOf(firstValue(input.reference_audio_urls, input.referenceAudioUrls)).map(urlOf).filter(Boolean);
+  const explicitDurations = listOf(firstValue(input.reference_video_durations, input.referenceVideoDurations)).map(Number);
+  const totalInputSeconds = Number(firstValue(pricing.input_video_seconds, pricing.inputVideoSeconds, input.reference_video_duration, input.referenceVideoDuration)) || 0;
+  const sharedVideoDuration = videoUrls.length && totalInputSeconds > 0 ? totalInputSeconds / videoUrls.length : 0;
+  const isKling = model === 'kling-2.6';
+  const isOmni = model === 'gemini-omni-1.1-flash';
+  let mode = String(firstValue(record.mode, source.mode) || '');
+
+  if (isOmni) {
+    mode = firstFrameUrl || lastFrameUrl
+      ? 'first-last-frame'
+      : imageUrls.length || videoUrls.length || listOf(input.character_ids || input.characterIds).length || listOf(input.audio_ids || input.audioIds).length
+        ? 'multimodal'
+        : 'text-to-video';
+  } else if (!mode) {
+    mode = firstFrameUrl || lastFrameUrl
+      ? (isKling ? 'image-to-video' : 'first-last-frame')
+      : imageUrls.length || videoUrls.length || audioUrls.length
+        ? 'reference-to-video'
+        : 'text-to-video';
+  }
+
+  const klingFrameUrl = isKling && mode === 'image-to-video' ? imageUrls[0] || firstFrameUrl : firstFrameUrl;
+  const references = {
+    images: isKling ? [] : imageUrls.map((url, index) => ({ id: `remake-image-${index}`, url, type: 'image', name: `Reference image ${index + 1}` })),
+    videos: videoUrls.map((url, index) => ({
+      id: `remake-video-${index}`,
+      url,
+      type: 'video',
+      name: `Reference video ${index + 1}`,
+      duration: explicitDurations[index] > 0 ? explicitDurations[index] : sharedVideoDuration,
+    })),
+    audios: audioUrls.map((url, index) => ({ id: `remake-audio-${index}`, url, type: 'audio', name: `Reference audio ${index + 1}` })),
+  };
+
+  return {
+    form: {
+      model,
+      mode,
+      prompt,
+      duration: Number(firstValue(record.duration, source.duration, input.duration)) || 5,
+      resolution: String(firstValue(record.resolution, source.resolution, input.resolution) || '').toLowerCase(),
+      aspectRatio: String(firstValue(record.aspectRatio, source.aspect_ratio, source.aspectRatio, input.aspect_ratio, input.aspectRatio) || '9:16'),
+      generateAudio: booleanOf(firstValue(source.generate_audio, source.generateAudio, input.generate_audio, input.generateAudio, input.sound), true),
+      firstFrameUrl: klingFrameUrl,
+      lastFrameUrl,
+      seed: String(firstValue(input.seed) || ''),
+      characterIds: listOf(firstValue(input.character_ids, input.characterIds)).join(', '),
+      audioIds: listOf(firstValue(input.audio_ids, input.audioIds)).join(', '),
+    },
+    references,
+  };
+}
+
 export function buildAIVideoPayload(form = {}, references = {}) {
   const images = Array.isArray(references.images) ? references.images : [];
   const videos = Array.isArray(references.videos) ? references.videos : [];

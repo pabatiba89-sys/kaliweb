@@ -16341,10 +16341,45 @@ html[dir="rtl"] .training-submit-progress__fill {
   gap: 12px;
 }
 
+.ai-video-modal-copy > div {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+  gap: 11px;
+}
+
 .ai-video-modal-copy strong {
   color: #2d554a;
   font-size: 13px;
   line-height: 1.65;
+}
+
+.ai-video-modal-copy__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.ai-video-modal-copy__actions button {
+  display: inline-flex;
+  width: auto;
+  min-height: 33px;
+  align-items: center;
+  gap: 6px;
+  padding: 0 11px;
+  border: 1px solid #cfe2dc;
+  border-radius: 10px;
+  color: #267966;
+  background: #f7fbfa;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.ai-video-modal-copy__actions button:last-child {
+  border-color: #087d67;
+  color: #fff;
+  background: #087d67;
+  box-shadow: 0 7px 18px rgba(8, 125, 103, 0.16);
 }
 
 .ai-video-modal dl {

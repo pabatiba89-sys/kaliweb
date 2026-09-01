@@ -89,7 +89,7 @@ import {
 } from './api';
 import { getInitialLocale, languages, translateStatic, useAutoTranslate, useLocaleCatalog } from './i18n';
 import { GENERATED_CONTENT_UNAVAILABLE_MESSAGE, isGeneratedMarkupFailure } from './generatedContent';
-import { buildAIVideoPayload } from './aiVideo';
+import { buildAIVideoPayload, getAIVideoRemakeDraft } from './aiVideo';
 import { pageConfigs } from './pageConfig';
 import packageJson from '../package.json';
 import './styles.css';
@@ -3985,6 +3985,7 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling }) {
   const [message, setMessage] = useState({ text: '', error: false });
   const [uploadState, setUploadState] = useState({ key: '', progress: 0 });
   const [detail, setDetail] = useState(null);
+  const [detailCopyState, setDetailCopyState] = useState('');
   const quoteRequestRef = useRef(0);
   const authed = Boolean(getAccessToken());
   const localeCatalog = useLocaleCatalog(language);
@@ -4279,6 +4280,7 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling }) {
   }, [refreshTask, tab, tasks]);
 
   const openDetail = async (record, kind) => {
+    setDetailCopyState('');
     setDetail({ ...record, kind, loading: true });
     const path = kind === 'video'
       ? `/api/ai-video/videos/${encodeURIComponent(record.videoId)}`
@@ -4289,6 +4291,59 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling }) {
       return;
     }
     setDetail({ ...normalizeAIVideoRecord(result.data || {}), kind, loading: false });
+  };
+
+  const copyDetailPrompt = async () => {
+    const value = detail?.prompt || '';
+    if (!value) return;
+    try {
+      let copied = false;
+      if (navigator.clipboard?.writeText) {
+        try {
+          await navigator.clipboard.writeText(value);
+          copied = true;
+        } catch {
+          copied = false;
+        }
+      }
+      if (!copied) {
+        const textarea = document.createElement('textarea');
+        textarea.value = value;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        copied = document.execCommand('copy');
+        textarea.remove();
+      }
+      if (!copied) throw new Error('copy failed');
+      setDetailCopyState('copied');
+    } catch {
+      setDetailCopyState('failed');
+    }
+  };
+
+  const remakeDetailVideo = () => {
+    if (!detail) return;
+    const draft = getAIVideoRemakeDraft(detail);
+    const requiresVideoDuration = draft.form.model !== 'gemini-omni-1.1-flash';
+    const missingVideoDuration = requiresVideoDuration && draft.references.videos.some((item) => !(Number(item.duration) > 0));
+    setForm(draft.form);
+    setReferences({
+      ...draft.references,
+      videos: missingVideoDuration ? draft.references.videos.filter((item) => Number(item.duration) > 0) : draft.references.videos,
+    });
+    setUrlDrafts({ images: '', videos: '', audios: '', videoDuration: '' });
+    setQuote(null);
+    setQuoteError('');
+    setDetail(null);
+    setDetailCopyState('');
+    setTab('create');
+    setNotice(missingVideoDuration
+      ? '已带入原指令和生成参数；原参考视频缺少时长，请重新添加后再制作。'
+      : '已带入原指令、生成参数和参考素材，请确认后重新制作。', missingVideoDuration);
+    window.requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
   };
 
   const renderReferenceList = (type, accept, label) => (
@@ -4391,7 +4446,7 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling }) {
         </section>
       )}
 
-      {detail && <div className="ai-video-modal-layer" onMouseDown={(event) => { if (event.target === event.currentTarget) setDetail(null); }}><section className="ai-video-modal" role="dialog" aria-modal="true" aria-label="AI 视频详情"><header><div><span>{detail.kind === 'video' ? 'VIDEO OUTPUT' : 'GENERATION TASK'}</span><h2>{detail.kind === 'video' ? '成片详情' : '任务详情'}</h2></div><button type="button" onClick={() => setDetail(null)} aria-label="关闭"><X size={18} /></button></header>{detail.loading ? <div className="ai-video-modal-loading"><RefreshCw className="is-spinning" size={28} />正在加载详情…</div> : <>{detail.videoUrl && <video className="ai-video-modal-video" src={detail.videoUrl} controls playsInline preload="metadata" poster={detail.lastFrameUrl || undefined} />}<div className="ai-video-modal-copy"><strong>{detail.prompt}</strong><span className={`state-dot state-dot--${detail.status.key}`}>{detail.status.label}</span></div><dl><div><dt>模型</dt><dd>{detail.model}</dd></div><div><dt>生成方式</dt><dd>{AI_VIDEO_MODE_LABELS[detail.mode] || detail.mode || '—'}</dd></div><div><dt>规格</dt><dd>{[detail.duration ? `${detail.duration} 秒` : '', detail.resolution?.toUpperCase(), detail.aspectRatio].filter(Boolean).join(' · ') || '—'}</dd></div><div><dt>积分</dt><dd>{detail.credits || '—'}</dd></div><div><dt>结算状态</dt><dd>{detail.settlementStatus || '—'}</dd></div><div><dt>创建时间</dt><dd>{detail.createdAt || '—'}</dd></div></dl>{(detail.error || detail.errorMessage) && <p className="ai-video-modal-error">{detail.error || detail.errorMessage}</p>}<footer>{detail.kind === 'task' && detail.status.key === 'processing' && <button type="button" className="outline-button" onClick={async () => { const next = await refreshTask(detail); if (next) setDetail({ ...next, kind: 'task', loading: false }); }}><RefreshCw size={16} />刷新任务</button>}{detail.videoUrl && <a className="primary-button" href={detail.videoUrl} download target="_blank" rel="noreferrer"><Download size={16} />下载视频</a>}</footer></>}</section></div>}
+      {detail && <div className="ai-video-modal-layer" onMouseDown={(event) => { if (event.target === event.currentTarget) setDetail(null); }}><section className="ai-video-modal" role="dialog" aria-modal="true" aria-label="AI 视频详情"><header><div><span>{detail.kind === 'video' ? 'VIDEO OUTPUT' : 'GENERATION TASK'}</span><h2>{detail.kind === 'video' ? '成片详情' : '任务详情'}</h2></div><button type="button" onClick={() => setDetail(null)} aria-label="关闭"><X size={18} /></button></header>{detail.loading ? <div className="ai-video-modal-loading"><RefreshCw className="is-spinning" size={28} />正在加载详情…</div> : <>{detail.videoUrl && <video className="ai-video-modal-video" src={detail.videoUrl} controls playsInline preload="metadata" poster={detail.lastFrameUrl || undefined} />}<div className="ai-video-modal-copy"><div><strong>{detail.prompt}</strong><div className="ai-video-modal-copy__actions"><button type="button" onClick={copyDetailPrompt}><Copy size={14} />{detailCopyState === 'copied' ? '已复制' : '复制'}</button><button type="button" onClick={remakeDetailVideo}><RefreshCw size={14} />重新制作</button></div></div><span className={`state-dot state-dot--${detail.status.key}`}>{detail.status.label}</span></div><dl><div><dt>模型</dt><dd>{detail.model}</dd></div><div><dt>生成方式</dt><dd>{AI_VIDEO_MODE_LABELS[detail.mode] || detail.mode || '—'}</dd></div><div><dt>规格</dt><dd>{[detail.duration ? `${detail.duration} 秒` : '', detail.resolution?.toUpperCase(), detail.aspectRatio].filter(Boolean).join(' · ') || '—'}</dd></div><div><dt>积分</dt><dd>{detail.credits || '—'}</dd></div><div><dt>结算状态</dt><dd>{detail.settlementStatus || '—'}</dd></div><div><dt>创建时间</dt><dd>{detail.createdAt || '—'}</dd></div></dl>{(detail.error || detail.errorMessage) && <p className="ai-video-modal-error">{detail.error || detail.errorMessage}</p>}<footer>{detail.kind === 'task' && detail.status.key === 'processing' && <button type="button" className="outline-button" onClick={async () => { const next = await refreshTask(detail); if (next) setDetail({ ...next, kind: 'task', loading: false }); }}><RefreshCw size={16} />刷新任务</button>}{detail.videoUrl && <a className="primary-button" href={detail.videoUrl} download target="_blank" rel="noreferrer"><Download size={16} />下载视频</a>}</footer></>}</section></div>}
     </div>
   );
 }
