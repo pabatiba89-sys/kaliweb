@@ -75,6 +75,15 @@ test('keeps the explicit MiniMax H3 mode and frame inputs', () => {
   assert.equal(payload.last_frame_url, 'https://example.com/last.jpg');
 });
 
+test('uses a cloned voice audio URL as Seedance reference audio', () => {
+  const payload = buildAIVideoPayload(
+    { ...baseForm, model: 'seedance-2-fast', mode: 'reference-to-video' },
+    { images: [], videos: [], audios: [{ name: 'Cloned voice', url: 'https://example.com/cloned-voice.mp3' }] },
+  );
+
+  assert.deepEqual(payload.reference_audio_urls, ['https://example.com/cloned-voice.mp3']);
+});
+
 test('restores an AI video detail into an editable remake draft', () => {
   const draft = getAIVideoRemakeDraft({
     model: 'seedance-2-fast',

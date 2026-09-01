@@ -1982,5 +1982,15 @@
   "登录后填写参数，积分会自动更新。": "Sign in and complete the settings to update the credit estimate automatically.",
   "等待填写参数": "Waiting for settings",
   "输入画面描述后自动计算积分。": "Enter a video description to calculate credits automatically.",
-  "选择模型与参考素材，系统自动计算整数积分，再提交生成。失败任务会按规则退回预扣积分。": "Choose a model and reference media. The system calculates the integer credit estimate automatically before creation. Failed tasks are refunded according to the settlement rules."
+  "选择模型与参考素材，系统自动计算整数积分，再提交生成。失败任务会按规则退回预扣积分。": "Choose a model and reference media. The system calculates the integer credit estimate automatically before creation. Failed tasks are refunded according to the settlement rules.",
+  "正在加载克隆声音…": "Loading cloned voices…",
+  "克隆声音加载失败": "Cloned voices could not be loaded",
+  "登录后选择克隆声音": "Sign in to select a cloned voice",
+  "暂无带音频 URL 的克隆声音": "No cloned voices with an audio URL are available",
+  "请选择已完成的克隆声音": "Select a completed cloned voice",
+  "添加声音": "Add voice",
+  "选中后使用该克隆声音的音频 URL 作为参考。": "The selected cloned voice audio URL will be used as a reference.",
+  "请先选择一个可用的克隆声音。": "Select an available cloned voice first.",
+  "这个克隆声音已经添加到参考音频。": "This cloned voice is already in the reference audio list.",
+  "已添加克隆声音：": "Cloned voice added: "
 }

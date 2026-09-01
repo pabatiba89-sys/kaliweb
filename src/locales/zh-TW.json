@@ -2001,5 +2001,15 @@
   "登录后填写参数，积分会自动更新。": "Sign in and complete the settings to update the credit estimate automatically.",
   "等待填写参数": "Waiting for settings",
   "输入画面描述后自动计算积分。": "Enter a video description to calculate credits automatically.",
-  "选择模型与参考素材，系统自动计算整数积分，再提交生成。失败任务会按规则退回预扣积分。": "Choose a model and reference media. The system calculates the integer credit estimate automatically before creation. Failed tasks are refunded according to the settlement rules."
+  "选择模型与参考素材，系统自动计算整数积分，再提交生成。失败任务会按规则退回预扣积分。": "Choose a model and reference media. The system calculates the integer credit estimate automatically before creation. Failed tasks are refunded according to the settlement rules.",
+  "正在加载克隆声音…": "正在載入克隆聲音…",
+  "克隆声音加载失败": "克隆聲音載入失敗",
+  "登录后选择克隆声音": "登入後選擇克隆聲音",
+  "暂无带音频 URL 的克隆声音": "暫無帶音訊 URL 的克隆聲音",
+  "请选择已完成的克隆声音": "請選擇已完成的克隆聲音",
+  "添加声音": "新增聲音",
+  "选中后使用该克隆声音的音频 URL 作为参考。": "選取後使用該克隆聲音的音訊 URL 作為參考。",
+  "请先选择一个可用的克隆声音。": "請先選擇一個可用的克隆聲音。",
+  "这个克隆声音已经添加到参考音频。": "這個克隆聲音已加入參考音訊。",
+  "已添加克隆声音：": "已新增克隆聲音："
 }

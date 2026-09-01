@@ -3978,6 +3978,9 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling }) {
   const [quoteError, setQuoteError] = useState('');
   const [tasks, setTasks] = useState([]);
   const [videos, setVideos] = useState([]);
+  const [clonedVoices, setClonedVoices] = useState([]);
+  const [clonedVoiceUrl, setClonedVoiceUrl] = useState('');
+  const [clonedVoiceState, setClonedVoiceState] = useState({ loading: false, error: '' });
   const [taskMeta, setTaskMeta] = useState({ page: 1, total: 0 });
   const [videoMeta, setVideoMeta] = useState({ page: 1, total: 0 });
   const [loading, setLoading] = useState({ models: true, tasks: true, videos: true });
@@ -3987,6 +3990,7 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling }) {
   const [detail, setDetail] = useState(null);
   const [detailCopyState, setDetailCopyState] = useState('');
   const quoteRequestRef = useRef(0);
+  const clonedVoiceRequestRef = useRef(0);
   const authed = Boolean(getAccessToken());
   const localeCatalog = useLocaleCatalog(language);
   const tr = useCallback((value) => translateStatic(value, language, localeCatalog), [language, localeCatalog]);
@@ -4070,6 +4074,51 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling }) {
     setLoading((current) => ({ ...current, videos: false }));
   }, []);
 
+  const loadClonedVoices = useCallback(async () => {
+    const requestId = ++clonedVoiceRequestRef.current;
+    if (!getAccessToken()) {
+      setClonedVoices([]);
+      setClonedVoiceUrl('');
+      setClonedVoiceState({ loading: false, error: '' });
+      return;
+    }
+
+    setClonedVoiceState({ loading: true, error: '' });
+    const pageSize = 100;
+    const records = [];
+    let page = 1;
+    while (true) {
+      const result = await apiFetch('/api/ai-voice/list', { params: { page, page_size: pageSize, pageSize }, timeoutMs: 12000 });
+      if (requestId !== clonedVoiceRequestRef.current) return;
+      if (!result.ok) {
+        setClonedVoices([]);
+        setClonedVoiceUrl('');
+        setClonedVoiceState({ loading: false, error: result.message || '克隆声音加载失败' });
+        return;
+      }
+      const pageRecords = getVoiceItems(result);
+      records.push(...pageRecords);
+      const total = Number(result.data?.total || result.raw?.data?.total || 0);
+      if (!pageRecords.length || (total > 0 ? records.length >= total : pageRecords.length < pageSize)) break;
+      page += 1;
+    }
+
+    if (requestId !== clonedVoiceRequestRef.current) return;
+
+    const seen = new Set();
+    const nextVoices = records
+      .map(normalizeVoiceAsset)
+      .filter((voice) => voice.status.key === 'success' && voice.audioUrl)
+      .filter((voice) => {
+        if (seen.has(voice.audioUrl)) return false;
+        seen.add(voice.audioUrl);
+        return true;
+      });
+    setClonedVoices(nextVoices);
+    setClonedVoiceUrl((current) => nextVoices.some((voice) => voice.audioUrl === current) ? current : '');
+    setClonedVoiceState({ loading: false, error: '' });
+  }, []);
+
   useEffect(() => {
     loadModels();
   }, [loadModels]);
@@ -4078,6 +4127,10 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling }) {
     loadTasks();
     loadVideos();
   }, [authVersion, loadTasks, loadVideos]);
+
+  useEffect(() => {
+    loadClonedVoices();
+  }, [authVersion, loadClonedVoices]);
 
   const changeModel = (modelKey) => {
     const model = models.find((item) => item.key === modelKey) || models[0];
@@ -4095,6 +4148,7 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling }) {
       audioIds: '',
     }));
     setReferences({ images: [], videos: [], audios: [] });
+    setClonedVoiceUrl('');
     setQuote(null);
     setQuoteError('');
     setNotice('');
@@ -4129,6 +4183,25 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling }) {
       setUrlDrafts((current) => ({ ...current, [type]: '' }));
     }
     setNotice('');
+  };
+
+  const addClonedVoiceReference = () => {
+    const voice = clonedVoices.find((item) => item.audioUrl === clonedVoiceUrl);
+    if (!voice) {
+      setNotice('请先选择一个可用的克隆声音。', true);
+      return;
+    }
+    if (references.audios.some((item) => item.url === voice.audioUrl)) {
+      setNotice('这个克隆声音已经添加到参考音频。', true);
+      return;
+    }
+    addReference('audios', createAIVideoReference(voice.audioUrl, 'audio', {
+      name: voice.title,
+      source: 'cloned-voice',
+      voiceId: voice.voiceId || voice.speakerId || voice.id,
+    }));
+    setClonedVoiceUrl('');
+    setNotice(`${tr('已添加克隆声音：')}${voice.title}`);
   };
 
   const uploadReference = async (file, type, frameKey = '') => {
@@ -4349,6 +4422,11 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling }) {
   const renderReferenceList = (type, accept, label) => (
     <div className="ai-video-reference-group">
       <div className="ai-video-reference-group__head"><strong>{label}</strong><small>{references[type].length} {tr('个')}</small></div>
+      {type === 'audios' && <div className="ai-video-cloned-voice">
+        <span>选择克隆声音</span>
+        <div><select value={clonedVoiceUrl} onChange={(event) => setClonedVoiceUrl(event.target.value)} disabled={!authed || clonedVoiceState.loading || !clonedVoices.length}><option value="">{!authed ? '登录后选择克隆声音' : clonedVoiceState.loading ? '正在加载克隆声音…' : clonedVoiceState.error ? '克隆声音加载失败' : clonedVoices.length ? '请选择已完成的克隆声音' : '暂无带音频 URL 的克隆声音'}</option>{clonedVoices.map((voice) => <option key={`${voice.id}-${voice.audioUrl}`} value={voice.audioUrl}>{voice.title}{voice.language ? ` · ${voice.language}` : ''}</option>)}</select><button type="button" onClick={addClonedVoiceReference} disabled={!clonedVoiceUrl}><Plus size={15} />添加声音</button></div>
+        <small>{clonedVoiceState.error || '选中后使用该克隆声音的音频 URL 作为参考。'}</small>
+      </div>}
       <div className={`ai-video-url-add${type === 'videos' ? ' has-duration' : ''}`}>
         <input value={urlDrafts[type]} onChange={(event) => setUrlDrafts((current) => ({ ...current, [type]: event.target.value }))} placeholder="粘贴 HTTP/HTTPS 地址" />
         {type === 'videos' && <input type="number" min="0.1" step="0.1" value={urlDrafts.videoDuration} onChange={(event) => setUrlDrafts((current) => ({ ...current, videoDuration: event.target.value }))} placeholder="秒" />}

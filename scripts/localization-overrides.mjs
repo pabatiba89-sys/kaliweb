@@ -1380,6 +1380,16 @@ const aiVideoEnglishFallbacks = {
   '参考视频': 'Reference video',
   '参考图片': 'Reference image',
   '参考音频': 'Reference audio',
+  '正在加载克隆声音…': 'Loading cloned voices…',
+  '克隆声音加载失败': 'Cloned voices could not be loaded',
+  '登录后选择克隆声音': 'Sign in to select a cloned voice',
+  '暂无带音频 URL 的克隆声音': 'No cloned voices with an audio URL are available',
+  '请选择已完成的克隆声音': 'Select a completed cloned voice',
+  '添加声音': 'Add voice',
+  '选中后使用该克隆声音的音频 URL 作为参考。': 'The selected cloned voice audio URL will be used as a reference.',
+  '请先选择一个可用的克隆声音。': 'Select an available cloned voice first.',
+  '这个克隆声音已经添加到参考音频。': 'This cloned voice is already in the reference audio list.',
+  '已添加克隆声音：': 'Cloned voice added: ',
   '参考素材上传失败。': 'Reference media upload failed.',
   '素材上传完成。': 'Upload complete.',
   '请先输入视频画面与动作描述。': 'Describe the scene and action first.',
@@ -1499,6 +1509,33 @@ const aiVideoEnglishFallbacks = {
   'Download video': 'Download video',
 };
 
+const aiVideoClonedVoiceOverrides = {
+  'zh-CN': {
+    '正在加载克隆声音…': '正在加载克隆声音…',
+    '克隆声音加载失败': '克隆声音加载失败',
+    '登录后选择克隆声音': '登录后选择克隆声音',
+    '暂无带音频 URL 的克隆声音': '暂无带音频 URL 的克隆声音',
+    '请选择已完成的克隆声音': '请选择已完成的克隆声音',
+    '添加声音': '添加声音',
+    '选中后使用该克隆声音的音频 URL 作为参考。': '选中后使用该克隆声音的音频 URL 作为参考。',
+    '请先选择一个可用的克隆声音。': '请先选择一个可用的克隆声音。',
+    '这个克隆声音已经添加到参考音频。': '这个克隆声音已经添加到参考音频。',
+    '已添加克隆声音：': '已添加克隆声音：',
+  },
+  'zh-TW': {
+    '正在加载克隆声音…': '正在載入克隆聲音…',
+    '克隆声音加载失败': '克隆聲音載入失敗',
+    '登录后选择克隆声音': '登入後選擇克隆聲音',
+    '暂无带音频 URL 的克隆声音': '暫無帶音訊 URL 的克隆聲音',
+    '请选择已完成的克隆声音': '請選擇已完成的克隆聲音',
+    '添加声音': '新增聲音',
+    '选中后使用该克隆声音的音频 URL 作为参考。': '選取後使用該克隆聲音的音訊 URL 作為參考。',
+    '请先选择一个可用的克隆声音。': '請先選擇一個可用的克隆聲音。',
+    '这个克隆声音已经添加到参考音频。': '這個克隆聲音已加入參考音訊。',
+    '已添加克隆声音：': '已新增克隆聲音：',
+  },
+};
+
 const aiVideoCoreKeys = ['AI Video Lab', 'AI 视频', '创建视频', '生成任务', '成片库', '模型', '生成方式', '描述你想要的画面', '参考素材', '积分试算', '创建 AI 视频', '购买积分'];
 const aiVideoCoreRows = {
   'en-US': ['AI Video Lab', 'AI video', 'Create video', 'Generation tasks', 'Finished videos', 'Model', 'Generation mode', 'Describe the video you want', 'Reference media', 'Credit estimate', 'Create AI video', 'Buy credits'],
@@ -1546,6 +1583,7 @@ export const workspaceLocalizationOverrides = Object.fromEntries(Object.entries(
   teamCoreKeys.forEach((key, index) => { overrides[key] = teamCoreRows[locale][index]; });
   Object.assign(overrides, teamDetailedOverrides[locale] || {});
   Object.assign(overrides, aiVideoEnglishFallbacks);
+  Object.assign(overrides, aiVideoClonedVoiceOverrides[locale] || {});
   aiVideoCoreKeys.forEach((key, index) => { overrides[key] = aiVideoCoreRows[locale][index]; });
   overrides['AI Video Lab'] = aiVideoLabLabels[locale];
   return [locale, overrides];

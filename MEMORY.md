@@ -200,3 +200,4 @@
 - 2026-08-31：工作台新增独立 AI Video Lab（`/app/?page=ai-video`）：模型和价格动态读取 `/api/ai-video/models`，创建前通过 `/api/ai-video/quote` 重新试算整数积分并检查余额，再提交 `/api/ai-video/create`；任务与成片统一读取 `/api/ai-video/tasks` 和 `/api/ai-video/videos`，参考视频上传后自动读取时长用于计费，前端只使用七牛归档后的 `video_url`。页面覆盖 7 个模型的参数分支，并同步 24 种工作台语言。
 - 2026-09-01：AI Video Lab 不保留手动“试算积分”按钮；用户停止修改有效参数约 600 毫秒后自动请求报价，并用请求序号忽略过期响应。创建任务前仍强制重新报价和校验余额，避免使用过期价格扣款。
 - 2026-09-01：AI Video Lab 成片详情的指令区提供“复制”和“重新制作”；重新制作只把原指令、模型、生成方式、规格、声音设置和可恢复的参考素材带回创建表单，不自动提交或扣费。现有 `/api/team-notion/publish-video` 只接受 `video_production_tasks.id`，不得把 `generated_ai_videos.id` 直接传入，否则存在同号误发布风险；AI 成片发布需由只读后台新增专用接口或显式 `source_type=ai_video` 分支后再接前端。
+- 2026-09-01：AI Video Lab 的参考音频支持从 `/api/ai-voice/list` 下拉选择当前用户/团队的克隆声音；必须分页取全，只展示训练成功且存在 `audio_url` 的记录，选中后把该 URL 写入 `reference_audio_urls`，并按 URL 去重。手动粘贴音频 URL 和本地上传入口继续保留。
