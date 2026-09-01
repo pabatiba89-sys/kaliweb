@@ -2000,5 +2000,16 @@
   "告诉我你想生成的视频内容，我会整理成可直接用于当前模型的完整提示词。": "Describe the video you want, and I will turn it into a complete prompt for the current model.",
   "现有视频指令已带入输入框，请确认或修改后再发送。": "Your current video prompt is ready in the input box. Review or edit it, then send.",
   "视频提示词由人工智能辅助生成，请核验后再用于视频制作": "This video prompt is AI-assisted. Review it before using it for video production.",
-  "描述主体、动作、场景、镜头、风格与声音要求": "Describe the subject, action, scene, camera, style, and sound"
+  "描述主体、动作、场景、镜头、风格与声音要求": "Describe the subject, action, scene, camera, style, and sound",
+  "发布 AI 视频": "Publish AI video",
+  "填写对外标题和话题，选择发布账号与时间。": "Add a public title and topics, then choose the publishing account and time.",
+  "请输入对外发布标题": "Enter the public title",
+  "选填，可手动输入": "Optional, enter manually",
+  "例如：#AI视频，产品发布；支持逗号、# 或换行分隔": "Example: #AIvideo, product launch. Separate topics with commas, #, or line breaks.",
+  "正在加载发布账号…": "Loading publishing accounts…",
+  "请填写发布标题": "Enter a publishing title",
+  "AI 视频 ID 不存在": "The AI video ID is missing",
+  "AI 视频已提交立即发布。": "The AI video was submitted for immediate publishing.",
+  "AI 视频已加入定时发布。": "The AI video was scheduled for publishing.",
+  "确认发布": "Confirm publishing"
 }

@@ -16,6 +16,22 @@ const booleanOf = (value, fallback = true) => {
   return !['0', 'false', 'no', 'off'].includes(String(value).trim().toLowerCase());
 };
 
+export function normalizeAIVideoTopics(value) {
+  const topics = Array.isArray(value) ? value : String(value || '').split(/[#,，、;；\n]+/);
+  return [...new Set(topics.map((topic) => String(topic || '').trim()).filter(Boolean))];
+}
+
+export function buildAIVideoPublishPayload({ videoId, title, topics, accountId, publishAt, publishNow = false } = {}) {
+  return {
+    ai_video_id: Number(videoId),
+    title: String(title || '').trim(),
+    topics: normalizeAIVideoTopics(topics),
+    publish_account_id: Number(accountId),
+    publish_time: String(publishAt || '').replace('T', ' ').trim(),
+    publish_now: Boolean(publishNow),
+  };
+}
+
 export function buildAIVideoPromptInstruction(prompt, context = {}) {
   const requirement = String(prompt || '').trim();
   const model = String(context.model || context.modelName || '').trim();

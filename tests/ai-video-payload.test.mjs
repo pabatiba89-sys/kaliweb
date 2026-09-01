@@ -1,7 +1,13 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { buildAIVideoPayload, buildAIVideoPromptInstruction, getAIVideoRemakeDraft } from '../src/aiVideo.js';
+import {
+  buildAIVideoPayload,
+  buildAIVideoPromptInstruction,
+  buildAIVideoPublishPayload,
+  getAIVideoRemakeDraft,
+  normalizeAIVideoTopics,
+} from '../src/aiVideo.js';
 
 const baseForm = {
   prompt: 'A neon city walk',
@@ -135,4 +141,26 @@ test('builds a single-output video prompt instruction with current generation se
   assert.match(instruction, /当前模型：Seedance 2\.0 Fast/);
   assert.match(instruction, /当前生成设置：5s · 480P · 9:16 · audio enabled/);
   assert.match(instruction, /用户想法：露天茶馆里的温暖对话/);
+});
+
+test('normalizes manually entered AI video topics', () => {
+  assert.deepEqual(normalizeAIVideoTopics('#AI视频，产品发布\nAI视频; 海外营销'), ['AI视频', '产品发布', '海外营销']);
+});
+
+test('builds the dedicated AI video publish payload', () => {
+  assert.deepEqual(buildAIVideoPublishPayload({
+    videoId: '123',
+    title: '  AI 成片标题  ',
+    topics: '#话题1, 话题2',
+    accountId: '8',
+    publishAt: '2026-09-01T12:00',
+    publishNow: false,
+  }), {
+    ai_video_id: 123,
+    title: 'AI 成片标题',
+    topics: ['话题1', '话题2'],
+    publish_account_id: 8,
+    publish_time: '2026-09-01 12:00',
+    publish_now: false,
+  });
 });

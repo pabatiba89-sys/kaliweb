@@ -89,7 +89,13 @@ import {
 } from './api';
 import { getInitialLocale, languages, translateStatic, useAutoTranslate, useLocaleCatalog } from './i18n';
 import { GENERATED_CONTENT_UNAVAILABLE_MESSAGE, isGeneratedMarkupFailure } from './generatedContent';
-import { buildAIVideoPayload, buildAIVideoPromptInstruction, getAIVideoRemakeDraft } from './aiVideo';
+import {
+  buildAIVideoPayload,
+  buildAIVideoPromptInstruction,
+  buildAIVideoPublishPayload,
+  getAIVideoRemakeDraft,
+  normalizeAIVideoTopics,
+} from './aiVideo';
 import { pageConfigs } from './pageConfig';
 import packageJson from '../package.json';
 import './styles.css';
@@ -3989,8 +3995,18 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling, onOpenP
   const [uploadState, setUploadState] = useState({ key: '', progress: 0 });
   const [detail, setDetail] = useState(null);
   const [detailCopyState, setDetailCopyState] = useState('');
+  const [publishDialog, setPublishDialog] = useState(false);
+  const [publishTarget, setPublishTarget] = useState(null);
+  const [publishAccounts, setPublishAccounts] = useState([]);
+  const [publishAccountId, setPublishAccountId] = useState('');
+  const [publishTitle, setPublishTitle] = useState('');
+  const [publishTopics, setPublishTopics] = useState('');
+  const [publishMode, setPublishMode] = useState('scheduled');
+  const [publishAt, setPublishAt] = useState(() => getDefaultPublishAt());
+  const [publishState, setPublishState] = useState({ loading: false, busy: false, message: '' });
   const quoteRequestRef = useRef(0);
   const clonedVoiceRequestRef = useRef(0);
+  const publishAccountRequestRef = useRef(0);
   const promptRef = useRef(null);
   const authed = Boolean(getAccessToken());
   const localeCatalog = useLocaleCatalog(language);
@@ -4433,6 +4449,95 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling, onOpenP
     window.requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
   };
 
+  const openAIVideoPublish = async () => {
+    if (!detail?.videoId || detail.kind !== 'video' || detail.status.key !== 'success' || !detail.videoUrl) return;
+    setPublishTarget(detail);
+    setPublishTitle('');
+    setPublishTopics('');
+    setPublishMode('scheduled');
+    setPublishAt(getDefaultPublishAt());
+    setPublishAccounts([]);
+    setPublishAccountId('');
+    setPublishState({ loading: true, busy: false, message: '' });
+    setPublishDialog(true);
+
+    const requestId = ++publishAccountRequestRef.current;
+    const result = await apiFetch('/api/team-notion/publish-account', { timeoutMs: 10000 });
+    if (requestId !== publishAccountRequestRef.current) return;
+    if (result.authMissing) {
+      setPublishDialog(false);
+      setPublishState({ loading: false, busy: false, message: '' });
+      onLogin();
+      return;
+    }
+    const source = getVideoRecords(result.data).length ? getVideoRecords(result.data) : getVideoRecords(result.raw);
+    const accounts = source.map(normalizeAIVideoPublishAccount).filter((account) => Number.isInteger(Number(account.id)) && Number(account.id) > 0 && account.name);
+    setPublishAccounts(accounts);
+    setPublishAccountId(accounts[0]?.id || '');
+    setPublishState({ loading: false, busy: false, message: result.ok ? '' : getResultMessage(result, '发布账号加载失败') });
+  };
+
+  const closeAIVideoPublish = () => {
+    if (publishState.busy) return;
+    publishAccountRequestRef.current += 1;
+    setPublishDialog(false);
+    setPublishTarget(null);
+    setPublishState({ loading: false, busy: false, message: '' });
+  };
+
+  const publishAIVideo = async () => {
+    const title = publishTitle.trim();
+    if (!title) {
+      setPublishState((current) => ({ ...current, message: '请填写发布标题' }));
+      return;
+    }
+    const account = publishAccounts.find((item) => item.id === publishAccountId);
+    if (!account) {
+      setPublishState((current) => ({ ...current, message: '请选择发布账号' }));
+      return;
+    }
+    const isNow = publishMode === 'now';
+    if (!isNow) {
+      const scheduledAt = new Date(publishAt);
+      if (!publishAt || Number.isNaN(scheduledAt.getTime())) {
+        setPublishState((current) => ({ ...current, message: '请选择发布时间' }));
+        return;
+      }
+      if (scheduledAt.getTime() <= Date.now()) {
+        setPublishState((current) => ({ ...current, message: '定时发布时间必须晚于当前时间' }));
+        return;
+      }
+    }
+    if (!publishTarget?.videoId) {
+      setPublishState((current) => ({ ...current, message: 'AI 视频 ID 不存在' }));
+      return;
+    }
+
+    setPublishState((current) => ({ ...current, busy: true, message: '' }));
+    const result = await apiFetch('/api/team-notion/publish-ai-video', {
+      method: 'POST',
+      body: buildAIVideoPublishPayload({
+        videoId: publishTarget.videoId,
+        title,
+        topics: publishTopics,
+        accountId: account.id,
+        publishAt: isNow ? getDefaultPublishAt(0) : publishAt,
+        publishNow: isNow,
+      }),
+      timeoutMs: 45000,
+    });
+    if (!result.ok) {
+      setPublishState((current) => ({ ...current, busy: false, message: getResultMessage(result, '发布失败') }));
+      return;
+    }
+
+    setPublishDialog(false);
+    setPublishTarget(null);
+    setPublishState({ loading: false, busy: false, message: '' });
+    setDetail(null);
+    setNotice(isNow ? 'AI 视频已提交立即发布。' : 'AI 视频已加入定时发布。');
+  };
+
   const renderReferenceList = (type, accept, label) => (
     <div className="ai-video-reference-group">
       <div className="ai-video-reference-group__head"><strong>{label}</strong><small>{references[type].length} {tr('个')}</small></div>
@@ -4464,6 +4569,7 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling, onOpenP
     }
     return [];
   })();
+  const publishTopicList = normalizeAIVideoTopics(publishTopics);
 
   return (
     <div className="ai-video-page">
@@ -4558,7 +4664,17 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling, onOpenP
         </section>
       )}
 
-      {detail && <div className="ai-video-modal-layer" onMouseDown={(event) => { if (event.target === event.currentTarget) setDetail(null); }}><section className="ai-video-modal" role="dialog" aria-modal="true" aria-label="AI 视频详情"><header><div><span>{detail.kind === 'video' ? 'VIDEO OUTPUT' : 'GENERATION TASK'}</span><h2>{detail.kind === 'video' ? '成片详情' : '任务详情'}</h2></div><button type="button" onClick={() => setDetail(null)} aria-label="关闭"><X size={18} /></button></header>{detail.loading ? <div className="ai-video-modal-loading"><RefreshCw className="is-spinning" size={28} />正在加载详情…</div> : <>{detail.videoUrl && <video className="ai-video-modal-video" src={detail.videoUrl} controls playsInline preload="metadata" poster={detail.lastFrameUrl || undefined} />}<div className="ai-video-modal-copy"><div><strong>{detail.prompt}</strong><div className="ai-video-modal-copy__actions"><button type="button" onClick={copyDetailPrompt}><Copy size={14} />{detailCopyState === 'copied' ? '已复制' : '复制'}</button><button type="button" onClick={remakeDetailVideo}><RefreshCw size={14} />重新制作</button></div></div><span className={`state-dot state-dot--${detail.status.key}`}>{detail.status.label}</span></div><dl><div><dt>模型</dt><dd>{detail.model}</dd></div><div><dt>生成方式</dt><dd>{AI_VIDEO_MODE_LABELS[detail.mode] || detail.mode || '—'}</dd></div><div><dt>规格</dt><dd>{[detail.duration ? `${detail.duration} 秒` : '', detail.resolution?.toUpperCase(), detail.aspectRatio].filter(Boolean).join(' · ') || '—'}</dd></div><div><dt>积分</dt><dd>{detail.credits || '—'}</dd></div><div><dt>结算状态</dt><dd>{detail.settlementStatus || '—'}</dd></div><div><dt>创建时间</dt><dd>{detail.createdAt || '—'}</dd></div></dl>{(detail.error || detail.errorMessage) && <p className="ai-video-modal-error">{detail.error || detail.errorMessage}</p>}<footer>{detail.kind === 'task' && detail.status.key === 'processing' && <button type="button" className="outline-button" onClick={async () => { const next = await refreshTask(detail); if (next) setDetail({ ...next, kind: 'task', loading: false }); }}><RefreshCw size={16} />刷新任务</button>}{detail.videoUrl && <a className="primary-button" href={detail.videoUrl} download target="_blank" rel="noreferrer"><Download size={16} />下载视频</a>}</footer></>}</section></div>}
+      {detail && <div className="ai-video-modal-layer" onMouseDown={(event) => { if (event.target === event.currentTarget && !publishDialog) setDetail(null); }}><section className="ai-video-modal" role="dialog" aria-modal="true" aria-label="AI 视频详情"><header><div><span>{detail.kind === 'video' ? 'VIDEO OUTPUT' : 'GENERATION TASK'}</span><h2>{detail.kind === 'video' ? '成片详情' : '任务详情'}</h2></div><button type="button" onClick={() => setDetail(null)} aria-label="关闭"><X size={18} /></button></header>{detail.loading ? <div className="ai-video-modal-loading"><RefreshCw className="is-spinning" size={28} />正在加载详情…</div> : <>{detail.videoUrl && <video className="ai-video-modal-video" src={detail.videoUrl} controls playsInline preload="metadata" poster={detail.lastFrameUrl || undefined} />}<div className="ai-video-modal-copy"><div><strong>{detail.prompt}</strong><div className="ai-video-modal-copy__actions"><button type="button" onClick={copyDetailPrompt}><Copy size={14} />{detailCopyState === 'copied' ? '已复制' : '复制'}</button><button type="button" onClick={remakeDetailVideo}><RefreshCw size={14} />重新制作</button>{detail.kind === 'video' && detail.status.key === 'success' && detail.videoUrl && <button type="button" onClick={openAIVideoPublish}><Send size={14} />发布</button>}</div></div><span className={`state-dot state-dot--${detail.status.key}`}>{detail.status.label}</span></div><dl><div><dt>模型</dt><dd>{detail.model}</dd></div><div><dt>生成方式</dt><dd>{AI_VIDEO_MODE_LABELS[detail.mode] || detail.mode || '—'}</dd></div><div><dt>规格</dt><dd>{[detail.duration ? `${detail.duration} 秒` : '', detail.resolution?.toUpperCase(), detail.aspectRatio].filter(Boolean).join(' · ') || '—'}</dd></div><div><dt>积分</dt><dd>{detail.credits || '—'}</dd></div><div><dt>结算状态</dt><dd>{detail.settlementStatus || '—'}</dd></div><div><dt>创建时间</dt><dd>{detail.createdAt || '—'}</dd></div></dl>{(detail.error || detail.errorMessage) && <p className="ai-video-modal-error">{detail.error || detail.errorMessage}</p>}<footer>{detail.kind === 'task' && detail.status.key === 'processing' && <button type="button" className="outline-button" onClick={async () => { const next = await refreshTask(detail); if (next) setDetail({ ...next, kind: 'task', loading: false }); }}><RefreshCw size={16} />刷新任务</button>}{detail.videoUrl && <a className="primary-button" href={detail.videoUrl} download target="_blank" rel="noreferrer"><Download size={16} />下载视频</a>}</footer></>}</section></div>}
+      {publishDialog && <VideoActionDialog className="ai-video-publish-layer" title="发布 AI 视频" description="填写对外标题和话题，选择发布账号与时间。" busy={publishState.busy} submitLabel="确认发布" onClose={closeAIVideoPublish} onSubmit={publishAIVideo}>
+        <label className="video-dialog-field"><span>标题 <em>必填</em></span><input maxLength={80} value={publishTitle} onChange={(event) => { setPublishTitle(event.target.value); setPublishState((current) => ({ ...current, message: '' })); }} placeholder="请输入对外发布标题" /><small>{publishTitle.length}/80</small></label>
+        <label className="video-dialog-field"><span>话题 <em>选填，可手动输入</em></span><textarea maxLength={500} value={publishTopics} onChange={(event) => { setPublishTopics(event.target.value); setPublishState((current) => ({ ...current, message: '' })); }} placeholder="例如：#AI视频，产品发布；支持逗号、# 或换行分隔" /></label>
+        {publishTopicList.length > 0 && <div className="ai-video-publish-topics">{publishTopicList.map((topic) => <span key={topic}>#{topic}</span>)}</div>}
+        <label className="video-dialog-field"><span>发布账号</span><select value={publishAccountId} onChange={(event) => { setPublishAccountId(event.target.value); setPublishState((current) => ({ ...current, message: '' })); }} disabled={publishState.loading}><option value="">{publishState.loading ? '正在加载发布账号…' : '请选择发布账号'}</option>{publishAccounts.map((account) => <option key={account.id} value={account.id}>{account.name}</option>)}</select></label>
+        {!publishState.loading && !publishAccounts.length && <div className="video-dialog-empty">暂无可用发布账号</div>}
+        <div className="video-publish-modes"><button type="button" className={publishMode === 'scheduled' ? 'is-active' : ''} onClick={() => { setPublishMode('scheduled'); setPublishState((current) => ({ ...current, message: '' })); }}><CalendarDays size={17} />定时发布</button><button type="button" className={publishMode === 'now' ? 'is-active' : ''} onClick={() => { setPublishMode('now'); setPublishState((current) => ({ ...current, message: '' })); }}><Send size={17} />立即发布</button></div>
+        {publishMode === 'scheduled' && <label className="video-dialog-field"><span>发布时间</span><input type="datetime-local" min={getDefaultPublishAt(1)} value={publishAt} onChange={(event) => { setPublishAt(event.target.value); setPublishState((current) => ({ ...current, message: '' })); }} /></label>}
+        {publishState.message && <div className="video-dialog-message">{publishState.message}</div>}
+      </VideoActionDialog>}
     </div>
   );
 }
@@ -5180,6 +5296,15 @@ const normalizePublishAccount = (item, index) => {
   };
 };
 
+const normalizeAIVideoPublishAccount = (item, index) => {
+  const source = videoObject(item);
+  const account = normalizePublishAccount(source, index);
+  return {
+    ...account,
+    id: videoText(source.publishAccountId, source.publish_account_id, source.accountId, source.account_id, source.id),
+  };
+};
+
 const normalizeAssignmentTeam = (item = {}, index = 0) => {
   const mainUser = videoObject(item.mainUser || item.main_user || item.owner || item.user);
   const phone = videoText(item.teamPhone, item.team_phone, item.phoneNumber, item.phone_number, item.mobile, item.phone);
@@ -5191,9 +5316,9 @@ const normalizeAssignmentTeam = (item = {}, index = 0) => {
   return { id: `${phone || 'team'}-${mainUserId || index}`, phone, mainUserId, name, benefit, assignable };
 };
 
-function VideoActionDialog({ title, description, children, busy, submitLabel, onClose, onSubmit }) {
+function VideoActionDialog({ className = '', title, description, children, busy, submitLabel, onClose, onSubmit }) {
   return (
-    <div className="video-action-layer" role="dialog" aria-modal="true" aria-label={title}>
+    <div className={`video-action-layer${className ? ` ${className}` : ''}`} role="dialog" aria-modal="true" aria-label={title}>
       <button className="video-action-layer__mask" aria-label="关闭" onClick={busy ? undefined : onClose} />
       <section className="video-action-dialog">
         <button className="video-action-dialog__close" onClick={onClose} disabled={busy} aria-label="关闭"><X size={18} /></button>

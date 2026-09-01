@@ -1569,6 +1569,48 @@ const aiVideoPromptAssistantOverrides = {
   },
 };
 
+const aiVideoPublishOverrides = {
+  'en-US': {
+    '发布 AI 视频': 'Publish AI video',
+    '确认发布': 'Confirm publishing',
+    '填写对外标题和话题，选择发布账号与时间。': 'Add a public title and topics, then choose the publishing account and time.',
+    '请输入对外发布标题': 'Enter the public title',
+    '选填，可手动输入': 'Optional, enter manually',
+    '例如：#AI视频，产品发布；支持逗号、# 或换行分隔': 'Example: #AIvideo, product launch. Separate topics with commas, #, or line breaks.',
+    '正在加载发布账号…': 'Loading publishing accounts…',
+    '请填写发布标题': 'Enter a publishing title',
+    'AI 视频 ID 不存在': 'The AI video ID is missing',
+    'AI 视频已提交立即发布。': 'The AI video was submitted for immediate publishing.',
+    'AI 视频已加入定时发布。': 'The AI video was scheduled for publishing.',
+  },
+  'zh-CN': {
+    '发布 AI 视频': '发布 AI 视频',
+    '确认发布': '确认发布',
+    '填写对外标题和话题，选择发布账号与时间。': '填写对外标题和话题，选择发布账号与时间。',
+    '请输入对外发布标题': '请输入对外发布标题',
+    '选填，可手动输入': '选填，可手动输入',
+    '例如：#AI视频，产品发布；支持逗号、# 或换行分隔': '例如：#AI视频，产品发布；支持逗号、# 或换行分隔',
+    '正在加载发布账号…': '正在加载发布账号…',
+    '请填写发布标题': '请填写发布标题',
+    'AI 视频 ID 不存在': 'AI 视频 ID 不存在',
+    'AI 视频已提交立即发布。': 'AI 视频已提交立即发布。',
+    'AI 视频已加入定时发布。': 'AI 视频已加入定时发布。',
+  },
+  'zh-TW': {
+    '发布 AI 视频': '發布 AI 影片',
+    '确认发布': '確認發布',
+    '填写对外标题和话题，选择发布账号与时间。': '填寫對外標題和話題，選擇發布帳號與時間。',
+    '请输入对外发布标题': '請輸入對外發布標題',
+    '选填，可手动输入': '選填，可手動輸入',
+    '例如：#AI视频，产品发布；支持逗号、# 或换行分隔': '例如：#AI影片，產品發布；支援逗號、# 或換行分隔',
+    '正在加载发布账号…': '正在載入發布帳號…',
+    '请填写发布标题': '請填寫發布標題',
+    'AI 视频 ID 不存在': 'AI 影片 ID 不存在',
+    'AI 视频已提交立即发布。': 'AI 影片已提交立即發布。',
+    'AI 视频已加入定时发布。': 'AI 影片已加入定時發布。',
+  },
+};
+
 const aiVideoCoreKeys = ['AI Video Lab', 'AI 视频', '创建视频', '生成任务', '成片库', '模型', '生成方式', '描述你想要的画面', '参考素材', '积分试算', '创建 AI 视频', '购买积分'];
 const aiVideoCoreRows = {
   'en-US': ['AI Video Lab', 'AI video', 'Create video', 'Generation tasks', 'Finished videos', 'Model', 'Generation mode', 'Describe the video you want', 'Reference media', 'Credit estimate', 'Create AI video', 'Buy credits'],
@@ -1618,6 +1660,7 @@ export const workspaceLocalizationOverrides = Object.fromEntries(Object.entries(
   Object.assign(overrides, aiVideoEnglishFallbacks);
   Object.assign(overrides, aiVideoClonedVoiceOverrides[locale] || {});
   Object.assign(overrides, aiVideoPromptAssistantOverrides[locale] || aiVideoPromptAssistantOverrides['en-US']);
+  Object.assign(overrides, aiVideoPublishOverrides[locale] || aiVideoPublishOverrides['en-US']);
   aiVideoCoreKeys.forEach((key, index) => { overrides[key] = aiVideoCoreRows[locale][index]; });
   overrides['AI Video Lab'] = aiVideoLabLabels[locale];
   return [locale, overrides];

@@ -2001,6 +2001,7 @@
 
 .video-dialog-field select,
 .video-dialog-field input,
+.video-dialog-field textarea,
 .video-team-search {
   width: 100%;
   min-height: 44px;
@@ -2010,6 +2011,14 @@
   outline: 0;
   background: #f9fcfb;
   color: var(--ink);
+}
+
+.video-dialog-field textarea {
+  min-height: 86px;
+  padding-top: 11px;
+  padding-bottom: 11px;
+  resize: vertical;
+  line-height: 1.5;
 }
 
 .video-publish-modes {
@@ -16507,6 +16516,27 @@ html[dir="rtl"] .training-submit-progress__fill {
   color: #fff;
   background: #087d67;
   box-shadow: 0 7px 18px rgba(8, 125, 103, 0.16);
+}
+
+.video-action-layer.ai-video-publish-layer {
+  z-index: 130;
+}
+
+.ai-video-publish-topics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: -5px;
+}
+
+.ai-video-publish-topics span {
+  padding: 6px 9px;
+  border: 1px solid #cfe5de;
+  border-radius: 999px;
+  color: #17725f;
+  background: #eef9f5;
+  font-size: 11px;
+  font-weight: 760;
 }
 
 .ai-video-modal dl {
