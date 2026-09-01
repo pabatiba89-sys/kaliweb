@@ -16,6 +16,27 @@ const booleanOf = (value, fallback = true) => {
   return !['0', 'false', 'no', 'off'].includes(String(value).trim().toLowerCase());
 };
 
+export function buildAIVideoPromptInstruction(prompt, context = {}) {
+  const requirement = String(prompt || '').trim();
+  const model = String(context.model || context.modelName || '').trim();
+  const settings = [
+    context.duration ? `${context.duration}s` : '',
+    context.resolution ? String(context.resolution).toUpperCase() : '',
+    context.aspectRatio || context.aspect_ratio || '',
+    context.generateAudio === true ? 'audio enabled' : context.generateAudio === false ? 'silent output' : '',
+  ].filter(Boolean).join(' · ');
+
+  return [
+    '你是专业的 AI 视频导演提示词助手。请把用户的想法改写成一段可直接提交给视频生成模型的完整提示词。',
+    '提示词应具体描述主体、动作、环境、时间、光线、构图、镜头景别、镜头运动、节奏、视觉风格和氛围；需要声音时补充环境声、对白或音乐方向。',
+    '保持用户需求的主要语言。只输出最终提示词正文，不要标题、前缀、解释、分析、Markdown、JSON 或多个方案，也不要改写成分镜编号列表。',
+    model ? `当前模型：${model}` : '',
+    settings ? `当前生成设置：${settings}` : '',
+    '',
+    `用户想法：${requirement}`,
+  ].filter((line, index, lines) => line || (index > 0 && lines[index - 1])).join('\n');
+}
+
 export function getAIVideoRemakeDraft(record = {}) {
   const source = objectOf(record.raw || record);
   const input = objectOf(firstValue(source.input, source.input_json, record.input));

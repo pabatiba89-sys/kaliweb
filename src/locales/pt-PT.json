@@ -2016,5 +2016,13 @@
   "选中后使用该克隆声音的音频 URL 作为参考。": "The selected cloned voice audio URL will be used as a reference.",
   "请先选择一个可用的克隆声音。": "Select an available cloned voice first.",
   "这个克隆声音已经添加到参考音频。": "This cloned voice is already in the reference audio list.",
-  "已添加克隆声音：": "Cloned voice added: "
+  "已添加克隆声音：": "Cloned voice added: ",
+  "AI 提示词助手": "AI prompt assistant",
+  "导演提示词助手": "Director Prompt Assistant",
+  "返回 AI Video Lab": "Back to AI Video Lab",
+  "填入视频指令": "Use as video prompt",
+  "告诉我你想生成的视频内容，我会整理成可直接用于当前模型的完整提示词。": "Describe the video you want, and I will turn it into a complete prompt for the current model.",
+  "现有视频指令已带入输入框，请确认或修改后再发送。": "Your current video prompt is ready in the input box. Review or edit it, then send.",
+  "视频提示词由人工智能辅助生成，请核验后再用于视频制作": "This video prompt is AI-assisted. Review it before using it for video production.",
+  "描述主体、动作、场景、镜头、风格与声音要求": "Describe the subject, action, scene, camera, style, and sound"
 }

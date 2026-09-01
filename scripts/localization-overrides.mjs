@@ -1536,6 +1536,39 @@ const aiVideoClonedVoiceOverrides = {
   },
 };
 
+const aiVideoPromptAssistantOverrides = {
+  'en-US': {
+    'AI 提示词助手': 'AI prompt assistant',
+    '导演提示词助手': 'Director Prompt Assistant',
+    '返回 AI Video Lab': 'Back to AI Video Lab',
+    '填入视频指令': 'Use as video prompt',
+    '告诉我你想生成的视频内容，我会整理成可直接用于当前模型的完整提示词。': 'Describe the video you want, and I will turn it into a complete prompt for the current model.',
+    '现有视频指令已带入输入框，请确认或修改后再发送。': 'Your current video prompt is ready in the input box. Review or edit it, then send.',
+    '视频提示词由人工智能辅助生成，请核验后再用于视频制作': 'This video prompt is AI-assisted. Review it before using it for video production.',
+    '描述主体、动作、场景、镜头、风格与声音要求': 'Describe the subject, action, scene, camera, style, and sound',
+  },
+  'zh-CN': {
+    'AI 提示词助手': 'AI 提示词助手',
+    '导演提示词助手': '导演提示词助手',
+    '返回 AI Video Lab': '返回 AI 视频工坊',
+    '填入视频指令': '填入视频指令',
+    '告诉我你想生成的视频内容，我会整理成可直接用于当前模型的完整提示词。': '告诉我你想生成的视频内容，我会整理成可直接用于当前模型的完整提示词。',
+    '现有视频指令已带入输入框，请确认或修改后再发送。': '现有视频指令已带入输入框，请确认或修改后再发送。',
+    '视频提示词由人工智能辅助生成，请核验后再用于视频制作': '视频提示词由人工智能辅助生成，请核验后再用于视频制作',
+    '描述主体、动作、场景、镜头、风格与声音要求': '描述主体、动作、场景、镜头、风格与声音要求',
+  },
+  'zh-TW': {
+    'AI 提示词助手': 'AI 提示詞助手',
+    '导演提示词助手': '導演提示詞助手',
+    '返回 AI Video Lab': '返回 AI 影片工坊',
+    '填入视频指令': '填入影片指令',
+    '告诉我你想生成的视频内容，我会整理成可直接用于当前模型的完整提示词。': '告訴我你想生成的影片內容，我會整理成可直接用於當前模型的完整提示詞。',
+    '现有视频指令已带入输入框，请确认或修改后再发送。': '現有影片指令已帶入輸入框，請確認或修改後再發送。',
+    '视频提示词由人工智能辅助生成，请核验后再用于视频制作': '影片提示詞由人工智慧輔助生成，請核驗後再用於影片製作',
+    '描述主体、动作、场景、镜头、风格与声音要求': '描述主體、動作、場景、鏡頭、風格與聲音需求',
+  },
+};
+
 const aiVideoCoreKeys = ['AI Video Lab', 'AI 视频', '创建视频', '生成任务', '成片库', '模型', '生成方式', '描述你想要的画面', '参考素材', '积分试算', '创建 AI 视频', '购买积分'];
 const aiVideoCoreRows = {
   'en-US': ['AI Video Lab', 'AI video', 'Create video', 'Generation tasks', 'Finished videos', 'Model', 'Generation mode', 'Describe the video you want', 'Reference media', 'Credit estimate', 'Create AI video', 'Buy credits'],
@@ -1584,6 +1617,7 @@ export const workspaceLocalizationOverrides = Object.fromEntries(Object.entries(
   Object.assign(overrides, teamDetailedOverrides[locale] || {});
   Object.assign(overrides, aiVideoEnglishFallbacks);
   Object.assign(overrides, aiVideoClonedVoiceOverrides[locale] || {});
+  Object.assign(overrides, aiVideoPromptAssistantOverrides[locale] || aiVideoPromptAssistantOverrides['en-US']);
   aiVideoCoreKeys.forEach((key, index) => { overrides[key] = aiVideoCoreRows[locale][index]; });
   overrides['AI Video Lab'] = aiVideoLabLabels[locale];
   return [locale, overrides];

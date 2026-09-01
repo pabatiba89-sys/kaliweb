@@ -5556,6 +5556,27 @@ html[dir="rtl"] .legal-back-button svg {
   background: #a05b12;
 }
 
+.copy-message-actions .is-use-video-prompt {
+  background: linear-gradient(135deg, #07836b, #12ad88);
+  box-shadow: 0 10px 24px rgba(7, 131, 107, 0.2);
+}
+
+.copy-page--video-prompt .copy-header {
+  justify-content: space-between;
+}
+
+.copy-page--video-prompt .copy-header > div {
+  min-width: 0;
+  flex: 1;
+  text-align: center;
+}
+
+.copy-page--video-prompt .copy-header::after {
+  content: '';
+  width: 160px;
+  flex: 0 0 auto;
+}
+
 .copy-submit {
   padding: 12px;
   border-radius: 22px;
@@ -14128,6 +14149,16 @@ html[dir="rtl"] .training-submit-progress__fill {
     flex-wrap: wrap;
   }
 
+  .copy-page--video-prompt .copy-header > div {
+    order: 2;
+    flex-basis: 100%;
+    text-align: left;
+  }
+
+  .copy-page--video-prompt .copy-header::after {
+    display: none;
+  }
+
   .copy-header h1 {
     font-size: 36px;
   }
@@ -15458,6 +15489,44 @@ html[dir="rtl"] .training-submit-progress__fill {
   font-style: normal;
 }
 
+.ai-video-prompt-head__actions {
+  display: flex !important;
+  align-items: center;
+  gap: 10px !important;
+  margin-left: auto;
+}
+
+.ai-video-prompt-head__actions > em {
+  color: #8ca09b;
+  font-size: 10px;
+  font-style: normal;
+}
+
+.ai-video-prompt-assistant-button {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid #a8d8cc;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  color: #087d67;
+  background: #effaf6;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 850;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+.ai-video-prompt-assistant-button:hover {
+  border-color: #65b9a5;
+  background: #e1f6ef;
+  transform: translateY(-1px);
+}
+
 .ai-video-model-row {
   display: grid;
   grid-template-columns: minmax(230px, 0.75fr) minmax(0, 1.25fr);
@@ -16595,6 +16664,21 @@ html[dir="rtl"] .training-submit-progress__fill {
 
   .ai-video-prompt {
     min-height: 170px;
+  }
+
+  .ai-video-prompt-head {
+    flex-wrap: wrap;
+  }
+
+  .ai-video-prompt-head__actions {
+    width: calc(100% - 45px);
+    margin-left: 45px;
+    justify-content: space-between;
+  }
+
+  .ai-video-prompt-assistant-button {
+    min-height: 34px;
+    padding: 0 12px;
   }
 
   .ai-video-id-fields {

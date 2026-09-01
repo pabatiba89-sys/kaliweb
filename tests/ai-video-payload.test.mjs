@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { buildAIVideoPayload, getAIVideoRemakeDraft } from '../src/aiVideo.js';
+import { buildAIVideoPayload, buildAIVideoPromptInstruction, getAIVideoRemakeDraft } from '../src/aiVideo.js';
 
 const baseForm = {
   prompt: 'A neon city walk',
@@ -120,4 +120,19 @@ test('derives Gemini frame mode instead of trusting its generic stored mode', ()
 
   assert.equal(draft.form.mode, 'first-last-frame');
   assert.equal(draft.form.firstFrameUrl, 'https://example.com/first.jpg');
+});
+
+test('builds a single-output video prompt instruction with current generation settings', () => {
+  const instruction = buildAIVideoPromptInstruction('露天茶馆里的温暖对话', {
+    model: 'Seedance 2.0 Fast',
+    duration: 5,
+    resolution: '480p',
+    aspectRatio: '9:16',
+    generateAudio: true,
+  });
+
+  assert.match(instruction, /只输出最终提示词正文/);
+  assert.match(instruction, /当前模型：Seedance 2\.0 Fast/);
+  assert.match(instruction, /当前生成设置：5s · 480P · 9:16 · audio enabled/);
+  assert.match(instruction, /用户想法：露天茶馆里的温暖对话/);
 });

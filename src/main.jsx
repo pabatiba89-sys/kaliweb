@@ -89,7 +89,7 @@ import {
 } from './api';
 import { getInitialLocale, languages, translateStatic, useAutoTranslate, useLocaleCatalog } from './i18n';
 import { GENERATED_CONTENT_UNAVAILABLE_MESSAGE, isGeneratedMarkupFailure } from './generatedContent';
-import { buildAIVideoPayload, getAIVideoRemakeDraft } from './aiVideo';
+import { buildAIVideoPayload, buildAIVideoPromptInstruction, getAIVideoRemakeDraft } from './aiVideo';
 import { pageConfigs } from './pageConfig';
 import packageJson from '../package.json';
 import './styles.css';
@@ -3953,7 +3953,7 @@ const normalizeAIVideoRecord = (item = {}, index = 0) => {
   };
 };
 
-function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling }) {
+function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling, onOpenPromptAssistant, promptDraft }) {
   const [tab, setTab] = useState('create');
   const [models, setModels] = useState(AI_VIDEO_FALLBACK_MODELS);
   const [pricingVersion, setPricingVersion] = useState('');
@@ -3991,6 +3991,7 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling }) {
   const [detailCopyState, setDetailCopyState] = useState('');
   const quoteRequestRef = useRef(0);
   const clonedVoiceRequestRef = useRef(0);
+  const promptRef = useRef(null);
   const authed = Boolean(getAccessToken());
   const localeCatalog = useLocaleCatalog(language);
   const tr = useCallback((value) => translateStatic(value, language, localeCatalog), [language, localeCatalog]);
@@ -4010,6 +4011,19 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling }) {
     setQuote(null);
     setQuoteError('');
   };
+
+  useEffect(() => {
+    const nextPrompt = textOf(promptDraft?.text);
+    if (!promptDraft?.revision || !nextPrompt) return;
+    setForm((current) => ({ ...current, prompt: nextPrompt }));
+    setQuote(null);
+    setQuoteError('');
+    setTab('create');
+    window.requestAnimationFrame(() => {
+      promptRef.current?.focus();
+      promptRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    });
+  }, [promptDraft]);
 
   const loadModels = useCallback(async () => {
     setLoading((current) => ({ ...current, models: true }));
@@ -4473,8 +4487,28 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling }) {
               <div className="ai-video-mode-switch"><span>生成方式</span><div>{modes.map((mode) => <button type="button" key={mode} className={form.mode === mode ? 'is-active' : ''} onClick={() => updateForm('mode', mode)}>{AI_VIDEO_MODE_LABELS[mode] || mode}</button>)}</div></div>
             </div>
 
-            <div className="ai-video-section-head"><span>02</span><div><strong>描述你想要的画面</strong><small>建议写清主体、动作、环境、镜头和氛围</small></div><em>{form.prompt.length}</em></div>
-            <textarea className="ai-video-prompt" value={form.prompt} onChange={(event) => updateForm('prompt', event.target.value)} placeholder="例如：A woman walking through a neon city street, cinematic tracking shot, reflections on wet pavement..." />
+            <div className="ai-video-section-head ai-video-prompt-head">
+              <span>02</span>
+              <div><strong>描述你想要的画面</strong><small>建议写清主体、动作、环境、镜头和氛围</small></div>
+              <div className="ai-video-prompt-head__actions">
+                <em>{form.prompt.length}</em>
+                <button
+                  type="button"
+                  className="ai-video-prompt-assistant-button"
+                  onClick={() => onOpenPromptAssistant?.({
+                    prompt: form.prompt,
+                    model: selectedModel.name || selectedModel.key,
+                    duration: form.duration,
+                    resolution: form.resolution,
+                    aspectRatio: form.aspectRatio,
+                    generateAudio: form.generateAudio,
+                  })}
+                >
+                  <Sparkles size={15} />AI 提示词助手
+                </button>
+              </div>
+            </div>
+            <textarea ref={promptRef} className="ai-video-prompt" value={form.prompt} onChange={(event) => updateForm('prompt', event.target.value)} placeholder="例如：A woman walking through a neon city street, cinematic tracking shot, reflections on wet pavement..." />
 
             <div className="ai-video-section-head"><span>03</span><div><strong>生成参数</strong><small>{selectedModel.name}</small></div></div>
             <div className="ai-video-settings-grid">
@@ -10809,6 +10843,9 @@ const isProInstructionAgent = (agent = {}) => {
   return /(?:^|[\s_-])pro$|pro(?:\s|$)|专业版|高阶/.test(suffixSource);
 };
 const buildTypedPrompt = (prompt, type, agent = {}) => {
+  if (agent?.purpose === 'ai-video-prompt') {
+    return buildAIVideoPromptInstruction(prompt, agent.videoContext);
+  }
   if (normalizeInstructionType(type).value === '音乐创作') {
     return [
       '请根据用户需求创作一首可直接进入歌曲制作的歌词方案。',
@@ -11094,14 +11131,17 @@ const normalizeCopyHistoryMessages = (data) => {
     .filter((message) => message.text);
 };
 
-function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVideo, onMakeMusic }) {
+function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVideo, onMakeMusic, onUsePrompt }) {
   const [flow] = useState(() => (useHotTopicFlow ? getPendingFlow() : null));
-  const initialPrompt = flow?.prompt || flow?.topic || '';
+  const isVideoPromptAssistant = agent?.purpose === 'ai-video-prompt';
+  const initialPrompt = isVideoPromptAssistant ? textOf(agent?.initialPrompt) : flow?.prompt || flow?.topic || '';
   const [input, setInput] = useState(initialPrompt);
   const [messages, setMessages] = useState(() => [
     {
       role: 'assistant',
-      text: initialPrompt
+      text: isVideoPromptAssistant && initialPrompt
+        ? '现有视频指令已带入输入框，请确认或修改后再发送。'
+        : initialPrompt
         ? '热点内容已带入输入框，请确认或修改后再发送。'
         : agent?.desc || '输入你的产品、活动、场景或诉求，生成可直接用于视频制作的文案。',
     },
@@ -11183,7 +11223,9 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
     setConversationInstructionSetId(agent?.id || null);
     setMessages([{
       role: 'assistant',
-      text: initialPrompt
+      text: isVideoPromptAssistant && initialPrompt
+        ? '现有视频指令已带入输入框，请确认或修改后再发送。'
+        : initialPrompt
         ? '热点内容已带入输入框，请确认或修改后再发送。'
         : agent?.desc || '输入你的产品、活动、场景或诉求，生成可直接用于视频制作的文案。',
     }]);
@@ -11396,16 +11438,16 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
   const agentInitials = Array.from(agentName).slice(0, 2).join('');
 
   return (
-    <div className="copy-page">
+    <div className={`copy-page${isVideoPromptAssistant ? ' copy-page--video-prompt' : ''}`}>
       <header className="copy-header">
-        <button className="outline-top-button" onClick={onBack}><ArrowLeft size={16} />返回创作助手</button>
+        <button className="outline-top-button" onClick={onBack}><ArrowLeft size={16} />{isVideoPromptAssistant ? '返回 AI Video Lab' : '返回创作助手'}</button>
         <div>
-          <h1>文案生成</h1>
+          <h1>{isVideoPromptAssistant ? '导演提示词助手' : '文案生成'}</h1>
           <span>{agent?.name || 'Creative Agent'}</span>
         </div>
-        <button className="copy-history-trigger" onClick={openHistory}><Clock3 size={17} />生成记录</button>
+        {!isVideoPromptAssistant && <button className="copy-history-trigger" onClick={openHistory}><Clock3 size={17} />生成记录</button>}
       </header>
-      {historyOpen && (
+      {!isVideoPromptAssistant && historyOpen && (
         <div className="copy-history-overlay" role="presentation" onClick={() => setHistoryOpen(false)}>
           <aside className="copy-history-panel" role="dialog" aria-modal="true" aria-label="生成记录" onClick={(event) => event.stopPropagation()}>
             <header className="copy-history-panel__head">
@@ -11453,7 +11495,7 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
       )}
       <section className="copy-context">
         <strong>人工智能生成</strong>
-        <span>本页文案由人工智能辅助生成，请结合实际业务核验后使用</span>
+        <span>{isVideoPromptAssistant ? '视频提示词由人工智能辅助生成，请核验后再用于视频制作' : '本页文案由人工智能辅助生成，请结合实际业务核验后使用'}</span>
         {(flow?.topic || currentConversationTitle) && <em>话题：{flow?.topic || currentConversationTitle}</em>}
       </section>
       <section className="copy-chat" ref={chatRef} aria-live="polite">
@@ -11501,18 +11543,23 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
                   <>{message.text}{message.streaming && <i className="copy-stream-cursor" />}</>
                 )}
               </p>
-              {message.role !== 'pending' && !message.streaming && (
+              {message.role !== 'pending' && !message.streaming && (!isVideoPromptAssistant || (message.generated && !message.error)) && (
                 <div className="copy-message-actions">
-                  <button className="is-copy" onClick={() => copyMessage(message.text, messageKey)}>
-                    {copiedMessageKey === messageKey ? <Check size={16} /> : <Copy size={16} />}
-                    {copiedMessageKey === messageKey ? '已复制' : '复制'}
-                  </button>
-                  {message.role === 'user' && (
-                    <button className="is-regenerate" onClick={() => generate(message.text)} disabled={loading}>
-                      <RefreshCw size={16} />重新生成
+                  {isVideoPromptAssistant ? (
+                    <button className="is-use-video-prompt" onClick={() => onUsePrompt?.(message.text)}>
+                      <FileVideo size={16} />填入视频指令
                     </button>
-                  )}
-                  {message.generated && !message.error && (isMusicAgent ? (
+                  ) : <>
+                    <button className="is-copy" onClick={() => copyMessage(message.text, messageKey)}>
+                      {copiedMessageKey === messageKey ? <Check size={16} /> : <Copy size={16} />}
+                      {copiedMessageKey === messageKey ? '已复制' : '复制'}
+                    </button>
+                    {message.role === 'user' && (
+                      <button className="is-regenerate" onClick={() => generate(message.text)} disabled={loading}>
+                        <RefreshCw size={16} />重新生成
+                      </button>
+                    )}
+                    {message.generated && !message.error && (isMusicAgent ? (
                     <button className="is-music" onClick={() => makeMusic(message)}><Music2 size={16} />去制作音乐</button>
                   ) : isProAgent ? (
                     <>
@@ -11523,7 +11570,8 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
                     <>
                       <button className="is-pro-broadcast" onClick={() => makeVideo(message)}><GalleryVerticalEnd size={16} />分镜制作</button>
                     </>
-                  ))}
+                    ))}
+                  </>}
                 </div>
               )}
             </div>
@@ -11533,7 +11581,7 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
         })}
       </section>
       <form className="copy-submit" onSubmit={(event) => { event.preventDefault(); generate(); }}>
-        <textarea ref={inputRef} value={input} onChange={(event) => setInput(event.target.value)} placeholder="输入你想生成的文案需求" />
+        <textarea ref={inputRef} value={input} onChange={(event) => setInput(event.target.value)} placeholder={isVideoPromptAssistant ? '描述主体、动作、场景、镜头、风格与声音要求' : '输入你想生成的文案需求'} />
         <button className="primary-button" disabled={loading || !textOf(input)}>
           <Sparkles size={17} />
           {loading ? '生成中' : '发送'}
@@ -11542,6 +11590,13 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
     </div>
   );
 }
+
+const AI_VIDEO_PROMPT_ASSISTANT = Object.freeze({
+  name: '导演提示词助手',
+  desc: '告诉我你想生成的视频内容，我会整理成可直接用于当前模型的完整提示词。',
+  purpose: 'ai-video-prompt',
+  type: { value: '视频创作' },
+});
 
 function HotTrendsPage({ onTopicSelect }) {
   const [mode, setMode] = useState('aggregate');
@@ -12443,6 +12498,8 @@ export default function App() {
   const [imageTrainingSeed, setImageTrainingSeed] = useState(null);
   const [assetInitialMode, setAssetInitialMode] = useState('');
   const [assistantUsesHotTopic, setAssistantUsesHotTopic] = useState(false);
+  const [aiVideoPromptAssistant, setAIVideoPromptAssistant] = useState(null);
+  const [aiVideoPromptDraft, setAIVideoPromptDraft] = useState(null);
   const t = useMemo(() => getCopy(language), [language]);
   const isHome = active === 'home';
   const isPublicInfo = active.startsWith('info-') || Boolean(legalDocuments[active]);
@@ -12516,6 +12573,8 @@ export default function App() {
     setVideoCreatorPrefill(false);
     setEditorSeed(null);
     setGeneratorAgent(null);
+    setAIVideoPromptAssistant(null);
+    if (id !== 'ai-video') setAIVideoPromptDraft(null);
     setImageTrainingSeed(null);
     setAssetInitialMode('');
     setMobileNav(false);
@@ -12612,6 +12671,7 @@ export default function App() {
     setVideoCreatorPrefill(false);
     setEditorSeed(null);
     setGeneratorAgent(null);
+    setAIVideoPromptAssistant(null);
     setImageTrainingSeed(null);
     setAssetInitialMode(item.assetMode || '');
     syncWorkspacePageQuery(item.destination);
@@ -12798,12 +12858,36 @@ export default function App() {
                 }}
               />
             ) : active === 'ai-video' ? (
-              <AIVideoLabPage
-                authVersion={authVersion}
-                language={language}
-                onLogin={() => setLoginOpen(true)}
-                onOpenBilling={() => selectNav('billing')}
-              />
+              <>
+                <div className={aiVideoPromptAssistant ? 'preserved-page is-hidden' : 'preserved-page'}>
+                  <AIVideoLabPage
+                    authVersion={authVersion}
+                    language={language}
+                    onLogin={() => setLoginOpen(true)}
+                    onOpenBilling={() => selectNav('billing')}
+                    promptDraft={aiVideoPromptDraft}
+                    onOpenPromptAssistant={(context) => {
+                      setAIVideoPromptAssistant(context);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                  />
+                </div>
+                {aiVideoPromptAssistant && (
+                  <CopyGeneratorPage
+                    agent={{
+                      ...AI_VIDEO_PROMPT_ASSISTANT,
+                      initialPrompt: aiVideoPromptAssistant.prompt,
+                      videoContext: aiVideoPromptAssistant,
+                    }}
+                    onBack={() => setAIVideoPromptAssistant(null)}
+                    onLogin={() => setLoginOpen(true)}
+                    onUsePrompt={(text) => {
+                      setAIVideoPromptDraft({ text, revision: Date.now() });
+                      setAIVideoPromptAssistant(null);
+                    }}
+                  />
+                )}
+              </>
             ) : active === 'video' ? (
               <VideoStudioPage
                 authVersion={authVersion}
