@@ -4,13 +4,16 @@ const getMediaUrl = (item = {}) => cleanText(
   item.url
   || item.fileUrl
   || item.file_url
+  || item.imageUrl
+  || item.image_url
   || item.videoUrl
   || item.video_url,
 );
 
-export const buildRealmanPackagingPayload = ({ sourceVideo = {}, title = '', language = 'zh-CN', template = {}, music = {}, materials = [] } = {}) => {
+export const buildRealmanPackagingPayload = ({ sourceVideo = {}, title = '', language = 'zh-CN', template = {}, music = {}, cover = {}, materials = [] } = {}) => {
   const videoUrl = cleanText(sourceVideo.videoUrl || sourceVideo.video_url || sourceVideo.url);
   const templateId = cleanText(template.id || template.styleId || template.style_id || template.videoTemplateId || template.video_template_id);
+  const coverUrl = typeof cover === 'string' ? cleanText(cover) : getMediaUrl(cover);
   const duration = Math.max(1, Math.ceil(Number(sourceVideo.duration || sourceVideo.durationSeconds || sourceVideo.duration_seconds) || 1));
   const normalizedMaterials = materials.map((item) => ({
     type: item.type === 'video' ? 'video' : 'image',
@@ -22,6 +25,12 @@ export const buildRealmanPackagingPayload = ({ sourceVideo = {}, title = '', lan
     materialSwitch: normalizedMaterials.length > 0,
     ...(audioUrl ? { backgroundMusic: { audioSwitch: true, audioUrl, url: audioUrl, volume: 0.3 } } : {}),
   };
+  const processRules = coverUrl ? {
+    firstFrameCover: {
+      coverSwitch: true,
+      imageUrl: coverUrl,
+    },
+  } : {};
 
   return {
     title: cleanText(title),
@@ -29,6 +38,9 @@ export const buildRealmanPackagingPayload = ({ sourceVideo = {}, title = '', lan
     videoTemplateId: templateId,
     videoUrl,
     sourceVideoUrl: videoUrl,
+    coverUrl,
+    cover: coverUrl,
+    cover_url: coverUrl,
     language: cleanText(language) || 'zh-CN',
     duration,
     durationSeconds: duration,
@@ -36,6 +48,7 @@ export const buildRealmanPackagingPayload = ({ sourceVideo = {}, title = '', lan
     materials: normalizedMaterials,
     materialSoundSwitch: false,
     packRules,
+    processRules,
     shanjianData: {
       title: cleanText(title),
       styleId: templateId,
@@ -44,7 +57,7 @@ export const buildRealmanPackagingPayload = ({ sourceVideo = {}, title = '', lan
       materials: normalizedMaterials,
       materialSoundSwitch: false,
       packRules,
+      processRules,
     },
   };
 };
-

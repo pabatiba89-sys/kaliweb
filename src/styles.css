@@ -3044,7 +3044,63 @@
 }
 
 .ai-video-packaging-material-actions {
-  margin-top: 18px;
+  margin-top: 0;
+}
+
+.ai-video-packaging-material-actions > div {
+  grid-template-columns: 1fr;
+}
+
+.ai-video-packaging-upload-grid {
+  grid-template-columns: minmax(230px, 0.85fr) minmax(280px, 1.15fr);
+}
+
+.ai-video-packaging-cover-empty {
+  min-height: 132px;
+  border: 1px dashed #acd8c8;
+  border-radius: 13px;
+  background: #f1faf6;
+  color: var(--green-dark);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  text-align: center;
+}
+
+.ai-video-packaging-cover-empty small,
+.video-creator-cover-preview small {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.ai-video-packaging-cover-actions {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.ai-video-packaging-cover-actions button,
+.ai-video-packaging-cover-actions label {
+  min-height: 42px;
+  border: 1px solid #b9dacf;
+  border-radius: 11px;
+  background: #fff;
+  color: var(--green-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 760;
+  text-align: center;
+}
+
+.ai-video-packaging-cover-actions input {
+  display: none;
 }
 
 .ai-video-packaging-submit {
@@ -3058,6 +3114,11 @@
 
   .ai-video-packaging-source > video {
     width: 96px;
+  }
+
+  .ai-video-packaging-upload-grid,
+  .ai-video-packaging-cover-actions {
+    grid-template-columns: 1fr;
   }
 }
 
