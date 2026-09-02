@@ -16632,33 +16632,20 @@ html[dir="rtl"] .training-submit-progress__fill {
   background: #0a1915;
 }
 
-.ai-video-modal-copy {
+.ai-video-modal-toolbar {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 12px;
 }
 
-.ai-video-modal-copy > div {
-  display: grid;
-  min-width: 0;
-  flex: 1;
-  gap: 11px;
-}
-
-.ai-video-modal-copy strong {
-  color: #2d554a;
-  font-size: 13px;
-  line-height: 1.65;
-}
-
-.ai-video-modal-copy__actions {
+.ai-video-modal-toolbar__actions {
   display: flex;
   flex-wrap: wrap;
   gap: 7px;
 }
 
-.ai-video-modal-copy__actions button {
+.ai-video-modal-toolbar__actions button {
   display: inline-flex;
   width: auto;
   min-height: 33px;
@@ -16673,7 +16660,7 @@ html[dir="rtl"] .training-submit-progress__fill {
   font-weight: 800;
 }
 
-.ai-video-modal-copy__actions button:last-child {
+.ai-video-modal-toolbar__actions button:last-child {
   border-color: #087d67;
   color: #fff;
   background: #087d67;

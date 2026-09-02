@@ -199,7 +199,7 @@
 - 2026-08-29：用户认为当前公开官网视觉过于扁平，并从三版方向稿中选择“创作舞台”方向；公开首页采用深墨绿 Hero、前景工作台、浮动能力提示和浅色内容表面强化前中后景，其他公开页面保持原浅色体系。后续不要只给所有卡片统一加阴影，也不要改变现有薄荷绿、深墨绿、编辑感和业务信息架构。
 - 2026-08-31：工作台新增独立 AI Video Lab（`/app/?page=ai-video`）：模型和价格动态读取 `/api/ai-video/models`，创建前通过 `/api/ai-video/quote` 重新试算整数积分并检查余额，再提交 `/api/ai-video/create`；任务与成片统一读取 `/api/ai-video/tasks` 和 `/api/ai-video/videos`，参考视频上传后自动读取时长用于计费，前端只使用七牛归档后的 `video_url`。页面覆盖 7 个模型的参数分支，并同步 24 种工作台语言。
 - 2026-09-01：AI Video Lab 不保留手动“试算积分”按钮；用户停止修改有效参数约 600 毫秒后自动请求报价，并用请求序号忽略过期响应。创建任务前仍强制重新报价和校验余额，避免使用过期价格扣款。
-- 2026-09-01：AI Video Lab 成片详情的指令区提供“复制”和“重新制作”；重新制作只把原指令、模型、生成方式、规格、声音设置和可恢复的参考素材带回创建表单，不自动提交或扣费。现有 `/api/team-notion/publish-video` 只接受 `video_production_tasks.id`，不得把 `generated_ai_videos.id` 直接传入，否则存在同号误发布风险；AI 成片发布需由只读后台新增专用接口或显式 `source_type=ai_video` 分支后再接前端。
+- 2026-09-02：AI Video Lab 的成片详情和任务详情不展示提示词正文，也不提供提示词复制按钮；“重新制作”仍在内部复用原提示词、模型、生成方式、规格、声音设置和可恢复的参考素材，但不自动提交或扣费。现有 `/api/team-notion/publish-video` 只接受 `video_production_tasks.id`，不得把 `generated_ai_videos.id` 直接传入，否则存在同号误发布风险；AI 成片发布使用专用 `/api/team-notion/publish-ai-video`。
 - 2026-09-01：AI Video Lab 的参考音频支持从 `/api/ai-voice/list` 下拉选择当前用户/团队的克隆声音；必须分页取全，只展示训练成功且存在 `audio_url` 的记录，选中后把该 URL 写入 `reference_audio_urls`，并按 URL 去重。手动粘贴音频 URL 和本地上传入口继续保留。
 - 2026-09-01：AI Video Lab 的指令区提供“AI 提示词助手”，打开专用“导演提示词助手”时保持原创建表单挂载；助手结合当前模型和生成规格输出单段可用提示词，结果下只显示“填入视频指令”，点击后返回并覆盖指令，其他模型、参数和参考素材保持不变。
 - 2026-09-01：AI Video Lab 成片详情仅对已成功归档的成片显示“发布”；发布弹窗通过 `/api/team-notion/publish-ai-video` 提交本地 AI 成片 ID、必填标题、手动话题、发布账号与立即/定时时间。话题支持逗号、井号、分号或换行分隔并自动去重；账号必须使用 `/api/team-notion/publish-account` 返回的发布账号记录 ID。发布不改变 AI 任务成功状态，也不扣积分。
