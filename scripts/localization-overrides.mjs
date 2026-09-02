@@ -1645,6 +1645,34 @@ const aiVideoCoreRows = {
   'hi-IN': ['AI वीडियो लैब', 'AI वीडियो', 'वीडियो बनाएँ', 'जनरेशन कार्य', 'तैयार वीडियो', 'मॉडल', 'जनरेशन मोड', 'अपना मनचाहा वीडियो बताएँ', 'संदर्भ मीडिया', 'क्रेडिट अनुमान', 'AI वीडियो बनाएँ', 'क्रेडिट खरीदें'],
 };
 
+const creatorMaterialSourceKeys = ['选择素材', '选择素材来源', 'AI 图片'];
+const creatorMaterialSourceRows = {
+  'en-US': ['Select media', 'Select media source', 'AI images'],
+  'zh-CN': ['选择素材', '选择素材来源', 'AI 图片'],
+  'zh-TW': ['選擇素材', '選擇素材來源', 'AI 圖片'],
+  'es-MX': ['Seleccionar contenido', 'Seleccionar fuente del contenido', 'Imágenes con IA'],
+  'fr-FR': ['Sélectionner des médias', 'Sélectionner la source des médias', 'Images IA'],
+  'ru-RU': ['Выбрать материалы', 'Выбрать источник материалов', 'ИИ-изображения'],
+  'de-DE': ['Medien auswählen', 'Medienquelle auswählen', 'KI-Bilder'],
+  'pt-PT': ['Selecionar multimédia', 'Selecionar fonte multimédia', 'Imagens de IA'],
+  'ar-AE': ['اختيار الوسائط', 'اختيار مصدر الوسائط', 'صور الذكاء الاصطناعي'],
+  'it-IT': ['Seleziona media', 'Seleziona la fonte dei media', 'Immagini AI'],
+  'ja-JP': ['素材を選択', '素材ソースを選択', 'AI画像'],
+  'ko-KR': ['미디어 선택', '미디어 소스 선택', 'AI 이미지'],
+  'id-ID': ['Pilih media', 'Pilih sumber media', 'Gambar AI'],
+  'vi-VN': ['Chọn nội dung', 'Chọn nguồn nội dung', 'Hình ảnh AI'],
+  'tr-TR': ['Medya seç', 'Medya kaynağı seç', 'AI görselleri'],
+  'nl-NL': ['Media selecteren', 'Mediabron selecteren', 'AI-afbeeldingen'],
+  'uk-UA': ['Вибрати матеріали', 'Вибрати джерело матеріалів', 'Зображення ШІ'],
+  'th-TH': ['เลือกสื่อ', 'เลือกแหล่งที่มาของสื่อ', 'รูปภาพ AI'],
+  'pl-PL': ['Wybierz multimedia', 'Wybierz źródło multimediów', 'Obrazy AI'],
+  'ro-RO': ['Selectează conținut media', 'Selectează sursa media', 'Imagini AI'],
+  'el-GR': ['Επιλογή πολυμέσων', 'Επιλογή πηγής πολυμέσων', 'Εικόνες AI'],
+  'cs-CZ': ['Vybrat média', 'Vybrat zdroj médií', 'Obrázky AI'],
+  'fi-FI': ['Valitse media', 'Valitse median lähde', 'Tekoälykuvat'],
+  'hi-IN': ['मीडिया चुनें', 'मीडिया स्रोत चुनें', 'AI चित्र'],
+};
+
 export const workspaceLocalizationOverrides = Object.fromEntries(Object.entries(actionRows).map(([locale, values]) => {
   const overrides = {};
   actionKeys.forEach((key, index) => actionAliases[key].forEach((source) => { overrides[source] = values[index]; }));
@@ -1668,6 +1696,7 @@ export const workspaceLocalizationOverrides = Object.fromEntries(Object.entries(
   Object.assign(overrides, aiVideoPromptAssistantOverrides[locale] || aiVideoPromptAssistantOverrides['en-US']);
   Object.assign(overrides, aiVideoPublishOverrides[locale] || aiVideoPublishOverrides['en-US']);
   aiVideoCoreKeys.forEach((key, index) => { overrides[key] = aiVideoCoreRows[locale][index]; });
+  creatorMaterialSourceKeys.forEach((key, index) => { overrides[key] = creatorMaterialSourceRows[locale][index]; });
   overrides['AI Video Lab'] = aiVideoLabLabels[locale];
   return [locale, overrides];
 }));
