@@ -2037,5 +2037,11 @@
   "请输入视频话题": "Enter a video topic",
   "第一句对白将自动作为标题": "The first spoken line is used as the title",
   "视频标题已从第一句对白自动生成；包装不会追加字幕、介绍卡或数字人专用字段。": "The video title is generated from the first spoken line. Packaging does not add subtitles, intro cards, or digital-human-only fields.",
-  "例如：职场沟通、办公室幽默": "For example: workplace communication, office humor"
+  "例如：职场沟通、办公室幽默": "For example: workplace communication, office humor",
+  "请选择视频封面或封面模板": "Choose a video cover or cover template",
+  "选择封面模板": "Choose a cover template",
+  "更换封面模板": "Change cover template",
+  "封面模板": "Cover template",
+  "封面模板加载失败": "Failed to load cover templates",
+  "封面必填，可本地上传、从 AI 图片选择或使用封面模板；补充素材可选，总时长不超过 5 分钟。": "A cover is required. Upload one, choose an AI image, or use a cover template. Additional media is optional and limited to five minutes total."
 }

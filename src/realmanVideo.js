@@ -10,10 +10,13 @@ const getMediaUrl = (item = {}) => cleanText(
   || item.video_url,
 );
 
-export const buildRealmanPackagingPayload = ({ sourceVideo = {}, title = '', topic = '', language = 'zh-CN', template = {}, music = {}, cover = {}, materials = [] } = {}) => {
+export const buildRealmanPackagingPayload = ({ sourceVideo = {}, title = '', topic = '', language = 'zh-CN', template = {}, music = {}, cover = {}, coverTemplate = {}, materials = [] } = {}) => {
   const videoUrl = cleanText(sourceVideo.videoUrl || sourceVideo.video_url || sourceVideo.url);
   const templateId = cleanText(template.id || template.styleId || template.style_id || template.videoTemplateId || template.video_template_id);
-  const coverUrl = typeof cover === 'string' ? cleanText(cover) : getMediaUrl(cover);
+  const coverTemplateId = cleanText(coverTemplate.id || coverTemplate.templateId || coverTemplate.template_id || coverTemplate.coverTemplateId || coverTemplate.cover_template_id);
+  const coverTemplateName = cleanText(coverTemplate.title || coverTemplate.name || coverTemplate.templateName || coverTemplate.template_name);
+  const coverTemplatePreviewUrl = getMediaUrl(coverTemplate) || cleanText(coverTemplate.cover || coverTemplate.previewUrl || coverTemplate.preview_url);
+  const coverUrl = coverTemplateId ? '' : (typeof cover === 'string' ? cleanText(cover) : getMediaUrl(cover));
   const normalizedTopic = cleanText(topic);
   const duration = Math.max(1, Math.ceil(Number(sourceVideo.duration || sourceVideo.durationSeconds || sourceVideo.duration_seconds) || 1));
   const normalizedMaterials = materials.map((item) => ({
@@ -26,10 +29,10 @@ export const buildRealmanPackagingPayload = ({ sourceVideo = {}, title = '', top
     materialSwitch: normalizedMaterials.length > 0,
     ...(audioUrl ? { backgroundMusic: { audioSwitch: true, audioUrl, url: audioUrl, volume: 0.3 } } : {}),
   };
-  const processRules = coverUrl ? {
+  const processRules = coverUrl || coverTemplateId ? {
     firstFrameCover: {
       coverSwitch: true,
-      imageUrl: coverUrl,
+      ...(coverTemplateId ? { templateId: coverTemplateId } : { imageUrl: coverUrl }),
     },
   } : {};
 
@@ -45,6 +48,11 @@ export const buildRealmanPackagingPayload = ({ sourceVideo = {}, title = '', top
     coverUrl,
     cover: coverUrl,
     cover_url: coverUrl,
+    coverTemplateId,
+    coverplate: coverTemplateId,
+    coverTemplateName,
+    coverTemplateImageUrl: coverTemplatePreviewUrl,
+    coverTemplatePreviewUrl,
     language: cleanText(language) || 'zh-CN',
     duration,
     durationSeconds: duration,
@@ -57,6 +65,8 @@ export const buildRealmanPackagingPayload = ({ sourceVideo = {}, title = '', top
       title: cleanText(title),
       styleId: templateId,
       videoUrl,
+      coverTemplateId,
+      coverTemplateName,
       language: cleanText(language) || 'zh-CN',
       materials: normalizedMaterials,
       materialSoundSwitch: false,
