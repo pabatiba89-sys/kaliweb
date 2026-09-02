@@ -1673,6 +1673,54 @@ const creatorMaterialSourceRows = {
   'hi-IN': ['मीडिया चुनें', 'मीडिया स्रोत चुनें', 'AI चित्र'],
 };
 
+const realmanPackagingOverrides = {
+  'en-US': {
+    '包装视频': 'Package video',
+    '真人视频包装': 'Real-person video packaging',
+    '选择 AI 成片包装': 'Choose an AI video to package',
+    '真人成片、包装模板与补充素材': 'Real-person video, template, and extra media',
+    '返回成片详情': 'Back to video details',
+    '确认原成片': 'Confirm source video',
+    '任务标题': 'Task title',
+    '视频语种': 'Video language',
+    '选择包装配置': 'Choose packaging options',
+    '真人口播模板': 'Real-person template',
+    '请选择真人口播模板': 'Choose a real-person template',
+    '自动匹配背景音乐': 'Auto-match background music',
+    '改为自动音乐': 'Use automatic music',
+    '补充素材': 'Additional media',
+    '提交包装': 'Submit packaging',
+    '真人视频包装任务已提交': 'Real-person video packaging task submitted',
+    '正在加载包装资源…': 'Loading packaging resources…',
+    '系统自动匹配': 'Matched automatically',
+    '包装确认': 'Packaging summary',
+    '去 AI Video Lab 选择成片': 'Choose a video in AI Video Lab',
+  },
+  'zh-CN': {},
+  'zh-TW': {
+    '包装视频': '包裝影片',
+    '真人视频包装': '真人影片包裝',
+    '选择 AI 成片包装': '選擇 AI 成片包裝',
+    '真人成片、包装模板与补充素材': '真人成片、包裝模板與補充素材',
+    '返回成片详情': '返回成片詳情',
+    '确认原成片': '確認原成片',
+    '任务标题': '任務標題',
+    '视频语种': '影片語種',
+    '选择包装配置': '選擇包裝設定',
+    '真人口播模板': '真人口播模板',
+    '请选择真人口播模板': '請選擇真人口播模板',
+    '自动匹配背景音乐': '自動匹配背景音樂',
+    '改为自动音乐': '改為自動音樂',
+    '补充素材': '補充素材',
+    '提交包装': '提交包裝',
+    '真人视频包装任务已提交': '真人影片包裝任務已提交',
+    '正在加载包装资源…': '正在載入包裝資源…',
+    '系统自动匹配': '系統自動匹配',
+    '包装确认': '包裝確認',
+    '去 AI Video Lab 选择成片': '前往 AI Video Lab 選擇成片',
+  },
+};
+
 export const workspaceLocalizationOverrides = Object.fromEntries(Object.entries(actionRows).map(([locale, values]) => {
   const overrides = {};
   actionKeys.forEach((key, index) => actionAliases[key].forEach((source) => { overrides[source] = values[index]; }));
@@ -1697,6 +1745,7 @@ export const workspaceLocalizationOverrides = Object.fromEntries(Object.entries(
   Object.assign(overrides, aiVideoPublishOverrides[locale] || aiVideoPublishOverrides['en-US']);
   aiVideoCoreKeys.forEach((key, index) => { overrides[key] = aiVideoCoreRows[locale][index]; });
   creatorMaterialSourceKeys.forEach((key, index) => { overrides[key] = creatorMaterialSourceRows[locale][index]; });
+  Object.assign(overrides, realmanPackagingOverrides[locale] || realmanPackagingOverrides['en-US']);
   overrides['AI Video Lab'] = aiVideoLabLabels[locale];
   return [locale, overrides];
 }));

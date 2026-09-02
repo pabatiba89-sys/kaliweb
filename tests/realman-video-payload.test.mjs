@@ -1,0 +1,43 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+
+import { buildRealmanPackagingPayload } from '../src/realmanVideo.js';
+
+test('builds a real-person packaging payload without digital-human-only fields', () => {
+  const payload = buildRealmanPackagingPayload({
+    sourceVideo: { videoUrl: 'https://cdn.example.com/source.mp4', duration: 4.2, prompt: 'do not submit this as a script' },
+    title: 'Neon city package',
+    language: 'en-US',
+    template: { id: 'style-8' },
+    music: { audioUrl: 'https://cdn.example.com/music.mp3' },
+    materials: [
+      { type: 'image', url: 'https://cdn.example.com/cover.jpg' },
+      { type: 'video', fileUrl: 'https://cdn.example.com/cutaway.mp4' },
+    ],
+  });
+
+  assert.equal(payload.videoUrl, 'https://cdn.example.com/source.mp4');
+  assert.equal(payload.videoTemplateId, 'style-8');
+  assert.equal(payload.durationSeconds, 5);
+  assert.deepEqual(payload.materials, [
+    { type: 'image', fileUrl: 'https://cdn.example.com/cover.jpg' },
+    { type: 'video', fileUrl: 'https://cdn.example.com/cutaway.mp4' },
+  ]);
+  assert.equal(payload.shanjianData.packRules.backgroundMusic.volume, 0.3);
+  for (const key of ['script', 'content', 'subtitle', 'subtitles', 'introduceCard', 'speakerId', 'virtualmanId']) {
+    assert.equal(Object.hasOwn(payload, key), false);
+    assert.equal(Object.hasOwn(payload.shanjianData, key), false);
+  }
+});
+
+test('leaves background music unset so the backend can pick one automatically', () => {
+  const payload = buildRealmanPackagingPayload({
+    sourceVideo: { video_url: 'https://cdn.example.com/source.mp4', duration_seconds: 5 },
+    title: 'Auto music',
+    template: { style_id: 'style-9' },
+  });
+
+  assert.equal(payload.styleId, 'style-9');
+  assert.equal(payload.packRules.materialSwitch, false);
+  assert.equal(Object.hasOwn(payload.packRules, 'backgroundMusic'), false);
+});

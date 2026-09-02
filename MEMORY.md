@@ -206,3 +206,4 @@
 - 2026-09-02：创作助手列表中的“提示词助手”与 AI Video Lab 共用专用生成页；从助手生成结果点击“去 AI 工作坊”会进入创建视频页并填充提示词，从 AI Video Lab 打开提示词助手时保留原有模型、规格和参考素材。
 - 2026-09-02：视频制作的共用素材选择器同时支持“素材库 / AI Video Lab / AI 图片”三个来源；AI 成片读取 `/api/ai-video/videos`，AI 图片读取 `/api/image-generation/images`，选中后统一转为现有图片或视频 URL 素材提交，无需改后台。
 - 2026-09-02：AI Video Lab 成片库的视频预览按 `9:16` 竖屏比例展示，媒体使用完整适配而非居中裁切；桌面端提高为六列，并在中小屏逐级降列，兼顾完整画面与列表密度。
+- 2026-09-02：AI Video Lab 已完成成片详情新增“包装视频”，进入独立“真人视频包装”制作页；固定读取 `scene=realMan` 的真人口播模板，通过 `/api/video/realman-broadcast/create`（兼容 `/api/video/production/realman-broadcast/create`）提交原成片、可选背景音乐和补充素材，不传字幕、介绍卡或数字人专用字段。Video Studio 增加 `scene=realMan` 的任务板块用于查看包装进度；未选音乐时由后台自动匹配。
