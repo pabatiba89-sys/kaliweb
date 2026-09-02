@@ -1539,9 +1539,11 @@ const aiVideoClonedVoiceOverrides = {
 const aiVideoPromptAssistantOverrides = {
   'en-US': {
     'AI 提示词助手': 'AI prompt assistant',
+    '提示词助手': 'Prompt Assistant',
     '导演提示词助手': 'Director Prompt Assistant',
     '返回 AI Video Lab': 'Back to AI Video Lab',
     '填入视频指令': 'Use as video prompt',
+    '去 AI 工作坊': 'Go to AI Video Lab',
     '告诉我你想生成的视频内容，我会整理成可直接用于当前模型的完整提示词。': 'Describe the video you want, and I will turn it into a complete prompt for the current model.',
     '现有视频指令已带入输入框，请确认或修改后再发送。': 'Your current video prompt is ready in the input box. Review or edit it, then send.',
     '视频提示词由人工智能辅助生成，请核验后再用于视频制作': 'This video prompt is AI-assisted. Review it before using it for video production.',
@@ -1549,9 +1551,11 @@ const aiVideoPromptAssistantOverrides = {
   },
   'zh-CN': {
     'AI 提示词助手': 'AI 提示词助手',
+    '提示词助手': '提示词助手',
     '导演提示词助手': '导演提示词助手',
     '返回 AI Video Lab': '返回 AI 视频工坊',
     '填入视频指令': '填入视频指令',
+    '去 AI 工作坊': '去 AI 工作坊',
     '告诉我你想生成的视频内容，我会整理成可直接用于当前模型的完整提示词。': '告诉我你想生成的视频内容，我会整理成可直接用于当前模型的完整提示词。',
     '现有视频指令已带入输入框，请确认或修改后再发送。': '现有视频指令已带入输入框，请确认或修改后再发送。',
     '视频提示词由人工智能辅助生成，请核验后再用于视频制作': '视频提示词由人工智能辅助生成，请核验后再用于视频制作',
@@ -1559,9 +1563,11 @@ const aiVideoPromptAssistantOverrides = {
   },
   'zh-TW': {
     'AI 提示词助手': 'AI 提示詞助手',
+    '提示词助手': '提示詞助手',
     '导演提示词助手': '導演提示詞助手',
     '返回 AI Video Lab': '返回 AI 影片工坊',
     '填入视频指令': '填入影片指令',
+    '去 AI 工作坊': '前往 AI 影片工坊',
     '告诉我你想生成的视频内容，我会整理成可直接用于当前模型的完整提示词。': '告訴我你想生成的影片內容，我會整理成可直接用於當前模型的完整提示詞。',
     '现有视频指令已带入输入框，请确认或修改后再发送。': '現有影片指令已帶入輸入框，請確認或修改後再發送。',
     '视频提示词由人工智能辅助生成，请核验后再用于视频制作': '影片提示詞由人工智慧輔助生成，請核驗後再用於影片製作',

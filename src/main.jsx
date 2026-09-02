@@ -10352,6 +10352,13 @@ const getPendingFlow = () => {
   }
 };
 
+const isAIVideoPromptAgent = (agent = {}) => {
+  if (agent?.purpose === 'ai-video-prompt') return true;
+  const name = textOf(agent.name || agent.title || agent.instructionSetTitle || agent.instruction_set_name)
+    .replace(/\s+/g, '');
+  return name === '提示词助手' || name === '导演提示词助手';
+};
+
 function AssistantPage({ authVersion, useHotTopicFlow, onLogin, onCreateAgent, onOpenGenerator }) {
   const [agents, setAgents] = useState([]);
   const [selected, setSelected] = useState('');
@@ -10450,7 +10457,11 @@ function AssistantPage({ authVersion, useHotTopicFlow, onLogin, onCreateAgent, o
       window.localStorage.setItem(HOT_TOPIC_FLOW_KEY, JSON.stringify({ ...flow, ...context, autoGenerate: false }));
     }
     setSelected(agent.id);
-    onOpenGenerator(agent);
+    onOpenGenerator(isAIVideoPromptAgent(agent) ? {
+      ...agent,
+      purpose: 'ai-video-prompt',
+      promptAssistantOrigin: 'assistant',
+    } : agent);
   };
   const createAgent = () => {
     if (!authed) onLogin();
@@ -11259,6 +11270,7 @@ const normalizeCopyHistoryMessages = (data) => {
 function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVideo, onMakeMusic, onUsePrompt }) {
   const [flow] = useState(() => (useHotTopicFlow ? getPendingFlow() : null));
   const isVideoPromptAssistant = agent?.purpose === 'ai-video-prompt';
+  const promptAssistantFromWorkshop = isVideoPromptAssistant && agent?.promptAssistantOrigin !== 'assistant';
   const initialPrompt = isVideoPromptAssistant ? textOf(agent?.initialPrompt) : flow?.prompt || flow?.topic || '';
   const [input, setInput] = useState(initialPrompt);
   const [messages, setMessages] = useState(() => [
@@ -11565,9 +11577,9 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
   return (
     <div className={`copy-page${isVideoPromptAssistant ? ' copy-page--video-prompt' : ''}`}>
       <header className="copy-header">
-        <button className="outline-top-button" onClick={onBack}><ArrowLeft size={16} />{isVideoPromptAssistant ? '返回 AI Video Lab' : '返回创作助手'}</button>
+        <button className="outline-top-button" onClick={onBack}><ArrowLeft size={16} />{promptAssistantFromWorkshop ? '返回 AI Video Lab' : '返回创作助手'}</button>
         <div>
-          <h1>{isVideoPromptAssistant ? '导演提示词助手' : '文案生成'}</h1>
+          <h1>{isVideoPromptAssistant ? (agent?.name || '提示词助手') : '文案生成'}</h1>
           <span>{agent?.name || 'Creative Agent'}</span>
         </div>
         {!isVideoPromptAssistant && <button className="copy-history-trigger" onClick={openHistory}><Clock3 size={17} />生成记录</button>}
@@ -11672,7 +11684,7 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
                 <div className="copy-message-actions">
                   {isVideoPromptAssistant ? (
                     <button className="is-use-video-prompt" onClick={() => onUsePrompt?.(message.text)}>
-                      <FileVideo size={16} />填入视频指令
+                      <FileVideo size={16} />去 AI 工作坊
                     </button>
                   ) : <>
                     <button className="is-copy" onClick={() => copyMessage(message.text, messageKey)}>
@@ -11717,9 +11729,10 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
 }
 
 const AI_VIDEO_PROMPT_ASSISTANT = Object.freeze({
-  name: '导演提示词助手',
+  name: '提示词助手',
   desc: '告诉我你想生成的视频内容，我会整理成可直接用于当前模型的完整提示词。',
   purpose: 'ai-video-prompt',
+  promptAssistantOrigin: 'ai-video',
   type: { value: '视频创作' },
 });
 
@@ -12853,6 +12866,15 @@ export default function App() {
                 onBack={() => setGeneratorAgent(null)}
                 onLogin={() => setLoginOpen(true)}
                 onMakeVideo={openVideoCreatorPage}
+                onUsePrompt={(text) => {
+                  setAIVideoPromptDraft({ text, revision: Date.now() });
+                  setGeneratorAgent(null);
+                  setAIVideoPromptAssistant(null);
+                  syncWorkspacePageQuery('ai-video');
+                  setActive('ai-video');
+                  setMobileNav(false);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
                 onMakeMusic={() => {
                   setGeneratorAgent(null);
                   setActive('music');
