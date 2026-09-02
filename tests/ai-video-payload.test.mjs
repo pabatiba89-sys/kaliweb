@@ -5,6 +5,7 @@ import {
   buildAIVideoPayload,
   buildAIVideoPromptInstruction,
   buildAIVideoPublishPayload,
+  getAIVideoDialogueTitle,
   getAIVideoRemakeDraft,
   normalizeAIVideoTopics,
 } from '../src/aiVideo.js';
@@ -145,6 +146,12 @@ test('builds a single-output video prompt instruction with current generation se
 
 test('normalizes manually entered AI video topics', () => {
   assert.deepEqual(normalizeAIVideoTopics('#AI视频，产品发布\nAI视频; 海外营销'), ['AI视频', '产品发布', '海外营销']);
+});
+
+test('uses the first spoken sentence as the AI video title', () => {
+  const prompt = '场景：深夜办公室。Elena 抬眼看 Adrian，说：“你那计划滴水不漏，最后漏得一点不剩。今晚重做。”镜头缓慢推进。';
+  assert.equal(getAIVideoDialogueTitle(prompt), '你那计划滴水不漏，最后漏得一点不剩。');
+  assert.equal(getAIVideoDialogueTitle('No spoken dialogue here.'), 'AI 真人视频');
 });
 
 test('builds the dedicated AI video publish payload', () => {

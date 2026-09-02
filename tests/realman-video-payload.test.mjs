@@ -7,6 +7,7 @@ test('builds a real-person packaging payload without digital-human-only fields',
   const payload = buildRealmanPackagingPayload({
     sourceVideo: { videoUrl: 'https://cdn.example.com/source.mp4', duration: 4.2, prompt: 'do not submit this as a script' },
     title: 'Neon city package',
+    topic: 'Office humor',
     language: 'en-US',
     template: { id: 'style-8' },
     music: { audioUrl: 'https://cdn.example.com/music.mp3' },
@@ -18,6 +19,8 @@ test('builds a real-person packaging payload without digital-human-only fields',
   });
 
   assert.equal(payload.videoUrl, 'https://cdn.example.com/source.mp4');
+  assert.equal(payload.tags, 'Office humor');
+  assert.equal(payload.tag, 'Office humor');
   assert.equal(payload.videoTemplateId, 'style-8');
   assert.equal(payload.durationSeconds, 5);
   assert.equal(payload.coverUrl, 'https://cdn.example.com/video-cover.jpg');

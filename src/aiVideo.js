@@ -21,6 +21,26 @@ export function normalizeAIVideoTopics(value) {
   return [...new Set(topics.map((topic) => String(topic || '').trim()).filter(Boolean))];
 }
 
+export function getAIVideoDialogueTitle(prompt, fallback = 'AI 真人视频') {
+  const source = String(prompt || '').replace(/\s+/g, ' ').trim();
+  if (!source) return fallback;
+  const dialoguePatterns = [
+    /(?:对白|台词|说|说道|问|问道|回答|答道|回应|低声说|笑着说)\s*[：:,，]?\s*[“「『\"]([^”」』\"]{2,})[”」』\"]?/i,
+    /(?:dialogue|line|says?|asks?|replies?|responds?|whispers?)\s*[：:,]?\s*[“「『\"]([^”」』\"]{2,})[”」』\"]?/i,
+  ];
+  let dialogue = '';
+  for (const pattern of dialoguePatterns) {
+    const match = source.match(pattern);
+    if (match?.[1]) {
+      dialogue = match[1].trim();
+      break;
+    }
+  }
+  if (!dialogue) return fallback;
+  const firstSentence = dialogue.match(/^.*?[。！？!?]/)?.[0]?.trim() || dialogue;
+  return firstSentence.slice(0, 80);
+}
+
 export function buildAIVideoPublishPayload({ videoId, title, topics, accountId, publishAt, publishNow = false } = {}) {
   return {
     ai_video_id: Number(videoId),

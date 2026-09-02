@@ -10,10 +10,11 @@ const getMediaUrl = (item = {}) => cleanText(
   || item.video_url,
 );
 
-export const buildRealmanPackagingPayload = ({ sourceVideo = {}, title = '', language = 'zh-CN', template = {}, music = {}, cover = {}, materials = [] } = {}) => {
+export const buildRealmanPackagingPayload = ({ sourceVideo = {}, title = '', topic = '', language = 'zh-CN', template = {}, music = {}, cover = {}, materials = [] } = {}) => {
   const videoUrl = cleanText(sourceVideo.videoUrl || sourceVideo.video_url || sourceVideo.url);
   const templateId = cleanText(template.id || template.styleId || template.style_id || template.videoTemplateId || template.video_template_id);
   const coverUrl = typeof cover === 'string' ? cleanText(cover) : getMediaUrl(cover);
+  const normalizedTopic = cleanText(topic);
   const duration = Math.max(1, Math.ceil(Number(sourceVideo.duration || sourceVideo.durationSeconds || sourceVideo.duration_seconds) || 1));
   const normalizedMaterials = materials.map((item) => ({
     type: item.type === 'video' ? 'video' : 'image',
@@ -34,6 +35,9 @@ export const buildRealmanPackagingPayload = ({ sourceVideo = {}, title = '', lan
 
   return {
     title: cleanText(title),
+    topic: normalizedTopic,
+    tags: normalizedTopic,
+    tag: normalizedTopic,
     styleId: templateId,
     videoTemplateId: templateId,
     videoUrl,
