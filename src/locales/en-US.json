@@ -1442,5 +1442,6 @@
   "请上传需要包装的视频": "Upload the video you want to package",
   "正在上传源视频…": "Uploading source video…",
   "源视频上传失败": "Source video upload failed",
-  "源视频上传未返回地址": "Source video upload did not return a URL"
+  "源视频上传未返回地址": "Source video upload did not return a URL",
+  "Seedance 2.5 is now available": "Seedance 2.5 is now available"
 }

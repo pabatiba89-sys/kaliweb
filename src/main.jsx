@@ -33,7 +33,9 @@ import {
   KeyRound,
   Layers3,
   Library,
+  LogOut,
   Mail,
+  Megaphone,
   Menu,
   Mic2,
   Music2,
@@ -177,7 +179,7 @@ const sourceCopyLocales = {
 };
 const getCopy = (locale) => copy[sourceCopyLocales[locale] || 'en'];
 
-const navItems = [
+const primaryNavItems = [
   { id: 'home', label: 'Home', icon: Home },
   { id: 'trends', label: 'Hot Trends', icon: TrendingUp },
   { id: 'assistant', label: 'AI Assistant', icon: Bot },
@@ -189,10 +191,13 @@ const navItems = [
   { id: 'image', label: 'Image Studio', icon: Image },
   { id: 'materials', label: 'Materials', icon: Library },
   { id: 'templates', label: 'Templates', icon: GalleryVerticalEnd },
-  { id: 'presets', label: 'Packaging Presets', icon: Cuboid },
+];
+
+const accountMenuItems = [
   { id: 'billing', label: 'Credits & orders', icon: CircleDollarSign },
   { id: 'team', label: 'Team Center', icon: Building2 },
   { id: 'affiliate', label: 'Affiliate Center', icon: UsersRound },
+  { id: 'presets', label: 'Packaging Presets', icon: Cuboid },
   { id: 'settings', label: 'Settings', icon: Settings },
 ];
 
@@ -325,6 +330,24 @@ const agreementCards = [
 
 const supportCards = [
   {
+    id: 'ai-video',
+    title: 'AI Video Lab',
+    icon: FileVideo,
+    color: '#008e74',
+  },
+  {
+    id: 'video',
+    title: 'Video Studio',
+    icon: Video,
+    color: '#0b6e69',
+  },
+  {
+    id: 'assistant',
+    title: 'AI Assistant',
+    icon: Bot,
+    color: '#4f6fae',
+  },
+  {
     id: 'assets',
     title: '数字人与声音',
     icon: Layers3,
@@ -359,12 +382,6 @@ const supportCards = [
     title: '图片',
     icon: Image,
     color: '#bf4652',
-  },
-  {
-    id: 'billing',
-    title: '套餐与额度',
-    icon: CircleDollarSign,
-    color: '#9a6a2f',
   },
 ];
 
@@ -492,7 +509,7 @@ function Sidebar({ active, collapsed, onSelect, onToggle }) {
         </span>
       </button>
       <nav className="sidebar__nav" aria-label="Primary navigation">
-        {navItems.map((item) => {
+        {primaryNavItems.map((item) => {
           const Icon = item.icon;
           return (
             <button
@@ -514,6 +531,79 @@ function Sidebar({ active, collapsed, onSelect, onToggle }) {
         <span>Collapse</span>
       </button>
     </aside>
+  );
+}
+
+function AccountMenu({ onSelect, onLogout }) {
+  const [open, setOpen] = useState(false);
+  const shellRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const closeOnOutside = (event) => {
+      if (!shellRef.current?.contains(event.target)) setOpen(false);
+    };
+    const closeOnEscape = (event) => {
+      if (event.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('pointerdown', closeOnOutside);
+    document.addEventListener('keydown', closeOnEscape);
+    return () => {
+      document.removeEventListener('pointerdown', closeOnOutside);
+      document.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [open]);
+
+  const openPage = (id) => {
+    setOpen(false);
+    onSelect(id);
+  };
+
+  return (
+    <div
+      className="account-menu-shell"
+      ref={shellRef}
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+    >
+      <button
+        className={`account-menu-trigger ${open ? 'is-open' : ''}`}
+        type="button"
+        onClick={() => setOpen((current) => !current)}
+        onFocus={() => setOpen(true)}
+        aria-label="Account"
+        aria-haspopup="menu"
+        aria-expanded={open}
+      >
+        <span className="account-menu-avatar"><UserRound size={17} /></span>
+        <span>Account</span>
+        <ChevronDown size={15} />
+      </button>
+      {open && (
+        <div className="account-menu-panel" role="menu" aria-label="Account">
+          <div className="account-menu-panel__head">
+            <span className="account-menu-avatar"><UserRound size={18} /></span>
+            <div><strong>Kali</strong><small>Yixiu</small></div>
+          </div>
+          <div className="account-menu-panel__links">
+            {accountMenuItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <button type="button" role="menuitem" key={item.id} onClick={() => openPage(item.id)}>
+                  <Icon size={17} />
+                  <span>{item.label}</span>
+                  <ChevronRight size={14} />
+                </button>
+              );
+            })}
+          </div>
+          <button className="account-menu-logout" type="button" role="menuitem" onClick={() => { setOpen(false); onLogout(); }}>
+            <LogOut size={17} />
+            <span>Sign out</span>
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -646,7 +736,7 @@ function NotificationCenter({
   );
 }
 
-function Topbar({ language, setLanguage, onNewVideo, onMenu, onLogin, onLogout, authed, notifications }) {
+function Topbar({ language, setLanguage, onNewVideo, onMenu, onLogin, onLogout, onSelect, authed, notifications }) {
   const t = getCopy(language);
   return (
     <header className="topbar">
@@ -665,16 +755,36 @@ function Topbar({ language, setLanguage, onNewVideo, onMenu, onLogin, onLogout, 
           </select>
         </label>
         <NotificationCenter authed={authed} onLogin={onLogin} {...notifications} />
-        <button className="outline-top-button" onClick={authed ? onLogout : onLogin}>
-          <UserRound size={17} />
-          <span>{authed ? 'Sign out' : 'Sign in'}</span>
-        </button>
+        {authed ? (
+          <AccountMenu onSelect={onSelect} onLogout={onLogout} />
+        ) : (
+          <button className="outline-top-button" onClick={onLogin}>
+            <UserRound size={17} />
+            <span>Sign in</span>
+          </button>
+        )}
         <button className="primary-button" onClick={onNewVideo}>
           <Plus size={18} />
           <span>{t.cta}</span>
         </button>
       </div>
     </header>
+  );
+}
+
+function HomeAnnouncement({ onOpen }) {
+  return (
+    <section className="home-announcement" aria-label="Seedance 2.5 is now available">
+      <span className="home-announcement__icon"><Megaphone size={19} /></span>
+      <span className="home-announcement__badge">NEW</span>
+      <div className="home-announcement__copy">
+        <strong>Seedance 2.5 is now available</strong>
+      </div>
+      <button type="button" onClick={() => onOpen('ai-video')}>
+        <span>AI Video Lab</span>
+        <ChevronRight size={16} />
+      </button>
+    </section>
   );
 }
 
@@ -13144,6 +13254,7 @@ export default function App() {
           onNewVideo={() => openVideoCreator()}
           onLogin={() => setLoginOpen(true)}
           onLogout={logout}
+          onSelect={selectNav}
           onMenu={() => setMobileNav(true)}
           authed={authed}
           notifications={{
@@ -13242,6 +13353,7 @@ export default function App() {
                   </div>
                 </div>
               </section>
+              <HomeAnnouncement onOpen={selectNav} />
               <HomeWorkflow onSelect={selectNav} onStartVideo={openVideoCreator} />
               <div className="content-grid">
                 <div className="content-main">

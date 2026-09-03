@@ -539,6 +539,29 @@ const supportRows = {
   'hi-IN': ['सहायक प्रवेश', 'अवतार और आवाज़ें', 'मीडिया लाइब्रेरी', 'वीडियो टेम्पलेट', 'संगीत', 'छवियाँ'],
 };
 
+const accountLabels = {
+  'en-US': 'Account', 'zh-CN': '账户', 'zh-TW': '帳戶', 'es-MX': 'Cuenta', 'fr-FR': 'Compte', 'ru-RU': 'Аккаунт',
+  'de-DE': 'Konto', 'pt-PT': 'Conta', 'ar-AE': 'الحساب', 'it-IT': 'Account', 'ja-JP': 'アカウント', 'ko-KR': '계정',
+  'id-ID': 'Akun', 'vi-VN': 'Tài khoản', 'tr-TR': 'Hesap', 'nl-NL': 'Account', 'uk-UA': 'Обліковий запис',
+  'th-TH': 'บัญชี', 'pl-PL': 'Konto', 'ro-RO': 'Cont', 'el-GR': 'Λογαριασμός', 'cs-CZ': 'Účet',
+  'fi-FI': 'Tili', 'hi-IN': 'खाता',
+};
+
+const seedanceReleaseLabels = {
+  'en-US': 'Seedance 2.5 is now available', 'zh-CN': 'Seedance 2.5 已上线', 'zh-TW': 'Seedance 2.5 已上線',
+  'es-MX': 'Seedance 2.5 ya está disponible', 'fr-FR': 'Seedance 2.5 est maintenant disponible',
+  'ru-RU': 'Seedance 2.5 уже доступен', 'de-DE': 'Seedance 2.5 ist jetzt verfügbar',
+  'pt-PT': 'O Seedance 2.5 já está disponível', 'ar-AE': 'أصبح Seedance 2.5 متاحًا الآن',
+  'it-IT': 'Seedance 2.5 è ora disponibile', 'ja-JP': 'Seedance 2.5 が利用可能になりました',
+  'ko-KR': 'Seedance 2.5가 출시되었습니다', 'id-ID': 'Seedance 2.5 kini tersedia',
+  'vi-VN': 'Seedance 2.5 đã ra mắt', 'tr-TR': 'Seedance 2.5 artık kullanılabilir',
+  'nl-NL': 'Seedance 2.5 is nu beschikbaar', 'uk-UA': 'Seedance 2.5 вже доступний',
+  'th-TH': 'Seedance 2.5 เปิดใช้งานแล้ว', 'pl-PL': 'Seedance 2.5 jest już dostępny',
+  'ro-RO': 'Seedance 2.5 este acum disponibil', 'el-GR': 'Το Seedance 2.5 είναι πλέον διαθέσιμο',
+  'cs-CZ': 'Seedance 2.5 je nyní k dispozici', 'fi-FI': 'Seedance 2.5 on nyt saatavilla',
+  'hi-IN': 'Seedance 2.5 अब उपलब्ध है',
+};
+
 const ttsKeys = [
   'title',
   'description',
@@ -1825,6 +1848,8 @@ export const workspaceLocalizationOverrides = Object.fromEntries(Object.entries(
   workflowKeys.forEach((key, index) => { overrides[key] = workflowRows[locale][index]; });
   homeKeys.forEach((key, index) => { overrides[key] = homeRows[locale][index]; });
   supportKeys.forEach((key, index) => { overrides[key] = supportRows[locale][index]; });
+  overrides.Account = accountLabels[locale];
+  overrides['Seedance 2.5 is now available'] = seedanceReleaseLabels[locale];
   ttsKeys.forEach((key, index) => ttsAliases[key].forEach((source) => { overrides[source] = ttsRows[locale][index]; }));
   accountSecurityKeys.forEach((key, index) => { overrides[key] = accountSecurityRows[locale][index]; });
   mcpConnectionKeys.forEach((key, index) => { overrides[key] = mcpConnectionRows[locale][index]; });
