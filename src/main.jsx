@@ -1219,13 +1219,13 @@ const REALMAN_VIDEO_STUDIO_TYPE = {
   key: 'realman',
   listKey: 'realman',
   label: '真人视频包装',
-  createLabel: '选择 AI 成片包装',
+  createLabel: '创建智能包装',
   emptyLabel: '真人视频包装',
   syncLabel: '真人视频包装',
   eyebrow: 'REAL PERSON VIDEO PACKAGING',
   icon: Cuboid,
-  description: '查看 AI 真人成片的包装任务、成片状态和发布流程。',
-  sectionHint: '真人成片、包装模板与补充素材',
+  description: '查看智能包装任务、成片状态和发布流程。',
+  sectionHint: '本地视频、AI 成片、包装模板与补充素材',
   title: '真人视频包装',
   templateScene: 'realMan',
   productionScene: 'realMan',
@@ -5327,10 +5327,12 @@ function VideoActionDialog({ className = '', title, description, children, busy,
 }
 
 function AIVideoPackagingPage({ sourceVideo, authVersion, language, onBack, onLogin, onCreated }) {
-  const sourceUrl = sourceVideo?.videoUrl || '';
+  const [activeSourceVideo, setActiveSourceVideo] = useState(() => (sourceVideo?.videoUrl || sourceVideo?.video_url || sourceVideo?.url) ? sourceVideo : null);
+  const sourceUrl = activeSourceVideo?.videoUrl || activeSourceVideo?.video_url || activeSourceVideo?.url || '';
+  const sourcePreviewUrl = activeSourceVideo?.previewUrl || sourceUrl;
   const token = getAccessToken();
   const [form, setForm] = useState({
-    title: getAIVideoDialogueTitle(sourceVideo?.prompt, 'AI 真人视频'),
+    title: (sourceVideo?.videoUrl || sourceVideo?.video_url || sourceVideo?.url) ? getAIVideoDialogueTitle(sourceVideo?.prompt, 'AI 真人视频') : '',
     topic: normalizeAIVideoTopics(sourceVideo?.topic || sourceVideo?.topics || sourceVideo?.tags || sourceVideo?.raw?.tags).join('、'),
     language: VOICE_LANGUAGE_OPTIONS.some((option) => option.value === language) ? language : 'zh-CN',
   });
@@ -5344,11 +5346,15 @@ function AIVideoPackagingPage({ sourceVideo, authVersion, language, onBack, onLo
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
   const [uploadProgress, setUploadProgress] = useState('');
+  const sourceVideoRef = useRef(null);
   const coverRef = useRef(null);
   const materialDuration = useMemo(() => materials.reduce((total, item) => total + getCreatorMaterialDuration(item), 0), [materials]);
 
+  useEffect(() => { sourceVideoRef.current = activeSourceVideo; }, [activeSourceVideo]);
   useEffect(() => { coverRef.current = cover; }, [cover]);
   useEffect(() => () => {
+    const source = sourceVideoRef.current;
+    if (source?.origin === 'local' && source.previewUrl) URL.revokeObjectURL(source.previewUrl);
     const current = coverRef.current;
     if (current?.origin === 'local' && current.previewUrl) URL.revokeObjectURL(current.previewUrl);
   }, []);
@@ -5426,6 +5432,37 @@ function AIVideoPackagingPage({ sourceVideo, authVersion, language, onBack, onLo
     setMessage('');
   };
 
+  const chooseSourceVideo = async (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+    const extension = getExtension(file.name);
+    if (!VIDEO_EXTENSIONS.includes(extension) || (file.type && !file.type.startsWith('video/'))) {
+      setMessage('视频仅支持 mp4、mov 格式');
+      return;
+    }
+    try {
+      const duration = await getVideoDuration(file);
+      if (activeSourceVideo?.origin === 'local' && activeSourceVideo.previewUrl) URL.revokeObjectURL(activeSourceVideo.previewUrl);
+      const nextVideo = {
+        title: file.name,
+        file,
+        previewUrl: URL.createObjectURL(file),
+        duration,
+        origin: 'local',
+        model: '本地上传',
+      };
+      setActiveSourceVideo(nextVideo);
+      setForm((current) => ({
+        ...current,
+        title: current.title.trim() ? current.title : file.name.replace(/\.[^.]+$/, '').slice(0, 80),
+      }));
+      setMessage('');
+    } catch {
+      setMessage('无法读取视频，请重新选择');
+    }
+  };
+
   const removeCover = () => {
     if (cover?.origin === 'local' && cover.previewUrl) URL.revokeObjectURL(cover.previewUrl);
     setCover(null);
@@ -5437,13 +5474,25 @@ function AIVideoPackagingPage({ sourceVideo, authVersion, language, onBack, onLo
     if (!token) { onLogin(); return; }
     if (!form.title.trim()) { setMessage('请输入包装任务标题'); return; }
     if (!form.topic.trim()) { setMessage('请输入视频话题'); return; }
-    if (!sourceUrl) { setMessage('原成片地址不存在，请返回重新选择'); return; }
+    if (!sourceUrl && !activeSourceVideo?.file) { setMessage('请上传需要包装的视频'); return; }
     if (!selected.videoTemplate.id) { setMessage('请选择真人口播模板'); return; }
     if (!cover) { setMessage('请选择或上传视频封面'); return; }
     setBusy(true);
     setMessage('');
     setUploadProgress('');
     try {
+      let submitSourceUrl = sourceUrl;
+      if (activeSourceVideo?.file && !submitSourceUrl) {
+        setUploadProgress('正在上传源视频…');
+        const uploadResult = await uploadFile(activeSourceVideo.file, {
+          source: 'realman-source-video',
+          onProgress: (progress) => setUploadProgress(`正在上传源视频… ${progress}%`),
+        });
+        if (!uploadResult.ok) throw new Error(getResultMessage(uploadResult, '源视频上传失败'));
+        submitSourceUrl = getUploadedUrl(uploadResult);
+        if (!submitSourceUrl) throw new Error('源视频上传未返回地址');
+        setActiveSourceVideo((current) => current?.file === activeSourceVideo.file ? { ...current, videoUrl: submitSourceUrl, uploaded: true } : current);
+      }
       let coverUrl = cover?.url || '';
       if (cover?.file && !coverUrl) {
         setUploadProgress('正在上传视频封面…');
@@ -5454,7 +5503,7 @@ function AIVideoPackagingPage({ sourceVideo, authVersion, language, onBack, onLo
         setCover((current) => current?.file === cover.file ? { ...current, url: coverUrl, uploaded: true } : current);
       }
       setUploadProgress('正在提交包装任务…');
-      const payload = buildRealmanPackagingPayload({ sourceVideo, title: form.title, topic: form.topic, language: form.language, template: selected.videoTemplate, music: selected.music, cover: cover ? { ...cover, url: coverUrl } : {}, coverTemplate: selected.coverTemplate, materials });
+      const payload = buildRealmanPackagingPayload({ sourceVideo: { ...activeSourceVideo, videoUrl: submitSourceUrl }, title: form.title, topic: form.topic, language: form.language, template: selected.videoTemplate, music: selected.music, cover: cover ? { ...cover, url: coverUrl } : {}, coverTemplate: selected.coverTemplate, materials });
       const paths = ['/api/video/realman-broadcast/create', '/api/video/production/realman-broadcast/create'];
       let result = null;
       for (const path of paths) {
@@ -5475,18 +5524,18 @@ function AIVideoPackagingPage({ sourceVideo, authVersion, language, onBack, onLo
   const materialResourceKey = getCreatorMaterialSource(materialSource).resourceKey;
   return (
     <div className="video-creator-page ai-video-packaging-page">
-      <header className="video-creator-header"><button className="video-back-button" onClick={onBack} disabled={busy}><ArrowLeft size={18} />返回成片详情</button><div><span>REAL PERSON VIDEO PACKAGING</span><h1>真人视频包装</h1><p>以已完成的 AI 真人成片为主体，选择真人口播模板、背景音乐和补充素材后提交包装。</p></div><div className="video-creator-progress"><span className="is-done"><Check size={14} />成片</span><i /><span className="is-done"><Check size={14} />包装</span><i /><span>提交</span></div></header>
+      <header className="video-creator-header"><button className="video-back-button" onClick={onBack} disabled={busy}><ArrowLeft size={18} />{sourceVideo?.returnTo === 'video' ? '返回视频制作' : '返回成片详情'}</button><div><span>REAL PERSON VIDEO PACKAGING</span><h1>真人视频包装</h1><p>直接上传视频或使用 AI 成片，选择真人口播模板、背景音乐和补充素材后提交包装。</p></div><div className="video-creator-progress"><span className="is-done"><Check size={14} />成片</span><i /><span className="is-done"><Check size={14} />包装</span><i /><span>提交</span></div></header>
       {!token ? <div className="video-empty-state"><Cuboid size={38} /><strong>登录后开始包装</strong><p>登录后才能读取模板、素材并提交真人视频包装任务。</p><button className="primary-button" onClick={onLogin}>登录</button></div> : <div className="video-creator-layout"><main className="video-creator-main">
-        <section className="video-creator-section"><div className="video-creator-section__head"><span>01</span><div><h2>确认原成片</h2><p>视频标题已从第一句对白自动生成；包装不会追加字幕、介绍卡或数字人专用字段。</p></div></div><div className="ai-video-packaging-source"><video src={sourceUrl} poster={sourceVideo?.lastFrameUrl || undefined} controls playsInline /><div><strong>{form.title || 'AI 真人成片'}</strong><dl><div><dt>模型</dt><dd>{sourceVideo?.model || '—'}</dd></div><div><dt>规格</dt><dd>{[sourceVideo?.duration ? `${sourceVideo.duration} 秒` : '', sourceVideo?.resolution?.toUpperCase(), sourceVideo?.aspectRatio].filter(Boolean).join(' · ') || '—'}</dd></div></dl></div></div><div className="video-creator-fields"><label><span>视频标题 <em>必填</em></span><input maxLength={80} value={form.title} onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))} placeholder="第一句对白将自动作为标题" /><small>{form.title.length}/80</small></label><label><span>话题 <em>必填</em></span><input maxLength={80} value={form.topic} onChange={(event) => setForm((current) => ({ ...current, topic: event.target.value }))} placeholder="例如：职场沟通、办公室幽默" /><small>{form.topic.length}/80</small></label><label><span>视频语种</span><select translate="no" value={form.language} onChange={(event) => setForm((current) => ({ ...current, language: event.target.value }))}>{VOICE_LANGUAGE_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label} · {option.value}</option>)}</select></label></div></section>
+        <section className="video-creator-section"><div className="video-creator-section__head"><span>01</span><div><h2>选择需要包装的视频</h2><p>AI 成片会自动带入，也可以上传本地视频替换；其他包装规则保持不变。</p></div></div>{sourcePreviewUrl ? <div className="ai-video-packaging-source"><video src={sourcePreviewUrl} poster={activeSourceVideo?.lastFrameUrl || undefined} controls playsInline /><div><strong>{form.title || activeSourceVideo?.title || '待包装视频'}</strong><dl><div><dt>来源</dt><dd>{activeSourceVideo?.origin === 'local' ? '本地上传' : 'AI Video Lab'}</dd></div><div><dt>规格</dt><dd>{[activeSourceVideo?.duration ? `${formatDuration(activeSourceVideo.duration)}` : '', activeSourceVideo?.resolution?.toUpperCase(), activeSourceVideo?.aspectRatio].filter(Boolean).join(' · ') || '—'}</dd></div></dl><label className="ai-video-packaging-source-action"><Upload size={16} />更换视频<input type="file" accept="video/mp4,video/quicktime" onChange={chooseSourceVideo} /></label></div></div> : <label className="ai-video-packaging-source-empty"><FileVideo size={32} /><strong>上传需要包装的视频</strong><small>支持 mp4 / mov</small><span><Upload size={16} />选择视频</span><input type="file" accept="video/mp4,video/quicktime" onChange={chooseSourceVideo} /></label>}<div className="video-creator-fields"><label><span>视频标题 <em>必填</em></span><input maxLength={80} value={form.title} onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))} placeholder="AI 成片默认使用第一句对白，本地视频可自行修改" /><small>{form.title.length}/80</small></label><label><span>话题 <em>必填</em></span><input maxLength={80} value={form.topic} onChange={(event) => setForm((current) => ({ ...current, topic: event.target.value }))} placeholder="例如：职场沟通、办公室幽默" /><small>{form.topic.length}/80</small></label><label><span>视频语种</span><select translate="no" value={form.language} onChange={(event) => setForm((current) => ({ ...current, language: event.target.value }))}>{VOICE_LANGUAGE_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label} · {option.value}</option>)}</select></label></div></section>
         <section className="video-creator-section"><div className="video-creator-section__head"><span>02</span><div><h2>选择包装配置</h2><p>真人口播模板必选；背景音乐不选时由系统自动匹配。</p></div>{selected.coverTemplate.id && <button className="video-creator-preset-button" onClick={removeCoverTemplate}>清除封面模板</button>}{selected.music.id && <button className="video-creator-preset-button" onClick={() => setSelected((current) => ({ ...current, music: {} }))}>改为自动音乐</button>}</div><div className="video-creator-select-list">{[['videoTemplate', '真人口播模板', '请选择真人口播模板', Cuboid], ['coverTemplate', '封面模板', '请选择封面模板', Image], ['music', '背景音乐', '自动匹配背景音乐', Music2]].map(([key, label, hint, Icon]) => { const value = selected[key]; return <button type="button" key={key} onClick={() => setDialogType(key)}><i><Icon size={19} /></i><span><strong>{label}</strong><small>{value.title || hint}</small></span>{value.cover && <img src={value.cover} alt="" />}{key === 'music' && value.audioUrl && <audio src={value.audioUrl} controls onClick={(event) => event.stopPropagation()} />}<ChevronRight size={18} /></button>; })}</div></section>
         <section className="video-creator-section"><div className="video-creator-section__head"><span>03</span><div><h2>封面与补充素材</h2><p>封面图片必填，可本地上传或从 AI 图片选择；补充素材可选，总时长不超过 5 分钟。</p></div></div><div className="video-creator-upload-grid ai-video-packaging-upload-grid"><div className="video-creator-cover"><h3>视频封面 <em>必填</em></h3>{cover ? <div className="video-creator-cover-preview"><img src={cover.previewUrl || cover.url} alt="" /><span><strong>{cover.title}</strong><small>{cover.origin === 'local' ? '本地图片' : 'AI 图片'}</small><button type="button" onClick={removeCover}><Trash2 size={15} />删除</button></span></div> : <div className="ai-video-packaging-cover-empty"><Image size={28} /><strong>请选择视频封面</strong><small>支持 jpg / png / webp</small></div>}<div className="ai-video-packaging-cover-actions"><label><Upload size={17} />{cover?.origin === 'local' ? '本地更换' : '本地上传'}<input type="file" accept="image/jpeg,image/png,image/webp" onChange={chooseCover} /></label><button type="button" onClick={() => setDialogType('cover')}><Image size={17} />{cover?.origin === 'ai-image' ? '从 AI 图片更换' : '从 AI 图片选择'}</button></div></div><div className="video-creator-material-actions ai-video-packaging-material-actions"><h3>补充素材 <em>可选</em></h3><div><button type="button" onClick={() => setDialogType('material')}><Library size={18} />选择素材</button></div><small>已选 {materials.length} 个 · 总时长 {formatDuration(materialDuration)}</small></div></div>{materials.length > 0 && <div className="video-creator-material-grid">{materials.map((material) => <article key={material.id}><span>{material.previewUrl ? <img src={material.previewUrl} alt="" /> : <Video size={24} />}</span><div><strong>{material.title}</strong><small>{material.type === 'video' ? `视频 · ${formatDuration(material.duration)}` : '图片 · 2 秒'}</small></div><button onClick={() => setMaterials((current) => current.filter((item) => item.id !== material.id))} aria-label="删除素材"><X size={16} /></button></article>)}</div>}</section>
-      </main><aside className="video-creator-summary"><span>PACKAGING SUMMARY</span><h2>包装确认</h2><dl><div><dt>标题</dt><dd>{form.title || '未填写'}</dd></div><div><dt>话题</dt><dd>{form.topic || '未填写'}</dd></div><div><dt>源视频</dt><dd>{sourceVideo?.duration ? `${sourceVideo.duration} 秒` : '已选择'}</dd></div><div><dt>口播模板</dt><dd>{selected.videoTemplate.title || '未选择'}</dd></div><div><dt>封面模板</dt><dd>{selected.coverTemplate.title || '未选择'}</dd></div><div><dt>视频封面</dt><dd>{cover?.title || '未选择'}</dd></div><div><dt>背景音乐</dt><dd>{selected.music.title || '系统自动匹配'}</dd></div><div><dt>补充素材</dt><dd>{materials.length} 个 / {formatDuration(materialDuration)}</dd></div></dl>{loadingResources && <div className="video-creator-uploading"><RefreshCw className="is-spinning" size={17} />正在加载包装资源…</div>}{uploadProgress && <div className="video-creator-uploading"><RefreshCw className="is-spinning" size={17} />{uploadProgress}</div>}{message && <div className={`video-list-message ${/失败|请|不能|不存在|超过|仅支持|未返回/.test(message) ? 'is-error' : ''}`}>{message}</div>}<div className="video-creator-submit ai-video-packaging-submit"><button className="primary-button" onClick={submit} disabled={busy || loadingResources}><Cuboid size={17} />{busy ? '提交中…' : '提交包装'}</button></div><p>提交后进入制作队列，可在 Video Studio 的“真人视频包装”查看进度。</p></aside></div>}
+      </main><aside className="video-creator-summary"><span>PACKAGING SUMMARY</span><h2>包装确认</h2><dl><div><dt>标题</dt><dd>{form.title || '未填写'}</dd></div><div><dt>话题</dt><dd>{form.topic || '未填写'}</dd></div><div><dt>源视频</dt><dd>{activeSourceVideo ? (activeSourceVideo.duration ? formatDuration(activeSourceVideo.duration) : '已选择') : '未选择'}</dd></div><div><dt>口播模板</dt><dd>{selected.videoTemplate.title || '未选择'}</dd></div><div><dt>封面模板</dt><dd>{selected.coverTemplate.title || '未选择'}</dd></div><div><dt>视频封面</dt><dd>{cover?.title || '未选择'}</dd></div><div><dt>背景音乐</dt><dd>{selected.music.title || '系统自动匹配'}</dd></div><div><dt>补充素材</dt><dd>{materials.length} 个 / {formatDuration(materialDuration)}</dd></div></dl>{loadingResources && <div className="video-creator-uploading"><RefreshCw className="is-spinning" size={17} />正在加载包装资源…</div>}{uploadProgress && <div className="video-creator-uploading"><RefreshCw className="is-spinning" size={17} />{uploadProgress}</div>}{message && <div className={`video-list-message ${/失败|请|不能|不存在|超过|仅支持|未返回/.test(message) ? 'is-error' : ''}`}>{message}</div>}<div className="video-creator-submit ai-video-packaging-submit"><button className="primary-button" onClick={submit} disabled={busy || loadingResources}><Cuboid size={17} />{busy ? '提交中…' : '提交包装'}</button></div><p>提交后进入制作队列，可在 Video Studio 的“真人视频包装”查看进度。</p></aside></div>}
       {dialogType && <VideoCreatorDialog type={dialogType} titleOverride={dialogType === 'videoTemplate' ? '选择真人口播模板' : ''} options={resources[dialogType === 'material' ? materialResourceKey : dialogType === 'cover' ? 'aiImageMaterial' : dialogType] || []} selected={dialogType === 'material' ? materials : dialogType === 'cover' ? cover : selected[dialogType]} loading={loadingResources} hasMore={false} loadingMore={false} loadMessage="" materialSource={materialSource} onMaterialSourceChange={setMaterialSource} onClose={() => setDialogType('')} onSelect={(option) => chooseResource(dialogType, option)} />}
     </div>
   );
 }
 
-function VideoStudioPage({ authVersion, onLogin, onNewVideo, onOpenAIVideo, initialSection = 'oral' }) {
+function VideoStudioPage({ authVersion, onLogin, onNewVideo, onCreatePackaging, initialSection = 'oral' }) {
   const [studioSection, setStudioSection] = useState(() => VIDEO_STUDIO_TYPES[initialSection] ? initialSection : 'oral');
   const [view, setView] = useState('list');
   const [videos, setVideos] = useState([]);
@@ -5803,7 +5852,7 @@ function VideoStudioPage({ authVersion, onLogin, onNewVideo, onOpenAIVideo, init
     <div className="video-studio-page">
       <section className="video-studio-hero">
         <div><span>VIDEO STUDIO</span><h1>视频制作</h1><p>{studioConfig.description}</p></div>
-        <button className="primary-button" onClick={() => studioSection === 'realman' ? onOpenAIVideo() : onNewVideo({ productionType: studioConfig.key })}><Plus size={18} />{studioConfig.createLabel}</button>
+        <button className="primary-button" onClick={() => studioSection === 'realman' ? onCreatePackaging() : onNewVideo({ productionType: studioConfig.key })}><Plus size={18} />{studioConfig.createLabel}</button>
       </section>
       <nav className="video-studio-sections" aria-label="视频制作板块">
         {Object.values(VIDEO_STUDIO_TYPES).map((section) => {
@@ -5823,7 +5872,7 @@ function VideoStudioPage({ authVersion, onLogin, onNewVideo, onOpenAIVideo, init
           <button className="video-record-body" onClick={() => openDetail(video)}><span className="video-record-heading"><strong>{video.title}</strong><ChevronRight size={17} /></span><small>{[video.humanName, video.voiceName].filter(Boolean).join(' · ') || '未记录形象和声音'}</small>{video.topic && <small>话题：{video.topic}</small>}<p>{video.script || '暂无文案摘要'}</p>{video.failureReason && <b>失败原因：{video.failureReason}</b>}<span className="video-record-footer">{video.creatorDisplayName && <small className="video-record-creator"><UserRound size={13} />{video.creatorDisplayName}</small>}<time>{video.createdAt || video.taskId || '等待制作信息'}</time></span></button>
         </article>)}</section>
         {hasMore && statusFilter === 'all' && !query && <button className="video-load-more" onClick={() => loadVideos({ nextPage: page + 1, append: true })} disabled={loadingMore}>{loadingMore ? '加载中…' : '加载更多视频'}</button>}
-      </> : <div className="video-empty-state"><Video size={38} /><strong>{message || (videos.length ? '没有符合筛选条件的视频' : `还没有${studioConfig.emptyLabel}制作记录`)}</strong><p>{videos.length ? '更换状态或搜索关键词后再试。' : studioSection === 'realman' ? '先到 AI Video Lab 选择一条已完成成片，再提交包装任务。' : `点击制作，提交第一条${studioConfig.emptyLabel}。`}</p>{!videos.length && <button className="primary-button" onClick={() => studioSection === 'realman' ? onOpenAIVideo() : onNewVideo({ productionType: studioConfig.key })}>{studioSection === 'realman' ? '去 AI Video Lab 选择成片' : '开始制作'}</button>}</div>}
+      </> : <div className="video-empty-state"><Video size={38} /><strong>{message || (videos.length ? '没有符合筛选条件的视频' : `还没有${studioConfig.emptyLabel}制作记录`)}</strong><p>{videos.length ? '更换状态或搜索关键词后再试。' : studioSection === 'realman' ? '可直接上传视频，也可从 AI Video Lab 的成片详情进入包装。' : `点击制作，提交第一条${studioConfig.emptyLabel}。`}</p>{!videos.length && <button className="primary-button" onClick={() => studioSection === 'realman' ? onCreatePackaging() : onNewVideo({ productionType: studioConfig.key })}>{studioSection === 'realman' ? '创建智能包装' : '开始制作'}</button>}</div>}
     </div>
   );
 }
@@ -13266,7 +13315,7 @@ export default function App() {
                     onOpenBilling={() => selectNav('billing')}
                     promptDraft={aiVideoPromptDraft}
                     onOpenPackaging={(video) => {
-                      setAIVideoPackagingSource(video);
+                      setAIVideoPackagingSource({ ...video, returnTo: 'ai-video' });
                       window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
                     onOpenPromptAssistant={(context) => {
@@ -13295,11 +13344,20 @@ export default function App() {
                     sourceVideo={aiVideoPackagingSource}
                     authVersion={authVersion}
                     language={language}
-                    onBack={() => setAIVideoPackagingSource(null)}
+                    onBack={() => {
+                      const returnTo = aiVideoPackagingSource?.returnTo;
+                      setAIVideoPackagingSource(null);
+                      if (returnTo === 'video') {
+                        setActive('video');
+                        syncWorkspacePageQuery('video');
+                      }
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
                     onLogin={() => setLoginOpen(true)}
                     onCreated={() => {
                       setAIVideoPackagingSource(null);
                       setVideoStudioInitialSection('realman');
+                      syncWorkspacePageQuery('video');
                       setActive('video');
                       refreshAuth();
                       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -13313,8 +13371,9 @@ export default function App() {
                 onLogin={() => setLoginOpen(true)}
                 onNewVideo={openVideoCreator}
                 initialSection={videoStudioInitialSection}
-                onOpenAIVideo={() => {
+                onCreatePackaging={() => {
                   setVideoStudioInitialSection('realman');
+                  setAIVideoPackagingSource({ origin: 'local', returnTo: 'video' });
                   syncWorkspacePageQuery('ai-video');
                   setActive('ai-video');
                   window.scrollTo({ top: 0, behavior: 'smooth' });

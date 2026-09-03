@@ -3043,6 +3043,64 @@
   color: var(--ink);
 }
 
+.ai-video-packaging-source-action {
+  width: fit-content;
+  min-height: 38px;
+  margin-top: 14px;
+  padding: 0 14px;
+  border: 1px solid #b9dacf;
+  border-radius: 10px;
+  background: #fff;
+  color: var(--green-dark);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 760;
+}
+
+.ai-video-packaging-source-action input,
+.ai-video-packaging-source-empty input {
+  display: none;
+}
+
+.ai-video-packaging-source-empty {
+  min-height: 210px;
+  margin-top: 18px;
+  border: 1px dashed #8fcbb6;
+  border-radius: 16px;
+  background: #f1faf6;
+  color: var(--green-dark);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.ai-video-packaging-source-empty > small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.ai-video-packaging-source-empty > span {
+  min-height: 40px;
+  margin-top: 4px;
+  padding: 0 16px;
+  border-radius: 10px;
+  background: var(--green);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  font-weight: 780;
+}
+
 .ai-video-packaging-material-actions {
   margin-top: 0;
 }

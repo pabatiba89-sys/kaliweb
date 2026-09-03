@@ -57,6 +57,20 @@ test('leaves background music unset so the backend can pick one automatically', 
   assert.deepEqual(payload.processRules, {});
 });
 
+test('submits an uploaded source video through the existing packaging fields', () => {
+  const payload = buildRealmanPackagingPayload({
+    sourceVideo: { url: 'https://cdn.example.com/uploaded-source.mov', duration: 12.4 },
+    title: 'Uploaded source',
+    topic: 'Interview',
+    template: { id: 'style-upload' },
+  });
+
+  assert.equal(payload.videoUrl, 'https://cdn.example.com/uploaded-source.mov');
+  assert.equal(payload.sourceVideoUrl, 'https://cdn.example.com/uploaded-source.mov');
+  assert.equal(payload.shanjianData.videoUrl, 'https://cdn.example.com/uploaded-source.mov');
+  assert.equal(payload.durationSeconds, 13);
+});
+
 test('keeps the cover template and cover image in separate submission fields', () => {
   const payload = buildRealmanPackagingPayload({
     sourceVideo: { videoUrl: 'https://cdn.example.com/source.mp4', duration: 5 },

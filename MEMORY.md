@@ -210,3 +210,4 @@
 - 2026-09-02：真人视频包装必须填写话题并选择封面图片；视频标题默认从 AI 提示词中识别第一句对白，不展示整段提示词，识别不到时回退为“AI 真人视频”且允许人工修改。封面图片支持本地 jpg/png/webp 或 `/api/image-generation/images` 的 AI 图片，封面模板读取 `/api/shanjian/cover-templates`，二者相互独立、可同时选择；图片提交顶层 `coverUrl` 与 `processRules.firstFrameCover.imageUrl`，模板提交 `coverTemplateId` 与 `processRules.firstFrameCover.templateId`，不可用模板预览图替代封面图片，话题通过顶层 `tags` 保存。
 - 2026-09-03：AI Video Lab 新建视频默认选择 `seedance-2-mini`；默认模型键集中维护，接口返回模型顺序变化时仍优先保留 Mini，接口未提供 Mini 时才回退到可用列表第一项。
 - 2026-09-03：真人视频包装的封面模板选择入口归入第 02 步“选择包装配置”，排列在真人口播模板之后、背景音乐之前；第 03 步只管理本地封面和 AI 图片，模板与图片各自预览、各自清除，选择其中一项不得覆盖另一项。
+- 2026-09-03：Video Studio 的真人视频包装入口统一为“创建智能包装”；包装页源视频既可从 AI Video Lab 成片详情带入，也可本地上传 mp4/mov。本地视频先通过通用文件上传获得 URL，再复用原包装提交字段与后续流程。
