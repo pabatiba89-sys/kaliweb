@@ -2058,5 +2058,7 @@
   "封面模板": "Cover template",
   "封面模板加载失败": "Failed to load cover templates",
   "封面必填，可本地上传、从 AI 图片选择或使用封面模板；补充素材可选，总时长不超过 5 分钟。": "A cover is required. Upload one, choose an AI image, or use a cover template. Additional media is optional and limited to five minutes total.",
-  "请选择封面模板": "Choose a cover template"
+  "请选择封面模板": "Choose a cover template",
+  "清除封面模板": "Clear cover template",
+  "封面图片必填，可本地上传或从 AI 图片选择；补充素材可选，总时长不超过 5 分钟。": "A cover image is required. Upload one or choose an AI image. Additional media is optional and limited to five minutes total."
 }

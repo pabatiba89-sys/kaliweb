@@ -57,18 +57,18 @@ test('leaves background music unset so the backend can pick one automatically', 
   assert.deepEqual(payload.processRules, {});
 });
 
-test('uses a cover template without also submitting a direct cover image', () => {
+test('keeps the cover template and cover image in separate submission fields', () => {
   const payload = buildRealmanPackagingPayload({
     sourceVideo: { videoUrl: 'https://cdn.example.com/source.mp4', duration: 5 },
     title: 'Template cover',
     topic: 'Workplace',
     template: { id: 'style-10' },
-    cover: { url: 'https://cdn.example.com/ignored-cover.jpg' },
+    cover: { url: 'https://cdn.example.com/video-cover.jpg' },
     coverTemplate: { id: 'cover-template-3', title: 'Clean cover', cover: 'https://cdn.example.com/template-preview.jpg' },
   });
 
-  assert.equal(payload.coverUrl, '');
-  assert.equal(payload.cover, '');
+  assert.equal(payload.coverUrl, 'https://cdn.example.com/video-cover.jpg');
+  assert.equal(payload.cover, 'https://cdn.example.com/video-cover.jpg');
   assert.equal(payload.coverTemplateId, 'cover-template-3');
   assert.equal(payload.coverplate, 'cover-template-3');
   assert.equal(payload.coverTemplateName, 'Clean cover');
@@ -77,6 +77,7 @@ test('uses a cover template without also submitting a direct cover image', () =>
     firstFrameCover: {
       coverSwitch: true,
       templateId: 'cover-template-3',
+      imageUrl: 'https://cdn.example.com/video-cover.jpg',
     },
   });
   assert.deepEqual(payload.shanjianData.processRules, payload.processRules);

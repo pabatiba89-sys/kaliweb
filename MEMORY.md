@@ -207,6 +207,6 @@
 - 2026-09-02：视频制作的共用素材选择器同时支持“素材库 / AI Video Lab / AI 图片”三个来源；AI 成片读取 `/api/ai-video/videos`，AI 图片读取 `/api/image-generation/images`，选中后统一转为现有图片或视频 URL 素材提交，无需改后台。
 - 2026-09-02：AI Video Lab 成片库的视频预览按 `9:16` 竖屏比例展示，媒体使用完整适配而非居中裁切；桌面端提高为六列，并在中小屏逐级降列，兼顾完整画面与列表密度。
 - 2026-09-02：AI Video Lab 已完成成片详情新增“包装视频”，进入独立“真人视频包装”制作页；固定读取 `scene=realMan` 的真人口播模板，通过 `/api/video/realman-broadcast/create`（兼容 `/api/video/production/realman-broadcast/create`）提交原成片、可选背景音乐和补充素材，不传字幕、介绍卡或数字人专用字段。Video Studio 增加 `scene=realMan` 的任务板块用于查看包装进度；未选音乐时由后台自动匹配。
-- 2026-09-02：真人视频包装必须填写话题并选择封面；视频标题默认从 AI 提示词中识别第一句对白，不展示整段提示词，识别不到时回退为“AI 真人视频”且允许人工修改。封面支持本地 jpg/png/webp、`/api/image-generation/images` 的 AI 图片和 `/api/shanjian/cover-templates` 的封面模板，三者互斥；图片提交顶层 `coverUrl` 与 `processRules.firstFrameCover.imageUrl`，模板提交 `coverTemplateId` 与 `processRules.firstFrameCover.templateId`，话题通过顶层 `tags` 保存。
+- 2026-09-02：真人视频包装必须填写话题并选择封面图片；视频标题默认从 AI 提示词中识别第一句对白，不展示整段提示词，识别不到时回退为“AI 真人视频”且允许人工修改。封面图片支持本地 jpg/png/webp 或 `/api/image-generation/images` 的 AI 图片，封面模板读取 `/api/shanjian/cover-templates`，二者相互独立、可同时选择；图片提交顶层 `coverUrl` 与 `processRules.firstFrameCover.imageUrl`，模板提交 `coverTemplateId` 与 `processRules.firstFrameCover.templateId`，不可用模板预览图替代封面图片，话题通过顶层 `tags` 保存。
 - 2026-09-03：AI Video Lab 新建视频默认选择 `seedance-2-mini`；默认模型键集中维护，接口返回模型顺序变化时仍优先保留 Mini，接口未提供 Mini 时才回退到可用列表第一项。
-- 2026-09-03：真人视频包装的封面模板选择入口归入第 02 步“选择包装配置”，排列在真人口播模板之后、背景音乐之前；第 03 步只保留本地封面和 AI 图片入口，已选封面模板仍在封面区域预览并可删除。
+- 2026-09-03：真人视频包装的封面模板选择入口归入第 02 步“选择包装配置”，排列在真人口播模板之后、背景音乐之前；第 03 步只管理本地封面和 AI 图片，模板与图片各自预览、各自清除，选择其中一项不得覆盖另一项。

@@ -16,7 +16,7 @@ export const buildRealmanPackagingPayload = ({ sourceVideo = {}, title = '', top
   const coverTemplateId = cleanText(coverTemplate.id || coverTemplate.templateId || coverTemplate.template_id || coverTemplate.coverTemplateId || coverTemplate.cover_template_id);
   const coverTemplateName = cleanText(coverTemplate.title || coverTemplate.name || coverTemplate.templateName || coverTemplate.template_name);
   const coverTemplatePreviewUrl = getMediaUrl(coverTemplate) || cleanText(coverTemplate.cover || coverTemplate.previewUrl || coverTemplate.preview_url);
-  const coverUrl = coverTemplateId ? '' : (typeof cover === 'string' ? cleanText(cover) : getMediaUrl(cover));
+  const coverUrl = typeof cover === 'string' ? cleanText(cover) : getMediaUrl(cover);
   const normalizedTopic = cleanText(topic);
   const duration = Math.max(1, Math.ceil(Number(sourceVideo.duration || sourceVideo.durationSeconds || sourceVideo.duration_seconds) || 1));
   const normalizedMaterials = materials.map((item) => ({
@@ -32,7 +32,8 @@ export const buildRealmanPackagingPayload = ({ sourceVideo = {}, title = '', top
   const processRules = coverUrl || coverTemplateId ? {
     firstFrameCover: {
       coverSwitch: true,
-      ...(coverTemplateId ? { templateId: coverTemplateId } : { imageUrl: coverUrl }),
+      ...(coverTemplateId ? { templateId: coverTemplateId } : {}),
+      ...(coverUrl ? { imageUrl: coverUrl } : {}),
     },
   } : {};
 
