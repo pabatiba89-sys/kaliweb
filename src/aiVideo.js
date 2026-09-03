@@ -16,6 +16,8 @@ const booleanOf = (value, fallback = true) => {
   return !['0', 'false', 'no', 'off'].includes(String(value).trim().toLowerCase());
 };
 
+export const AI_VIDEO_DEFAULT_MODEL_KEY = 'seedance-2-mini';
+
 export function normalizeAIVideoTopics(value) {
   const topics = Array.isArray(value) ? value : String(value || '').split(/[#,，、;；\n]+/);
   return [...new Set(topics.map((topic) => String(topic || '').trim()).filter(Boolean))];
@@ -77,7 +79,7 @@ export function getAIVideoRemakeDraft(record = {}) {
   const source = objectOf(record.raw || record);
   const input = objectOf(firstValue(source.input, source.input_json, record.input));
   const pricing = objectOf(firstValue(source.pricing_snapshot, source.pricingSnapshot, record.pricingSnapshot));
-  const model = String(firstValue(record.model, source.model, source.model_key, source.modelKey) || 'seedance-2-fast');
+  const model = String(firstValue(record.model, source.model, source.model_key, source.modelKey) || AI_VIDEO_DEFAULT_MODEL_KEY);
   const prompt = String(firstValue(record.prompt, source.prompt, input.prompt) || '');
   const firstFrameUrl = String(firstValue(input.first_frame_url, input.firstFrameUrl) || '');
   const lastFrameUrl = String(firstValue(input.last_frame_url, input.lastFrameUrl) || '');

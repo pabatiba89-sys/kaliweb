@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+  AI_VIDEO_DEFAULT_MODEL_KEY,
   buildAIVideoPayload,
   buildAIVideoPromptInstruction,
   buildAIVideoPublishPayload,
@@ -22,6 +23,11 @@ const baseForm = {
   audioIds: '',
   seed: '',
 };
+
+test('defaults new AI video drafts to Seedance Mini', () => {
+  assert.equal(AI_VIDEO_DEFAULT_MODEL_KEY, 'seedance-2-mini');
+  assert.equal(getAIVideoRemakeDraft({}).form.model, AI_VIDEO_DEFAULT_MODEL_KEY);
+});
 
 test('maps Seedance reference videos and durations for billing', () => {
   const payload = buildAIVideoPayload({ ...baseForm, model: 'seedance-2-fast', mode: 'reference-to-video' }, {

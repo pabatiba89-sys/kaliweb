@@ -90,6 +90,7 @@ import {
 import { getInitialLocale, languages, translateStatic, useAutoTranslate, useLocaleCatalog } from './i18n';
 import { GENERATED_CONTENT_UNAVAILABLE_MESSAGE, isGeneratedMarkupFailure } from './generatedContent';
 import {
+  AI_VIDEO_DEFAULT_MODEL_KEY,
   buildAIVideoPayload,
   buildAIVideoPromptInstruction,
   buildAIVideoPublishPayload,
@@ -3927,9 +3928,9 @@ const getTtsTaskItems = (result = {}) => {
 
 const AI_VIDEO_ASPECT_RATIOS = ['9:16', '16:9', '1:1', '4:3', '3:4', '21:9'];
 const AI_VIDEO_FALLBACK_MODELS = [
+  { key: 'seedance-2-mini', name: 'Seedance 2.0 Mini', modes: ['text-to-video', 'first-last-frame', 'reference-to-video'], duration: { min: 4, max: 15 }, resolutions: ['480p', '720p'] },
   { key: 'seedance-2-fast', name: 'Seedance 2.0 Fast', modes: ['text-to-video', 'first-last-frame', 'reference-to-video'], duration: { min: 4, max: 15 }, resolutions: ['480p', '720p'] },
   { key: 'seedance-2', name: 'Seedance 2.0', modes: ['text-to-video', 'first-last-frame', 'reference-to-video'], duration: { min: 4, max: 15 }, resolutions: ['480p', '720p', '1080p', '4k'] },
-  { key: 'seedance-2-mini', name: 'Seedance 2.0 Mini', modes: ['text-to-video', 'first-last-frame', 'reference-to-video'], duration: { min: 4, max: 15 }, resolutions: ['480p', '720p'] },
   { key: 'seedance-2-5', name: 'Seedance 2.5', modes: ['text-to-video', 'first-last-frame', 'reference-to-video'], duration: { min: 4, max: 30 }, resolutions: ['480p', '720p', '1080p'] },
   { key: 'kling-2.6', name: 'Kling 2.6', modes: ['text-to-video', 'image-to-video'], durations: [5, 10] },
   { key: 'gemini-omni-1.1-flash', name: 'Gemini Omni 1.1 Flash', modes: ['multimodal'], durations: [4, 6, 8, 10], resolutions: ['360p', '720p', '1080p', '4k'] },
@@ -3990,7 +3991,7 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling, onOpenP
   const [models, setModels] = useState(AI_VIDEO_FALLBACK_MODELS);
   const [pricingVersion, setPricingVersion] = useState('');
   const [form, setForm] = useState({
-    model: 'seedance-2-fast',
+    model: AI_VIDEO_DEFAULT_MODEL_KEY,
     mode: 'text-to-video',
     prompt: '',
     duration: 5,
