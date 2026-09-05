@@ -460,7 +460,7 @@ const workflowSteps = [
   { no: '02', id: 'assistant', title: '发给智能体', icon: Bot, action: '选择智能体' },
   { no: '03', id: 'assistant', title: '生成文案', icon: Edit3, action: '生成文案' },
   { no: '04', id: 'video', title: '视频制作', icon: Video, action: '制作视频', production: 'oral' },
-  { no: '05', id: 'video', title: '发布', icon: Send, action: '查看发布' },
+  { no: '05', id: 'publish', title: '发布', icon: Send, action: '查看发布' },
 ];
 
 const studioModes = [
