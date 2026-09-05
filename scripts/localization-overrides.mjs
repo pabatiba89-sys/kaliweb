@@ -1640,6 +1640,82 @@ const aiVideoPublishOverrides = {
   },
 };
 
+const publishCenterOverrides = {
+  'en-US': {
+    '混剪成片': 'Mixed videos',
+    '从混剪记录选择': 'Choose from mixed-video records',
+    '数字人成片': 'Digital-human videos',
+    '从数字人口播选择': 'Choose from digital-human videos',
+    '从 AI Video Lab 选择': 'Choose from AI Video Lab',
+    '上传本地视频，或从混剪、数字人和 AI 视频成片中选择，统一配置账号、标题、话题与发布时间。': 'Upload a video or choose a mixed, digital-human, or AI video, then set the account, title, topics, and publishing time in one place.',
+    '一站式发布': 'One publishing workflow',
+    '选成片 · 填信息 · 定时间': 'Choose video · Add details · Set time',
+    '登录后使用发布中心': 'Sign in to use Publish Center',
+    '登录后可读取团队发布账号与已完成的视频。': 'Sign in to access team publishing accounts and completed videos.',
+    '上传一条成片，或从已有视频中选择。': 'Upload a finished video or choose an existing one.',
+    '上传本地成片': 'Upload a finished video',
+    '支持 MP4 / MOV，最大 500MB': 'MP4 / MOV, up to 500 MB',
+    '本地视频会先上传到团队存储，再进入发布队列。': 'The video is uploaded to team storage before entering the publishing queue.',
+    '搜索标题或话题': 'Search title or topic',
+    '没有符合搜索条件的成片': 'No videos match this search',
+    '暂无可发布成片': 'No publishable videos yet',
+    '确认对外信息、账号和发布时间。': 'Review the public details, account, and publishing time.',
+    '当前视频': 'Current video',
+    '尚未选择': 'Not selected',
+    '请先在左侧选择视频来源': 'Choose a video source on the left first',
+    '请先上传文件或选择一条成片': 'Upload a file or choose a finished video first',
+    '仅支持 MP4 或 MOV 视频。': 'Only MP4 and MOV videos are supported.',
+    '视频文件不能超过 500MB。': 'The video file cannot exceed 500 MB.',
+    '视频上传失败，请重试。': 'Video upload failed. Try again.',
+    '文件已上传，但后台尚未开通“上传成片发布”接口，请联系管理员完成接口配置。': 'The file was uploaded, but direct publishing for uploaded videos is not enabled yet. Contact an administrator to finish the setup.',
+    '视频已提交立即发布。': 'The video was submitted for immediate publishing.',
+    '视频已加入定时发布。': 'The video was scheduled for publishing.',
+    '部分发布资源加载失败，可刷新后重试。': 'Some publishing resources failed to load. Refresh and try again.',
+    '已完成成片': 'Completed video',
+    '正在加入发布队列…': 'Adding to the publishing queue…',
+    '确认并立即发布': 'Confirm and publish now',
+    '确认定时发布': 'Confirm scheduled publishing',
+    '发布前请确认内容权利、事实准确性，以及目标平台要求的 AI 生成内容标识。': 'Before publishing, verify content rights, factual accuracy, and any AI-content labels required by the destination platform.',
+  },
+  'zh-CN': {},
+  'zh-TW': {
+    '混剪成片': '混剪成片',
+    '从混剪记录选择': '從混剪記錄選擇',
+    '数字人成片': '數位人成片',
+    '从数字人口播选择': '從數位人口播選擇',
+    '从 AI Video Lab 选择': '從 AI Video Lab 選擇',
+    '上传本地视频，或从混剪、数字人和 AI 视频成片中选择，统一配置账号、标题、话题与发布时间。': '上傳本機影片，或從混剪、數位人和 AI 影片成片中選擇，統一設定帳號、標題、話題與發布時間。',
+    '一站式发布': '一站式發布',
+    '选成片 · 填信息 · 定时间': '選成片 · 填資訊 · 定時間',
+    '登录后使用发布中心': '登入後使用發布中心',
+    '登录后可读取团队发布账号与已完成的视频。': '登入後可讀取團隊發布帳號與已完成的影片。',
+    '上传一条成片，或从已有视频中选择。': '上傳一支成片，或從已有影片中選擇。',
+    '上传本地成片': '上傳本機成片',
+    '支持 MP4 / MOV，最大 500MB': '支援 MP4 / MOV，最大 500MB',
+    '本地视频会先上传到团队存储，再进入发布队列。': '本機影片會先上傳至團隊儲存空間，再進入發布佇列。',
+    '搜索标题或话题': '搜尋標題或話題',
+    '没有符合搜索条件的成片': '沒有符合搜尋條件的成片',
+    '暂无可发布成片': '暫無可發布成片',
+    '确认对外信息、账号和发布时间。': '確認對外資訊、帳號和發布時間。',
+    '当前视频': '目前影片',
+    '尚未选择': '尚未選擇',
+    '请先在左侧选择视频来源': '請先在左側選擇影片來源',
+    '请先上传文件或选择一条成片': '請先上傳檔案或選擇一支成片',
+    '仅支持 MP4 或 MOV 视频。': '僅支援 MP4 或 MOV 影片。',
+    '视频文件不能超过 500MB。': '影片檔案不能超過 500MB。',
+    '视频上传失败，请重试。': '影片上傳失敗，請重試。',
+    '文件已上传，但后台尚未开通“上传成片发布”接口，请联系管理员完成接口配置。': '檔案已上傳，但後台尚未開通「上傳成片發布」介面，請聯絡管理員完成設定。',
+    '视频已提交立即发布。': '影片已提交立即發布。',
+    '视频已加入定时发布。': '影片已加入定時發布。',
+    '部分发布资源加载失败，可刷新后重试。': '部分發布資源載入失敗，可重新整理後重試。',
+    '已完成成片': '已完成成片',
+    '正在加入发布队列…': '正在加入發布佇列…',
+    '确认并立即发布': '確認並立即發布',
+    '确认定时发布': '確認定時發布',
+    '发布前请确认内容权利、事实准确性，以及目标平台要求的 AI 生成内容标识。': '發布前請確認內容權利、事實準確性，以及目標平台要求的 AI 生成內容標示。',
+  },
+};
+
 const aiVideoCoreKeys = ['AI Video Lab', 'AI 视频', '创建视频', '生成任务', '成片库', '模型', '生成方式', '描述你想要的画面', '参考素材', '积分试算', '创建 AI 视频', '购买积分'];
 const aiVideoCoreRows = {
   'en-US': ['AI Video Lab', 'AI video', 'Create video', 'Generation tasks', 'Finished videos', 'Model', 'Generation mode', 'Describe the video you want', 'Reference media', 'Credit estimate', 'Create AI video', 'Buy credits'],
@@ -1866,6 +1942,7 @@ export const workspaceLocalizationOverrides = Object.fromEntries(Object.entries(
   Object.assign(overrides, aiVideoClonedVoiceOverrides[locale] || {});
   Object.assign(overrides, aiVideoPromptAssistantOverrides[locale] || aiVideoPromptAssistantOverrides['en-US']);
   Object.assign(overrides, aiVideoPublishOverrides[locale] || aiVideoPublishOverrides['en-US']);
+  Object.assign(overrides, publishCenterOverrides[locale] || publishCenterOverrides['en-US']);
   aiVideoCoreKeys.forEach((key, index) => { overrides[key] = aiVideoCoreRows[locale][index]; });
   creatorMaterialSourceKeys.forEach((key, index) => { overrides[key] = creatorMaterialSourceRows[locale][index]; });
   Object.assign(overrides, realmanPackagingOverrides[locale] || realmanPackagingOverrides['en-US']);

@@ -101,6 +101,11 @@ import {
   normalizeAIVideoTopics,
 } from './aiVideo';
 import { buildRealmanPackagingPayload } from './realmanVideo';
+import {
+  buildProductionVideoPublishPayload,
+  buildUploadedVideoPublishPayload,
+  normalizePublishTopics,
+} from './publish';
 import { pageConfigs } from './pageConfig';
 import packageJson from '../package.json';
 import './styles.css';
@@ -185,6 +190,7 @@ const primaryNavItems = [
   { id: 'assistant', label: 'AI Assistant', icon: Bot },
   { id: 'video', label: 'Video Studio', icon: Video },
   { id: 'ai-video', label: 'AI Video Lab', icon: FileVideo },
+  { id: 'publish', label: 'Publish', icon: Send },
   { id: 'assets', label: 'Asset Studio', icon: Layers3 },
   { id: 'speech', label: 'Text to Speech', icon: AudioLines },
   { id: 'music', label: 'Music Studio', icon: Music2 },
@@ -5641,6 +5647,316 @@ function AIVideoPackagingPage({ sourceVideo, authVersion, language, onBack, onLo
         <section className="video-creator-section"><div className="video-creator-section__head"><span>03</span><div><h2>封面与补充素材</h2><p>封面图片必填，可本地上传或从 AI 图片选择；补充素材可选，总时长不超过 5 分钟。</p></div></div><div className="video-creator-upload-grid ai-video-packaging-upload-grid"><div className="video-creator-cover"><h3>视频封面 <em>必填</em></h3>{cover ? <div className="video-creator-cover-preview"><img src={cover.previewUrl || cover.url} alt="" /><span><strong>{cover.title}</strong><small>{cover.origin === 'local' ? '本地图片' : 'AI 图片'}</small><button type="button" onClick={removeCover}><Trash2 size={15} />删除</button></span></div> : <div className="ai-video-packaging-cover-empty"><Image size={28} /><strong>请选择视频封面</strong><small>支持 jpg / png / webp</small></div>}<div className="ai-video-packaging-cover-actions"><label><Upload size={17} />{cover?.origin === 'local' ? '本地更换' : '本地上传'}<input type="file" accept="image/jpeg,image/png,image/webp" onChange={chooseCover} /></label><button type="button" onClick={() => setDialogType('cover')}><Image size={17} />{cover?.origin === 'ai-image' ? '从 AI 图片更换' : '从 AI 图片选择'}</button></div></div><div className="video-creator-material-actions ai-video-packaging-material-actions"><h3>补充素材 <em>可选</em></h3><div><button type="button" onClick={() => setDialogType('material')}><Library size={18} />选择素材</button></div><small>已选 {materials.length} 个 · 总时长 {formatDuration(materialDuration)}</small></div></div>{materials.length > 0 && <div className="video-creator-material-grid">{materials.map((material) => <article key={material.id}><span>{material.previewUrl ? <img src={material.previewUrl} alt="" /> : <Video size={24} />}</span><div><strong>{material.title}</strong><small>{material.type === 'video' ? `视频 · ${formatDuration(material.duration)}` : '图片 · 2 秒'}</small></div><button onClick={() => setMaterials((current) => current.filter((item) => item.id !== material.id))} aria-label="删除素材"><X size={16} /></button></article>)}</div>}</section>
       </main><aside className="video-creator-summary"><span>PACKAGING SUMMARY</span><h2>包装确认</h2><dl><div><dt>标题</dt><dd>{form.title || '未填写'}</dd></div><div><dt>话题</dt><dd>{form.topic || '未填写'}</dd></div><div><dt>源视频</dt><dd>{activeSourceVideo ? (activeSourceVideo.duration ? formatDuration(activeSourceVideo.duration) : '已选择') : '未选择'}</dd></div><div><dt>口播模板</dt><dd>{selected.videoTemplate.title || '未选择'}</dd></div><div><dt>封面模板</dt><dd>{selected.coverTemplate.title || '未选择'}</dd></div><div><dt>视频封面</dt><dd>{cover?.title || '未选择'}</dd></div><div><dt>背景音乐</dt><dd>{selected.music.title || '系统自动匹配'}</dd></div><div><dt>补充素材</dt><dd>{materials.length} 个 / {formatDuration(materialDuration)}</dd></div></dl>{loadingResources && <div className="video-creator-uploading"><RefreshCw className="is-spinning" size={17} />正在加载包装资源…</div>}{uploadProgress && <div className="video-creator-uploading"><RefreshCw className="is-spinning" size={17} />{uploadProgress}</div>}{message && <div className={`video-list-message ${/失败|请|不能|不存在|超过|仅支持|未返回/.test(message) ? 'is-error' : ''}`}>{message}</div>}<div className="video-creator-submit ai-video-packaging-submit"><button className="primary-button" onClick={submit} disabled={busy || loadingResources}><Cuboid size={17} />{busy ? '提交中…' : '提交包装'}</button></div><p>提交后进入制作队列，可在 Video Studio 的“真人视频包装”查看进度。</p></aside></div>}
       {dialogType && <VideoCreatorDialog type={dialogType} titleOverride={dialogType === 'videoTemplate' ? '选择真人口播模板' : ''} options={resources[dialogType === 'material' ? materialResourceKey : dialogType === 'cover' ? 'aiImageMaterial' : dialogType] || []} selected={dialogType === 'material' ? materials : dialogType === 'cover' ? cover : selected[dialogType]} loading={loadingResources} hasMore={false} loadingMore={false} loadMessage="" materialSource={materialSource} onMaterialSourceChange={setMaterialSource} onClose={() => setDialogType('')} onSelect={(option) => chooseResource(dialogType, option)} />}
+    </div>
+  );
+}
+
+const PUBLISH_SOURCE_OPTIONS = [
+  { key: 'upload', label: '本地上传', hint: 'MP4 / MOV', icon: Upload },
+  { key: 'mix', label: '混剪成片', hint: '从混剪记录选择', icon: Clapperboard },
+  { key: 'digital', label: '数字人成片', hint: '从数字人口播选择', icon: UserRound },
+  { key: 'ai', label: 'AI 视频', hint: '从 AI Video Lab 选择', icon: Sparkles },
+];
+
+const getPublishUploadKey = (result = {}) => {
+  const source = videoObject(result.data);
+  return videoText(source.key, source.upload_key, source.uploadKey, source.file_key, source.fileKey);
+};
+
+function PublishCenterPage({ authVersion, onLogin }) {
+  const [sourceType, setSourceType] = useState('upload');
+  const [sources, setSources] = useState({ mix: [], digital: [], ai: [] });
+  const [selectedSource, setSelectedSource] = useState(null);
+  const [localFile, setLocalFile] = useState(null);
+  const [localPreviewUrl, setLocalPreviewUrl] = useState('');
+  const [localDuration, setLocalDuration] = useState(0);
+  const [uploadedLocal, setUploadedLocal] = useState({ file: null, url: '', key: '' });
+  const [accounts, setAccounts] = useState([]);
+  const [accountId, setAccountId] = useState('');
+  const [title, setTitle] = useState('');
+  const [topics, setTopics] = useState('');
+  const [publishMode, setPublishMode] = useState('scheduled');
+  const [publishAt, setPublishAt] = useState(() => getDefaultPublishAt());
+  const [query, setQuery] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [message, setMessage] = useState({ text: '', error: false });
+  const authed = Boolean(getAccessToken());
+  const activeSource = sourceType === 'upload'
+    ? (localFile ? {
+        type: 'upload',
+        title: localFile.name,
+        videoUrl: localPreviewUrl,
+        duration: localDuration,
+        meta: `${formatFileSize(localFile.size)}${localDuration ? ` · ${formatDuration(localDuration)}` : ''}`,
+      } : null)
+    : selectedSource;
+  const topicList = useMemo(() => normalizePublishTopics(topics), [topics]);
+  const visibleSources = useMemo(() => {
+    const keyword = query.trim().toLowerCase();
+    const list = sources[sourceType] || [];
+    if (!keyword) return list;
+    return list.filter((item) => `${item.title} ${item.topic || ''}`.toLowerCase().includes(keyword));
+  }, [query, sourceType, sources]);
+
+  useEffect(() => () => {
+    if (localPreviewUrl) URL.revokeObjectURL(localPreviewUrl);
+  }, [localPreviewUrl]);
+
+  const loadPublishResources = useCallback(async () => {
+    if (!getAccessToken()) {
+      setSources({ mix: [], digital: [], ai: [] });
+      setAccounts([]);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    setMessage({ text: '', error: false });
+    const [accountResult, mixResult, digitalResult, aiResult] = await Promise.all([
+      apiFetch('/api/team-notion/publish-account', { timeoutMs: 10000 }),
+      apiFetch('/api/video-mix/list', { params: { page: 1, page_size: 48, pageSize: 48 }, timeoutMs: 12000 }),
+      apiFetch('/api/video/production/list', { params: { page: 1, page_size: 48, pageSize: 48, scene: 'digital_human_video' }, timeoutMs: 12000 }),
+      apiFetch('/api/ai-video/videos', { params: { page: 1, page_size: 48 }, timeoutMs: 15000 }),
+    ]);
+
+    const accountSource = getVideoRecords(accountResult.data).length ? getVideoRecords(accountResult.data) : getVideoRecords(accountResult.raw);
+    const nextAccounts = accountSource
+      .map(normalizeAIVideoPublishAccount)
+      .filter((item) => Number.isInteger(Number(item.id)) && Number(item.id) > 0 && item.name);
+    const normalizeProductionList = (result, type) => {
+      const source = getVideoRecords(result.data).length ? getVideoRecords(result.data) : getVideoRecords(result.raw);
+      return source
+        .map((item, index) => ({ ...normalizeVideoRecord(item, index), type }))
+        .filter((item) => item.canPublish && Number.isInteger(Number(item.publishId)) && Number(item.publishId) > 0);
+    };
+    const aiSource = toList(aiResult.data)
+      .map((item, index) => {
+        const record = normalizeAIVideoRecord(item, index);
+        return { ...record, title: getAIVideoDialogueTitle(record.prompt, 'AI 视频'), topic: '', type: 'ai' };
+      })
+      .filter((item) => item.status.key === 'success' && item.videoUrl && Number.isInteger(Number(item.videoId)) && Number(item.videoId) > 0);
+
+    setAccounts(nextAccounts);
+    setAccountId((current) => nextAccounts.some((item) => String(item.id) === current) ? current : String(nextAccounts[0]?.id || ''));
+    setSources({
+      mix: normalizeProductionList(mixResult, 'mix'),
+      digital: normalizeProductionList(digitalResult, 'digital'),
+      ai: aiSource,
+    });
+    const failed = [accountResult, mixResult, digitalResult, aiResult].filter((result) => !result.ok && !result.authMissing);
+    if (failed.length) setMessage({ text: '部分发布资源加载失败，可刷新后重试。', error: true });
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    loadPublishResources();
+  }, [authVersion, loadPublishResources]);
+
+  const switchSourceType = (nextType) => {
+    setSourceType(nextType);
+    setSelectedSource(null);
+    setQuery('');
+    setMessage({ text: '', error: false });
+  };
+
+  const chooseSource = (item) => {
+    setSelectedSource(item);
+    setTitle(item.title || '');
+    setTopics(item.topic || '');
+    setMessage({ text: '', error: false });
+  };
+
+  const chooseLocalFile = async (file) => {
+    if (!file) return;
+    const extension = getExtension(file.name);
+    if (!VIDEO_EXTENSIONS.includes(extension)) {
+      setMessage({ text: '仅支持 MP4 或 MOV 视频。', error: true });
+      return;
+    }
+    if (file.size > MAX_VIDEO_SIZE) {
+      setMessage({ text: '视频文件不能超过 500MB。', error: true });
+      return;
+    }
+    const duration = await getVideoDuration(file);
+    const previewUrl = URL.createObjectURL(file);
+    setLocalPreviewUrl(previewUrl);
+    setLocalFile(file);
+    setLocalDuration(duration);
+    setUploadedLocal({ file: null, url: '', key: '' });
+    setSelectedSource(null);
+    setTitle((current) => current || file.name.replace(/\.[^.]+$/, ''));
+    setMessage({ text: '', error: false });
+  };
+
+  const validatePublish = () => {
+    if (!activeSource) return '请先上传文件或选择一条成片';
+    if (!title.trim()) return '请填写发布标题';
+    const account = accounts.find((item) => String(item.id) === accountId);
+    if (!account) return '请选择发布账号';
+    if (publishMode === 'scheduled') {
+      const scheduledAt = new Date(publishAt);
+      if (!publishAt || Number.isNaN(scheduledAt.getTime())) return '请选择发布时间';
+      if (scheduledAt.getTime() <= Date.now()) return '定时发布时间必须晚于当前时间';
+    }
+    return '';
+  };
+
+  const submitPublish = async () => {
+    if (!authed) {
+      onLogin();
+      return;
+    }
+    const validationMessage = validatePublish();
+    if (validationMessage) {
+      setMessage({ text: validationMessage, error: true });
+      return;
+    }
+
+    const account = accounts.find((item) => String(item.id) === accountId);
+    const publishNow = publishMode === 'now';
+    const commonFields = {
+      title,
+      topics,
+      accountId: account.id,
+      accountName: account.name,
+      publishAt: publishNow ? getDefaultPublishAt(0) : publishAt,
+      publishNow,
+    };
+    setBusy(true);
+    setUploadProgress(0);
+    setMessage({ text: '', error: false });
+
+    let endpoint = '/api/team-notion/publish-video';
+    let payload;
+    if (sourceType === 'upload') {
+      let videoUrl = uploadedLocal.file === localFile ? uploadedLocal.url : '';
+      let uploadKey = uploadedLocal.file === localFile ? uploadedLocal.key : '';
+      if (!videoUrl) {
+        const uploadResult = await uploadFile(localFile, {
+          source: 'publish-center',
+          timeoutMs: 300000,
+          onProgress: setUploadProgress,
+        });
+        videoUrl = getUploadedUrl(uploadResult);
+        uploadKey = getPublishUploadKey(uploadResult);
+        if (!uploadResult.ok || !videoUrl) {
+          setBusy(false);
+          setMessage({ text: uploadResult.message || '视频上传失败，请重试。', error: true });
+          return;
+        }
+        setUploadedLocal({ file: localFile, url: videoUrl, key: uploadKey });
+      }
+      endpoint = '/api/team-notion/publish-uploaded-video';
+      payload = buildUploadedVideoPublishPayload({
+        videoUrl,
+        uploadKey,
+        fileName: localFile.name,
+        fileSize: localFile.size,
+        duration: localDuration,
+        ...commonFields,
+      });
+    } else if (sourceType === 'ai') {
+      endpoint = '/api/team-notion/publish-ai-video';
+      payload = buildAIVideoPublishPayload({
+        videoId: selectedSource.videoId,
+        ...commonFields,
+      });
+    } else {
+      payload = buildProductionVideoPublishPayload({ videoId: selectedSource.publishId, ...commonFields });
+    }
+
+    const result = await apiFetch(endpoint, { method: 'POST', body: payload, timeoutMs: 45000 });
+    setBusy(false);
+    setUploadProgress(0);
+    if (!result.ok) {
+      const unavailableUploadEndpoint = sourceType === 'upload' && [404, 405].includes(result.status);
+      setMessage({
+        text: unavailableUploadEndpoint
+          ? '文件已上传，但后台尚未开通“上传成片发布”接口，请联系管理员完成接口配置。'
+          : getResultMessage(result, '发布失败'),
+        error: true,
+      });
+      return;
+    }
+
+    setMessage({ text: publishNow ? '视频已提交立即发布。' : '视频已加入定时发布。', error: false });
+    setSelectedSource(null);
+    if (sourceType === 'upload') {
+      setLocalFile(null);
+      setLocalPreviewUrl('');
+      setLocalDuration(0);
+      setUploadedLocal({ file: null, url: '', key: '' });
+    }
+    setTitle('');
+    setTopics('');
+    setPublishAt(getDefaultPublishAt());
+  };
+
+  const selectedKey = sourceType === 'ai'
+    ? selectedSource?.videoId
+    : selectedSource?.publishId;
+
+  return (
+    <div className="publish-center-page">
+      <section className="publish-center-hero">
+        <div><span>PUBLISH CENTER</span><h1>发布</h1><p>上传本地视频，或从混剪、数字人和 AI 视频成片中选择，统一配置账号、标题、话题与发布时间。</p></div>
+        <div className="publish-center-hero__status"><CheckCircle2 size={20} /><span><strong>一站式发布</strong><small>选成片 · 填信息 · 定时间</small></span></div>
+      </section>
+
+      {!authed ? <div className="video-empty-state"><Send size={38} /><strong>登录后使用发布中心</strong><p>登录后可读取团队发布账号与已完成的视频。</p><button className="primary-button" onClick={onLogin}>登录</button></div> : (
+        <div className="publish-center-grid">
+          <section className="publish-source-panel">
+            <header><span>01</span><div><h2>选择视频</h2><p>上传一条成片，或从已有视频中选择。</p></div></header>
+            <nav className="publish-source-tabs" aria-label="视频来源">
+              {PUBLISH_SOURCE_OPTIONS.map((option) => {
+                const Icon = option.icon;
+                return <button type="button" key={option.key} className={sourceType === option.key ? 'is-active' : ''} onClick={() => switchSourceType(option.key)}><Icon size={18} /><span><strong>{option.label}</strong><small>{option.hint}</small></span></button>;
+              })}
+            </nav>
+
+            {sourceType === 'upload' ? (
+              <div className="publish-upload-area">
+                {localFile ? <div className="publish-upload-preview"><video src={localPreviewUrl} controls playsInline preload="metadata" /><div><strong>{localFile.name}</strong><small>{formatFileSize(localFile.size)}{localDuration ? ` · ${formatDuration(localDuration)}` : ''}</small><label><Upload size={16} />更换视频<input type="file" accept="video/mp4,video/quicktime,.mp4,.mov" onChange={(event) => { chooseLocalFile(event.target.files?.[0]); event.target.value = ''; }} /></label></div></div> : <label className="publish-upload-empty"><span><Upload size={28} /></span><strong>上传本地成片</strong><small>支持 MP4 / MOV，最大 500MB</small><em>选择视频</em><input type="file" accept="video/mp4,video/quicktime,.mp4,.mov" onChange={(event) => { chooseLocalFile(event.target.files?.[0]); event.target.value = ''; }} /></label>}
+                <p className="publish-upload-contract-note"><AlertCircle size={15} />本地视频会先上传到团队存储，再进入发布队列。</p>
+              </div>
+            ) : (
+              <div className="publish-library">
+                <label className="publish-library-search"><Search size={16} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索标题或话题" /></label>
+                {loading ? <div className="publish-library-empty"><RefreshCw className="is-spinning" size={24} />正在加载成片…</div> : visibleSources.length ? <div className="publish-source-list">{visibleSources.map((item, index) => {
+                  const itemKey = sourceType === 'ai' ? item.videoId : item.publishId;
+                  const active = String(itemKey) === String(selectedKey);
+                  return <button type="button" key={`${sourceType}-${itemKey}-${index}`} className={active ? 'is-active' : ''} onClick={() => chooseSource(item)}><span className="publish-source-thumb">{item.videoUrl ? <video src={item.videoUrl} muted playsInline preload="metadata" poster={item.coverUrl || item.lastFrameUrl || undefined} /> : item.coverUrl ? <img src={item.coverUrl} alt="" /> : <Video size={24} />}{active && <i><Check size={14} /></i>}</span><span className="publish-source-copy"><strong>{item.title}</strong><small>{item.topic ? `#${item.topic}` : sourceType === 'ai' ? item.model || 'AI Video Lab' : item.createdAt || '已完成成片'}</small></span></button>;
+                })}</div> : <div className="publish-library-empty"><Video size={26} />{query ? '没有符合搜索条件的成片' : '暂无可发布成片'}</div>}
+              </div>
+            )}
+          </section>
+
+          <section className="publish-config-panel">
+            <header><span>02</span><div><h2>发布设置</h2><p>确认对外信息、账号和发布时间。</p></div></header>
+            <div className="publish-selected-summary">
+              {activeSource ? <><span>{activeSource.videoUrl ? <video src={activeSource.videoUrl} muted playsInline preload="metadata" /> : <Video size={24} />}</span><div><small>当前视频</small><strong>{activeSource.title}</strong><em>{activeSource.meta || activeSource.createdAt || activeSource.model || '已选择'}</em></div><CheckCircle2 size={20} /></> : <><span><Video size={24} /></span><div><small>当前视频</small><strong>尚未选择</strong><em>请先在左侧选择视频来源</em></div></>}
+            </div>
+            <div className="publish-form-grid">
+              <label className="is-wide"><span>标题 <em>必填</em></span><input maxLength={80} value={title} onChange={(event) => { setTitle(event.target.value); setMessage({ text: '', error: false }); }} placeholder="请输入对外发布标题" /><small>{title.length}/80</small></label>
+              <label className="is-wide"><span>话题 <em>选填</em></span><textarea maxLength={500} value={topics} onChange={(event) => { setTopics(event.target.value); setMessage({ text: '', error: false }); }} placeholder="例如：#AI视频，产品发布；支持逗号、# 或换行分隔" /></label>
+              {topicList.length > 0 && <div className="publish-topic-list is-wide">{topicList.map((topic) => <span key={topic}>#{topic}</span>)}</div>}
+              <label className="is-wide"><span>发布账号 <em>必填</em></span><select value={accountId} onChange={(event) => { setAccountId(event.target.value); setMessage({ text: '', error: false }); }}><option value="">请选择发布账号</option>{accounts.map((account) => <option key={account.id} value={account.id}>{account.name}</option>)}</select></label>
+              {!loading && !accounts.length && <div className="publish-account-empty is-wide">暂无可用发布账号</div>}
+            </div>
+            <div className="publish-time-block">
+              <span>发布时间</span>
+              <div className="video-publish-modes"><button type="button" className={publishMode === 'scheduled' ? 'is-active' : ''} onClick={() => { setPublishMode('scheduled'); setMessage({ text: '', error: false }); }}><CalendarDays size={17} />定时发布</button><button type="button" className={publishMode === 'now' ? 'is-active' : ''} onClick={() => { setPublishMode('now'); setMessage({ text: '', error: false }); }}><Send size={17} />立即发布</button></div>
+              {publishMode === 'scheduled' && <input type="datetime-local" min={getDefaultPublishAt(1)} value={publishAt} onChange={(event) => { setPublishAt(event.target.value); setMessage({ text: '', error: false }); }} />}
+            </div>
+            {message.text && <div className={`publish-message${message.error ? ' is-error' : ''}`}>{message.error ? <AlertCircle size={17} /> : <CheckCircle2 size={17} />}<span>{message.text}</span></div>}
+            {busy && sourceType === 'upload' && <div className="publish-upload-progress"><span style={{ width: `${Math.max(4, uploadProgress)}%` }} /><strong>{uploadProgress < 100 ? `上传中 ${uploadProgress}%` : '正在加入发布队列…'}</strong></div>}
+            <button type="button" className="primary-button publish-submit-button" onClick={submitPublish} disabled={busy || loading}><Send size={18} />{busy ? '提交中…' : publishMode === 'now' ? '确认并立即发布' : '确认定时发布'}</button>
+            <p className="publish-safety-note"><ShieldCheck size={15} />发布前请确认内容权利、事实准确性，以及目标平台要求的 AI 生成内容标识。</p>
+          </section>
+        </div>
+      )}
     </div>
   );
 }
@@ -12764,6 +13080,7 @@ const getInitialWorkspacePage = () => {
   if (page === 'password-reset') return 'password-reset';
   if (page === 'video') return 'video';
   if (page === 'ai-video') return 'ai-video';
+  if (page === 'publish') return 'publish';
   if (page === 'speech') return 'speech';
   if (page === 'presets') return 'presets';
   return 'home';
@@ -13102,6 +13419,8 @@ export default function App() {
       url.searchParams.set('page', 'speech');
     } else if (id === 'ai-video') {
       url.searchParams.set('page', 'ai-video');
+    } else if (id === 'publish') {
+      url.searchParams.set('page', 'publish');
     } else if (id === 'presets') {
       url.searchParams.set('page', 'presets');
     } else {
@@ -13477,6 +13796,11 @@ export default function App() {
                   />
                 )}
               </>
+            ) : active === 'publish' ? (
+              <PublishCenterPage
+                authVersion={authVersion}
+                onLogin={() => setLoginOpen(true)}
+              />
             ) : active === 'video' ? (
               <VideoStudioPage
                 authVersion={authVersion}
