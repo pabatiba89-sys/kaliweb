@@ -5658,6 +5658,8 @@ const PUBLISH_SOURCE_OPTIONS = [
   { key: 'ai', label: 'AI 视频', hint: '从 AI Video Lab 选择', icon: Sparkles },
 ];
 
+const OPEN_SOURCE_PUBLISHER_URL = 'https://github.com/dreammis/social-auto-upload';
+
 const getPublishUploadKey = (result = {}) => {
   const source = videoObject(result.data);
   return videoText(source.key, source.upload_key, source.uploadKey, source.file_key, source.fileKey);
@@ -5679,6 +5681,7 @@ function PublishCenterPage({ authVersion, onLogin }) {
   const [publishAt, setPublishAt] = useState(() => getDefaultPublishAt());
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(true);
+  const [accountLoadState, setAccountLoadState] = useState('loading');
   const [busy, setBusy] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [message, setMessage] = useState({ text: '', error: false });
@@ -5708,11 +5711,13 @@ function PublishCenterPage({ authVersion, onLogin }) {
     if (!getAccessToken()) {
       setSources({ mix: [], digital: [], ai: [] });
       setAccounts([]);
+      setAccountLoadState('idle');
       setLoading(false);
       return;
     }
 
     setLoading(true);
+    setAccountLoadState('loading');
     setMessage({ text: '', error: false });
     const [accountResult, mixResult, digitalResult, aiResult] = await Promise.all([
       apiFetch('/api/team-notion/publish-account', { timeoutMs: 10000 }),
@@ -5739,6 +5744,7 @@ function PublishCenterPage({ authVersion, onLogin }) {
       .filter((item) => item.status.key === 'success' && item.videoUrl && Number.isInteger(Number(item.videoId)) && Number(item.videoId) > 0);
 
     setAccounts(nextAccounts);
+    setAccountLoadState(accountResult.ok ? 'success' : 'error');
     setAccountId((current) => nextAccounts.some((item) => String(item.id) === current) ? current : String(nextAccounts[0]?.id || ''));
     setSources({
       mix: normalizeProductionList(mixResult, 'mix'),
@@ -5942,8 +5948,28 @@ function PublishCenterPage({ authVersion, onLogin }) {
               <label className="is-wide"><span>标题 <em>必填</em></span><input maxLength={80} value={title} onChange={(event) => { setTitle(event.target.value); setMessage({ text: '', error: false }); }} placeholder="请输入对外发布标题" /><small>{title.length}/80</small></label>
               <label className="is-wide"><span>话题 <em>选填</em></span><textarea maxLength={500} value={topics} onChange={(event) => { setTopics(event.target.value); setMessage({ text: '', error: false }); }} placeholder="例如：#AI视频，产品发布；支持逗号、# 或换行分隔" /></label>
               {topicList.length > 0 && <div className="publish-topic-list is-wide">{topicList.map((topic) => <span key={topic}>#{topic}</span>)}</div>}
-              <label className="is-wide"><span>发布账号 <em>必填</em></span><select value={accountId} onChange={(event) => { setAccountId(event.target.value); setMessage({ text: '', error: false }); }}><option value="">请选择发布账号</option>{accounts.map((account) => <option key={account.id} value={account.id}>{account.name}</option>)}</select></label>
-              {!loading && !accounts.length && <div className="publish-account-empty is-wide">暂无可用发布账号</div>}
+              <label className="is-wide"><span>发布账号 <em>必填</em></span><select value={accountId} disabled={accountLoadState !== 'success'} onChange={(event) => { setAccountId(event.target.value); setMessage({ text: '', error: false }); }}><option value="">请选择发布账号</option>{accounts.map((account) => <option key={account.id} value={account.id}>{account.name}</option>)}</select></label>
+              {accountLoadState === 'error' && <div className="publish-account-error is-wide"><AlertCircle size={16} /><span>发布账号加载失败，暂时无法判断团队是否已配置账号。</span><button type="button" onClick={loadPublishResources}>重新加载</button></div>}
+              {accountLoadState === 'success' && !accounts.length && (
+                <section className="publish-account-onboarding is-wide">
+                  <div className="publish-account-onboarding__head">
+                    <span><Server size={20} /></span>
+                    <div><small>团队尚未配置发布账号</small><h3>使用开源工具连接本地发布</h3><p>账号登录状态保留在自己的电脑，通过本地控制服务完成多平台发布。</p></div>
+                  </div>
+                  <a className="publish-open-source-link" href={OPEN_SOURCE_PUBLISHER_URL} target="_blank" rel="noopener noreferrer"><span><strong>dreammis/social-auto-upload</strong><small>MIT 开源 · 抖音、小红书、快手、视频号、Bilibili 等</small></span><span>查看开源代码 <ExternalLink size={15} /></span></a>
+                  <div className="publish-local-workflow">
+                    <strong>推荐 workflow</strong>
+                    <ol>
+                      <li><span>1</span><div><b>安装开源工具</b><small>在需要执行发布的电脑上安装项目与浏览器环境。</small></div></li>
+                      <li><span>2</span><div><b>本地登录账号</b><small>使用 sau 完成各平台登录，Cookie 与账号文件不上传到 Kali。</small></div></li>
+                      <li><span>3</span><div><b>启动本地桥接接口</b><small>接口接收视频、标题、话题、账号与发布时间，并转换为 sau 命令。</small></div></li>
+                      <li><span>4</span><div><b>由 Kali 控制发布</b><small>提交发布任务后，本地服务执行上传、定时发布并回传状态。</small></div></li>
+                    </ol>
+                    <div className="publish-local-route"><span>Kali 发布任务</span><i>→</i><span>本地桥接接口</span><i>→</i><span>sau CLI</span><i>→</i><span>内容平台</span></div>
+                  </div>
+                  <p className="publish-local-warning"><ShieldCheck size={15} />项目当前主线是 sau CLI；仓库内 5409 Web API 属于历史实现。生产使用时请为本地桥接接口增加访问令牌，并且不要直接暴露到公网。</p>
+                </section>
+              )}
             </div>
             <div className="publish-time-block">
               <span>发布时间</span>

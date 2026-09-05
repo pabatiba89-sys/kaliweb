@@ -39,3 +39,16 @@
 成功响应应返回 `notion_page_id`、`notion_page_url`、`team_phone`，以及一条可追踪的上传发布记录。
 
 同时建议调整现有 `POST /api/team-notion/publish-video`：构建 Notion 页面时优先使用请求体中的 `title`，缺失时再回退到视频任务标题。否则独立发布中心里用户修改的混剪/数字人标题不会生效。
+
+## 团队未配置账号时的本地发布 workflow
+
+前端在发布账号接口成功返回空列表时，公开展示 MIT 开源项目 [dreammis/social-auto-upload](https://github.com/dreammis/social-auto-upload)，作为团队自托管发布能力的参考实现。
+
+推荐链路：
+
+1. 在实际执行发布的电脑安装 `social-auto-upload`，使用当前主线 `sau` CLI 完成平台登录与账号检查。
+2. 账号 Cookie 与账号文件只保留在该电脑，不上传到 Kali 或团队后台。
+3. 在本机增加受访问令牌保护的桥接服务，接收 Kali 的视频、标题、话题、账号与发布时间，再映射成 `sau` CLI 命令。
+4. 本地桥接服务回传任务 ID、执行状态和平台结果，Kali 只负责发布控制与状态展示。
+
+`social-auto-upload` 仓库内的 Flask Web API 默认监听 `5409`，但项目方已将 Web 端标记为历史实现，不保证与当前 uploader/CLI 同步，因此不应作为生产环境的直接依赖。若需要浏览器直连本地桥接接口，还必须处理访问令牌、CORS、HTTPS 页面访问本地 HTTP 服务的限制，以及浏览器 Private Network Access 策略；更稳妥的生产方案是由本地桥接服务主动拉取已签名任务。
