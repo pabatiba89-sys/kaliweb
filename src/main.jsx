@@ -106,6 +106,11 @@ import {
   buildUploadedVideoPublishPayload,
   normalizePublishTopics,
 } from './publish';
+import {
+  buildPackagingPresetPayload,
+  getVoiceSpeakerId,
+  matchesVoiceIdentifier,
+} from './packagingPreset';
 import { pageConfigs } from './pageConfig';
 import packageJson from '../package.json';
 import './styles.css';
@@ -1730,7 +1735,7 @@ const normalizeVoiceAsset = (item = {}, index = 0) => {
   const voiceId = pick(item.voiceId, item.voice_id);
   const speakerId = pick(item.speakerId, item.speaker_id);
   return {
-    id: pick(voiceId, speakerId, item.taskId, item.task_id, recordId, `voice-${index}`),
+    id: pick(speakerId, voiceId, item.taskId, item.task_id, recordId, `voice-${index}`),
     recordId,
     taskId: pick(item.taskId, item.task_id),
     voiceId,
@@ -6743,7 +6748,7 @@ const getCreatorHumanSubmissionId = (human = {}) => {
 };
 
 const normalizeCreatorPreset = (item = {}, index = 0) => {
-  const voiceId = videoText(item.voiceId, item.voice_id, item.speakerId, item.speaker_id);
+  const speakerId = videoText(item.speakerId, item.speaker_id, item.voiceId, item.voice_id);
   const voiceTitle = videoText(item.voiceName, item.voice_name, item.speakerName, item.speaker_name);
   const speakerExtra = getCreatorObject(item.speakerExtra || item.speaker_extra);
   const virtualmanId = videoText(item.virtualman_id, item.virtualmanId);
@@ -6764,8 +6769,9 @@ const normalizeCreatorPreset = (item = {}, index = 0) => {
       cover: getApiMediaUrl(videoText(item.coverUrl, item.cover_url, item.humanCoverUrl, item.human_cover_url, item.aihumanCoverUrl, item.aihuman_cover_url, item.imageUrl, item.image_url)),
     },
     voice: {
-      id: voiceId,
-      title: voiceTitle || voiceId,
+      id: speakerId,
+      speakerId,
+      title: voiceTitle || speakerId,
       speed: Number(item.voiceSpeedRatio || item.voice_speed_ratio || item.speedRatio || item.speed_ratio || speakerExtra.speedRatio || speakerExtra.speed_ratio) || 1,
     },
     videoTemplate: {
@@ -6784,23 +6790,30 @@ const normalizeCreatorPreset = (item = {}, index = 0) => {
 
 const hydrateCreatorPresetVoice = (preset, voices) => {
   const presetVoice = preset.voice || {};
-  const matched = voices.find((voice) => voice.id === presetVoice.id) ||
+  const matched = voices.find((voice) => matchesVoiceIdentifier(voice, presetVoice.id)) ||
     (!presetVoice.id && presetVoice.title ? voices.find((voice) => voice.title === presetVoice.title) : null);
   if (!matched) return preset;
+  const speakerId = videoText(matched.speakerId, presetVoice.speakerId, presetVoice.id, matched.id);
+  const presetTitleIsId = !presetVoice.title || String(presetVoice.title) === String(presetVoice.id);
   return {
     ...preset,
     voice: {
       ...matched,
       ...presetVoice,
-      id: presetVoice.id || matched.id,
-      title: presetVoice.title || matched.title || presetVoice.id || matched.id,
+      id: speakerId,
+      speakerId,
+      title: presetTitleIsId ? (matched.title || speakerId) : presetVoice.title,
       speed: Number(presetVoice.speed || matched.speed) || 1,
     },
   };
 };
 
 const hydratePackagingPreset = (preset, resources) => {
-  const match = (type, value) => resources[type]?.find((item) => String(item.id) === String(value?.id));
+  const match = (type, value) => resources[type]?.find((item) => (
+    type === 'voice'
+      ? matchesVoiceIdentifier(item, value?.id)
+      : String(item.id) === String(value?.id)
+  ));
   return {
     ...preset,
     human: { ...preset.human, ...(match('human', preset.human) || {}) },
@@ -6985,27 +6998,19 @@ function PackagingPresetsPage({ authVersion, onLogin }) {
   };
 
   const savePreset = async () => {
+    const speakerId = getVoiceSpeakerId(editor?.voice);
     if (!editor?.human?.id || !editor?.voice?.id || !editor?.videoTemplate?.id || !editor?.coverTemplate?.id) {
       setMessage({ text: 'Please complete all four packaging selections.', error: true });
+      return;
+    }
+    if (!speakerId) {
+      setMessage({ text: 'The selected voice does not have an available speaker ID.', error: true });
       return;
     }
     setSaving(true);
     setMessage({ text: '', error: false });
     const editorMode = editor.mode;
-    const body = {
-      ...(editorMode === 'edit' ? { id: editor.id } : {}),
-      digitalHumanId: editor.human.id,
-      digitalHumanName: editor.human.title,
-      voiceId: editor.voice.id,
-      coverUrl: editor.human.cover || '',
-      clipTemplateId: editor.videoTemplate.id,
-      clipTemplateName: editor.videoTemplate.title,
-      clipTemplateImageUrl: editor.videoTemplate.cover || '',
-      coverTemplateId: editor.coverTemplate.id,
-      coverTemplateName: editor.coverTemplate.title,
-      coverTemplateImageUrl: editor.coverTemplate.cover || '',
-      isDefault: editor.isDefault,
-    };
+    const body = buildPackagingPresetPayload(editor);
     const result = await apiFetch(`/api/team-video-preset/${editorMode === 'edit' ? 'update' : 'create'}`, {
       method: 'POST',
       body,
