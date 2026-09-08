@@ -111,7 +111,6 @@ import {
   getVoiceSpeakerId,
   matchesVoiceIdentifier,
 } from './packagingPreset';
-import { getActiveMusicLyricIndex, parseMusicLyrics } from './musicLyrics';
 import { pageConfigs } from './pageConfig';
 import packageJson from '../package.json';
 import './styles.css';
@@ -2324,7 +2323,6 @@ const normalizeMusicTrack = (item = {}, index = 0, parent = {}) => {
     taskId: parent.taskId,
     title: pick(item.title, item.name, item.version_name, item.versionName) || `${parent.title || 'AI 音乐'} ${index + 1}`,
     audioUrl,
-    lyrics: getMusicLyricsText(item, parent.lyrics, parent.raw, parent.prompt),
     duration: formatDuration(item.duration || item.duration_seconds || item.durationSeconds || 0),
     createdAt: formatMusicDate(item.created_at || item.createdAt),
     raw: item,
@@ -2370,7 +2368,6 @@ const normalizeMusicItem = (item = {}, index = 0) => {
     taskId: pick(item.task_id, item.taskId, related.task_id, related.taskId),
     title: pick(item.title, item.name, related.title, related.name) || `AI 音乐 ${index + 1}`,
     prompt: pick(item.prompt, item.description, related.prompt, related.description),
-    lyrics: getMusicLyricsText(item, related),
     style: pick(item.style, item.tags, related.style),
     imageUrl: getApiMediaUrl(pick(item.image_url, item.imageUrl, item.cover_url, item.coverUrl, related.image_url)),
     audioUrl,
@@ -2400,154 +2397,6 @@ const getMusicRemaining = (result = {}) => {
   }
   return null;
 };
-
-const getMusicLyricsText = (...sources) => {
-  const seen = new WeakSet();
-  const inspect = (source, depth = 0) => {
-    if (!source || depth > 4) return '';
-    if (typeof source === 'string') return source.trim();
-    if (typeof source !== 'object' || seen.has(source)) return '';
-    seen.add(source);
-
-    for (const key of ['lyrics', 'lyric', 'lyric_text', 'lyricText']) {
-      if (typeof source[key] === 'string' && source[key].trim()) return source[key].trim();
-    }
-    for (const key of ['result_data', 'resultData', 'result', 'data', 'response', 'provider_response', 'providerResponse']) {
-      const value = inspect(source[key], depth + 1);
-      if (value) return value;
-    }
-    return typeof source.prompt === 'string' ? source.prompt.trim() : '';
-  };
-
-  for (const source of sources) {
-    const value = inspect(source);
-    if (value) return value;
-  }
-  return '';
-};
-
-const formatMusicPlaybackTime = (value) => {
-  const seconds = Math.max(0, Math.floor(Number(value) || 0));
-  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
-};
-
-const isMusicLyricsText = (value) => {
-  const text = String(value || '').trim();
-  if (!text) return false;
-  if (/\[\d{1,3}:\d{2}(?:[.:]\d{1,3})?\]/.test(text)) return true;
-  return text
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter((line) => line && !/^\[[^\]]+\]$/.test(line))
-    .length >= 2;
-};
-
-const hasMusicTrackLyrics = (track, music) => isMusicLyricsText(
-  getMusicLyricsText(track?.lyrics, track?.raw, music?.lyrics, music?.raw, music?.prompt),
-);
-
-function MusicLyricsPlayer({ music }) {
-  const audioRef = useRef(null);
-  const viewportRef = useRef(null);
-  const lineRefs = useRef([]);
-  const candidates = useMemo(() => {
-    const tracks = music?.tracks?.length ? music.tracks : [music];
-    return tracks
-      .filter((track) => track?.audioUrl)
-      .map((track, index) => ({
-        ...track,
-        id: String(track.id || track.audioId || index),
-        lyrics: getMusicLyricsText(track.lyrics, track.raw, music?.lyrics, music?.raw, music?.prompt),
-      }))
-      .filter((track) => isMusicLyricsText(track.lyrics));
-  }, [music]);
-  const [selectedId, setSelectedId] = useState(() => candidates[0]?.id || '');
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const selected = candidates.find((track) => track.id === selectedId) || candidates[0];
-  const lyricRows = useMemo(() => parseMusicLyrics(selected?.lyrics, duration), [selected?.lyrics, duration]);
-  const activeIndex = getActiveMusicLyricIndex(lyricRows, currentTime);
-
-  useEffect(() => {
-    if (!candidates.length) return;
-    if (!candidates.some((track) => track.id === selectedId)) setSelectedId(candidates[0].id);
-  }, [candidates, selectedId]);
-
-  useEffect(() => {
-    setCurrentTime(0);
-    setDuration(0);
-    lineRefs.current = [];
-  }, [selected?.id]);
-
-  useEffect(() => {
-    if (activeIndex < 0) return;
-    const viewport = viewportRef.current;
-    const line = lineRefs.current[activeIndex];
-    if (!viewport || !line) return;
-    const nextTop = line.offsetTop - (viewport.clientHeight * 0.44) + (line.offsetHeight / 2);
-    viewport.scrollTo({ top: Math.max(0, nextTop), behavior: 'smooth' });
-  }, [activeIndex]);
-
-  if (!selected || !lyricRows.length) return null;
-
-  const seekTo = (time) => {
-    const audio = audioRef.current;
-    if (!audio || !Number.isFinite(Number(time))) return;
-    audio.currentTime = Math.max(0, Number(time));
-    setCurrentTime(audio.currentTime);
-    audio.play().catch(() => {});
-  };
-
-  return (
-    <section className="music-detail-section music-lyrics-player">
-      <div className="music-detail-section-head music-lyrics-head">
-        <div><span>LIVE LYRICS</span><h2>同步歌词</h2></div>
-        <em>{formatMusicPlaybackTime(currentTime)} / {formatMusicPlaybackTime(duration)}</em>
-      </div>
-      {candidates.length > 1 && <div className="music-lyrics-versions" aria-label="选择歌曲版本">{candidates.map((track, index) => (
-        <button key={track.id} className={track.id === selected.id ? 'is-active' : ''} onClick={() => setSelectedId(track.id)}>
-          版本 {index + 1}<small>{track.title}</small>
-        </button>
-      ))}</div>}
-      <div className="music-lyrics-now-playing">
-        <div><Music2 size={18} /><span><strong>{selected.title || music.title}</strong><small>播放时歌词会自动滚动</small></span></div>
-        <audio
-          ref={audioRef}
-          controls
-          preload="metadata"
-          src={selected.audioUrl}
-          onLoadedMetadata={(event) => setDuration(Number.isFinite(event.currentTarget.duration) ? event.currentTarget.duration : 0)}
-          onDurationChange={(event) => setDuration(Number.isFinite(event.currentTarget.duration) ? event.currentTarget.duration : 0)}
-          onTimeUpdate={(event) => setCurrentTime(event.currentTarget.currentTime)}
-          onSeeked={(event) => setCurrentTime(event.currentTarget.currentTime)}
-          onEnded={() => setCurrentTime(duration)}
-        />
-      </div>
-      <div className="music-lyrics-viewport" ref={viewportRef} tabIndex="0" aria-label="同步歌词">
-        <div className="music-lyrics-spacer" aria-hidden="true" />
-        {lyricRows.map((row, index) => {
-          const isActive = index === activeIndex;
-          if (row.kind === 'section') {
-            return <div className="music-lyrics-section-label" key={row.id} ref={(node) => { lineRefs.current[index] = node; }}>{row.text}</div>;
-          }
-          return (
-            <button
-              type="button"
-              key={row.id}
-              ref={(node) => { lineRefs.current[index] = node; }}
-              className={`music-lyrics-line${isActive ? ' is-active' : ''}`}
-              aria-current={isActive ? 'true' : undefined}
-              onClick={() => seekTo(row.start)}
-            >
-              {row.text}
-            </button>
-          );
-        })}
-        <div className="music-lyrics-spacer" aria-hidden="true" />
-      </div>
-    </section>
-  );
-}
 
 function MusicStudioPage({ authVersion, onLogin, onOpenLyrics, onOpenBilling }) {
   const [prefill] = useState(takeMusicPrefill);
@@ -2786,10 +2635,6 @@ function MusicStudioPage({ authVersion, onLogin, onOpenLyrics, onOpenBilling }) 
 
   if (view === 'detail') {
     const music = selectedMusic;
-    const lyricTracks = music?.tracks?.length ? music.tracks : music ? [music] : [];
-    const hasLyricsPlayer = lyricTracks.some((track) => (
-      track.audioUrl && hasMusicTrackLyrics(track, music)
-    ));
     return (
       <div className="music-detail-page">
         <header className="music-detail-header">
@@ -2812,7 +2657,7 @@ function MusicStudioPage({ authVersion, onLogin, onOpenLyrics, onOpenBilling }) 
                 {music.duration && <span><strong>时长</strong>{music.duration}</span>}
               </div>
               {music.status.key === 'failed' && music.failReason && <div className="music-detail-error"><strong>生成失败</strong><span>{music.failReason}</span></div>}
-              {!hasLyricsPlayer && !music.tracks?.length && music.audioUrl && <audio controls preload="metadata" src={music.audioUrl} />}
+              {!music.tracks?.length && music.audioUrl && <audio controls preload="metadata" src={music.audioUrl} />}
               <div className="music-detail-actions">
                 {music.status.key === 'failed' && <button className="danger-button" onClick={() => retryMusic(music)}>重试制作</button>}
                 {!music.tracks?.length && music.audioUrl && <button className="primary-button" disabled={creatingVideoId === music.id} onClick={() => createMusicVideo(music)}><Video size={16} /><span>{creatingVideoId === music.id ? '提交中…' : '制作音乐视频'}</span></button>}
@@ -2823,13 +2668,11 @@ function MusicStudioPage({ authVersion, onLogin, onOpenLyrics, onOpenBilling }) 
 
           {detailMessage && <div className="music-message"><span>{detailMessage}</span></div>}
 
-          {hasLyricsPlayer && <MusicLyricsPlayer music={music} />}
-
           {music.tracks?.length > 0 && <section className="music-detail-section">
             <div className="music-detail-section-head"><div><span>GENERATED TRACKS</span><h2>成品歌曲</h2></div><em>{music.tracks.length} 个版本</em></div>
             <div className="music-track-list">{music.tracks.map((track, index) => <article className="music-track-card" key={track.id}>
               <div className="music-track-number">{String(index + 1).padStart(2, '0')}</div>
-              <div className="music-track-main"><div><strong>{track.title}</strong><small>{track.duration || track.createdAt || '已生成'}</small></div>{track.audioUrl ? (hasMusicTrackLyrics(track, music) ? <span className="music-audio-pending"><Play size={15} />请在同步歌词中试听</span> : <audio controls preload="none" src={track.audioUrl} />) : <span className="music-audio-pending">音频尚未生成</span>}</div>
+              <div className="music-track-main"><div><strong>{track.title}</strong><small>{track.duration || track.createdAt || '已生成'}</small></div>{track.audioUrl ? <audio controls preload="none" src={track.audioUrl} /> : <span className="music-audio-pending">音频尚未生成</span>}</div>
               <div className="music-track-actions">
                 {track.audioUrl && <button onClick={() => createMusicVideo(music, track)} disabled={creatingVideoId === track.id}><Video size={15} />{creatingVideoId === track.id ? '提交中' : '制作视频'}</button>}
                 {track.audioUrl && <a href={track.audioUrl} target="_blank" rel="noreferrer">下载</a>}
@@ -2844,7 +2687,7 @@ function MusicStudioPage({ authVersion, onLogin, onOpenLyrics, onOpenBilling }) 
             {music.video.videoUrl && <video src={music.video.videoUrl} poster={music.video.coverUrl || music.imageUrl} controls playsInline />}
           </section>}
 
-          {!hasLyricsPlayer && <section className="music-detail-section music-prompt-section"><div className="music-detail-section-head"><div><span>CREATIVE BRIEF</span><h2>创作描述</h2></div></div><p>{music.prompt || '暂无创作描述'}</p></section>}
+          <section className="music-detail-section music-prompt-section"><div className="music-detail-section-head"><div><span>CREATIVE BRIEF</span><h2>创作描述</h2></div></div><p>{music.prompt || '暂无创作描述'}</p></section>
         </> : <div className="music-detail-state"><Music2 size={36} /><strong>没有找到音乐详情</strong><button className="primary-button" onClick={() => setView('list')}>返回我的音乐</button></div>}
       </div>
     );
