@@ -2149,5 +2149,16 @@
   "Kali 发布任务": "Kali publishing task",
   "本地桥接接口": "Local bridge API",
   "内容平台": "Content platform",
-  "项目当前主线是 sau CLI；仓库内 5409 Web API 属于历史实现。生产使用时请为本地桥接接口增加访问令牌，并且不要直接暴露到公网。": "The project now centers on the sau CLI; the repository’s port 5409 Web API is a legacy implementation. For production, protect the local bridge with an access token and never expose it directly to the public internet."
+  "项目当前主线是 sau CLI；仓库内 5409 Web API 属于历史实现。生产使用时请为本地桥接接口增加访问令牌，并且不要直接暴露到公网。": "The project now centers on the sau CLI; the repository’s port 5409 Web API is a legacy implementation. For production, protect the local bridge with an access token and never expose it directly to the public internet.",
+  "作者": "Author",
+  "作者姓名": "Author name",
+  "请填写作者姓名。": "Enter the author name.",
+  "尚未制作视频": "No video created yet",
+  "刷新状态后会在这里显示成片": "Refresh the status to see the finished video here",
+  "制作后会在这里显示成片": "Your finished video will appear here",
+  "待填写作者": "Author required",
+  "未制作": "Not created",
+  "填写作者姓名后提交，成片会显示在音乐详情页。": "Enter the author name, then submit. The finished video will appear on the music details page.",
+  "请输入作者姓名": "Enter the author name",
+  "成片": "Finished videos"
 }

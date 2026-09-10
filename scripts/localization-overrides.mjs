@@ -1812,6 +1812,37 @@ const creatorMaterialSourceRows = {
   'hi-IN': ['मीडिया चुनें', 'मीडिया स्रोत चुनें', 'AI चित्र'],
 };
 
+const musicVideoOverrides = {
+  'en-US': {
+    '作者': 'Author',
+    '作者姓名': 'Author name',
+    '请填写作者姓名。': 'Enter the author name.',
+    '尚未制作视频': 'No video created yet',
+    '刷新状态后会在这里显示成片': 'Refresh the status to see the finished video here',
+    '制作后会在这里显示成片': 'Your finished video will appear here',
+    '待填写作者': 'Author required',
+    '未制作': 'Not created',
+    '填写作者姓名后提交，成片会显示在音乐详情页。': 'Enter the author name, then submit. The finished video will appear on the music details page.',
+    '请输入作者姓名': 'Enter the author name',
+    '成片': 'Finished videos',
+  },
+  'zh-CN': {},
+  'zh-TW': {
+    '作者': '作者',
+    '作者姓名': '作者姓名',
+    '请填写作者姓名。': '請填寫作者姓名。',
+    '尚未制作视频': '尚未製作影片',
+    '刷新状态后会在这里显示成片': '重新整理狀態後會在這裡顯示成片',
+    '制作后会在这里显示成片': '製作後會在這裡顯示成片',
+    '待填写作者': '待填寫作者',
+    '未制作': '未製作',
+    '填写作者姓名后提交，成片会显示在音乐详情页。': '填寫作者姓名後提交，成片會顯示在音樂詳情頁。',
+    '请输入作者姓名': '請輸入作者姓名',
+    '成片': '成片',
+  },
+};
+musicVideoOverrides['zh-CN'] = Object.fromEntries(Object.keys(musicVideoOverrides['en-US']).map((source) => [source, source]));
+
 const realmanPackagingOverrides = {
   'en-US': {
     '包装视频': 'Package video',
@@ -1985,6 +2016,7 @@ export const workspaceLocalizationOverrides = Object.fromEntries(Object.entries(
   Object.assign(overrides, publishCenterOverrides[locale] || publishCenterOverrides['en-US']);
   aiVideoCoreKeys.forEach((key, index) => { overrides[key] = aiVideoCoreRows[locale][index]; });
   creatorMaterialSourceKeys.forEach((key, index) => { overrides[key] = creatorMaterialSourceRows[locale][index]; });
+  Object.assign(overrides, musicVideoOverrides[locale] || musicVideoOverrides['en-US']);
   Object.assign(overrides, realmanPackagingOverrides[locale] || realmanPackagingOverrides['en-US']);
   overrides['AI Video Lab'] = aiVideoLabLabels[locale];
   return [locale, overrides];

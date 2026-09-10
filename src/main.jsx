@@ -91,6 +91,7 @@ import {
 } from './api';
 import { getInitialLocale, languages, translateStatic, useAutoTranslate, useLocaleCatalog } from './i18n';
 import { GENERATED_CONTENT_UNAVAILABLE_MESSAGE, isGeneratedMarkupFailure } from './generatedContent';
+import { buildMusicVideoPayload, cleanMusicLyrics } from './music';
 import {
   AI_VIDEO_DEFAULT_MODEL_KEY,
   buildAIVideoPayload,
@@ -2229,9 +2230,6 @@ const MUSIC_PROMPT_IDEAS = [
   { label: '情绪治愈', text: '一首温柔治愈的歌，关于疲惫一天后重新找回力量，女声，钢琴和木吉他，慢板。' },
   { label: '产品发布', text: '一首有科技感的产品发布背景音乐，电子流行，节奏稳定，逐步推向高潮。' },
 ];
-const MUSIC_SECTION_TAGS = [
-  ['前奏', '[Intro]'], ['主歌', '[Verse]'], ['预副歌', '[Pre-Chorus]'], ['副歌', '[Chorus]'], ['桥段', '[Bridge]'], ['尾奏', '[Outro]'],
-];
 const EMPTY_MUSIC_FORM = { title: '', prompt: '', lyrics: '', styleKey: MUSIC_STYLES[0].key, customStyle: '', negativeTags: '', vocalGender: '', voiceId: '' };
 
 const takeMusicPrefill = () => {
@@ -2246,7 +2244,7 @@ const takeMusicPrefill = () => {
         ...EMPTY_MUSIC_FORM,
         title: textOf(draft.title),
         prompt: inputType === 'lyrics' ? '' : textOf(draft.prompt || draft.lyrics),
-        lyrics: inputType === 'lyrics' ? textOf(draft.lyrics || draft.prompt) : '',
+        lyrics: inputType === 'lyrics' ? cleanMusicLyrics(draft.lyrics || draft.prompt) : '',
         customStyle: textOf(draft.customStyle || draft.style),
         negativeTags: textOf(draft.negativeTags),
         vocalGender: textOf(draft.vocalGender),
@@ -2343,6 +2341,7 @@ const normalizeMusicVideo = (item = {}) => {
   if (!item || !Object.keys(item).length) return null;
   const related = item.related || {};
   const result = item.result || item.result_data || item.resultData || {};
+  const request = item.request || result.request || related.result_data?.request || related.resultData?.request || {};
   const status = normalizeMusicStatus(item.status || related.status);
   const videoUrl = getApiMediaUrl(pick(item.video_url, item.videoUrl, item.url, item.file_url, item.fileUrl, item.output_url, item.outputUrl, result.video_url, result.videoUrl, result.url, related.video_url, related.videoUrl, related.url));
   const id = pick(item.id, item.task_id, item.taskId, related.id, related.task_id, related.taskId);
@@ -2351,10 +2350,11 @@ const normalizeMusicVideo = (item = {}) => {
   return {
     id,
     taskId: pick(item.task_id, item.taskId, related.task_id, related.taskId),
+    author: pick(item.author, related.author, request.author),
     status: { ...status, label: status.key === 'success' ? '视频已完成' : status.key === 'failed' ? '视频制作失败' : '视频制作中' },
     videoUrl,
     coverUrl: getApiMediaUrl(pick(item.cover_url, item.coverUrl, item.image_url, item.imageUrl, item.thumbnail_url, item.thumbnailUrl, result.cover_url, result.coverUrl, result.image_url, result.imageUrl, related.cover_url, related.coverUrl, related.image_url, related.imageUrl)),
-    failReason: pick(item.fail_reason, item.failReason, item.failure_reason, item.error_message, item.message, related.fail_reason),
+    failReason: pick(item.fail_reason, item.failReason, item.failure_reason, item.error_message, item.error_msg, item.message, related.fail_reason, related.error_msg),
     createdAt: formatMusicDate(item.updated_at || item.updatedAt || item.created_at || item.createdAt || related.updated_at || related.created_at),
     raw: item,
   };
@@ -2417,11 +2417,15 @@ function MusicStudioPage({ authVersion, onLogin, onOpenLyrics, onOpenBilling }) 
   const [detailRefreshing, setDetailRefreshing] = useState(false);
   const [detailMessage, setDetailMessage] = useState('');
   const [creatingVideoId, setCreatingVideoId] = useState('');
+  const [musicVideoDraft, setMusicVideoDraft] = useState(null);
+  const [musicVideoAuthor, setMusicVideoAuthor] = useState('');
+  const [musicVideoFormMessage, setMusicVideoFormMessage] = useState('');
+  const [lastMusicVideoAuthor, setLastMusicVideoAuthor] = useState('');
   const authed = Boolean(getAccessToken());
   const selectedStyle = MUSIC_STYLES.find((item) => item.key === form.styleKey) || MUSIC_STYLES[0];
   const isPrompt = inputType === 'prompt';
   const isInstrumental = inputType === 'instrumental';
-  const promptText = isPrompt || isInstrumental ? textOf(form.prompt) : textOf(form.lyrics);
+  const promptText = isPrompt || isInstrumental ? textOf(form.prompt) : cleanMusicLyrics(form.lyrics);
   const styleText = [selectedStyle.prompt, textOf(form.customStyle)].filter(Boolean).join(', ');
   const canGenerate = isPrompt
     ? Boolean(promptText && promptText.length <= 500)
@@ -2479,7 +2483,7 @@ function MusicStudioPage({ authVersion, onLogin, onOpenLyrics, onOpenBilling }) 
       }),
       timeoutMs: 10000,
     });
-    return result.ok ? normalizeMusicVideo(getFirstMusicResult(result)) : null;
+    return normalizeMusicVideo(getFirstMusicResult(result));
   };
   const loadMusicVideoDetails = async (music) => {
     if (!music?.id) return music;
@@ -2525,7 +2529,7 @@ function MusicStudioPage({ authVersion, onLogin, onOpenLyrics, onOpenBilling }) 
     setForm({
       title: pick(retryPayload.title, music.title),
       prompt: nextType === 'lyrics' ? '' : prompt,
-      lyrics: nextType === 'lyrics' ? prompt : '',
+      lyrics: nextType === 'lyrics' ? cleanMusicLyrics(prompt) : '',
       styleKey: MUSIC_STYLES[0].key,
       customStyle: pick(retryPayload.customStyle, retryPayload.custom_style, retryPayload.style, music.style),
       negativeTags: pick(retryPayload.negativeTags, retryPayload.negative_tags),
@@ -2536,33 +2540,41 @@ function MusicStudioPage({ authVersion, onLogin, onOpenLyrics, onOpenBilling }) 
     setView('create');
     loadCreationData();
   };
-  const createMusicVideo = async (music, track = null) => {
+  const openMusicVideoDialog = (music, track = null) => {
     const target = track || music;
     const audioId = pick(target.audioId, target.id);
     if (!music?.taskId || !audioId || creatingVideoId) {
       if (!music?.taskId || !audioId) setDetailMessage('音乐音频尚未生成，暂时不能制作视频。');
       return;
     }
+    const raw = { ...(music.raw || {}), ...(target.raw || {}) };
+    setMusicVideoDraft({ music, track, target, audioId, raw });
+    setMusicVideoAuthor(pick(target.video?.author, raw.author, lastMusicVideoAuthor));
+    setMusicVideoFormMessage('');
+  };
+  const createMusicVideo = async () => {
+    if (!musicVideoDraft || creatingVideoId) return;
+    const author = textOf(musicVideoAuthor);
+    if (!author) {
+      setMusicVideoFormMessage('请填写作者姓名。');
+      return;
+    }
+    const { music, target, audioId, raw } = musicVideoDraft;
     setCreatingVideoId(target.id);
     setDetailMessage('');
-    const raw = { ...(music.raw || {}), ...(target.raw || {}) };
     const result = await apiFetch('/api/music/video/generate', {
       method: 'POST',
-      body: omitEmpty({
-        taskId: music.taskId,
-        audioId,
-        author: raw.author,
-        domainName: raw.domainName || raw.domain_name,
-        callBackUrl: raw.callBackUrl || raw.callbackUrl || raw.call_back_url,
-      }),
+      body: buildMusicVideoPayload({ taskId: music.taskId, audioId, author, source: raw }),
       timeoutMs: 30000,
     });
     if (result.ok) {
       setDetailMessage('音乐视频已提交后台制作。');
+      setLastMusicVideoAuthor(author);
+      setMusicVideoDraft(null);
       const refreshed = await loadMusicVideoDetails(music);
       setSelectedMusic(refreshed);
     } else {
-      setDetailMessage(getResultMessage(result, '音乐视频提交失败'));
+      setMusicVideoFormMessage(getResultMessage(result, '音乐视频提交失败'));
     }
     setCreatingVideoId('');
   };
@@ -2589,7 +2601,6 @@ function MusicStudioPage({ authVersion, onLogin, onOpenLyrics, onOpenBilling }) 
       else setMessage('暂无可用的自建音色，可先使用默认声音。');
     }
   };
-  const appendSection = (tag) => updateForm('lyrics', `${form.lyrics ? `${form.lyrics}\n\n` : ''}${tag}\n`);
   const resetForm = () => {
     setInputType('lyrics');
     setForm(EMPTY_MUSIC_FORM);
@@ -2602,10 +2613,11 @@ function MusicStudioPage({ authVersion, onLogin, onOpenLyrics, onOpenBilling }) 
     if (!canGenerate || submitting) return;
     setSubmitting(true);
     setMessage('正在提交音乐生成任务…');
+    const cleanedLyrics = isPrompt || isInstrumental ? promptText : cleanMusicLyrics(promptText);
     const payload = isPrompt
       ? { prompt: promptText, customMode: false }
       : omitEmpty({
-          prompt: promptText,
+          prompt: cleanedLyrics,
           style: styleText,
           title: textOf(form.title),
           customMode: true,
@@ -2635,6 +2647,10 @@ function MusicStudioPage({ authVersion, onLogin, onOpenLyrics, onOpenBilling }) 
 
   if (view === 'detail') {
     const music = selectedMusic;
+    const videoEntries = music?.tracks?.length
+      ? music.tracks.map((track) => ({ key: track.id, title: track.title, track, video: track.video }))
+      : music ? [{ key: music.id, title: music.title, track: null, video: music.video }] : [];
+    const completedVideoCount = videoEntries.filter((entry) => entry.video?.videoUrl).length;
     return (
       <div className="music-detail-page">
         <header className="music-detail-header">
@@ -2660,7 +2676,7 @@ function MusicStudioPage({ authVersion, onLogin, onOpenLyrics, onOpenBilling }) 
               {!music.tracks?.length && music.audioUrl && <audio controls preload="metadata" src={music.audioUrl} />}
               <div className="music-detail-actions">
                 {music.status.key === 'failed' && <button className="danger-button" onClick={() => retryMusic(music)}>重试制作</button>}
-                {!music.tracks?.length && music.audioUrl && <button className="primary-button" disabled={creatingVideoId === music.id} onClick={() => createMusicVideo(music)}><Video size={16} /><span>{creatingVideoId === music.id ? '提交中…' : '制作音乐视频'}</span></button>}
+                {!music.tracks?.length && music.audioUrl && <button className="primary-button" disabled={creatingVideoId === music.id} onClick={() => openMusicVideoDialog(music)}><Video size={16} /><span>{creatingVideoId === music.id ? '提交中…' : '制作音乐视频'}</span></button>}
                 {!music.tracks?.length && music.audioUrl && <a className="music-download-link" href={music.audioUrl} target="_blank" rel="noreferrer">下载音乐</a>}
               </div>
             </div>
@@ -2674,21 +2690,37 @@ function MusicStudioPage({ authVersion, onLogin, onOpenLyrics, onOpenBilling }) 
               <div className="music-track-number">{String(index + 1).padStart(2, '0')}</div>
               <div className="music-track-main"><div><strong>{track.title}</strong><small>{track.duration || track.createdAt || '已生成'}</small></div>{track.audioUrl ? <audio controls preload="none" src={track.audioUrl} /> : <span className="music-audio-pending">音频尚未生成</span>}</div>
               <div className="music-track-actions">
-                {track.audioUrl && <button onClick={() => createMusicVideo(music, track)} disabled={creatingVideoId === track.id}><Video size={15} />{creatingVideoId === track.id ? '提交中' : '制作视频'}</button>}
+                {track.audioUrl && <button onClick={() => openMusicVideoDialog(music, track)} disabled={creatingVideoId === track.id}><Video size={15} />{creatingVideoId === track.id ? '提交中' : '制作视频'}</button>}
                 {track.audioUrl && <a href={track.audioUrl} target="_blank" rel="noreferrer">下载</a>}
               </div>
-              {track.video && <div className={`music-video-result is-${track.video.status.key}`}><div><strong>音乐视频</strong><span>{track.video.status.label}{track.video.createdAt ? ` · ${track.video.createdAt}` : ''}</span></div>{track.video.failReason && <p>{track.video.failReason}</p>}{track.video.videoUrl && <video src={track.video.videoUrl} poster={track.video.coverUrl || music.imageUrl} controls playsInline />}</div>}
             </article>)}</div>
           </section>}
 
-          {!music.tracks?.length && music.video && <section className={`music-detail-section music-video-single is-${music.video.status.key}`}>
-            <div className="music-detail-section-head"><div><span>MUSIC VIDEO</span><h2>音乐视频</h2></div><em>{music.video.status.label}</em></div>
-            {music.video.failReason && <div className="music-detail-error">{music.video.failReason}</div>}
-            {music.video.videoUrl && <video src={music.video.videoUrl} poster={music.video.coverUrl || music.imageUrl} controls playsInline />}
-          </section>}
+          <section className="music-detail-section music-video-library">
+            <div className="music-detail-section-head"><div><span>MUSIC VIDEO</span><h2>音乐视频</h2></div><em>{completedVideoCount} / {videoEntries.length} <b>成片</b></em></div>
+            <div className="music-video-grid">
+              {videoEntries.map((entry) => <article className={`music-video-card is-${entry.video?.status.key || 'empty'}`} key={entry.key}>
+                <div className="music-video-preview">
+                  {entry.video?.videoUrl
+                    ? <video src={entry.video.videoUrl} poster={entry.video.coverUrl || music.imageUrl} controls playsInline preload="metadata" />
+                    : <div><Video size={30} /><strong>{entry.video?.status.label || '尚未制作视频'}</strong><span>{entry.video ? '刷新状态后会在这里显示成片' : '制作后会在这里显示成片'}</span></div>}
+                </div>
+                <div className="music-video-card__body">
+                  <div><strong>{entry.title}</strong><span>{entry.video?.author ? <><b>作者</b>：{entry.video.author}</> : '待填写作者'}</span></div>
+                  <span className={`state-chip--${entry.video?.status.key || 'neutral'}`}>{entry.video?.status.label || '未制作'}</span>
+                </div>
+                {entry.video?.failReason && <p>{entry.video.failReason}</p>}
+                {!entry.video && (entry.track?.audioUrl || (!entry.track && music.audioUrl)) && <button className="outline-button" onClick={() => openMusicVideoDialog(music, entry.track)}><Video size={15} />制作视频</button>}
+              </article>)}
+            </div>
+          </section>
 
           <section className="music-detail-section music-prompt-section"><div className="music-detail-section-head"><div><span>CREATIVE BRIEF</span><h2>创作描述</h2></div></div><p>{music.prompt || '暂无创作描述'}</p></section>
         </> : <div className="music-detail-state"><Music2 size={36} /><strong>没有找到音乐详情</strong><button className="primary-button" onClick={() => setView('list')}>返回我的音乐</button></div>}
+        {musicVideoDraft && <VideoActionDialog className="music-video-author-dialog" title="制作音乐视频" description="填写作者姓名后提交，成片会显示在音乐详情页。" busy={Boolean(creatingVideoId)} submitLabel="提交制作" onClose={() => { setMusicVideoDraft(null); setMusicVideoFormMessage(''); }} onSubmit={createMusicVideo}>
+          <label className="video-dialog-field"><span>作者姓名 <em>必填</em></span><input autoFocus maxLength={50} value={musicVideoAuthor} onChange={(event) => { setMusicVideoAuthor(event.target.value); setMusicVideoFormMessage(''); }} placeholder="请输入作者姓名" /><small>{musicVideoAuthor.length}/50</small></label>
+          {musicVideoFormMessage && <div className="video-dialog-message">{musicVideoFormMessage}</div>}
+        </VideoActionDialog>}
       </div>
     );
   }
@@ -2722,7 +2754,7 @@ function MusicStudioPage({ authVersion, onLogin, onOpenLyrics, onOpenBilling }) 
             ) : isInstrumental ? (
               <label className="music-field music-field--textarea"><span>画面、节奏与乐器 <em>可选</em></span><textarea value={form.prompt} maxLength={500} onChange={(event) => updateForm('prompt', event.target.value)} placeholder="例如：日落海岸，慢速钢琴与弦乐，后半段逐渐明亮" /><small>{form.prompt.length}/500</small></label>
             ) : (
-              <><label className="music-field music-field--textarea"><span>歌词</span><textarea className="is-lyrics" value={form.lyrics} maxLength={4500} onChange={(event) => updateForm('lyrics', event.target.value)} placeholder={'[Verse]\n在这里写下歌词，一句一行\n\n[Chorus]\n副歌可以更抓耳'} /><small>{form.lyrics.length}/4500</small></label><div className="music-tag-row">{MUSIC_SECTION_TAGS.map(([label, tag]) => <button key={tag} onClick={() => appendSection(tag)}>{label}</button>)}</div></>
+              <label className="music-field music-field--textarea"><span>歌词</span><textarea className="is-lyrics" value={form.lyrics} maxLength={4500} onChange={(event) => updateForm('lyrics', event.target.value)} placeholder={'在这里写下歌词正文，一句一行\n\n段落之间可以留一行'} /><small>{form.lyrics.length}/4500</small></label>
             )}
             {isPrompt && <div className="music-idea-row">{MUSIC_PROMPT_IDEAS.map((idea) => <button key={idea.label} onClick={() => updateForm('prompt', idea.text)}>{idea.label}</button>)}</div>}
           </section>
