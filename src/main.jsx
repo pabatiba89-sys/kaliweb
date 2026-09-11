@@ -68,6 +68,12 @@ import {
 } from './company.js';
 import { CONTACT_EMAIL, OFFICIAL_SOCIAL_LINKS } from './contact.js';
 import {
+  DEFAULT_VIDEO_TEMPLATE_ASPECT_RATIO,
+  filterVideoTemplatesByAspectRatio,
+  getVideoTemplateAspectRatio,
+  VIDEO_TEMPLATE_ASPECT_RATIOS,
+} from './videoTemplateRatio.js';
+import {
   apiFetch,
   bindInviteCode,
   bindPhoneNumber,
@@ -1237,7 +1243,8 @@ const normalizeTemplate = (item = {}, index = 0, group = '') => {
   const media = getTemplateMedia(item);
   const id = pick(item.templateId, item.template_id, item.id, item.value, item.code, item.key, `${group}-${index}`);
   const duration = Number(item.duration || item.durationTime || item.duration_time || item.videoDuration || item.video_duration) || 0;
-  const ratio = pick(item.ratio, item.aspect_ratio, item.aspectRatio, item.size, item.resolution);
+  const aspectRatio = getVideoTemplateAspectRatio(item);
+  const ratio = aspectRatio || pick(item.ratio, item.aspect_ratio, item.aspectRatio, item.size, item.resolution);
   const tags = normalizeTagList(item).slice(0, 3);
 
   return {
@@ -1247,6 +1254,7 @@ const normalizeTemplate = (item = {}, index = 0, group = '') => {
     cover: media.cover,
     demo: media.demo,
     demoType: media.demoType,
+    aspectRatio,
     tags,
     raw: item,
   };
@@ -7163,11 +7171,18 @@ function VideoCreatorDialog({ type, titleOverride, options, selected, loading, h
   const config = VIDEO_CREATOR_RESOURCE_CONFIG[type];
   const title = titleOverride || config?.title;
   const activeMaterialSource = type === 'material' ? getCreatorMaterialSource(materialSource) : null;
+  const [aspectRatio, setAspectRatio] = useState(DEFAULT_VIDEO_TEMPLATE_ASPECT_RATIO);
+  const visibleOptions = useMemo(() => (
+    type === 'videoTemplate' ? filterVideoTemplatesByAspectRatio(options, aspectRatio) : options
+  ), [aspectRatio, options, type]);
   const gridRef = useRef(null);
   useEffect(() => {
     const element = gridRef.current;
     if (!loading && !loadingMore && !loadMessage && hasMore && element && element.scrollHeight <= element.clientHeight + 4) onLoadMore?.();
-  }, [options.length, loading, loadingMore, loadMessage, hasMore, onLoadMore]);
+  }, [visibleOptions.length, aspectRatio, loading, loadingMore, loadMessage, hasMore, onLoadMore]);
+  useEffect(() => {
+    if (gridRef.current) gridRef.current.scrollTop = 0;
+  }, [aspectRatio]);
   if (!config) return null;
   const handleScroll = (event) => {
     const element = event.currentTarget;
@@ -7180,9 +7195,10 @@ function VideoCreatorDialog({ type, titleOverride, options, selected, loading, h
         <div className="video-creator-resource-heading">
           <header><div><span>PRODUCTION RESOURCE</span><h2>{title}</h2></div><button onClick={onClose} aria-label="关闭"><X size={19} /></button></header>
           {type === 'material' && <nav className="video-creator-material-source-tabs" aria-label="选择素材来源">{VIDEO_CREATOR_MATERIAL_SOURCES.map((source) => <button type="button" key={source.key} className={source.key === activeMaterialSource.key ? 'is-active' : ''} onClick={() => onMaterialSourceChange?.(source.key)}>{source.label}</button>)}</nav>}
+          {type === 'videoTemplate' && <nav className="video-creator-ratio-tabs" aria-label={title}>{VIDEO_TEMPLATE_ASPECT_RATIOS.map((ratio) => <button type="button" key={ratio} className={ratio === aspectRatio ? 'is-active' : ''} aria-pressed={ratio === aspectRatio} onClick={() => setAspectRatio(ratio)}><i aria-hidden="true" />{ratio}</button>)}</nav>}
         </div>
         <div ref={gridRef} className="video-creator-resource-grid" onScroll={handleScroll}>
-          {loading ? <div className="video-dialog-empty"><RefreshCw className="is-spinning" size={22} />正在加载资源…</div> : options.length ? options.map((option, index) => {
+          {loading ? <div className="video-dialog-empty"><RefreshCw className="is-spinning" size={22} />正在加载资源…</div> : visibleOptions.length ? visibleOptions.map((option, index) => {
             const active = type === 'material' ? selected.some((item) => item.id === option.id) : selected?.id === option.id;
             const media = option.cover || option.previewUrl || option.imageUrl;
             const audioUrl = option.audioUrl;
@@ -7195,9 +7211,9 @@ function VideoCreatorDialog({ type, titleOverride, options, selected, loading, h
                 <span><strong>{option.title}</strong><small>{option.meta || (option.isDefault ? '默认配置' : '可用')}</small>{audioUrl && <audio src={audioUrl} controls onClick={(event) => event.stopPropagation()} />}</span>
               </button>
             );
-          }) : <div className="video-dialog-empty">{activeMaterialSource?.empty || config.empty}</div>}
-          {!loading && options.length > 0 && loadingMore && <div className="video-creator-resource-more"><RefreshCw className="is-spinning" size={17} />正在加载更多…</div>}
-          {!loading && options.length > 0 && !loadingMore && hasMore && <button className="video-creator-resource-more" onClick={onLoadMore}>加载更多</button>}
+          }) : loadingMore ? <div className="video-dialog-empty"><RefreshCw className="is-spinning" size={22} />正在加载更多…</div> : <div className="video-dialog-empty">{activeMaterialSource?.empty || config.empty}</div>}
+          {!loading && visibleOptions.length > 0 && loadingMore && <div className="video-creator-resource-more"><RefreshCw className="is-spinning" size={17} />正在加载更多…</div>}
+          {!loading && visibleOptions.length > 0 && !loadingMore && hasMore && <button className="video-creator-resource-more" onClick={onLoadMore}>加载更多</button>}
           {!loadingMore && loadMessage && <div className="video-creator-resource-error">{loadMessage}</div>}
         </div>
         <footer><button className="primary-button" onClick={onClose}>{type === 'material' ? `完成选择（${selected.length}）` : '关闭'}</button></footer>
