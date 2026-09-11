@@ -21,15 +21,33 @@ test('cleanMusicLyrics removes section prompts and keeps lyric text', () => {
   );
 });
 
+test('cleanMusicLyrics removes bracketed performance notes and metadata lines', () => {
+  const lyrics = [
+    '(soft piano intro)',
+    '夜色落在肩上',
+    '情绪：克制后渐强',
+    '（女声轻柔，渐强）',
+    '我仍朝着有光的地方',
+    '[这一刻属于我们]',
+  ].join('\n');
+
+  assert.equal(
+    cleanMusicLyrics(lyrics),
+    '夜色落在肩上\n\n我仍朝着有光的地方\n[这一刻属于我们]',
+  );
+});
+
 test('buildMusicVideoPayload always carries the entered author', () => {
   assert.deepEqual(buildMusicVideoPayload({
     taskId: 'music-task-1',
     audioId: 'song-1',
+    title: '  你是我的挚爱  ',
     author: '  一修  ',
     source: { domain_name: 'kaliai.fun' },
   }), {
     taskId: 'music-task-1',
     audioId: 'song-1',
+    title: '你是我的挚爱',
     author: '一修',
     domainName: 'kaliai.fun',
   });

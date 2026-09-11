@@ -42,12 +42,19 @@ const LYRIC_SECTION_LABELS = [
   '器乐',
 ].join('|');
 
+const LYRIC_METADATA_LABELS = 'music prompt|vocal style|style|mood|tempo|instruments?|音乐提示|演唱提示|提示词|提示|风格|情绪|速度|节奏|乐器|人声|编曲';
 const BRACKETED_LYRIC_PROMPT = new RegExp(
-  `[\\[\u3010]\s*(?:${LYRIC_SECTION_LABELS})(?:[^\\]\u3011\\r\\n]{0,60})?[\\]\u3011]`,
+  String.raw`[\[【(（]\s*(?:${LYRIC_SECTION_LABELS})(?:[^\]】)）\r\n]{0,60})?[\]】)）]`,
   'giu',
 );
+const LYRIC_DIRECTION_WORDS = /(?:vocals?|instrumental|a\s*cappella|spoken|whisper|soft|gentle|powerful|emotional|melodic|upbeat|piano|guitar|drums?|strings?|synth|echo|reverb|fade|build|drop|solo|男声|女声|合唱|和声|独白|说唱|轻声|低语|呢喃|温柔|轻柔|激昂|情绪|渐强|渐弱|淡入|淡出|钢琴|吉他|鼓点|弦乐|合成器|器乐|伴奏|旋律|节奏|演唱|人声)/iu;
+const BRACKETED_LYRIC_NOTE = /(\[[^\]\r\n]{1,100}\]|【[^】\r\n]{1,100}】|\([^\)\r\n]{1,100}\)|（[^）\r\n]{1,100}）)/gu;
 const LYRIC_PROMPT_PREFIX = new RegExp(
   `^\\s*(?:#{1,6}\\s*)?(?:\\*\\*|__)?\\s*(?:${LYRIC_SECTION_LABELS})(?:\\s*\\d+)?(?:\\*\\*|__)?\\s*(?:[:：|\\-—]+\\s*)?`,
+  'iu',
+);
+const LYRIC_METADATA_LINE = new RegExp(
+  `^\\s*(?:#{1,6}\\s*)?(?:\\*\\*|__)?\\s*(?:${LYRIC_METADATA_LABELS})(?:\\*\\*|__)?\\s*[:：|\\-—]+.*$`,
   'iu',
 );
 
@@ -55,18 +62,24 @@ export const cleanMusicLyrics = (value) => String(value || '')
   .replace(/```[^\r\n]*\r?\n?/g, '')
   .replace(BRACKETED_LYRIC_PROMPT, '')
   .split(/\r?\n/)
-  .map((line) => line.replace(LYRIC_PROMPT_PREFIX, '').trim())
+  .map((line) => {
+    const withoutNotes = line.replace(BRACKETED_LYRIC_NOTE, (note) => (LYRIC_DIRECTION_WORDS.test(note) ? '' : note));
+    if (LYRIC_METADATA_LINE.test(withoutNotes)) return '';
+    return withoutNotes.replace(LYRIC_PROMPT_PREFIX, '').trim();
+  })
   .join('\n')
   .replace(/\n{3,}/g, '\n\n')
   .trim();
 
-export function buildMusicVideoPayload({ taskId, audioId, author, source = {} }) {
+export function buildMusicVideoPayload({ taskId, audioId, title, author, source = {} }) {
+  const normalizedTitle = String(title || '').trim();
   const normalizedAuthor = String(author || '').trim();
   const domainName = source.domainName || source.domain_name;
   const callBackUrl = source.callBackUrl || source.callbackUrl || source.call_back_url;
   return {
     taskId,
     audioId,
+    ...(normalizedTitle ? { title: normalizedTitle } : {}),
     ...(normalizedAuthor ? { author: normalizedAuthor } : {}),
     ...(domainName ? { domainName } : {}),
     ...(callBackUrl ? { callBackUrl } : {}),

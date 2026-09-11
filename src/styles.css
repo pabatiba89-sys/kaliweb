@@ -14251,9 +14251,28 @@ html[dir="rtl"] .training-submit-progress__fill {
 }
 
 .music-field > span,
+.music-field-label-row > label,
 .music-choice-row > span {
   color: #405f63;
   font-size: 13px;
+  font-weight: 800;
+}
+
+.music-field-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.music-field-label-row > button {
+  min-height: 30px;
+  padding: 0 10px;
+  border: 1px solid #cfe2df;
+  border-radius: 9px;
+  color: #35777b;
+  background: #f1f8f6;
+  font-size: 11px;
   font-weight: 800;
 }
 

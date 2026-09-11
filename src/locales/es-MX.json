@@ -2170,5 +2170,8 @@
   "未制作": "Not created",
   "填写作者姓名后提交，成片会显示在音乐详情页。": "Enter the author name, then submit. The finished video will appear on the music details page.",
   "请输入作者姓名": "Enter the author name",
-  "成片": "Finished videos"
+  "成片": "Finished videos",
+  "请填写歌曲名称。": "Enter the song title.",
+  "清除提示内容": "Remove prompt notes",
+  "填写歌曲名称和作者后提交，成片会显示在音乐详情页。": "Enter the song title and author, then submit. The finished video will appear on the music details page."
 }

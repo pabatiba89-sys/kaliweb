@@ -2340,6 +2340,7 @@ const normalizeMusicVideo = (item = {}) => {
   return {
     id,
     taskId: pick(item.task_id, item.taskId, related.task_id, related.taskId),
+    title: pick(item.title, related.title, request.title),
     author: pick(item.author, related.author, request.author),
     status: { ...status, label: status.key === 'success' ? '视频已完成' : status.key === 'failed' ? '视频制作失败' : '视频制作中' },
     videoUrl,
@@ -2408,6 +2409,7 @@ function MusicStudioPage({ authVersion, onLogin, onOpenLyrics, onOpenBilling }) 
   const [detailMessage, setDetailMessage] = useState('');
   const [creatingVideoId, setCreatingVideoId] = useState('');
   const [musicVideoDraft, setMusicVideoDraft] = useState(null);
+  const [musicVideoTitle, setMusicVideoTitle] = useState('');
   const [musicVideoAuthor, setMusicVideoAuthor] = useState('');
   const [musicVideoFormMessage, setMusicVideoFormMessage] = useState('');
   const [lastMusicVideoAuthor, setLastMusicVideoAuthor] = useState('');
@@ -2416,6 +2418,8 @@ function MusicStudioPage({ authVersion, onLogin, onOpenLyrics, onOpenBilling }) 
   const isPrompt = inputType === 'prompt';
   const isInstrumental = inputType === 'instrumental';
   const promptText = isPrompt || isInstrumental ? textOf(form.prompt) : cleanMusicLyrics(form.lyrics);
+  const cleanedLyrics = !isPrompt && !isInstrumental ? cleanMusicLyrics(form.lyrics) : '';
+  const hasLyricPrompts = Boolean(form.lyrics && cleanedLyrics !== textOf(form.lyrics));
   const styleText = [selectedStyle.prompt, textOf(form.customStyle)].filter(Boolean).join(', ');
   const canGenerate = isPrompt
     ? Boolean(promptText && promptText.length <= 500)
@@ -2539,12 +2543,18 @@ function MusicStudioPage({ authVersion, onLogin, onOpenLyrics, onOpenBilling }) 
     }
     const raw = { ...(music.raw || {}), ...(target.raw || {}) };
     setMusicVideoDraft({ music, track, target, audioId, raw });
+    setMusicVideoTitle(pick(target.video?.title, target.title, raw.title, music.title));
     setMusicVideoAuthor(pick(target.video?.author, raw.author, lastMusicVideoAuthor));
     setMusicVideoFormMessage('');
   };
   const createMusicVideo = async () => {
     if (!musicVideoDraft || creatingVideoId) return;
+    const title = textOf(musicVideoTitle);
     const author = textOf(musicVideoAuthor);
+    if (!title) {
+      setMusicVideoFormMessage('请填写歌曲名称。');
+      return;
+    }
     if (!author) {
       setMusicVideoFormMessage('请填写作者姓名。');
       return;
@@ -2554,7 +2564,7 @@ function MusicStudioPage({ authVersion, onLogin, onOpenLyrics, onOpenBilling }) 
     setDetailMessage('');
     const result = await apiFetch('/api/music/video/generate', {
       method: 'POST',
-      body: buildMusicVideoPayload({ taskId: music.taskId, audioId, author, source: raw }),
+      body: buildMusicVideoPayload({ taskId: music.taskId, audioId, title, author, source: raw }),
       timeoutMs: 30000,
     });
     if (result.ok) {
@@ -2696,7 +2706,7 @@ function MusicStudioPage({ authVersion, onLogin, onOpenLyrics, onOpenBilling }) 
                     : <div><Video size={30} /><strong>{entry.video?.status.label || '尚未制作视频'}</strong><span>{entry.video ? '刷新状态后会在这里显示成片' : '制作后会在这里显示成片'}</span></div>}
                 </div>
                 <div className="music-video-card__body">
-                  <div><strong>{entry.title}</strong><span>{entry.video?.author ? <><b>作者</b>：{entry.video.author}</> : '待填写作者'}</span></div>
+                  <div><strong>{entry.video?.title || entry.title}</strong><span>{entry.video?.author ? <><b>作者</b>：{entry.video.author}</> : '待填写作者'}</span></div>
                   <span className={`state-chip--${entry.video?.status.key || 'neutral'}`}>{entry.video?.status.label || '未制作'}</span>
                 </div>
                 {entry.video?.failReason && <p>{entry.video.failReason}</p>}
@@ -2707,8 +2717,9 @@ function MusicStudioPage({ authVersion, onLogin, onOpenLyrics, onOpenBilling }) 
 
           <section className="music-detail-section music-prompt-section"><div className="music-detail-section-head"><div><span>CREATIVE BRIEF</span><h2>创作描述</h2></div></div><p>{music.prompt || '暂无创作描述'}</p></section>
         </> : <div className="music-detail-state"><Music2 size={36} /><strong>没有找到音乐详情</strong><button className="primary-button" onClick={() => setView('list')}>返回我的音乐</button></div>}
-        {musicVideoDraft && <VideoActionDialog className="music-video-author-dialog" title="制作音乐视频" description="填写作者姓名后提交，成片会显示在音乐详情页。" busy={Boolean(creatingVideoId)} submitLabel="提交制作" onClose={() => { setMusicVideoDraft(null); setMusicVideoFormMessage(''); }} onSubmit={createMusicVideo}>
-          <label className="video-dialog-field"><span>作者姓名 <em>必填</em></span><input autoFocus maxLength={50} value={musicVideoAuthor} onChange={(event) => { setMusicVideoAuthor(event.target.value); setMusicVideoFormMessage(''); }} placeholder="请输入作者姓名" /><small>{musicVideoAuthor.length}/50</small></label>
+        {musicVideoDraft && <VideoActionDialog className="music-video-author-dialog" title="制作音乐视频" description="填写歌曲名称和作者后提交，成片会显示在音乐详情页。" busy={Boolean(creatingVideoId)} submitLabel="提交制作" onClose={() => { setMusicVideoDraft(null); setMusicVideoFormMessage(''); }} onSubmit={createMusicVideo}>
+          <label className="video-dialog-field"><span>歌曲名称 <em>必填</em></span><input autoFocus maxLength={80} value={musicVideoTitle} onChange={(event) => { setMusicVideoTitle(event.target.value); setMusicVideoFormMessage(''); }} /><small>{musicVideoTitle.length}/80</small></label>
+          <label className="video-dialog-field"><span>作者姓名 <em>必填</em></span><input maxLength={50} value={musicVideoAuthor} onChange={(event) => { setMusicVideoAuthor(event.target.value); setMusicVideoFormMessage(''); }} placeholder="请输入作者姓名" /><small>{musicVideoAuthor.length}/50</small></label>
           {musicVideoFormMessage && <div className="video-dialog-message">{musicVideoFormMessage}</div>}
         </VideoActionDialog>}
       </div>
@@ -2744,7 +2755,7 @@ function MusicStudioPage({ authVersion, onLogin, onOpenLyrics, onOpenBilling }) 
             ) : isInstrumental ? (
               <label className="music-field music-field--textarea"><span>画面、节奏与乐器 <em>可选</em></span><textarea value={form.prompt} maxLength={500} onChange={(event) => updateForm('prompt', event.target.value)} placeholder="例如：日落海岸，慢速钢琴与弦乐，后半段逐渐明亮" /><small>{form.prompt.length}/500</small></label>
             ) : (
-              <label className="music-field music-field--textarea"><span>歌词</span><textarea className="is-lyrics" value={form.lyrics} maxLength={4500} onChange={(event) => updateForm('lyrics', event.target.value)} placeholder={'在这里写下歌词正文，一句一行\n\n段落之间可以留一行'} /><small>{form.lyrics.length}/4500</small></label>
+              <div className="music-field music-field--textarea"><div className="music-field-label-row"><label htmlFor="music-lyrics-input">歌词</label>{hasLyricPrompts && <button type="button" onClick={() => updateForm('lyrics', cleanedLyrics)}>清除提示内容</button>}</div><textarea id="music-lyrics-input" className="is-lyrics" value={form.lyrics} maxLength={4500} onChange={(event) => updateForm('lyrics', event.target.value)} placeholder={'在这里写下歌词正文，一句一行\n\n段落之间可以留一行'} /><small>{form.lyrics.length}/4500</small></div>
             )}
             {isPrompt && <div className="music-idea-row">{MUSIC_PROMPT_IDEAS.map((idea) => <button key={idea.label} onClick={() => updateForm('prompt', idea.text)}>{idea.label}</button>)}</div>}
           </section>
