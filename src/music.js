@@ -72,3 +72,83 @@ export function buildMusicVideoPayload({ taskId, audioId, author, source = {} })
     ...(callBackUrl ? { callBackUrl } : {}),
   };
 }
+
+const MUSIC_RESULT_COLLECTION_KEYS = ['videos', 'video_list', 'videoList', 'results', 'list', 'items', 'records', 'rows'];
+const MUSIC_RESULT_DETAIL_KEYS = [
+  'task_id',
+  'taskId',
+  'task_type',
+  'taskType',
+  'music_id',
+  'musicId',
+  'audio_id',
+  'audioId',
+  'status',
+  'related',
+  'video_url',
+  'videoUrl',
+  'audio_url',
+  'audioUrl',
+];
+
+export function getFirstMusicResult(result = {}) {
+  const raw = result.raw || {};
+  const payloads = [result.data, raw.data?.data, raw.data, raw]
+    .filter((item) => item && typeof item === 'object');
+
+  for (const payload of payloads) {
+    if (Array.isArray(payload)) return payload[0] || {};
+
+    const isDetail = MUSIC_RESULT_DETAIL_KEYS.some((key) => (
+      Object.prototype.hasOwnProperty.call(payload, key)
+      && payload[key] !== undefined
+      && payload[key] !== null
+    ));
+    if (isDetail) return payload;
+
+    for (const key of MUSIC_RESULT_COLLECTION_KEYS) {
+      if (Array.isArray(payload[key])) return payload[key][0] || {};
+    }
+    if (Object.keys(payload).length) return payload;
+  }
+  return {};
+}
+
+export function getMusicVideoUrl(item = {}) {
+  const related = item.related || {};
+  const result = item.result || item.result_data || item.resultData || {};
+  const relatedResult = related.result || related.result_data || related.resultData || {};
+  return [
+    item.video_url,
+    item.videoUrl,
+    item.result_url,
+    item.resultUrl,
+    item.url,
+    item.file_url,
+    item.fileUrl,
+    item.output_url,
+    item.outputUrl,
+    result.video_url,
+    result.videoUrl,
+    result.result_url,
+    result.resultUrl,
+    result.url,
+    related.video_url,
+    related.videoUrl,
+    related.result_url,
+    related.resultUrl,
+    related.url,
+    relatedResult.video_url,
+    relatedResult.videoUrl,
+    relatedResult.result_url,
+    relatedResult.resultUrl,
+    item.provider_video_url,
+    item.providerVideoUrl,
+    result.provider_video_url,
+    result.providerVideoUrl,
+    related.provider_video_url,
+    related.providerVideoUrl,
+    relatedResult.provider_video_url,
+    relatedResult.providerVideoUrl,
+  ].find((value) => typeof value === 'string' && value.trim()) || '';
+}

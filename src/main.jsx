@@ -91,7 +91,7 @@ import {
 } from './api';
 import { getInitialLocale, languages, translateStatic, useAutoTranslate, useLocaleCatalog } from './i18n';
 import { GENERATED_CONTENT_UNAVAILABLE_MESSAGE, isGeneratedMarkupFailure } from './generatedContent';
-import { buildMusicVideoPayload, cleanMusicLyrics } from './music';
+import { buildMusicVideoPayload, cleanMusicLyrics, getFirstMusicResult, getMusicVideoUrl } from './music';
 import {
   AI_VIDEO_DEFAULT_MODEL_KEY,
   buildAIVideoPayload,
@@ -2327,23 +2327,13 @@ const normalizeMusicTrack = (item = {}, index = 0, parent = {}) => {
     video: null,
   };
 };
-const getFirstMusicResult = (result = {}) => {
-  for (const payload of getMusicPayloads(result)) {
-    if (Array.isArray(payload)) return payload[0] || {};
-    for (const key of ['videos', 'video_list', 'videoList', 'results', 'list', 'items', 'records', 'rows']) {
-      if (Array.isArray(payload[key])) return payload[key][0] || {};
-    }
-    if (Object.keys(payload).length) return payload;
-  }
-  return {};
-};
 const normalizeMusicVideo = (item = {}) => {
   if (!item || !Object.keys(item).length) return null;
   const related = item.related || {};
   const result = item.result || item.result_data || item.resultData || {};
   const request = item.request || result.request || related.result_data?.request || related.resultData?.request || {};
   const status = normalizeMusicStatus(item.status || related.status);
-  const videoUrl = getApiMediaUrl(pick(item.video_url, item.videoUrl, item.url, item.file_url, item.fileUrl, item.output_url, item.outputUrl, result.video_url, result.videoUrl, result.url, related.video_url, related.videoUrl, related.url));
+  const videoUrl = getApiMediaUrl(getMusicVideoUrl(item));
   const id = pick(item.id, item.task_id, item.taskId, related.id, related.task_id, related.taskId);
   const hasDetail = Boolean(id || videoUrl || item.status || related.status);
   if (!hasDetail) return null;
