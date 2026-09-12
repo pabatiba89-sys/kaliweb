@@ -112,6 +112,7 @@ import {
   buildProductionVideoPublishPayload,
   buildUploadedVideoPublishPayload,
   normalizePublishTopics,
+  triggerLocalPublish,
 } from './publish';
 import {
   buildPackagingPresetPayload,
@@ -4668,6 +4669,7 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling, onOpenP
       return;
     }
 
+    const localPublishAt = isNow ? getDefaultPublishAt(0) : publishAt;
     setPublishState((current) => ({ ...current, busy: true, message: '' }));
     const result = await apiFetch('/api/team-notion/publish-ai-video', {
       method: 'POST',
@@ -4676,7 +4678,7 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling, onOpenP
         title,
         topics: publishTopics,
         accountId: account.id,
-        publishAt: isNow ? getDefaultPublishAt(0) : publishAt,
+        publishAt: localPublishAt,
         publishNow: isNow,
       }),
       timeoutMs: 45000,
@@ -4686,11 +4688,27 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling, onOpenP
       return;
     }
 
+    let localPublishError = '';
+    try {
+      await triggerLocalPublish({
+        videoUrl: result.data?.ai_video?.video_url || result.data?.aiVideo?.videoUrl || publishTarget.videoUrl,
+        title,
+        topics: publishTopics,
+        accountName: account.name,
+        publishAt: localPublishAt,
+        publishNow: isNow,
+      });
+    } catch (error) {
+      localPublishError = error instanceof Error ? error.message : '本地发布服务调用失败';
+    }
+
     setPublishDialog(false);
     setPublishTarget(null);
     setPublishState({ loading: false, busy: false, message: '' });
     setDetail(null);
-    setNotice(isNow ? 'AI 视频已提交立即发布。' : 'AI 视频已加入定时发布。');
+    setNotice(localPublishError
+      ? `AI 视频发布任务已保存，但本地发布未调起：${localPublishError}`
+      : (isNow ? 'AI 视频已调起本地立即发布。' : 'AI 视频已调起本地定时发布。'));
   };
 
   const renderReferenceList = (type, accept, label) => (
@@ -5882,6 +5900,7 @@ function PublishCenterPage({ authVersion, onLogin }) {
 
     let endpoint = '/api/team-notion/publish-video';
     let payload;
+    let publishVideoUrl = selectedSource?.videoUrl || '';
     if (sourceType === 'upload') {
       let videoUrl = uploadedLocal.file === localFile ? uploadedLocal.url : '';
       let uploadKey = uploadedLocal.file === localFile ? uploadedLocal.key : '';
@@ -5900,6 +5919,7 @@ function PublishCenterPage({ authVersion, onLogin }) {
         }
         setUploadedLocal({ file: localFile, url: videoUrl, key: uploadKey });
       }
+      publishVideoUrl = videoUrl;
       endpoint = '/api/team-notion/publish-uploaded-video';
       payload = buildUploadedVideoPublishPayload({
         videoUrl,
@@ -5920,9 +5940,9 @@ function PublishCenterPage({ authVersion, onLogin }) {
     }
 
     const result = await apiFetch(endpoint, { method: 'POST', body: payload, timeoutMs: 45000 });
-    setBusy(false);
-    setUploadProgress(0);
     if (!result.ok) {
+      setBusy(false);
+      setUploadProgress(0);
       const unavailableUploadEndpoint = sourceType === 'upload' && [404, 405].includes(result.status);
       setMessage({
         text: unavailableUploadEndpoint
@@ -5933,7 +5953,28 @@ function PublishCenterPage({ authVersion, onLogin }) {
       return;
     }
 
-    setMessage({ text: publishNow ? '视频已提交立即发布。' : '视频已加入定时发布。', error: false });
+    let localPublishError = '';
+    try {
+      await triggerLocalPublish({
+        videoUrl: result.data?.video?.video_url || result.data?.ai_video?.video_url || result.data?.video_url || publishVideoUrl,
+        title,
+        topics,
+        accountName: account.name,
+        publishAt: commonFields.publishAt,
+        publishNow,
+      });
+    } catch (error) {
+      localPublishError = error instanceof Error ? error.message : '本地发布服务调用失败';
+    }
+
+    setBusy(false);
+    setUploadProgress(0);
+    setMessage({
+      text: localPublishError
+        ? `发布任务已保存，但本地发布未调起：${localPublishError}`
+        : (publishNow ? '视频已调起本地立即发布。' : '视频已调起本地定时发布。'),
+      error: Boolean(localPublishError),
+    });
     setSelectedSource(null);
     if (sourceType === 'upload') {
       setLocalFile(null);
@@ -6214,7 +6255,8 @@ function VideoStudioPage({ authVersion, onLogin, onNewVideo, onCreatePackaging, 
     }
     const id = selectedVideo.publishId || selectedVideo.id || selectedVideo.taskId;
     if (!id) { setPublishMessage('视频 ID 不存在'); return; }
-    const publishTime = (isNow ? getDefaultPublishAt(0) : publishAt).replace('T', ' ');
+    const localPublishAt = isNow ? getDefaultPublishAt(0) : publishAt;
+    const publishTime = localPublishAt.replace('T', ' ');
     setPublishBusy(true);
     setPublishMessage('');
     const result = await apiFetch('/api/team-notion/publish-video', {
@@ -6222,9 +6264,31 @@ function VideoStudioPage({ authVersion, onLogin, onNewVideo, onCreatePackaging, 
       body: { id, video_id: id, publish_account_id: account.id, publishAccountId: account.id, account_id: account.id, account_name: account.name, accountName: account.name, publish_time: publishTime, publishTime, publish_now: isNow, publishNow: isNow },
       timeoutMs: 15000,
     });
+    if (!result.ok) {
+      setPublishBusy(false);
+      setPublishMessage(getResultMessage(result, '发布失败'));
+      return;
+    }
+
+    let localPublishError = '';
+    try {
+      await triggerLocalPublish({
+        videoUrl: result.data?.video?.video_url || result.data?.videoUrl || selectedVideo.videoUrl,
+        title: selectedVideo.title,
+        topics: selectedVideo.topic,
+        accountName: account.name,
+        publishAt: localPublishAt,
+        publishNow: isNow,
+      });
+    } catch (error) {
+      localPublishError = error instanceof Error ? error.message : '本地发布服务调用失败';
+    }
+
     setPublishBusy(false);
-    if (result.ok) { setPublishDialog(false); setActionMessage('发布任务已提交'); }
-    else setPublishMessage(getResultMessage(result, '发布失败'));
+    setPublishDialog(false);
+    setActionMessage(localPublishError
+      ? `发布任务已保存，但本地发布未调起：${localPublishError}`
+      : (isNow ? '已调起本地立即发布' : '已调起本地定时发布'));
   };
 
   const loadTeams = async (keyword = '') => {

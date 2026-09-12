@@ -2,9 +2,11 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+  buildLocalPublishPayload,
   buildProductionVideoPublishPayload,
   buildUploadedVideoPublishPayload,
   normalizePublishTopics,
+  triggerLocalPublish,
 } from '../src/publish.js';
 
 test('normalizes and deduplicates publish topics', () => {
@@ -59,4 +61,59 @@ test('builds an uploaded video payload for the dedicated backend endpoint', () =
   assert.equal(payload.upload_key, 'uploads/video.mp4');
   assert.equal(payload.publish_now, true);
   assert.deepEqual(payload.topics, ['品牌']);
+});
+
+test('builds the legacy local publisher payload expected by port 5409', () => {
+  assert.deepEqual(buildLocalPublishPayload({
+    type: '3',
+    title: ' 新品发布 ',
+    topics: '#新品，出海',
+    filePath: 'video.mp4',
+    accountCookies: ['douyin.json', 'douyin.json'],
+    publishAt: '2026-09-12T18:30',
+    publishNow: false,
+  }), {
+    type: 3,
+    title: '新品发布',
+    tags: ['新品', '出海'],
+    fileList: ['video.mp4'],
+    accountList: ['douyin.json'],
+    enableTimer: 1,
+    videosPerDay: 1,
+    sendnow: 'schedule',
+    dailyTimes: ['2026-09-12 18:30:00'],
+    endpublishTime: '2026-09-12 18:30:00',
+    startDays: 0,
+    category: 0,
+    productLink: '',
+    productTitle: '',
+  });
+});
+
+test('uploads by URL and publishes to every active local platform with the matching account name', async () => {
+  const requests = [];
+  const fetchImpl = async (url, options = {}) => {
+    requests.push({ url, options });
+    if (url.endsWith('/uploadFromUrl')) return new Response(JSON.stringify({ code: 200, data: { filepath: 'local-video.mp4' } }), { status: 200 });
+    if (url.includes('/getAccounts')) return new Response(JSON.stringify({ code: 200, data: [
+      [1, 3, 'douyin.json', '主账号', 1],
+      [2, 4, 'kuaishou.json', '主账号', 1],
+      [3, 2, 'inactive.json', '主账号', 0],
+      [4, 1, 'other.json', '其他账号', 1],
+    ] }), { status: 200 });
+    return new Response(JSON.stringify({ code: 200, data: null }), { status: 200 });
+  };
+
+  const result = await triggerLocalPublish({
+    videoUrl: 'https://cdn.example.com/video.mp4',
+    title: '发布标题',
+    topics: ['AI'],
+    accountName: '主账号',
+    publishAt: '2026-09-12 18:30',
+    fetchImpl,
+  });
+
+  assert.deepEqual(result, { filePath: 'local-video.mp4', accountCount: 2, platformCount: 2 });
+  assert.equal(requests.length, 4);
+  assert.deepEqual(requests.slice(2).map((request) => JSON.parse(request.options.body).type), [3, 4]);
 });
