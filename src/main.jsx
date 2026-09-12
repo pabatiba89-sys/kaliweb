@@ -4646,6 +4646,7 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling, onOpenP
 
   const publishAIVideo = async () => {
     const title = publishTitle.trim();
+    const topicSnapshot = normalizePublishTopics(publishTopics);
     if (!title) {
       setPublishState((current) => ({ ...current, message: '请填写发布标题' }));
       return;
@@ -4689,7 +4690,7 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling, onOpenP
       body: buildAIVideoPublishPayload({
         videoId: target.videoId,
         title,
-        topics: publishTopics,
+        topics: topicSnapshot,
         accountId: account.id,
         publishAt: localPublishAt,
         publishNow: isNow,
@@ -4706,7 +4707,7 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling, onOpenP
       await triggerLocalPublish({
         videoUrl: result.data?.ai_video?.video_url || result.data?.aiVideo?.videoUrl || target.videoUrl,
         title,
-        topics: publishTopics,
+        topics: topicSnapshot,
         accountName: account.name,
         localAccounts: localCheck.accounts,
         publishAt: localPublishAt,
@@ -4753,7 +4754,7 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling, onOpenP
     }
     return [];
   })();
-  const publishTopicList = normalizeAIVideoTopics(publishTopics);
+  const publishTopicList = normalizePublishTopics(publishTopics);
 
   return (
     <div className="ai-video-page">
@@ -5911,9 +5912,10 @@ function PublishCenterPage({ authVersion, onLogin }) {
 
     const account = accounts.find((item) => String(item.id) === accountId);
     const publishNow = publishMode === 'now';
+    const topicSnapshot = normalizePublishTopics(topics);
     const commonFields = {
       title,
-      topics,
+      topics: topicSnapshot,
       accountId: account.id,
       accountName: account.name,
       publishAt: publishNow ? getDefaultPublishAt(0) : publishAt,
@@ -5990,7 +5992,7 @@ function PublishCenterPage({ authVersion, onLogin }) {
       await triggerLocalPublish({
         videoUrl: result.data?.video?.video_url || result.data?.ai_video?.video_url || result.data?.video_url || publishVideoUrl,
         title,
-        topics,
+        topics: topicSnapshot,
         accountName: account.name,
         localAccounts: localCheck.accounts,
         publishAt: commonFields.publishAt,
@@ -6293,6 +6295,7 @@ function VideoStudioPage({ authVersion, onLogin, onNewVideo, onCreatePackaging, 
     if (!id) { setPublishMessage('视频 ID 不存在'); return; }
     const localPublishAt = isNow ? getDefaultPublishAt(0) : publishAt;
     const publishTime = localPublishAt.replace('T', ' ');
+    const topicSnapshot = normalizePublishTopics(selectedVideo.topic);
     setPublishBusy(true);
     setPublishMessage('正在检测本地发布服务…');
     setPublishLocalUnavailable(false);
@@ -6308,7 +6311,15 @@ function VideoStudioPage({ authVersion, onLogin, onNewVideo, onCreatePackaging, 
     setPublishMessage('');
     const result = await apiFetch('/api/team-notion/publish-video', {
       method: 'POST',
-      body: { id, video_id: id, publish_account_id: account.id, publishAccountId: account.id, account_id: account.id, account_name: account.name, accountName: account.name, publish_time: publishTime, publishTime, publish_now: isNow, publishNow: isNow },
+      body: buildProductionVideoPublishPayload({
+        videoId: id,
+        title: selectedVideo.title,
+        topics: topicSnapshot,
+        accountId: account.id,
+        accountName: account.name,
+        publishAt: publishTime,
+        publishNow: isNow,
+      }),
       timeoutMs: 15000,
     });
     if (!result.ok) {
@@ -6321,7 +6332,7 @@ function VideoStudioPage({ authVersion, onLogin, onNewVideo, onCreatePackaging, 
       await triggerLocalPublish({
         videoUrl: result.data?.video?.video_url || result.data?.videoUrl || selectedVideo.videoUrl,
         title: selectedVideo.title,
-        topics: selectedVideo.topic,
+        topics: topicSnapshot,
         accountName: account.name,
         localAccounts: localCheck.accounts,
         publishAt: localPublishAt,
@@ -6383,6 +6394,7 @@ function VideoStudioPage({ authVersion, onLogin, onNewVideo, onCreatePackaging, 
   if (view === 'detail') {
     const video = selectedVideo;
     const detailMaterials = video?.detailMaterials || [];
+    const detailTopicList = normalizePublishTopics(video?.topic);
     return (
       <div className="video-studio-page video-detail-page">
         <header className="video-detail-toolbar">
@@ -6404,7 +6416,7 @@ function VideoStudioPage({ authVersion, onLogin, onNewVideo, onCreatePackaging, 
               </div>
               {actionMessage && <div className="video-action-message">{actionMessage}</div>}
               <dl className="video-detail-info">
-                <div><dt>话题</dt><dd>{video.topic || '-'}</dd></div>
+                <div><dt>话题</dt><dd>{detailTopicList.length ? detailTopicList.map((topic) => `#${topic}`).join(' ') : '-'}</dd></div>
                 <div><dt>形象</dt><dd>{video.humanName || '-'}</dd></div>
                 <div><dt>声音</dt><dd>{video.voiceName || '-'}</dd></div>
                 <div><dt>视频包装模板</dt><dd>{video.videoTemplateName || '-'}</dd></div>

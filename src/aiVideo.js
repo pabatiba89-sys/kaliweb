@@ -1,3 +1,5 @@
+import { normalizePublishTopics } from './publishTopics.js';
+
 const withoutEmptyValues = (payload = {}) => Object.fromEntries(
   Object.entries(payload).filter(([, value]) => value !== undefined && value !== null && value !== ''),
 );
@@ -19,8 +21,7 @@ const booleanOf = (value, fallback = true) => {
 export const AI_VIDEO_DEFAULT_MODEL_KEY = 'seedance-2-mini';
 
 export function normalizeAIVideoTopics(value) {
-  const topics = Array.isArray(value) ? value : String(value || '').split(/[#,，、;；\n]+/);
-  return [...new Set(topics.map((topic) => String(topic || '').trim()).filter(Boolean))];
+  return normalizePublishTopics(value);
 }
 
 export function getAIVideoDialogueTitle(prompt, fallback = 'AI 真人视频') {

@@ -11,7 +11,10 @@ import {
 } from '../src/publish.js';
 
 test('normalizes and deduplicates publish topics', () => {
-  assert.deepEqual(normalizePublishTopics('#AI视频，出海; AI视频\n产品'), ['AI视频', '出海', '产品']);
+  assert.deepEqual(
+    normalizePublishTopics('#第三 话题，第一话题; 第二 话题 #第一话题'),
+    ['第三话题', '第一话题', '第二话题'],
+  );
 });
 
 test('builds a production video payload with legacy aliases', () => {
@@ -108,7 +111,7 @@ test('queries by account name and publishes every returned local platform withou
   const result = await triggerLocalPublish({
     videoUrl: 'https://cdn.example.com/video.mp4',
     title: '发布标题',
-    topics: ['AI'],
+    topics: ['第三话题', '第一话题', '第二话题'],
     accountName: '主账号',
     publishAt: '2026-09-12 18:30',
     fetchImpl,
@@ -117,6 +120,9 @@ test('queries by account name and publishes every returned local platform withou
   assert.equal(requests.length, 5);
   assert.equal(requests[1].url, 'http://127.0.0.1:5409/getAccounts?name=%E4%B8%BB%E8%B4%A6%E5%8F%B7&nocheck=1');
   assert.deepEqual(requests.slice(2).map((request) => JSON.parse(request.options.body).type), [3, 4, 2]);
+  requests.slice(2).forEach((request) => {
+    assert.deepEqual(JSON.parse(request.options.body).tags, ['第三话题', '第一话题', '第二话题']);
+  });
   assert.deepEqual(result, { filePath: 'local-video.mp4', accountCount: 3, platformCount: 3 });
 });
 

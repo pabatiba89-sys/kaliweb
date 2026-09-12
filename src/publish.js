@@ -1,3 +1,7 @@
+import { normalizePublishTopics } from './publishTopics.js';
+
+export { normalizePublishTopics } from './publishTopics.js';
+
 const trimText = (value) => String(value || '').trim();
 
 export const LOCAL_PUBLISHER_BASE_URL = 'http://127.0.0.1:5409';
@@ -179,11 +183,6 @@ export async function triggerLocalPublish({
     accountCount: matchingAccounts.length,
     platformCount: accountsByType.size,
   };
-}
-
-export function normalizePublishTopics(value) {
-  const topics = Array.isArray(value) ? value : String(value || '').split(/[#,，、;；\n]+/);
-  return [...new Set(topics.map(trimText).filter(Boolean))];
 }
 
 const buildCommonPublishFields = ({ title, topics, accountId, accountName, publishAt, publishNow = false } = {}) => {

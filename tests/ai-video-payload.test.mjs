@@ -151,7 +151,7 @@ test('builds a single-output video prompt instruction with current generation se
 });
 
 test('normalizes manually entered AI video topics', () => {
-  assert.deepEqual(normalizeAIVideoTopics('#AI视频，产品发布\nAI视频; 海外营销'), ['AI视频', '产品发布', '海外营销']);
+  assert.deepEqual(normalizeAIVideoTopics('#AI 视频，产品发布\nAI视频; 海外 营销'), ['AI视频', '产品发布', '海外营销']);
 });
 
 test('uses the first spoken sentence as the AI video title', () => {
