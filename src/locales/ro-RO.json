@@ -2164,5 +2164,11 @@
   "成片": "Finished videos",
   "请填写歌曲名称。": "Enter the song title.",
   "清除提示内容": "Remove prompt notes",
-  "填写歌曲名称和作者后提交，成片会显示在音乐详情页。": "Enter the song title and author, then submit. The finished video will appear on the music details page."
+  "填写歌曲名称和作者后提交，成片会显示在音乐详情页。": "Enter the song title and author, then submit. The finished video will appear on the music details page.",
+  "不选择时自动匹配": "Auto-match when no music is selected",
+  "是否开启背景音乐": "Enable background music",
+  "是否使用封面": "Use a cover",
+  "选择声音、混剪剪辑模板，并设置背景音乐和封面。": "Choose a voice and mixed-video template, then configure music and the cover.",
+  "选择数字人、声音、视频包装，并设置背景音乐和封面。": "Choose a digital human, voice, and video template, then configure music and the cover.",
+  "不选择，自动匹配": "Skip selection and auto-match"
 }

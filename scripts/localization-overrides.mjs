@@ -1849,6 +1849,27 @@ const musicVideoOverrides = {
 };
 musicVideoOverrides['zh-CN'] = Object.fromEntries(Object.keys(musicVideoOverrides['en-US']).map((source) => [source, source]));
 
+const videoOptionalMediaOverrides = {
+  'en-US': {
+    '不选择时自动匹配': 'Auto-match when no music is selected',
+    '不选择，自动匹配': 'Skip selection and auto-match',
+    '是否开启背景音乐': 'Enable background music',
+    '是否使用封面': 'Use a cover',
+    '选择声音、混剪剪辑模板，并设置背景音乐和封面。': 'Choose a voice and mixed-video template, then configure music and the cover.',
+    '选择数字人、声音、视频包装，并设置背景音乐和封面。': 'Choose a digital human, voice, and video template, then configure music and the cover.',
+  },
+  'zh-CN': {},
+  'zh-TW': {
+    '不选择时自动匹配': '未選擇時自動配對',
+    '不选择，自动匹配': '不選擇，自動配對',
+    '是否开启背景音乐': '是否開啟背景音樂',
+    '是否使用封面': '是否使用封面',
+    '选择声音、混剪剪辑模板，并设置背景音乐和封面。': '選擇聲音、混剪剪輯模板，並設定背景音樂和封面。',
+    '选择数字人、声音、视频包装，并设置背景音乐和封面。': '選擇數位人、聲音、影片包裝，並設定背景音樂和封面。',
+  },
+};
+videoOptionalMediaOverrides['zh-CN'] = Object.fromEntries(Object.keys(videoOptionalMediaOverrides['en-US']).map((source) => [source, source]));
+
 const realmanPackagingOverrides = {
   'en-US': {
     '包装视频': 'Package video',
@@ -2023,6 +2044,7 @@ export const workspaceLocalizationOverrides = Object.fromEntries(Object.entries(
   aiVideoCoreKeys.forEach((key, index) => { overrides[key] = aiVideoCoreRows[locale][index]; });
   creatorMaterialSourceKeys.forEach((key, index) => { overrides[key] = creatorMaterialSourceRows[locale][index]; });
   Object.assign(overrides, musicVideoOverrides[locale] || musicVideoOverrides['en-US']);
+  Object.assign(overrides, videoOptionalMediaOverrides[locale] || videoOptionalMediaOverrides['en-US']);
   Object.assign(overrides, realmanPackagingOverrides[locale] || realmanPackagingOverrides['en-US']);
   overrides['AI Video Lab'] = aiVideoLabLabels[locale];
   return [locale, overrides];
