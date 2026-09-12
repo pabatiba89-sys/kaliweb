@@ -91,7 +91,7 @@ test('builds the legacy local publisher payload expected by port 5409', () => {
   });
 });
 
-test('uploads by URL and publishes to every active local platform with the matching account name', async () => {
+test('queries by account name and publishes every returned local platform without checking account status', async () => {
   const requests = [];
   const fetchImpl = async (url, options = {}) => {
     requests.push({ url, options });
@@ -114,9 +114,47 @@ test('uploads by URL and publishes to every active local platform with the match
     fetchImpl,
   });
 
-  assert.deepEqual(result, { filePath: 'local-video.mp4', accountCount: 2, platformCount: 2 });
-  assert.equal(requests.length, 4);
-  assert.deepEqual(requests.slice(2).map((request) => JSON.parse(request.options.body).type), [3, 4]);
+  assert.equal(requests.length, 5);
+  assert.equal(requests[1].url, 'http://127.0.0.1:5409/getAccounts?name=%E4%B8%BB%E8%B4%A6%E5%8F%B7&nocheck=1');
+  assert.deepEqual(requests.slice(2).map((request) => JSON.parse(request.options.body).type), [3, 4, 2]);
+  assert.deepEqual(result, { filePath: 'local-video.mp4', accountCount: 3, platformCount: 3 });
+});
+
+test('posts all local platforms concurrently when accounts were already fetched', async () => {
+  const accounts = [
+    [1, 3, 'douyin.json', '主账号', 0],
+    [2, 4, 'kuaishou.json', '主账号', 0],
+  ];
+  let startedPosts = 0;
+  let releasePosts;
+  const allPostsStarted = new Promise((resolve) => { releasePosts = resolve; });
+  let finishPosts;
+  const postsCanFinish = new Promise((resolve) => { finishPosts = resolve; });
+  const fetchImpl = async (url) => {
+    if (url.endsWith('/uploadFromUrl')) {
+      return new Response(JSON.stringify({ code: 200, data: { filepath: 'local-video.mp4' } }), { status: 200 });
+    }
+    if (url.endsWith('/postVideo')) {
+      startedPosts += 1;
+      if (startedPosts === accounts.length) releasePosts();
+      await postsCanFinish;
+      return new Response(JSON.stringify({ code: 200, data: null }), { status: 200 });
+    }
+    throw new Error(`Unexpected request: ${url}`);
+  };
+
+  const publishing = triggerLocalPublish({
+    videoUrl: 'https://cdn.example.com/video.mp4',
+    title: '发布标题',
+    accountName: '主账号',
+    localAccounts: accounts,
+    publishAt: '2026-09-12 18:30',
+    fetchImpl,
+  });
+  await allPostsStarted;
+  assert.equal(startedPosts, 2);
+  finishPosts();
+  assert.deepEqual(await publishing, { filePath: 'local-video.mp4', accountCount: 2, platformCount: 2 });
 });
 
 test('detects when the local publishing service is unavailable', async () => {
@@ -126,10 +164,17 @@ test('detects when the local publishing service is unavailable', async () => {
   assert.deepEqual(unavailable, {
     ok: false,
     message: '无法连接本地发布服务，请确认 5409 服务已启动',
+    accounts: [],
   });
 
+  let requestedUrl = '';
   const available = await checkLocalPublisher({
-    fetchImpl: async () => new Response(JSON.stringify({ code: 200, data: [] }), { status: 200 }),
+    accountName: '海外 主账号',
+    fetchImpl: async (url) => {
+      requestedUrl = url;
+      return new Response(JSON.stringify({ code: 200, data: [[1, 3, 'account.json', '海外 主账号', 0]] }), { status: 200 });
+    },
   });
-  assert.deepEqual(available, { ok: true, message: '' });
+  assert.equal(requestedUrl, 'http://127.0.0.1:5409/getAccounts?name=%E6%B5%B7%E5%A4%96+%E4%B8%BB%E8%B4%A6%E5%8F%B7&nocheck=1');
+  assert.deepEqual(available, { ok: true, message: '', accounts: [[1, 3, 'account.json', '海外 主账号', 0]] });
 });

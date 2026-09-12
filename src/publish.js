@@ -2,6 +2,14 @@ const trimText = (value) => String(value || '').trim();
 
 export const LOCAL_PUBLISHER_BASE_URL = 'http://127.0.0.1:5409';
 
+const buildLocalAccountsPath = (accountName) => {
+  const params = new URLSearchParams();
+  const normalizedAccountName = trimText(accountName);
+  if (normalizedAccountName) params.set('name', normalizedAccountName);
+  params.set('nocheck', '1');
+  return `/getAccounts?${params.toString()}`;
+};
+
 const localPublisherError = (message, fallback) => new Error(trimText(message) || fallback);
 
 const parseLocalPublisherResponse = async (response, fallback) => {
@@ -47,18 +55,23 @@ const requestLocalPublisher = async (
   }
 };
 
-export async function checkLocalPublisher({ fetchImpl = globalThis.fetch, baseUrl = LOCAL_PUBLISHER_BASE_URL } = {}) {
+export async function checkLocalPublisher({ accountName, fetchImpl = globalThis.fetch, baseUrl = LOCAL_PUBLISHER_BASE_URL } = {}) {
   try {
-    await requestLocalPublisher('/getAccounts?nocheck=1', {
+    const result = await requestLocalPublisher(buildLocalAccountsPath(accountName), {
       timeoutMs: 5000,
       fetchImpl,
       baseUrl,
     });
-    return { ok: true, message: '' };
+    return {
+      ok: true,
+      message: '',
+      accounts: Array.isArray(result?.data) ? result.data : [],
+    };
   } catch (error) {
     return {
       ok: false,
       message: error instanceof Error ? error.message : '未检测到本地发布服务',
+      accounts: [],
     };
   }
 }
@@ -88,8 +101,6 @@ const normalizeLocalAccount = (account) => {
   };
 };
 
-const isActiveLocalAccount = (status) => status === true || Number(status) === 1 || trimText(status).toLowerCase() === 'active';
-
 export function buildLocalPublishPayload({ type, title, topics, filePath, accountCookies, publishAt, publishNow = false } = {}) {
   const normalizedPublishAt = normalizeLocalPublishDate(publishAt);
   return {
@@ -115,6 +126,7 @@ export async function triggerLocalPublish({
   title,
   topics,
   accountName,
+  localAccounts,
   publishAt,
   publishNow = false,
   fetchImpl = globalThis.fetch,
@@ -135,30 +147,32 @@ export async function triggerLocalPublish({
   const filePath = trimText(uploadResult?.data?.filepath ?? uploadResult?.data);
   if (!filePath) throw localPublisherError(uploadResult?.msg, '本地服务未返回视频文件路径');
 
-  const accountResult = await requestLocalPublisher('/getAccounts?nocheck=1', {
-    timeoutMs: 15000,
-    fetchImpl,
-    baseUrl,
-  });
-  const matchingAccounts = (Array.isArray(accountResult?.data) ? accountResult.data : [])
+  const accountRecords = Array.isArray(localAccounts)
+    ? localAccounts
+    : (await requestLocalPublisher(buildLocalAccountsPath(normalizedAccountName), {
+        timeoutMs: 15000,
+        fetchImpl,
+        baseUrl,
+      }))?.data;
+  const matchingAccounts = (Array.isArray(accountRecords) ? accountRecords : [])
     .map(normalizeLocalAccount)
-    .filter((account) => account.name === normalizedAccountName && isActiveLocalAccount(account.status) && account.cookie && Number.isInteger(account.type) && account.type > 0);
-  if (!matchingAccounts.length) throw localPublisherError('', `本地没有找到有效账号“${normalizedAccountName}”`);
+    .filter((account) => account.name === normalizedAccountName && account.cookie && Number.isInteger(account.type) && account.type > 0);
+  if (!matchingAccounts.length) throw localPublisherError('', `本地没有返回账号“${normalizedAccountName}”`);
 
   const accountsByType = new Map();
   matchingAccounts.forEach((account) => {
     accountsByType.set(account.type, (accountsByType.get(account.type) || []).concat(account.cookie));
   });
 
-  for (const [type, accountCookies] of accountsByType) {
-    await requestLocalPublisher('/postVideo', {
+  await Promise.all([...accountsByType].map(([type, accountCookies]) => (
+    requestLocalPublisher('/postVideo', {
       method: 'POST',
       body: buildLocalPublishPayload({ type, title, topics, filePath, accountCookies, publishAt, publishNow }),
       timeoutMs: 300000,
       fetchImpl,
       baseUrl,
-    });
-  }
+    })
+  )));
 
   return {
     filePath,

@@ -4667,24 +4667,27 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling, onOpenP
         return;
       }
     }
-    if (!publishTarget?.videoId) {
+    const target = publishTarget;
+    if (!target?.videoId) {
       setPublishState((current) => ({ ...current, message: 'AI 视频 ID 不存在' }));
       return;
     }
 
     setPublishState((current) => ({ ...current, busy: true, message: '正在检测本地发布服务…', localUnavailable: false }));
-    const localCheck = await checkLocalPublisher();
+    const localCheck = await checkLocalPublisher({ accountName: account.name });
     if (!localCheck.ok) {
       setPublishState((current) => ({ ...current, busy: false, message: '请启动本地发布服务；尚未安装时，请先下载安装。', localUnavailable: true }));
       return;
     }
 
     const localPublishAt = isNow ? getDefaultPublishAt(0) : publishAt;
-    setPublishState((current) => ({ ...current, message: '', localUnavailable: false }));
+    setPublishDialog(false);
+    setPublishTarget(null);
+    setPublishState({ loading: false, busy: false, message: '', localUnavailable: false });
     const result = await apiFetch('/api/team-notion/publish-ai-video', {
       method: 'POST',
       body: buildAIVideoPublishPayload({
-        videoId: publishTarget.videoId,
+        videoId: target.videoId,
         title,
         topics: publishTopics,
         accountId: account.id,
@@ -4694,17 +4697,18 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling, onOpenP
       timeoutMs: 45000,
     });
     if (!result.ok) {
-      setPublishState((current) => ({ ...current, busy: false, message: getResultMessage(result, '发布失败') }));
+      setNotice(getResultMessage(result, '发布失败'), true);
       return;
     }
 
     let localPublishError = '';
     try {
       await triggerLocalPublish({
-        videoUrl: result.data?.ai_video?.video_url || result.data?.aiVideo?.videoUrl || publishTarget.videoUrl,
+        videoUrl: result.data?.ai_video?.video_url || result.data?.aiVideo?.videoUrl || target.videoUrl,
         title,
         topics: publishTopics,
         accountName: account.name,
+        localAccounts: localCheck.accounts,
         publishAt: localPublishAt,
         publishNow: isNow,
       });
@@ -4712,9 +4716,6 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling, onOpenP
       localPublishError = error instanceof Error ? error.message : '本地发布服务调用失败';
     }
 
-    setPublishDialog(false);
-    setPublishTarget(null);
-    setPublishState({ loading: false, busy: false, message: '', localUnavailable: false });
     setDetail(null);
     setNotice(localPublishError
       ? `AI 视频发布任务已保存，但本地发布未调起：${localPublishError}`
@@ -5921,7 +5922,7 @@ function PublishCenterPage({ authVersion, onLogin }) {
     setBusy(true);
     setUploadProgress(0);
     setMessage({ text: '正在检测本地发布服务…', error: false, localUnavailable: false });
-    const localCheck = await checkLocalPublisher();
+    const localCheck = await checkLocalPublisher({ accountName: account.name });
     if (!localCheck.ok) {
       setBusy(false);
       setMessage({ text: '请启动本地发布服务；尚未安装时，请先下载安装。', error: true, localUnavailable: true });
@@ -5991,6 +5992,7 @@ function PublishCenterPage({ authVersion, onLogin }) {
         title,
         topics,
         accountName: account.name,
+        localAccounts: localCheck.accounts,
         publishAt: commonFields.publishAt,
         publishNow,
       });
@@ -6294,13 +6296,15 @@ function VideoStudioPage({ authVersion, onLogin, onNewVideo, onCreatePackaging, 
     setPublishBusy(true);
     setPublishMessage('正在检测本地发布服务…');
     setPublishLocalUnavailable(false);
-    const localCheck = await checkLocalPublisher();
+    const localCheck = await checkLocalPublisher({ accountName: account.name });
     if (!localCheck.ok) {
       setPublishBusy(false);
       setPublishMessage('请启动本地发布服务；尚未安装时，请先下载安装。');
       setPublishLocalUnavailable(true);
       return;
     }
+    setPublishDialog(false);
+    setPublishBusy(false);
     setPublishMessage('');
     const result = await apiFetch('/api/team-notion/publish-video', {
       method: 'POST',
@@ -6308,8 +6312,7 @@ function VideoStudioPage({ authVersion, onLogin, onNewVideo, onCreatePackaging, 
       timeoutMs: 15000,
     });
     if (!result.ok) {
-      setPublishBusy(false);
-      setPublishMessage(getResultMessage(result, '发布失败'));
+      setActionMessage(getResultMessage(result, '发布失败'));
       return;
     }
 
@@ -6320,6 +6323,7 @@ function VideoStudioPage({ authVersion, onLogin, onNewVideo, onCreatePackaging, 
         title: selectedVideo.title,
         topics: selectedVideo.topic,
         accountName: account.name,
+        localAccounts: localCheck.accounts,
         publishAt: localPublishAt,
         publishNow: isNow,
       });
@@ -6328,7 +6332,6 @@ function VideoStudioPage({ authVersion, onLogin, onNewVideo, onCreatePackaging, 
     }
 
     setPublishBusy(false);
-    setPublishDialog(false);
     setActionMessage(localPublishError
       ? `发布任务已保存，但本地发布未调起：${localPublishError}`
       : (isNow ? '已调起本地立即发布' : '已调起本地定时发布'));
