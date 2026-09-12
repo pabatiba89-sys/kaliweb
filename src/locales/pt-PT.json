@@ -2182,5 +2182,8 @@
   "是否使用封面": "Use a cover",
   "选择声音、混剪剪辑模板，并设置背景音乐和封面。": "Choose a voice and mixed-video template, then configure music and the cover.",
   "选择数字人、声音、视频包装，并设置背景音乐和封面。": "Choose a digital human, voice, and video template, then configure music and the cover.",
-  "不选择，自动匹配": "Skip selection and auto-match"
+  "不选择，自动匹配": "Skip selection and auto-match",
+  "去制作": "Create video",
+  "双人对话指令集加载失败，请重试。": "The Two-Person Dialogue instruction set could not be loaded. Try again.",
+  "未找到「双人对话」指令集，请确认该指令集已启用。": "The Two-Person Dialogue instruction set was not found. Make sure it is enabled."
 }

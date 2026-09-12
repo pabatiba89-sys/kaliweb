@@ -4219,6 +4219,29 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling, onOpenP
     setQuote(null);
     setQuoteError('');
   };
+  const openDialoguePromptAssistant = async () => {
+    if (!authed) {
+      onLogin();
+      return;
+    }
+    if (busy) return;
+    setBusy('prompt-assistant');
+    setNotice('');
+    try {
+      await onOpenPromptAssistant?.({
+        prompt: form.prompt,
+        model: selectedModel.name || selectedModel.key,
+        duration: form.duration,
+        resolution: form.resolution,
+        aspectRatio: form.aspectRatio,
+        generateAudio: form.generateAudio,
+      });
+    } catch (error) {
+      setNotice(error?.message || '双人对话指令集加载失败，请重试。', true);
+    } finally {
+      setBusy('');
+    }
+  };
 
   useEffect(() => {
     const nextPrompt = textOf(promptDraft?.text);
@@ -4786,16 +4809,11 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling, onOpenP
                 <button
                   type="button"
                   className="ai-video-prompt-assistant-button"
-                  onClick={() => onOpenPromptAssistant?.({
-                    prompt: form.prompt,
-                    model: selectedModel.name || selectedModel.key,
-                    duration: form.duration,
-                    resolution: form.resolution,
-                    aspectRatio: form.aspectRatio,
-                    generateAudio: form.generateAudio,
-                  })}
+                  onClick={openDialoguePromptAssistant}
+                  disabled={Boolean(busy)}
                 >
-                  <Sparkles size={15} />AI 提示词助手
+                  {busy === 'prompt-assistant' ? <RefreshCw className="is-spinning" size={15} /> : <Sparkles size={15} />}
+                  {busy === 'prompt-assistant' ? '加载中…' : 'AI 提示词助手'}
                 </button>
               </div>
             </div>
@@ -11314,6 +11332,52 @@ const mapAgent = (item = {}, index = 0) => {
     isOwn: isOwnAgent(item),
   };
 };
+const AI_VIDEO_DIALOGUE_AGENT_NAME = '双人对话';
+const normalizeAgentName = (value) => textOf(value).replace(/\s+/g, '');
+const loadAgentByExactName = async (targetName) => {
+  const normalizedTarget = normalizeAgentName(targetName);
+  const pageSize = 100;
+  const seenIds = new Set();
+  let page = 1;
+  let cursor = '';
+  let loadedCount = 0;
+
+  while (page <= 50) {
+    const result = await apiFetch('/api/instruction_sets', {
+      params: {
+        page,
+        page_size: pageSize,
+        pageSize,
+        limit: pageSize,
+        include_total: true,
+        ...(cursor ? { start_cursor: cursor, cursor, sid: cursor } : {}),
+      },
+      timeoutMs: 12000,
+    });
+    if (!result.ok) throw new Error(getResultMessage(result, '双人对话指令集加载失败，请重试。'));
+
+    const received = getAgentList(result).map((item, index) => mapAgent(item, (page - 1) * pageSize + index));
+    const matched = received.find((agent) => normalizeAgentName(agent.name) === normalizedTarget);
+    if (matched) return matched;
+
+    const unique = received.filter((agent) => !seenIds.has(agent.id));
+    unique.forEach((agent) => seenIds.add(agent.id));
+    loadedCount += unique.length;
+    const nextCursor = getAgentNextCursor(result);
+    const hasMore = getAgentHasMore({
+      result,
+      page,
+      list: received,
+      uniqueCount: unique.length,
+      loadedCount,
+      cursor,
+    });
+    if (!hasMore || !received.length || !unique.length) break;
+    cursor = nextCursor && nextCursor !== cursor ? nextCursor : '';
+    page += 1;
+  }
+  return null;
+};
 const getPendingFlow = () => {
   try {
     const flow = JSON.parse(window.localStorage.getItem(HOT_TOPIC_FLOW_KEY) || 'null');
@@ -11329,6 +11393,9 @@ const isAIVideoPromptAgent = (agent = {}) => {
     .replace(/\s+/g, '');
   return name === '提示词助手' || name === '导演提示词助手';
 };
+const isAIVideoDialogueAgent = (agent = {}) => normalizeAgentName(
+  agent.name || agent.title || agent.instructionSetTitle || agent.instruction_set_name,
+) === normalizeAgentName(AI_VIDEO_DIALOGUE_AGENT_NAME);
 
 function AssistantPage({ authVersion, useHotTopicFlow, onLogin, onCreateAgent, onOpenGenerator }) {
   const [agents, setAgents] = useState([]);
@@ -11428,7 +11495,11 @@ function AssistantPage({ authVersion, useHotTopicFlow, onLogin, onCreateAgent, o
       window.localStorage.setItem(HOT_TOPIC_FLOW_KEY, JSON.stringify({ ...flow, ...context, autoGenerate: false }));
     }
     setSelected(agent.id);
-    onOpenGenerator(isAIVideoPromptAgent(agent) ? {
+    onOpenGenerator(isAIVideoDialogueAgent(agent) ? {
+      ...agent,
+      purpose: 'ai-video-dialogue-prompt',
+      promptAssistantOrigin: 'assistant',
+    } : isAIVideoPromptAgent(agent) ? {
       ...agent,
       purpose: 'ai-video-prompt',
       promptAssistantOrigin: 'assistant',
@@ -11950,6 +12021,7 @@ const isProInstructionAgent = (agent = {}) => {
   return /(?:^|[\s_-])pro$|pro(?:\s|$)|专业版|高阶/.test(suffixSource);
 };
 const buildTypedPrompt = (prompt, type, agent = {}) => {
+  if (agent?.purpose === 'ai-video-dialogue-prompt') return prompt;
   if (agent?.purpose === 'ai-video-prompt') {
     return buildAIVideoPromptInstruction(prompt, agent.videoContext);
   }
@@ -12240,7 +12312,7 @@ const normalizeCopyHistoryMessages = (data) => {
 
 function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVideo, onMakeMusic, onUsePrompt }) {
   const [flow] = useState(() => (useHotTopicFlow ? getPendingFlow() : null));
-  const isVideoPromptAssistant = agent?.purpose === 'ai-video-prompt';
+  const isVideoPromptAssistant = agent?.purpose === 'ai-video-prompt' || agent?.purpose === 'ai-video-dialogue-prompt';
   const promptAssistantFromWorkshop = isVideoPromptAssistant && agent?.promptAssistantOrigin !== 'assistant';
   const initialPrompt = isVideoPromptAssistant ? textOf(agent?.initialPrompt) : flow?.prompt || flow?.topic || '';
   const [input, setInput] = useState(initialPrompt);
@@ -12655,7 +12727,7 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
                 <div className="copy-message-actions">
                   {isVideoPromptAssistant ? (
                     <button className="is-use-video-prompt" onClick={() => onUsePrompt?.(message.text)}>
-                      <FileVideo size={16} />去 AI 工作坊
+                      <FileVideo size={16} />{agent?.purpose === 'ai-video-dialogue-prompt' ? '去制作' : '去 AI 工作坊'}
                     </button>
                   ) : <>
                     <button className="is-copy" onClick={() => copyMessage(message.text, messageKey)}>
@@ -12698,14 +12770,6 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
     </div>
   );
 }
-
-const AI_VIDEO_PROMPT_ASSISTANT = Object.freeze({
-  name: '提示词助手',
-  desc: '告诉我你想生成的视频内容，我会整理成可直接用于当前模型的完整提示词。',
-  purpose: 'ai-video-prompt',
-  promptAssistantOrigin: 'ai-video',
-  type: { value: '视频创作' },
-});
 
 function HotTrendsPage({ onTopicSelect }) {
   const [mode, setMode] = useState('aggregate');
@@ -13998,19 +14062,23 @@ export default function App() {
                       setAIVideoPackagingSource({ ...video, returnTo: 'ai-video' });
                       window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
-                    onOpenPromptAssistant={(context) => {
-                      setAIVideoPromptAssistant(context);
+                    onOpenPromptAssistant={async (context) => {
+                      const dialogueAgent = await loadAgentByExactName(AI_VIDEO_DIALOGUE_AGENT_NAME);
+                      if (!dialogueAgent) throw new Error('未找到「双人对话」指令集，请确认该指令集已启用。');
+                      setAIVideoPromptAssistant({
+                        ...dialogueAgent,
+                        purpose: 'ai-video-dialogue-prompt',
+                        promptAssistantOrigin: 'ai-video',
+                        initialPrompt: context.prompt,
+                        videoContext: context,
+                      });
                       window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
                   />
                 </div>
                 {aiVideoPromptAssistant && (
                   <CopyGeneratorPage
-                    agent={{
-                      ...AI_VIDEO_PROMPT_ASSISTANT,
-                      initialPrompt: aiVideoPromptAssistant.prompt,
-                      videoContext: aiVideoPromptAssistant,
-                    }}
+                    agent={aiVideoPromptAssistant}
                     onBack={() => setAIVideoPromptAssistant(null)}
                     onLogin={() => setLoginOpen(true)}
                     onUsePrompt={(text) => {
