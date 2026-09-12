@@ -47,6 +47,22 @@ const requestLocalPublisher = async (
   }
 };
 
+export async function checkLocalPublisher({ fetchImpl = globalThis.fetch, baseUrl = LOCAL_PUBLISHER_BASE_URL } = {}) {
+  try {
+    await requestLocalPublisher('/getAccounts?nocheck=1', {
+      timeoutMs: 5000,
+      fetchImpl,
+      baseUrl,
+    });
+    return { ok: true, message: '' };
+  } catch (error) {
+    return {
+      ok: false,
+      message: error instanceof Error ? error.message : '未检测到本地发布服务',
+    };
+  }
+}
+
 const normalizeLocalPublishDate = (value) => {
   const normalized = trimText(value).replace('T', ' ');
   if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(normalized)) return `${normalized}:00`;

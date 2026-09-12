@@ -111,6 +111,7 @@ import { buildRealmanPackagingPayload } from './realmanVideo';
 import {
   buildProductionVideoPublishPayload,
   buildUploadedVideoPublishPayload,
+  checkLocalPublisher,
   normalizePublishTopics,
   triggerLocalPublish,
 } from './publish';
@@ -124,6 +125,7 @@ import packageJson from '../package.json';
 import './styles.css';
 
 const APP_VERSION = `v${packageJson.version}`;
+const OPEN_SOURCE_PUBLISHER_URL = 'https://github.com/dreammis/social-auto-upload';
 
 const copy = {
   en: {
@@ -4192,7 +4194,7 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling, onOpenP
   const [publishTopics, setPublishTopics] = useState('');
   const [publishMode, setPublishMode] = useState('scheduled');
   const [publishAt, setPublishAt] = useState(() => getDefaultPublishAt());
-  const [publishState, setPublishState] = useState({ loading: false, busy: false, message: '' });
+  const [publishState, setPublishState] = useState({ loading: false, busy: false, message: '', localUnavailable: false });
   const quoteRequestRef = useRef(0);
   const clonedVoiceRequestRef = useRef(0);
   const publishAccountRequestRef = useRef(0);
@@ -4614,7 +4616,7 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling, onOpenP
     setPublishAt(getDefaultPublishAt());
     setPublishAccounts([]);
     setPublishAccountId('');
-    setPublishState({ loading: true, busy: false, message: '' });
+    setPublishState({ loading: true, busy: false, message: '', localUnavailable: false });
     setPublishDialog(true);
 
     const requestId = ++publishAccountRequestRef.current;
@@ -4622,7 +4624,7 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling, onOpenP
     if (requestId !== publishAccountRequestRef.current) return;
     if (result.authMissing) {
       setPublishDialog(false);
-      setPublishState({ loading: false, busy: false, message: '' });
+      setPublishState({ loading: false, busy: false, message: '', localUnavailable: false });
       onLogin();
       return;
     }
@@ -4630,7 +4632,7 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling, onOpenP
     const accounts = source.map(normalizeAIVideoPublishAccount).filter((account) => Number.isInteger(Number(account.id)) && Number(account.id) > 0 && account.name);
     setPublishAccounts(accounts);
     setPublishAccountId(accounts[0]?.id || '');
-    setPublishState({ loading: false, busy: false, message: result.ok ? '' : getResultMessage(result, '发布账号加载失败') });
+    setPublishState({ loading: false, busy: false, message: result.ok ? '' : getResultMessage(result, '发布账号加载失败'), localUnavailable: false });
   };
 
   const closeAIVideoPublish = () => {
@@ -4638,7 +4640,7 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling, onOpenP
     publishAccountRequestRef.current += 1;
     setPublishDialog(false);
     setPublishTarget(null);
-    setPublishState({ loading: false, busy: false, message: '' });
+    setPublishState({ loading: false, busy: false, message: '', localUnavailable: false });
   };
 
   const publishAIVideo = async () => {
@@ -4669,8 +4671,15 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling, onOpenP
       return;
     }
 
+    setPublishState((current) => ({ ...current, busy: true, message: '正在检测本地发布服务…', localUnavailable: false }));
+    const localCheck = await checkLocalPublisher();
+    if (!localCheck.ok) {
+      setPublishState((current) => ({ ...current, busy: false, message: '请启动本地发布服务；尚未安装时，请先下载安装。', localUnavailable: true }));
+      return;
+    }
+
     const localPublishAt = isNow ? getDefaultPublishAt(0) : publishAt;
-    setPublishState((current) => ({ ...current, busy: true, message: '' }));
+    setPublishState((current) => ({ ...current, message: '', localUnavailable: false }));
     const result = await apiFetch('/api/team-notion/publish-ai-video', {
       method: 'POST',
       body: buildAIVideoPublishPayload({
@@ -4704,7 +4713,7 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling, onOpenP
 
     setPublishDialog(false);
     setPublishTarget(null);
-    setPublishState({ loading: false, busy: false, message: '' });
+    setPublishState({ loading: false, busy: false, message: '', localUnavailable: false });
     setDetail(null);
     setNotice(localPublishError
       ? `AI 视频发布任务已保存，但本地发布未调起：${localPublishError}`
@@ -4838,7 +4847,7 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling, onOpenP
       )}
 
       {detail && <div className="ai-video-modal-layer" onMouseDown={(event) => { if (event.target === event.currentTarget && !publishDialog) setDetail(null); }}><section className="ai-video-modal" role="dialog" aria-modal="true" aria-label="AI 视频详情"><header><div><span>{detail.kind === 'video' ? 'VIDEO OUTPUT' : 'GENERATION TASK'}</span><h2>{detail.kind === 'video' ? '成片详情' : '任务详情'}</h2></div><button type="button" onClick={() => setDetail(null)} aria-label="关闭"><X size={18} /></button></header>{detail.loading ? <div className="ai-video-modal-loading"><RefreshCw className="is-spinning" size={28} />正在加载详情…</div> : <>{detail.videoUrl && <video className="ai-video-modal-video" src={detail.videoUrl} controls playsInline preload="metadata" poster={detail.lastFrameUrl || undefined} />}<div className="ai-video-modal-toolbar"><div className="ai-video-modal-toolbar__actions"><button type="button" onClick={remakeDetailVideo}><RefreshCw size={14} />重新制作</button>{detail.kind === 'video' && detail.status.key === 'success' && detail.videoUrl && <><button type="button" onClick={() => onOpenPackaging?.(detail)}><Cuboid size={14} />包装视频</button><button type="button" onClick={openAIVideoPublish}><Send size={14} />发布</button></>}</div><span className={`state-dot state-dot--${detail.status.key}`}>{detail.status.label}</span></div><dl><div><dt>模型</dt><dd>{detail.model}</dd></div><div><dt>生成方式</dt><dd>{AI_VIDEO_MODE_LABELS[detail.mode] || detail.mode || '—'}</dd></div><div><dt>规格</dt><dd>{[detail.duration ? `${detail.duration} 秒` : '', detail.resolution?.toUpperCase(), detail.aspectRatio].filter(Boolean).join(' · ') || '—'}</dd></div><div><dt>积分</dt><dd>{detail.credits || '—'}</dd></div><div><dt>结算状态</dt><dd>{detail.settlementStatus || '—'}</dd></div><div><dt>创建时间</dt><dd>{detail.createdAt || '—'}</dd></div></dl>{(detail.error || detail.errorMessage) && <p className="ai-video-modal-error">{detail.error || detail.errorMessage}</p>}<footer>{detail.kind === 'task' && detail.status.key === 'processing' && <button type="button" className="outline-button" onClick={async () => { const next = await refreshTask(detail); if (next) setDetail({ ...next, kind: 'task', loading: false }); }}><RefreshCw size={16} />刷新任务</button>}{detail.videoUrl && <a className="primary-button" href={detail.videoUrl} download target="_blank" rel="noreferrer"><Download size={16} />下载视频</a>}</footer></>}</section></div>}
-      {publishDialog && <VideoActionDialog className="ai-video-publish-layer" title="发布 AI 视频" description="填写对外标题和话题，选择发布账号与时间。" busy={publishState.busy} submitLabel="确认发布" onClose={closeAIVideoPublish} onSubmit={publishAIVideo}>
+      {publishDialog && <VideoActionDialog className="ai-video-publish-layer" title="发布 AI 视频" description="填写对外标题和话题，选择发布账号与时间。" busy={publishState.busy} submitLabel={publishState.localUnavailable ? '检测并继续发布' : '确认发布'} onClose={closeAIVideoPublish} onSubmit={publishAIVideo}>
         <label className="video-dialog-field"><span>标题 <em>必填</em></span><input maxLength={80} value={publishTitle} onChange={(event) => { setPublishTitle(event.target.value); setPublishState((current) => ({ ...current, message: '' })); }} placeholder="请输入对外发布标题" /><small>{publishTitle.length}/80</small></label>
         <label className="video-dialog-field"><span>话题 <em>选填，可手动输入</em></span><textarea maxLength={500} value={publishTopics} onChange={(event) => { setPublishTopics(event.target.value); setPublishState((current) => ({ ...current, message: '' })); }} placeholder="例如：#AI视频，产品发布；支持逗号、# 或换行分隔" /></label>
         {publishTopicList.length > 0 && <div className="ai-video-publish-topics">{publishTopicList.map((topic) => <span key={topic}>#{topic}</span>)}</div>}
@@ -4846,6 +4855,7 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling, onOpenP
         {!publishState.loading && !publishAccounts.length && <div className="video-dialog-empty">暂无可用发布账号</div>}
         <div className="video-publish-modes"><button type="button" className={publishMode === 'scheduled' ? 'is-active' : ''} onClick={() => { setPublishMode('scheduled'); setPublishState((current) => ({ ...current, message: '' })); }}><CalendarDays size={17} />定时发布</button><button type="button" className={publishMode === 'now' ? 'is-active' : ''} onClick={() => { setPublishMode('now'); setPublishState((current) => ({ ...current, message: '' })); }}><Send size={17} />立即发布</button></div>
         {publishMode === 'scheduled' && <label className="video-dialog-field"><span>发布时间</span><input type="datetime-local" min={getDefaultPublishAt(1)} value={publishAt} onChange={(event) => { setPublishAt(event.target.value); setPublishState((current) => ({ ...current, message: '' })); }} /></label>}
+        {publishState.localUnavailable && <LocalPublisherSetupNotice />}
         {publishState.message && <div className="video-dialog-message">{publishState.message}</div>}
       </VideoActionDialog>}
     </div>
@@ -5506,6 +5516,21 @@ function VideoActionDialog({ className = '', title, description, children, busy,
   );
 }
 
+function LocalPublisherSetupNotice() {
+  return (
+    <section className="local-publisher-setup-notice">
+      <span><Server size={20} /></span>
+      <div>
+        <strong>本地发布服务未启动</strong>
+        <p>请先启动本地发布工具；尚未安装时，先下载安装并完成账号登录。</p>
+        <div>
+          <a href={OPEN_SOURCE_PUBLISHER_URL} target="_blank" rel="noopener noreferrer"><Download size={15} />下载 / 安装说明</a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function AIVideoPackagingPage({ sourceVideo, authVersion, language, onBack, onLogin, onCreated }) {
   const [activeSourceVideo, setActiveSourceVideo] = useState(() => (sourceVideo?.videoUrl || sourceVideo?.video_url || sourceVideo?.url) ? sourceVideo : null);
   const sourceUrl = activeSourceVideo?.videoUrl || activeSourceVideo?.video_url || activeSourceVideo?.url || '';
@@ -5722,8 +5747,6 @@ const PUBLISH_SOURCE_OPTIONS = [
   { key: 'ai', label: 'AI 视频', hint: '从 AI Video Lab 选择', icon: Sparkles },
 ];
 
-const OPEN_SOURCE_PUBLISHER_URL = 'https://github.com/dreammis/social-auto-upload';
-
 const getPublishUploadKey = (result = {}) => {
   const source = videoObject(result.data);
   return videoText(source.key, source.upload_key, source.uploadKey, source.file_key, source.fileKey);
@@ -5748,7 +5771,7 @@ function PublishCenterPage({ authVersion, onLogin }) {
   const [accountLoadState, setAccountLoadState] = useState('loading');
   const [busy, setBusy] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [message, setMessage] = useState({ text: '', error: false });
+  const [message, setMessage] = useState({ text: '', error: false, localUnavailable: false });
   const authed = Boolean(getAccessToken());
   const activeSource = sourceType === 'upload'
     ? (localFile ? {
@@ -5896,7 +5919,14 @@ function PublishCenterPage({ authVersion, onLogin }) {
     };
     setBusy(true);
     setUploadProgress(0);
-    setMessage({ text: '', error: false });
+    setMessage({ text: '正在检测本地发布服务…', error: false, localUnavailable: false });
+    const localCheck = await checkLocalPublisher();
+    if (!localCheck.ok) {
+      setBusy(false);
+      setMessage({ text: '请启动本地发布服务；尚未安装时，请先下载安装。', error: true, localUnavailable: true });
+      return;
+    }
+    setMessage({ text: '', error: false, localUnavailable: false });
 
     let endpoint = '/api/team-notion/publish-video';
     let payload;
@@ -6063,9 +6093,10 @@ function PublishCenterPage({ authVersion, onLogin }) {
               <div className="video-publish-modes"><button type="button" className={publishMode === 'scheduled' ? 'is-active' : ''} onClick={() => { setPublishMode('scheduled'); setMessage({ text: '', error: false }); }}><CalendarDays size={17} />定时发布</button><button type="button" className={publishMode === 'now' ? 'is-active' : ''} onClick={() => { setPublishMode('now'); setMessage({ text: '', error: false }); }}><Send size={17} />立即发布</button></div>
               {publishMode === 'scheduled' && <input type="datetime-local" min={getDefaultPublishAt(1)} value={publishAt} onChange={(event) => { setPublishAt(event.target.value); setMessage({ text: '', error: false }); }} />}
             </div>
+            {message.localUnavailable && <LocalPublisherSetupNotice />}
             {message.text && <div className={`publish-message${message.error ? ' is-error' : ''}`}>{message.error ? <AlertCircle size={17} /> : <CheckCircle2 size={17} />}<span>{message.text}</span></div>}
             {busy && sourceType === 'upload' && <div className="publish-upload-progress"><span style={{ width: `${Math.max(4, uploadProgress)}%` }} /><strong>{uploadProgress < 100 ? `上传中 ${uploadProgress}%` : '正在加入发布队列…'}</strong></div>}
-            <button type="button" className="primary-button publish-submit-button" onClick={submitPublish} disabled={busy || loading}><Send size={18} />{busy ? '提交中…' : publishMode === 'now' ? '确认并立即发布' : '确认定时发布'}</button>
+            <button type="button" className="primary-button publish-submit-button" onClick={submitPublish} disabled={busy || loading}><Send size={18} />{busy ? '处理中…' : message.localUnavailable ? '检测并继续发布' : publishMode === 'now' ? '确认并立即发布' : '确认定时发布'}</button>
             <p className="publish-safety-note"><ShieldCheck size={15} />发布前请确认内容权利、事实准确性，以及目标平台要求的 AI 生成内容标识。</p>
           </section>
         </div>
@@ -6095,6 +6126,7 @@ function VideoStudioPage({ authVersion, onLogin, onNewVideo, onCreatePackaging, 
   const [publishAt, setPublishAt] = useState(() => getDefaultPublishAt());
   const [publishBusy, setPublishBusy] = useState(false);
   const [publishMessage, setPublishMessage] = useState('');
+  const [publishLocalUnavailable, setPublishLocalUnavailable] = useState(false);
   const [assignDialog, setAssignDialog] = useState(false);
   const [teams, setTeams] = useState([]);
   const [teamQuery, setTeamQuery] = useState('');
@@ -6234,6 +6266,7 @@ function VideoStudioPage({ authVersion, onLogin, onNewVideo, onCreatePackaging, 
     setPublishDialog(true);
     setActionMessage('');
     setPublishMessage('');
+    setPublishLocalUnavailable(false);
     setPublishMode('scheduled');
     setPublishAt(getDefaultPublishAt());
     const result = await apiFetch('/api/team-notion/publish-account', { timeoutMs: 10000 });
@@ -6258,6 +6291,15 @@ function VideoStudioPage({ authVersion, onLogin, onNewVideo, onCreatePackaging, 
     const localPublishAt = isNow ? getDefaultPublishAt(0) : publishAt;
     const publishTime = localPublishAt.replace('T', ' ');
     setPublishBusy(true);
+    setPublishMessage('正在检测本地发布服务…');
+    setPublishLocalUnavailable(false);
+    const localCheck = await checkLocalPublisher();
+    if (!localCheck.ok) {
+      setPublishBusy(false);
+      setPublishMessage('请启动本地发布服务；尚未安装时，请先下载安装。');
+      setPublishLocalUnavailable(true);
+      return;
+    }
     setPublishMessage('');
     const result = await apiFetch('/api/team-notion/publish-video', {
       method: 'POST',
@@ -6393,11 +6435,12 @@ function VideoStudioPage({ authVersion, onLogin, onNewVideo, onCreatePackaging, 
             </div>
           </section>
         ) : <div className="video-empty-state"><Video size={38} /><strong>没有找到视频详情</strong><button className="primary-button" onClick={() => setView('list')}>返回视频列表</button></div>}
-        {publishDialog && <VideoActionDialog title="发布设置" description={video?.title || '选择发布账号与时间'} busy={publishBusy} submitLabel="确认发布" onClose={() => setPublishDialog(false)} onSubmit={publishVideo}>
+        {publishDialog && <VideoActionDialog title="发布设置" description={video?.title || '选择发布账号与时间'} busy={publishBusy} submitLabel={publishLocalUnavailable ? '检测并继续发布' : '确认发布'} onClose={() => setPublishDialog(false)} onSubmit={publishVideo}>
           <label className="video-dialog-field"><span>发布账号</span><select value={publishAccountId} onChange={(event) => { setPublishAccountId(event.target.value); setPublishMessage(''); }}><option value="">请选择发布账号</option>{publishAccounts.map((account) => <option key={account.id} value={account.id}>{account.name}</option>)}</select></label>
           {!publishAccounts.length && <div className="video-dialog-empty">暂无可用发布账号</div>}
           <div className="video-publish-modes"><button className={publishMode === 'scheduled' ? 'is-active' : ''} onClick={() => { setPublishMode('scheduled'); setPublishMessage(''); }}><CalendarDays size={17} />定时发布</button><button className={publishMode === 'now' ? 'is-active' : ''} onClick={() => { setPublishMode('now'); setPublishMessage(''); }}><Send size={17} />立即发布</button></div>
           {publishMode === 'scheduled' && <label className="video-dialog-field"><span>发布时间</span><input type="datetime-local" min={getDefaultPublishAt(1)} value={publishAt} onChange={(event) => { setPublishAt(event.target.value); setPublishMessage(''); }} /></label>}
+          {publishLocalUnavailable && <LocalPublisherSetupNotice />}
           {publishMessage && <div className="video-dialog-message">{publishMessage}</div>}
         </VideoActionDialog>}
         {assignDialog && <VideoActionDialog title="分配到团队" description={video?.title || '选择接收视频的团队主账号'} busy={assignBusy} submitLabel="确认分配" onClose={() => setAssignDialog(false)} onSubmit={assignVideo}>

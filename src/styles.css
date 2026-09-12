@@ -1659,6 +1659,69 @@
   flex: 0 0 auto;
 }
 
+.local-publisher-setup-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #efc7a8;
+  border-radius: 12px;
+  color: #77461f;
+  background: #fff8ed;
+}
+
+.local-publisher-setup-notice > span {
+  display: grid;
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 10px;
+  color: #a65b23;
+  background: #ffe4c8;
+}
+
+.local-publisher-setup-notice > div {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+  gap: 5px;
+}
+
+.local-publisher-setup-notice strong {
+  font-size: 12px;
+}
+
+.local-publisher-setup-notice p {
+  margin: 0;
+  font-size: 10px;
+  line-height: 1.55;
+}
+
+.local-publisher-setup-notice > div > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  padding-top: 2px;
+}
+
+.local-publisher-setup-notice a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 32px;
+  padding: 0 10px;
+  border: 1px solid #dca875;
+  border-radius: 9px;
+  color: #77461f;
+  background: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  text-decoration: none;
+  cursor: pointer;
+}
+
 .publish-upload-progress {
   position: relative;
   height: 38px;

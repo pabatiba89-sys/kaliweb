@@ -5,6 +5,7 @@ import {
   buildLocalPublishPayload,
   buildProductionVideoPublishPayload,
   buildUploadedVideoPublishPayload,
+  checkLocalPublisher,
   normalizePublishTopics,
   triggerLocalPublish,
 } from '../src/publish.js';
@@ -116,4 +117,19 @@ test('uploads by URL and publishes to every active local platform with the match
   assert.deepEqual(result, { filePath: 'local-video.mp4', accountCount: 2, platformCount: 2 });
   assert.equal(requests.length, 4);
   assert.deepEqual(requests.slice(2).map((request) => JSON.parse(request.options.body).type), [3, 4]);
+});
+
+test('detects when the local publishing service is unavailable', async () => {
+  const unavailable = await checkLocalPublisher({
+    fetchImpl: async () => { throw new TypeError('Failed to fetch'); },
+  });
+  assert.deepEqual(unavailable, {
+    ok: false,
+    message: '无法连接本地发布服务，请确认 5409 服务已启动',
+  });
+
+  const available = await checkLocalPublisher({
+    fetchImpl: async () => new Response(JSON.stringify({ code: 200, data: [] }), { status: 200 }),
+  });
+  assert.deepEqual(available, { ok: true, message: '' });
 });
