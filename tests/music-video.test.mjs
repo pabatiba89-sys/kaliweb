@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { buildMusicVideoPayload, cleanMusicLyrics, getFirstMusicResult, getMusicVideoUrl } from '../src/music.js';
+import { buildMusicVideoPayload, cleanMusicLyrics, getFirstMusicResult, getMusicErrorMessage, getMusicVideoUrl } from '../src/music.js';
 
 test('cleanMusicLyrics removes section prompts and keeps lyric text', () => {
   const lyrics = [
@@ -85,4 +85,9 @@ test('getFirstMusicResult still unwraps list-only responses', () => {
 test('getMusicVideoUrl reads archived and provider URL fallbacks', () => {
   assert.equal(getMusicVideoUrl({ related: { result_data: { video_url: 'https://cdn.example.com/final.mp4' } } }), 'https://cdn.example.com/final.mp4');
   assert.equal(getMusicVideoUrl({ provider_video_url: 'https://provider.example.com/result.mp4' }), 'https://provider.example.com/result.mp4');
+});
+
+test('getMusicErrorMessage exposes the backend error_msg on failed music tasks', () => {
+  assert.equal(getMusicErrorMessage({ error_msg: '歌词包含不支持的内容' }), '歌词包含不支持的内容');
+  assert.equal(getMusicErrorMessage({ related: { error_msg: '模型服务暂时不可用' } }), '模型服务暂时不可用');
 });

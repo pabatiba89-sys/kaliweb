@@ -97,7 +97,7 @@ import {
 } from './api';
 import { getInitialLocale, languages, translateStatic, useAutoTranslate, useLocaleCatalog } from './i18n';
 import { GENERATED_CONTENT_UNAVAILABLE_MESSAGE, getGeneratedRetryPrompt, isGeneratedMarkupFailure } from './generatedContent';
-import { buildMusicVideoPayload, cleanMusicLyrics, getFirstMusicResult, getMusicVideoUrl } from './music';
+import { buildMusicVideoPayload, cleanMusicLyrics, getFirstMusicResult, getMusicErrorMessage, getMusicVideoUrl } from './music';
 import {
   AI_VIDEO_DEFAULT_MODEL_KEY,
   buildAIVideoPayload,
@@ -2357,7 +2357,7 @@ const normalizeMusicVideo = (item = {}) => {
     status: { ...status, label: status.key === 'success' ? '视频已完成' : status.key === 'failed' ? '视频制作失败' : '视频制作中' },
     videoUrl,
     coverUrl: getApiMediaUrl(pick(item.cover_url, item.coverUrl, item.image_url, item.imageUrl, item.thumbnail_url, item.thumbnailUrl, result.cover_url, result.coverUrl, result.image_url, result.imageUrl, related.cover_url, related.coverUrl, related.image_url, related.imageUrl)),
-    failReason: pick(item.fail_reason, item.failReason, item.failure_reason, item.error_message, item.error_msg, item.message, related.fail_reason, related.error_msg),
+    failReason: getMusicErrorMessage(item),
     createdAt: formatMusicDate(item.updated_at || item.updatedAt || item.created_at || item.createdAt || related.updated_at || related.created_at),
     raw: item,
   };
@@ -2376,7 +2376,7 @@ const normalizeMusicItem = (item = {}, index = 0) => {
     audioUrl,
     duration: formatDuration(item.duration || item.duration_seconds || item.durationSeconds || related.duration || 0),
     createdAt: formatMusicDate(item.created_at || item.createdAt || related.created_at || related.createdAt),
-    failReason: pick(item.fail_reason, item.failReason, item.failure_reason, item.error_message, item.message, related.fail_reason),
+    failReason: getMusicErrorMessage(item),
     status,
     raw: item,
   };
@@ -2684,7 +2684,7 @@ function MusicStudioPage({ authVersion, onLogin, onOpenLyrics, onOpenBilling }) 
                 {music.createdAt && <span><strong>创建时间</strong>{music.createdAt}</span>}
                 {music.duration && <span><strong>时长</strong>{music.duration}</span>}
               </div>
-              {music.status.key === 'failed' && music.failReason && <div className="music-detail-error"><strong>生成失败</strong><span>{music.failReason}</span></div>}
+              {music.status.key === 'failed' && <div className="music-detail-error"><strong>生成失败</strong><span>{music.failReason || '暂无失败原因'}</span></div>}
               {!music.tracks?.length && music.audioUrl && <audio controls preload="metadata" src={music.audioUrl} />}
               <div className="music-detail-actions">
                 {music.status.key === 'failed' && <button className="danger-button" onClick={() => retryMusic(music)}>重试制作</button>}

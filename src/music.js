@@ -165,3 +165,23 @@ export function getMusicVideoUrl(item = {}) {
     relatedResult.providerVideoUrl,
   ].find((value) => typeof value === 'string' && value.trim()) || '';
 }
+
+export function getMusicErrorMessage(item = {}) {
+  const related = item.related || {};
+  return [
+    item.error_msg,
+    item.errorMsg,
+    item.error_message,
+    item.fail_reason,
+    item.failReason,
+    item.failure_reason,
+    related.error_msg,
+    related.errorMsg,
+    related.error_message,
+    related.fail_reason,
+    related.failReason,
+    related.failure_reason,
+    item.message,
+    related.message,
+  ].find((value) => typeof value === 'string' && value.trim())?.trim() || '';
+}
