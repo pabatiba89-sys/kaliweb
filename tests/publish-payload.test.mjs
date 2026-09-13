@@ -6,9 +6,21 @@ import {
   buildProductionVideoPublishPayload,
   buildUploadedVideoPublishPayload,
   checkLocalPublisher,
+  getPublishAccountBinding,
+  listLocalPublisherAccounts,
+  loadPublishAccountBindings,
   normalizePublishTopics,
+  savePublishAccountBindings,
   triggerLocalPublish,
 } from '../src/publish.js';
+
+const createMemoryStorage = () => {
+  const values = new Map();
+  return {
+    getItem: (key) => values.get(key) ?? null,
+    setItem: (key, value) => values.set(key, value),
+  };
+};
 
 test('normalizes and deduplicates publish topics', () => {
   assert.deepEqual(
@@ -124,6 +136,90 @@ test('queries by account name and publishes every returned local platform withou
     assert.deepEqual(JSON.parse(request.options.body).tags, ['第三话题', '第一话题', '第二话题']);
   });
   assert.deepEqual(result, { filePath: 'local-video.mp4', accountCount: 3, platformCount: 3 });
+});
+
+test('stores explicit local account bindings without cookie data', () => {
+  const storage = createMemoryStorage();
+  savePublishAccountBindings({
+    7: [
+      { id: 23, type: 4, name: '主账号', cookie: 'must-not-be-saved.json' },
+      { id: 24, type: 3, name: '主账号' },
+    ],
+  }, storage);
+
+  assert.deepEqual(loadPublishAccountBindings(storage), {
+    7: [
+      { id: '23', type: 4, name: '主账号' },
+      { id: '24', type: 3, name: '主账号' },
+    ],
+  });
+  assert.deepEqual(getPublishAccountBinding('7', storage), [
+    { id: '23', type: 4, name: '主账号' },
+    { id: '24', type: 3, name: '主账号' },
+  ]);
+});
+
+test('reads the account-management API with the canonical platform mapping', async () => {
+  let requestedUrl = '';
+  const result = await listLocalPublisherAccounts({
+    fetchImpl: async (url) => {
+      requestedUrl = url;
+      return new Response(JSON.stringify({ code: 200, data: [
+        [1, 5, 'tiktok.json', '海外账号', 1],
+        [2, 6, 'youtube.json', '海外账号', 0],
+      ] }), { status: 200 });
+    },
+  });
+
+  assert.equal(requestedUrl, 'http://127.0.0.1:5409/getValidAccounts');
+  assert.deepEqual(result.accounts, [
+    { id: '1', type: 5, name: '海外账号', status: 1, platform: 'TikTok', configured: true },
+    { id: '2', type: 6, name: '海外账号', status: 0, platform: 'YouTube', configured: true },
+  ]);
+});
+
+test('publishes only explicitly bound local account ids', async () => {
+  const requests = [];
+  const localAccounts = [
+    [23, 4, 'kuaishou.json', '同名账号', 1],
+    [24, 3, 'douyin.json', '同名账号', 1],
+    [25, 2, 'channels.json', '同名账号', 1],
+  ];
+  const fetchImpl = async (url, options = {}) => {
+    requests.push({ url, options });
+    if (url.endsWith('/uploadFromUrl')) return new Response(JSON.stringify({ code: 200, data: { filepath: 'video.mp4' } }), { status: 200 });
+    return new Response(JSON.stringify({ code: 200, data: null }), { status: 200 });
+  };
+
+  const result = await triggerLocalPublish({
+    videoUrl: 'https://cdn.example.com/video.mp4',
+    title: '显式匹配发布',
+    accountName: '云端账号名可以不同',
+    accountTargets: [{ id: '24', type: 3, name: '本机抖音账号' }],
+    localAccounts,
+    publishAt: '2026-09-13 10:00',
+    fetchImpl,
+  });
+
+  assert.equal(requests.length, 2);
+  assert.equal(JSON.parse(requests[1].options.body).type, 3);
+  assert.deepEqual(JSON.parse(requests[1].options.body).accountList, ['douyin.json']);
+  assert.deepEqual(result, { filePath: 'video.mp4', accountCount: 1, platformCount: 1 });
+});
+
+test('blocks publishing when an explicit account binding is stale', async () => {
+  const result = await checkLocalPublisher({
+    accountTargets: [{ id: '99', type: 3, name: '已删除账号' }],
+    fetchImpl: async () => new Response(JSON.stringify({ code: 200, data: [
+      [24, 3, 'douyin.json', '其他账号', 1],
+    ] }), { status: 200 }),
+  });
+
+  assert.deepEqual(result, {
+    ok: false,
+    message: '本机账号匹配已失效，请到发布设置重新匹配',
+    accounts: [],
+  });
 });
 
 test('posts all local platforms concurrently when accounts were already fetched', async () => {

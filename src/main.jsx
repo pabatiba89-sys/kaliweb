@@ -112,7 +112,11 @@ import {
   buildProductionVideoPublishPayload,
   buildUploadedVideoPublishPayload,
   checkLocalPublisher,
+  getPublishAccountBinding,
+  listLocalPublisherAccounts,
+  loadPublishAccountBindings,
   normalizePublishTopics,
+  savePublishAccountBindings,
   triggerLocalPublish,
 } from './publish';
 import {
@@ -127,6 +131,7 @@ import './styles.css';
 
 const APP_VERSION = `v${packageJson.version}`;
 const OPEN_SOURCE_PUBLISHER_URL = 'https://github.com/dreammis/social-auto-upload';
+const PUBLISH_ACCOUNT_MANAGER_URL = 'https://p.xyaip.fun/#/account-management';
 
 const copy = {
   en: {
@@ -220,6 +225,7 @@ const accountMenuItems = [
   { id: 'team', label: 'Team Center', icon: Building2 },
   { id: 'affiliate', label: 'Affiliate Center', icon: UsersRound },
   { id: 'presets', label: 'Packaging Presets', icon: Cuboid },
+  { id: 'publish-settings', label: 'Publish Settings', icon: Send },
   { id: 'settings', label: 'Settings', icon: Settings },
 ];
 
@@ -4820,9 +4826,11 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling, onOpenP
     }
 
     setPublishState((current) => ({ ...current, busy: true, message: '正在检测本地发布服务…', localUnavailable: false }));
-    const localCheck = await checkLocalPublisher({ accountName: account.name });
+    const accountTargets = getPublishAccountBinding(account.id);
+    const localCheck = await checkLocalPublisher({ accountTargets });
     if (!localCheck.ok) {
-      setPublishState((current) => ({ ...current, busy: false, message: '请启动本地发布服务；尚未安装时，请先下载安装。', localUnavailable: true }));
+      const localUnavailable = /本地发布服务|5409|连接/.test(localCheck.message);
+      setPublishState((current) => ({ ...current, busy: false, message: localCheck.message, localUnavailable }));
       return;
     }
 
@@ -4854,6 +4862,7 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling, onOpenP
         title,
         topics: topicSnapshot,
         accountName: account.name,
+        accountTargets,
         localAccounts: localCheck.accounts,
         publishAt: localPublishAt,
         publishNow: isNow,
@@ -5646,6 +5655,135 @@ const normalizeAIVideoPublishAccount = (item, index) => {
   };
 };
 
+function PublishSettingsPage({ authVersion, onLogin }) {
+  const [cloudAccounts, setCloudAccounts] = useState([]);
+  const [localAccounts, setLocalAccounts] = useState([]);
+  const [bindings, setBindings] = useState(() => loadPublishAccountBindings());
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState({ text: '', error: false });
+  const authed = Boolean(getAccessToken());
+
+  const loadAccounts = useCallback(async () => {
+    if (!getAccessToken()) {
+      setCloudAccounts([]);
+      setLocalAccounts([]);
+      return;
+    }
+    setLoading(true);
+    setMessage({ text: '', error: false });
+    const [cloudResult, localResult] = await Promise.all([
+      apiFetch('/api/team-notion/publish-account', { timeoutMs: 10000 }),
+      listLocalPublisherAccounts(),
+    ]);
+    const cloudSource = getVideoRecords(cloudResult.data).length ? getVideoRecords(cloudResult.data) : getVideoRecords(cloudResult.raw);
+    const nextCloudAccounts = cloudSource
+      .map(normalizeAIVideoPublishAccount)
+      .filter((account) => Number.isInteger(Number(account.id)) && Number(account.id) > 0 && account.name);
+    setCloudAccounts(nextCloudAccounts);
+    setLocalAccounts(localResult.accounts || []);
+    setBindings(loadPublishAccountBindings());
+    setLoading(false);
+    if (!cloudResult.ok) {
+      setMessage({ text: getResultMessage(cloudResult, '团队发布账号加载失败'), error: true });
+    } else if (!localResult.ok) {
+      setMessage({ text: '没有连接到本机发布系统，请先启动本机发布服务。', error: true });
+    }
+  }, []);
+
+  useEffect(() => {
+    loadAccounts();
+  }, [authVersion, loadAccounts]);
+
+  const targetKey = (target) => `${Number(target.type)}:${String(target.id)}`;
+  const isBound = (cloudAccountId, localAccount) => (
+    (bindings[String(cloudAccountId)] || []).some((target) => targetKey(target) === targetKey(localAccount))
+  );
+
+  const toggleBinding = (cloudAccountId, localAccount) => {
+    const cloudKey = String(cloudAccountId);
+    const localKey = targetKey(localAccount);
+    const next = Object.fromEntries(Object.entries(bindings).map(([key, targets]) => [key, [...targets]]));
+    const alreadyBound = (next[cloudKey] || []).some((target) => targetKey(target) === localKey);
+    Object.keys(next).forEach((key) => {
+      next[key] = (next[key] || []).filter((target) => targetKey(target) !== localKey);
+    });
+    if (!alreadyBound) {
+      next[cloudKey] = [...(next[cloudKey] || []), {
+        id: String(localAccount.id),
+        type: Number(localAccount.type),
+        name: localAccount.name,
+      }];
+    }
+    savePublishAccountBindings(next);
+    setBindings(next);
+    setMessage({ text: alreadyBound ? '已取消匹配。' : '匹配已自动保存。', error: false });
+  };
+
+  const clearBinding = (cloudAccountId) => {
+    const next = { ...bindings, [String(cloudAccountId)]: [] };
+    savePublishAccountBindings(next);
+    setBindings(next);
+    setMessage({ text: '已清除该账号的本机匹配。', error: false });
+  };
+
+  if (!authed) {
+    return (
+      <div className="publish-settings-page">
+        <section className="publish-settings-hero"><div><span>PUBLISH CONNECTION</span><h1>发布设置</h1></div></section>
+        <div className="video-empty-state"><Send size={38} /><strong>登录后匹配发布账号</strong><p>登录后才能读取团队发布账号。</p><button className="primary-button" onClick={onLogin}>登录</button></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="publish-settings-page">
+      <section className="publish-settings-hero">
+        <div><span>PUBLISH CONNECTION</span><h1>发布设置</h1><p>把 Kali 团队账号与这台电脑中的发布账号匹配一次，之后发布时自动使用。</p></div>
+        <div className="publish-settings-actions">
+          <a className="outline-button" href={PUBLISH_ACCOUNT_MANAGER_URL} target="_blank" rel="noreferrer"><ExternalLink size={16} />管理本机账号</a>
+          <button className="outline-button" type="button" onClick={loadAccounts} disabled={loading}><RefreshCw className={loading ? 'is-spinning' : ''} size={16} />刷新账号</button>
+        </div>
+      </section>
+
+      {message.text && <div className={`publish-settings-message${message.error ? ' is-error' : ''}`} role="status">{message.error ? <AlertCircle size={17} /> : <CheckCircle2 size={17} />}<span>{message.text}</span></div>}
+
+      <section className="publish-settings-panel" aria-busy={loading}>
+        <header><div><span>ACCOUNT MATCHING</span><h2>账号匹配</h2><p>勾选后立即保存；一个本机账号只能匹配一个 Kali 账号。</p></div><strong>{cloudAccounts.length} 个 Kali 账号 · {localAccounts.length} 个本机账号</strong></header>
+        {loading && !cloudAccounts.length ? (
+          <div className="publish-settings-empty"><RefreshCw className="is-spinning" size={28} /><strong>正在读取账号…</strong></div>
+        ) : !cloudAccounts.length ? (
+          <div className="publish-settings-empty"><Send size={30} /><strong>暂无团队发布账号</strong><p>请先配置团队发布账号。</p></div>
+        ) : !localAccounts.length ? (
+          <div className="publish-settings-empty"><Server size={30} /><strong>这台电脑还没有可匹配账号</strong><p>打开账号管理完成登录，再回来刷新。</p><a className="primary-button" href={PUBLISH_ACCOUNT_MANAGER_URL} target="_blank" rel="noreferrer">打开账号管理</a></div>
+        ) : (
+          <div className="publish-settings-list">
+            {cloudAccounts.map((cloudAccount) => {
+              const selectedTargets = bindings[String(cloudAccount.id)] || [];
+              return (
+                <article className="publish-settings-account" key={cloudAccount.id}>
+                  <header><div><span className="publish-settings-account__icon"><Send size={17} /></span><div><strong>{cloudAccount.name}</strong><small>{selectedTargets.length ? <>已匹配 {selectedTargets.length} 个本机账号</> : '尚未匹配，不能发布'}</small></div></div>{selectedTargets.length > 0 && <button type="button" onClick={() => clearBinding(cloudAccount.id)}>清除匹配</button>}</header>
+                  <div className="publish-settings-local-list">
+                    {localAccounts.map((localAccount) => {
+                      const checked = isBound(cloudAccount.id, localAccount);
+                      return (
+                        <label className={checked ? 'is-selected' : ''} key={`${localAccount.type}:${localAccount.id}`}>
+                          <input type="checkbox" checked={checked} disabled={!localAccount.configured} onChange={() => toggleBinding(cloudAccount.id, localAccount)} />
+                          <span><strong>{localAccount.platform}</strong><small>{localAccount.name} · #{localAccount.id}</small></span>
+                          <em className={Number(localAccount.status) === 1 ? 'is-ready' : 'is-warning'}>{localAccount.configured ? (Number(localAccount.status) === 1 ? '可用' : '需检查登录') : '未登录'}</em>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        )}
+      </section>
+    </div>
+  );
+}
+
 const normalizeAssignmentTeam = (item = {}, index = 0) => {
   const mainUser = videoObject(item.mainUser || item.main_user || item.owner || item.user);
   const phone = videoText(item.teamPhone, item.team_phone, item.phoneNumber, item.phone_number, item.mobile, item.phone);
@@ -6079,10 +6217,11 @@ function PublishCenterPage({ authVersion, onLogin }) {
     setBusy(true);
     setUploadProgress(0);
     setMessage({ text: '正在检测本地发布服务…', error: false, localUnavailable: false });
-    const localCheck = await checkLocalPublisher({ accountName: account.name });
+    const accountTargets = getPublishAccountBinding(account.id);
+    const localCheck = await checkLocalPublisher({ accountTargets });
     if (!localCheck.ok) {
       setBusy(false);
-      setMessage({ text: '请启动本地发布服务；尚未安装时，请先下载安装。', error: true, localUnavailable: true });
+      setMessage({ text: localCheck.message, error: true, localUnavailable: /本地发布服务|5409|连接/.test(localCheck.message) });
       return;
     }
     setMessage({ text: '', error: false, localUnavailable: false });
@@ -6149,6 +6288,7 @@ function PublishCenterPage({ authVersion, onLogin }) {
         title,
         topics: topicSnapshot,
         accountName: account.name,
+        accountTargets,
         localAccounts: localCheck.accounts,
         publishAt: commonFields.publishAt,
         publishNow,
@@ -6454,11 +6594,12 @@ function VideoStudioPage({ authVersion, onLogin, onNewVideo, onCreatePackaging, 
     setPublishBusy(true);
     setPublishMessage('正在检测本地发布服务…');
     setPublishLocalUnavailable(false);
-    const localCheck = await checkLocalPublisher({ accountName: account.name });
+    const accountTargets = getPublishAccountBinding(account.id);
+    const localCheck = await checkLocalPublisher({ accountTargets });
     if (!localCheck.ok) {
       setPublishBusy(false);
-      setPublishMessage('请启动本地发布服务；尚未安装时，请先下载安装。');
-      setPublishLocalUnavailable(true);
+      setPublishMessage(localCheck.message);
+      setPublishLocalUnavailable(/本地发布服务|5409|连接/.test(localCheck.message));
       return;
     }
     setPublishDialog(false);
@@ -6489,6 +6630,7 @@ function VideoStudioPage({ authVersion, onLogin, onNewVideo, onCreatePackaging, 
         title: selectedVideo.title,
         topics: topicSnapshot,
         accountName: account.name,
+        accountTargets,
         localAccounts: localCheck.accounts,
         publishAt: localPublishAt,
         publishNow: isNow,
@@ -13543,6 +13685,7 @@ const getInitialWorkspacePage = () => {
   if (page === 'video') return 'video';
   if (page === 'ai-video') return 'ai-video';
   if (page === 'publish') return 'publish';
+  if (page === 'publish-settings') return 'publish-settings';
   if (page === 'speech') return 'speech';
   if (page === 'presets') return 'presets';
   return 'home';
@@ -13881,8 +14024,8 @@ export default function App() {
       url.searchParams.set('page', 'speech');
     } else if (id === 'ai-video') {
       url.searchParams.set('page', 'ai-video');
-    } else if (id === 'publish') {
-      url.searchParams.set('page', 'publish');
+    } else if (id === 'publish' || id === 'publish-settings') {
+      url.searchParams.set('page', id);
     } else if (id === 'presets') {
       url.searchParams.set('page', 'presets');
     } else {
@@ -14264,6 +14407,11 @@ export default function App() {
               </>
             ) : active === 'publish' ? (
               <PublishCenterPage
+                authVersion={authVersion}
+                onLogin={() => setLoginOpen(true)}
+              />
+            ) : active === 'publish-settings' ? (
+              <PublishSettingsPage
                 authVersion={authVersion}
                 onLogin={() => setLoginOpen(true)}
               />

@@ -1441,6 +1441,306 @@
   font-weight: 800;
 }
 
+.publish-settings-page {
+  display: grid;
+  gap: 18px;
+}
+
+.publish-settings-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 24px 26px;
+  border-radius: 22px;
+  color: #effaf6;
+  background: linear-gradient(135deg, #103f35, #176c59);
+  box-shadow: 0 18px 42px rgba(14, 70, 58, 0.16);
+}
+
+.publish-settings-hero > div:first-child {
+  display: grid;
+  gap: 5px;
+}
+
+.publish-settings-hero span,
+.publish-settings-panel > header span {
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+}
+
+.publish-settings-hero h1,
+.publish-settings-panel h2 {
+  margin: 0;
+}
+
+.publish-settings-hero h1 {
+  font-size: 27px;
+}
+
+.publish-settings-hero p {
+  max-width: 680px;
+  margin: 0;
+  color: #c8e4db;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.publish-settings-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 9px;
+}
+
+.publish-settings-actions .outline-button {
+  width: auto;
+  min-width: 110px;
+  border-color: rgba(255, 255, 255, 0.28);
+  color: #f4fbf9;
+  background: rgba(255, 255, 255, 0.1);
+  text-decoration: none;
+}
+
+.publish-settings-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 14px;
+  border: 1px solid #cce5dd;
+  border-radius: 13px;
+  color: #24725f;
+  background: #f1faf7;
+  font-size: 10px;
+}
+
+.publish-settings-message.is-error {
+  border-color: #efd1d1;
+  color: #a75353;
+  background: #fff7f7;
+}
+
+.publish-settings-panel {
+  display: grid;
+  gap: 16px;
+  padding: 21px;
+  border: 1px solid #dbe9e4;
+  border-radius: 21px;
+  background: #fff;
+}
+
+.publish-settings-panel > header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.publish-settings-panel > header > div {
+  display: grid;
+  gap: 4px;
+}
+
+.publish-settings-panel > header span {
+  color: #279b7e;
+}
+
+.publish-settings-panel > header h2 {
+  color: #245d4f;
+  font-size: 18px;
+}
+
+.publish-settings-panel > header p,
+.publish-settings-panel > header > strong {
+  margin: 0;
+  color: #7c958e;
+  font-size: 9px;
+}
+
+.publish-settings-list {
+  display: grid;
+  gap: 12px;
+}
+
+.publish-settings-account {
+  overflow: hidden;
+  border: 1px solid #d9e8e3;
+  border-radius: 16px;
+  background: #fbfdfc;
+}
+
+.publish-settings-account > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 14px;
+  border-bottom: 1px solid #e6efec;
+  background: #f4faf8;
+}
+
+.publish-settings-account > header > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.publish-settings-account__icon {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 10px;
+  color: #0f7d66;
+  background: #dff3ed;
+}
+
+.publish-settings-account > header > div > div {
+  display: grid;
+  gap: 2px;
+}
+
+.publish-settings-account > header strong {
+  color: #285f52;
+  font-size: 12px;
+}
+
+.publish-settings-account > header small {
+  color: #829991;
+  font-size: 9px;
+}
+
+.publish-settings-account > header button {
+  padding: 6px 9px;
+  border: 1px solid #cfe1dc;
+  border-radius: 8px;
+  color: #5b7b72;
+  background: #fff;
+  font: inherit;
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.publish-settings-local-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  padding: 12px;
+}
+
+.publish-settings-local-list label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid #dbe7e3;
+  border-radius: 12px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.publish-settings-local-list label.is-selected {
+  border-color: #53ad94;
+  background: #eef9f5;
+  box-shadow: inset 0 0 0 1px rgba(43, 151, 122, 0.12);
+}
+
+.publish-settings-local-list input {
+  accent-color: #16826a;
+}
+
+.publish-settings-local-list label > span {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+  gap: 2px;
+}
+
+.publish-settings-local-list strong {
+  color: #2e6256;
+  font-size: 10px;
+}
+
+.publish-settings-local-list small {
+  overflow: hidden;
+  color: #829991;
+  font-size: 8px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.publish-settings-local-list em {
+  flex: 0 0 auto;
+  padding: 4px 6px;
+  border-radius: 999px;
+  font-size: 7px;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.publish-settings-local-list em.is-ready {
+  color: #11705d;
+  background: #dcf2eb;
+}
+
+.publish-settings-local-list em.is-warning {
+  color: #9b692c;
+  background: #fff1da;
+}
+
+.publish-settings-empty {
+  display: grid;
+  min-height: 220px;
+  place-items: center;
+  align-content: center;
+  gap: 8px;
+  color: #78958d;
+  text-align: center;
+}
+
+.publish-settings-empty strong {
+  color: #315f54;
+}
+
+.publish-settings-empty p {
+  margin: 0;
+  font-size: 10px;
+}
+
+.publish-settings-empty .primary-button {
+  width: auto;
+  margin-top: 4px;
+  text-decoration: none;
+}
+
+@media (max-width: 1080px) {
+  .publish-settings-local-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .publish-settings-hero,
+  .publish-settings-panel > header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .publish-settings-actions,
+  .publish-settings-local-list {
+    grid-template-columns: 1fr;
+  }
+
+  .publish-settings-actions {
+    display: grid;
+  }
+
+  .publish-settings-actions .outline-button {
+    width: 100%;
+  }
+}
+
 .publish-account-onboarding {
   display: grid;
   gap: 13px;

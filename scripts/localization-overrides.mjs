@@ -2059,6 +2059,76 @@ const imageHumanUploadOverrides = {
   },
 };
 
+const publishSettingsEnglishFallbacks = {
+  'Publish Settings': 'Publish settings',
+  '团队发布账号加载失败': 'Team publishing accounts could not be loaded',
+  '没有连接到本机发布系统，请先启动本机发布服务。': 'The local publishing system is not connected. Start the local publishing service first.',
+  '已取消匹配。': 'Matching removed.',
+  '匹配已自动保存。': 'Matching saved automatically.',
+  '已清除该账号的本机匹配。': 'Local matching cleared for this account.',
+  '登录后匹配发布账号': 'Sign in to match publishing accounts',
+  '登录后才能读取团队发布账号。': 'Sign in to load team publishing accounts.',
+  '把 Kali 团队账号与这台电脑中的发布账号匹配一次，之后发布时自动使用。': 'Match each Kali team account with a publishing account on this computer once. Kali will use it automatically when publishing.',
+  '管理本机账号': 'Manage local accounts',
+  '刷新账号': 'Refresh accounts',
+  '账号匹配': 'Account matching',
+  '勾选后立即保存；一个本机账号只能匹配一个 Kali 账号。': 'Changes are saved immediately. Each local account can match only one Kali account.',
+  '个 Kali 账号 ·': 'Kali accounts ·',
+  '个本机账号': 'local accounts',
+  '正在读取账号…': 'Loading accounts…',
+  '暂无团队发布账号': 'No team publishing accounts',
+  '请先配置团队发布账号。': 'Configure a team publishing account first.',
+  '这台电脑还没有可匹配账号': 'No matching accounts are available on this computer',
+  '打开账号管理完成登录，再回来刷新。': 'Open account management, sign in to an account, then return here and refresh.',
+  '打开账号管理': 'Open account management',
+  '已匹配': 'Matched',
+  '尚未匹配，不能发布': 'Not matched — publishing is disabled',
+  '清除匹配': 'Clear matching',
+  '需检查登录': 'Check sign-in',
+  '未登录': 'Not signed in',
+  '该发布账号尚未匹配本机账号，请先完成发布设置': 'This publishing account is not matched to a local account. Complete Publish settings first.',
+  '本机账号匹配已失效，请到发布设置重新匹配': 'The local account matching is no longer valid. Match the account again in Publish settings.',
+};
+
+const publishSettingsOverrides = {
+  'zh-CN': {
+    ...Object.fromEntries(Object.keys(publishSettingsEnglishFallbacks).map((source) => [source, source])),
+    'Publish Settings': '发布设置',
+  },
+  'zh-TW': {
+    'Publish Settings': '發布設定',
+    '发布设置': '發布設定',
+    '团队发布账号加载失败': '團隊發布帳號載入失敗',
+    '没有连接到本机发布系统，请先启动本机发布服务。': '尚未連線到本機發布系統，請先啟動本機發布服務。',
+    '已取消匹配。': '已取消配對。',
+    '匹配已自动保存。': '配對已自動儲存。',
+    '已清除该账号的本机匹配。': '已清除該帳號的本機配對。',
+    '登录后匹配发布账号': '登入後配對發布帳號',
+    '登录后才能读取团队发布账号。': '登入後才能讀取團隊發布帳號。',
+    '把 Kali 团队账号与这台电脑中的发布账号匹配一次，之后发布时自动使用。': '將 Kali 團隊帳號與這台電腦中的發布帳號配對一次，之後發布時會自動使用。',
+    '管理本机账号': '管理本機帳號',
+    '刷新账号': '重新整理帳號',
+    '账号匹配': '帳號配對',
+    '勾选后立即保存；一个本机账号只能匹配一个 Kali 账号。': '勾選後立即儲存；一個本機帳號只能配對一個 Kali 帳號。',
+    '个 Kali 账号 ·': '個 Kali 帳號 ·',
+    '个本机账号': '個本機帳號',
+    '正在读取账号…': '正在讀取帳號…',
+    '暂无团队发布账号': '暫無團隊發布帳號',
+    '请先配置团队发布账号。': '請先設定團隊發布帳號。',
+    '这台电脑还没有可匹配账号': '這台電腦還沒有可配對帳號',
+    '打开账号管理完成登录，再回来刷新。': '開啟帳號管理完成登入，再回來重新整理。',
+    '打开账号管理': '開啟帳號管理',
+    '已匹配': '已配對',
+    '尚未匹配，不能发布': '尚未配對，不能發布',
+    '清除匹配': '清除配對',
+    '可用': '可用',
+    '需检查登录': '需檢查登入',
+    '未登录': '未登入',
+    '该发布账号尚未匹配本机账号，请先完成发布设置': '該發布帳號尚未配對本機帳號，請先完成發布設定',
+    '本机账号匹配已失效，请到发布设置重新匹配': '本機帳號配對已失效，請到發布設定重新配對',
+  },
+};
+
 export const workspaceLocalizationOverrides = Object.fromEntries(Object.entries(actionRows).map(([locale, values]) => {
   const overrides = {};
   actionKeys.forEach((key, index) => actionAliases[key].forEach((source) => { overrides[source] = values[index]; }));
@@ -2091,6 +2161,8 @@ export const workspaceLocalizationOverrides = Object.fromEntries(Object.entries(
   Object.assign(overrides, realmanPackagingOverrides[locale] || realmanPackagingOverrides['en-US']);
   Object.assign(overrides, imageHumanUploadEnglishFallbacks);
   Object.assign(overrides, imageHumanUploadOverrides[locale] || {});
+  Object.assign(overrides, publishSettingsEnglishFallbacks);
+  Object.assign(overrides, publishSettingsOverrides[locale] || {});
   overrides['AI Video Lab'] = aiVideoLabLabels[locale];
   return [locale, overrides];
 }));
