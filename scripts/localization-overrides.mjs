@@ -2031,6 +2031,34 @@ const realmanPackagingOverrides = {
   },
 };
 
+const imageHumanUploadEnglishFallbacks = {
+  '上传图片': 'Upload image',
+  '形象图片仅支持 jpg、png、webp 格式': 'Avatar images must be JPG, PNG, or WEBP files.',
+  '形象图片读取失败': 'The avatar image could not be read.',
+  '请选择或上传形象图片': 'Select or upload an avatar image.',
+  '形象图片上传失败': 'The avatar image upload failed.',
+  '形象图片上传未返回可用地址': 'The avatar image upload did not return a usable URL.',
+};
+
+const imageHumanUploadOverrides = {
+  'zh-CN': {
+    '上传图片': '上传图片',
+    '形象图片仅支持 jpg、png、webp 格式': '形象图片仅支持 jpg、png、webp 格式',
+    '形象图片读取失败': '形象图片读取失败',
+    '请选择或上传形象图片': '请选择或上传形象图片',
+    '形象图片上传失败': '形象图片上传失败',
+    '形象图片上传未返回可用地址': '形象图片上传未返回可用地址',
+  },
+  'zh-TW': {
+    '上传图片': '上傳圖片',
+    '形象图片仅支持 jpg、png、webp 格式': '形象圖片僅支援 jpg、png、webp 格式',
+    '形象图片读取失败': '形象圖片讀取失敗',
+    '请选择或上传形象图片': '請選擇或上傳形象圖片',
+    '形象图片上传失败': '形象圖片上傳失敗',
+    '形象图片上传未返回可用地址': '形象圖片上傳未回傳可用網址',
+  },
+};
+
 export const workspaceLocalizationOverrides = Object.fromEntries(Object.entries(actionRows).map(([locale, values]) => {
   const overrides = {};
   actionKeys.forEach((key, index) => actionAliases[key].forEach((source) => { overrides[source] = values[index]; }));
@@ -2061,6 +2089,8 @@ export const workspaceLocalizationOverrides = Object.fromEntries(Object.entries(
   Object.assign(overrides, musicVideoOverrides[locale] || musicVideoOverrides['en-US']);
   Object.assign(overrides, videoOptionalMediaOverrides[locale] || videoOptionalMediaOverrides['en-US']);
   Object.assign(overrides, realmanPackagingOverrides[locale] || realmanPackagingOverrides['en-US']);
+  Object.assign(overrides, imageHumanUploadEnglishFallbacks);
+  Object.assign(overrides, imageHumanUploadOverrides[locale] || {});
   overrides['AI Video Lab'] = aiVideoLabLabels[locale];
   return [locale, overrides];
 }));

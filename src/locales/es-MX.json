@@ -2184,5 +2184,11 @@
   "双人对话指令集加载失败，请重试。": "The Two-Person Dialogue instruction set could not be loaded. Try again.",
   "未找到「双人对话」指令集，请确认该指令集已启用。": "The Two-Person Dialogue instruction set was not found. Make sure it is enabled.",
   "这张 AI 图片已经添加到参考图片。": "This AI image is already in the reference image list.",
-  "已添加 AI 图片：": "AI image added: "
+  "已添加 AI 图片：": "AI image added: ",
+  "上传图片": "Upload image",
+  "形象图片仅支持 jpg、png、webp 格式": "Avatar images must be JPG, PNG, or WEBP files.",
+  "形象图片读取失败": "The avatar image could not be read.",
+  "请选择或上传形象图片": "Select or upload an avatar image.",
+  "形象图片上传失败": "The avatar image upload failed.",
+  "形象图片上传未返回可用地址": "The avatar image upload did not return a usable URL."
 }

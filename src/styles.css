@@ -11409,6 +11409,25 @@ video.media-preview {
   text-align: left;
 }
 
+.image-choice--upload {
+  cursor: pointer;
+}
+
+.image-choice--upload input {
+  display: none;
+}
+
+.image-choice-upload-icon {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  border: 1px dashed #9acfc0;
+  border-radius: 12px;
+  background: #eef9f5;
+  color: var(--green);
+  display: grid;
+  place-items: center;
+}
+
 .image-choice.is-active {
   border-color: var(--green);
   box-shadow: 0 10px 22px rgba(0, 168, 132, 0.14);

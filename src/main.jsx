@@ -3473,6 +3473,7 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
   const [authVideos, setAuthVideos] = useState([]);
   const [selectedAuthKey, setSelectedAuthKey] = useState('');
   const [selectedImageId, setSelectedImageId] = useState('');
+  const [uploadedImage, setUploadedImage] = useState(null);
   const [form, setForm] = useState({ name: '', profileVideo: null, authVideo: null });
   const [voiceForm, setVoiceForm] = useState({ name: '', language: 'zh-CN', audio: null, agreement: false });
   const [profileAgreement, setProfileAgreement] = useState(false);
@@ -3489,7 +3490,9 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
   const authed = Boolean(getAccessToken());
   const localeCatalog = useLocaleCatalog(language);
   const selectedAuthVideo = authVideos.find((item) => item.key === selectedAuthKey) || null;
-  const selectedImage = images.find((item) => item.id === selectedImageId) || null;
+  const selectedImage = uploadedImage?.id === selectedImageId
+    ? uploadedImage
+    : images.find((item) => item.id === selectedImageId) || null;
   const authorizationTemplate = 'My name is {{name}}. I authorize Kali to use my likeness and voice from this authorization video to generate a custom digital human and voice for me, and to use them in my Kali account for content creation.';
   const authorizationLines = [
     translateStatic(authorizationTemplate, language, localeCatalog).replaceAll('{{name}}', textOf(form.name) || 'XXX'),
@@ -3529,6 +3532,7 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
     setSelectedAuthKey((current) => current || library.selected?.key || library.videos[0]?.key || '');
     setImages(nextImages);
     setSelectedImageId((current) => {
+      if (current && uploadedImage?.id === current) return current;
       if (current && nextImages.some((item) => item.id === current)) return current;
       if (initialImageId && nextImages.some((item) => item.id === initialImageId)) return initialImageId;
       return nextImages[0]?.id || '';
@@ -3572,6 +3576,7 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
       setImages([]);
       setSelectedAuthKey('');
       setSelectedImageId('');
+      setUploadedImage(null);
     }
   }, [authVersion]);
 
@@ -3595,6 +3600,10 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
     if (recorder?.state === 'recording') recorder.stop();
     recorder?.stream?.getTracks().forEach((track) => track.stop());
   }, []);
+
+  useEffect(() => () => {
+    if (uploadedImage?.url) URL.revokeObjectURL(uploadedImage.url);
+  }, [uploadedImage?.url]);
 
   const update = (key, value) => setForm((current) => ({ ...current, [key]: value }));
   const updateVoice = (key, value) => setVoiceForm((current) => ({ ...current, [key]: value }));
@@ -3621,6 +3630,32 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
     update(key, { file, name: file.name, duration, size: file.size, url: URL.createObjectURL(file) });
     if (key === 'authVideo') setSelectedAuthKey('');
     setMessage('');
+  };
+  const pickTrainingImage = async (event) => {
+    const file = event.target.files?.[0] || null;
+    event.target.value = '';
+    if (!file) return;
+    const extension = getExtension(file.name);
+    if (!file.type.startsWith('image/') || !IMAGE_EXTENSIONS.includes(extension)) {
+      setMessage('形象图片仅支持 jpg、png、webp 格式');
+      return;
+    }
+    try {
+      const info = await readMediaInfo(file, 'image');
+      const image = {
+        id: `uploaded-image-${Date.now()}`,
+        title: file.name,
+        url: URL.createObjectURL(file),
+        file,
+        origin: 'local',
+        ...info,
+      };
+      setUploadedImage(image);
+      setSelectedImageId(image.id);
+      setMessage('');
+    } catch (error) {
+      setMessage(error?.message || '形象图片读取失败');
+    }
   };
   const setVoiceAudio = async (file, durationHint = 0) => {
     if (!file) return;
@@ -3780,14 +3815,33 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
   };
   const submitImageTraining = async () => {
     updateSubmitProgress(5, '提交中');
-    if (!selectedImage?.id) throw new Error('请选择 AI 形象图');
+    if (!selectedImage?.id) throw new Error('请选择或上传形象图片');
     if (!profileAgreement) throw new Error('请先同意数字人形象授权和形象信息采集协议');
-    const { authorizationVideoId, authVideoUrl, isUploadedAuthVideo } = await resolveAuthVideo({ progressStart: 12, progressEnd: 76 });
+    let generatedImageId = selectedImage.origin === 'local' ? '' : selectedImage.id;
+    let imageUrl = selectedImage.uploadedUrl || selectedImage.url;
+    const requiresImageUpload = selectedImage.origin === 'local' && !selectedImage.uploadedUrl;
+    if (requiresImageUpload) {
+      updateSubmitProgress(10, '正在上传');
+      const uploadResult = await uploadFile(selectedImage.file, {
+        source: 'aihuman-image-training',
+        onProgress: (uploadPercent) => updateSubmitProgress(10 + (uploadPercent * 0.3), '正在上传'),
+      });
+      if (!uploadResult.ok) throw new Error(getResultMessage(uploadResult, '形象图片上传失败'));
+      imageUrl = getUploadedUrl(uploadResult);
+      if (!imageUrl) throw new Error('形象图片上传未返回可用地址');
+      setUploadedImage((current) => current?.id === selectedImage.id ? { ...current, uploadedUrl: imageUrl } : current);
+      generatedImageId = '';
+      updateSubmitProgress(42, '提交中');
+    }
+    const { authorizationVideoId, authVideoUrl, isUploadedAuthVideo } = await resolveAuthVideo({ progressStart: requiresImageUpload ? 45 : 12, progressEnd: 76 });
     const payload = omitEmpty({
-      generatedImageId: selectedImage.id,
-      generated_image_id: selectedImage.id,
-      imageGenerationId: selectedImage.id,
-      image_generation_id: selectedImage.id,
+      generatedImageId,
+      generated_image_id: generatedImageId,
+      imageGenerationId: generatedImageId,
+      image_generation_id: generatedImageId,
+      imageUrl,
+      image_url: imageUrl,
+      coverUrl: imageUrl,
       authorizationVideoId,
       authorization_video_id: authorizationVideoId,
       auth_video_url: authVideoUrl,
@@ -3972,7 +4026,14 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
                 </div>
               ) : (
                 <>
-                  <div className="image-choice-grid">{images.length ? images.slice(0, 8).map((image) => <button key={image.id} className={`image-choice ${selectedImageId === image.id ? 'is-active' : ''}`} onClick={() => setSelectedImageId(image.id)}><img src={image.url} alt="" /><span>{image.title}</span></button>) : <div className="asset-empty">暂无可用 AI 形象图</div>}</div>
+                  <div className="image-choice-grid">
+                    {images.slice(0, 8).map((image) => <button key={image.id} className={`image-choice ${selectedImageId === image.id ? 'is-active' : ''}`} onClick={() => setSelectedImageId(image.id)}><img src={image.url} alt="" /><span>{image.title}</span></button>)}
+                    <label className={`image-choice image-choice--upload ${uploadedImage?.id === selectedImageId ? 'is-active' : ''}`}>
+                      {uploadedImage ? <img src={uploadedImage.url} alt="" /> : <span className="image-choice-upload-icon"><Upload size={28} /></span>}
+                      <span>{uploadedImage?.title || '上传图片'}</span>
+                      <input type="file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" onChange={pickTrainingImage} />
+                    </label>
+                  </div>
                   <label className="training-uploader training-uploader--wide"><Video size={28} /><strong>{form.authVideo?.name || '上传本次授权视频'}</strong><small>图片数字人必须绑定本人授权视频；也可从下方团队授权视频选择</small><input type="file" accept="video/mp4,video/quicktime,video/*" capture="user" onChange={(event) => pickVideo(event, 'authVideo')} /></label>
                 </>
               )}
