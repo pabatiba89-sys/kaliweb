@@ -17471,7 +17471,8 @@ html[dir="rtl"] .training-submit-progress__fill {
 }
 
 .ai-video-frame-grid label,
-.ai-video-upload-button {
+.ai-video-upload-button,
+.ai-video-ai-image-button {
   display: flex;
   min-height: 38px;
   align-items: center;
@@ -17484,6 +17485,20 @@ html[dir="rtl"] .training-submit-progress__fill {
   font-size: 10px;
   font-weight: 800;
   cursor: pointer;
+}
+
+.ai-video-reference-source-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 7px;
+}
+
+.ai-video-reference-source-actions.has-ai-images {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.ai-video-ai-image-button {
+  border-style: solid;
 }
 
 .ai-video-frame-grid input[type='file'],

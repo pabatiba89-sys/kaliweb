@@ -96,7 +96,7 @@ import {
   uploadFile,
 } from './api';
 import { getInitialLocale, languages, translateStatic, useAutoTranslate, useLocaleCatalog } from './i18n';
-import { GENERATED_CONTENT_UNAVAILABLE_MESSAGE, isGeneratedMarkupFailure } from './generatedContent';
+import { GENERATED_CONTENT_UNAVAILABLE_MESSAGE, getGeneratedRetryPrompt, isGeneratedMarkupFailure } from './generatedContent';
 import { buildMusicVideoPayload, cleanMusicLyrics, getFirstMusicResult, getMusicVideoUrl } from './music';
 import {
   AI_VIDEO_DEFAULT_MODEL_KEY,
@@ -4186,6 +4186,7 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling, onOpenP
   const [busy, setBusy] = useState('');
   const [message, setMessage] = useState({ text: '', error: false });
   const [uploadState, setUploadState] = useState({ key: '', progress: 0 });
+  const [aiImagePicker, setAiImagePicker] = useState({ open: false, items: [], page: 1, hasMore: false, loading: false, loadingMore: false, message: '' });
   const [detail, setDetail] = useState(null);
   const [publishDialog, setPublishDialog] = useState(false);
   const [publishTarget, setPublishTarget] = useState(null);
@@ -4408,6 +4409,66 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling, onOpenP
     setReferences((current) => ({ ...current, [type]: current[type].filter((item) => item.id !== id) }));
     setQuote(null);
     setQuoteError('');
+  };
+  const loadReferenceAIImages = async ({ nextPage = 1, append = false } = {}) => {
+    if (!authed) {
+      onLogin();
+      return;
+    }
+    setAiImagePicker((current) => ({
+      ...current,
+      open: true,
+      loading: !append,
+      loadingMore: append,
+      message: '',
+    }));
+    const result = await apiFetch('/api/image-generation/images', {
+      params: { page: nextPage, page_size: 24, pageSize: 24, limit: 24 },
+      timeoutMs: 12000,
+    });
+    const received = result.ok
+      ? getImageGenerationItems(result).map(normalizeCreatorAIImageMaterial).filter(Boolean)
+      : [];
+    setAiImagePicker((current) => {
+      const existing = append ? current.items : [];
+      const seen = new Set(existing.map((item) => String(item.id || item.url)));
+      const unique = received.filter((item) => {
+        const key = String(item.id || item.url);
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+      return {
+        ...current,
+        items: existing.concat(unique),
+        page: result.ok ? nextPage : current.page,
+        hasMore: result.ok && received.length >= 24 && (!append || unique.length > 0),
+        loading: false,
+        loadingMore: false,
+        message: result.ok ? '' : getResultMessage(result, 'AI 图片加载失败'),
+      };
+    });
+  };
+  const openReferenceAIImages = () => {
+    if (!authed) {
+      onLogin();
+      return;
+    }
+    loadReferenceAIImages({ nextPage: 1, append: false });
+  };
+  const selectReferenceAIImage = (image) => {
+    if (references.images.some((item) => item.url === image.url)) {
+      setNotice('这张 AI 图片已经添加到参考图片。');
+      setAiImagePicker((current) => ({ ...current, open: false }));
+      return;
+    }
+    addReference('images', createAIVideoReference(image.url, 'image', {
+      name: image.title || 'AI 图片',
+      source: 'ai-image',
+      sourceId: image.sourceId || image.id,
+    }));
+    setNotice(`已添加 AI 图片：${image.title || 'AI 图片'}`);
+    setAiImagePicker((current) => ({ ...current, open: false }));
   };
   const addReferenceUrl = (type) => {
     const url = urlDrafts[type].trim();
@@ -4759,7 +4820,10 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling, onOpenP
         {type === 'videos' && <input type="number" min="0.1" step="0.1" value={urlDrafts.videoDuration} onChange={(event) => setUrlDrafts((current) => ({ ...current, videoDuration: event.target.value }))} placeholder="秒" />}
         <button type="button" onClick={() => addReferenceUrl(type)}><Plus size={15} />添加</button>
       </div>
-      <label className="ai-video-upload-button"><Upload size={15} />{uploadState.key === type ? `${tr('上传')} ${uploadState.progress}%` : '本地上传'}<input type="file" accept={accept} onChange={(event) => { uploadReference(event.target.files?.[0], type); event.target.value = ''; }} /></label>
+      <div className={`ai-video-reference-source-actions${type === 'images' ? ' has-ai-images' : ''}`}>
+        {type === 'images' && <button type="button" className="ai-video-ai-image-button" onClick={openReferenceAIImages}><Image size={15} />从 AI 图片选择</button>}
+        <label className="ai-video-upload-button"><Upload size={15} />{uploadState.key === type ? `${tr('上传')} ${uploadState.progress}%` : '本地上传'}<input type="file" accept={accept} onChange={(event) => { uploadReference(event.target.files?.[0], type); event.target.value = ''; }} /></label>
+      </div>
       {references[type].length > 0 && <div className="ai-video-reference-list">{references[type].map((item) => <div key={item.id}><span>{type === 'images' ? <Image size={16} /> : type === 'videos' ? <FileVideo size={16} /> : <AudioLines size={16} />}</span><p><strong>{item.name || item.url}</strong><small>{type === 'videos' && item.duration ? `${Number(item.duration).toFixed(1)} ${tr('秒')} · ` : ''}{item.url}</small></p><button type="button" onClick={() => removeReference(type, item.id)} aria-label="删除素材"><X size={15} /></button></div>)}</div>}
     </div>
   );
@@ -4879,6 +4943,18 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling, onOpenP
         {publishState.localUnavailable && <LocalPublisherSetupNotice />}
         {publishState.message && <div className="video-dialog-message">{publishState.message}</div>}
       </VideoActionDialog>}
+      {aiImagePicker.open && <VideoCreatorDialog
+        type="aiImageReference"
+        options={aiImagePicker.items}
+        selected={{}}
+        loading={aiImagePicker.loading}
+        hasMore={aiImagePicker.hasMore}
+        loadingMore={aiImagePicker.loadingMore}
+        loadMessage={aiImagePicker.message}
+        onClose={() => setAiImagePicker((current) => ({ ...current, open: false }))}
+        onSelect={selectReferenceAIImage}
+        onLoadMore={() => loadReferenceAIImages({ nextPage: aiImagePicker.page + 1, append: true })}
+      />}
     </div>
   );
 }
@@ -6522,6 +6598,7 @@ const VIDEO_CREATOR_RESOURCE_CONFIG = {
   videoTemplate: { title: '选择视频包装模板', empty: '暂无视频包装模板' },
   coverTemplate: { title: '选择视频封面模板', empty: '暂无视频封面模板' },
   cover: { title: '从 AI 图片选择封面', empty: '暂无可用 AI 图片' },
+  aiImageReference: { title: '从 AI 图片选择', empty: '暂无可用 AI 图片' },
   music: { title: '选择背景音乐', empty: '暂无已完成的音乐' },
   material: { title: '选择素材', empty: '素材库暂无可用图片或视频' },
   preset: { title: '选择已配置方案', empty: '暂无已配置方案' },
@@ -12132,7 +12209,7 @@ async function requestGeneratedCopy({ prompt, topic, agent, messages, conversati
     ...(conversationId ? { conversation_id: conversationId } : {}),
     ...(topic ? { topic } : {}),
     messages: messages
-      .filter((item) => item.role !== 'pending')
+      .filter((item) => item.role !== 'pending' && !item.error)
       .slice(-12)
       .map((item) => ({ role: item.role === 'user' ? 'user' : 'assistant', content: item.text })),
   };
@@ -12681,6 +12758,7 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
       <section className="copy-chat" ref={chatRef} aria-live="polite">
         {messages.map((message, index) => {
           const messageKey = `${message.role}-${index}`;
+          const retryPrompt = getGeneratedRetryPrompt(messages, index);
           const roundNumber = message.role === 'user'
             ? Number(message.roundNo) || messages.slice(0, index + 1).filter((item) => item.role === 'user').length
             : 0;
@@ -12723,12 +12801,22 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
                   <>{message.text}{message.streaming && <i className="copy-stream-cursor" />}</>
                 )}
               </p>
-              {message.role !== 'pending' && !message.streaming && (!isVideoPromptAssistant || (message.generated && !message.error)) && (
+              {message.role !== 'pending' && !message.streaming && (!isVideoPromptAssistant || (message.generated && !message.error) || (message.error && retryPrompt)) && (
                 <div className="copy-message-actions">
                   {isVideoPromptAssistant ? (
-                    <button className="is-use-video-prompt" onClick={() => onUsePrompt?.(message.text)}>
-                      <FileVideo size={16} />{agent?.purpose === 'ai-video-dialogue-prompt' ? '去制作' : '去 AI 工作坊'}
-                    </button>
+                    message.error ? (
+                      <button className="is-regenerate" onClick={() => generate(retryPrompt)} disabled={loading}>
+                        <RefreshCw size={16} />重试
+                      </button>
+                    ) : <>
+                      <button className="is-copy" onClick={() => copyMessage(message.text, messageKey)}>
+                        {copiedMessageKey === messageKey ? <Check size={16} /> : <Copy size={16} />}
+                        {copiedMessageKey === messageKey ? '已复制' : '复制'}
+                      </button>
+                      <button className="is-use-video-prompt" onClick={() => onUsePrompt?.(message.text)}>
+                        <FileVideo size={16} />{agent?.purpose === 'ai-video-dialogue-prompt' ? '去制作' : '去 AI 工作坊'}
+                      </button>
+                    </>
                   ) : <>
                     <button className="is-copy" onClick={() => copyMessage(message.text, messageKey)}>
                       {copiedMessageKey === messageKey ? <Check size={16} /> : <Copy size={16} />}

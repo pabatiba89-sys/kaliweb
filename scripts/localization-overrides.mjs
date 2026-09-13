@@ -1413,6 +1413,8 @@ const aiVideoEnglishFallbacks = {
   '请先选择一个可用的克隆声音。': 'Select an available cloned voice first.',
   '这个克隆声音已经添加到参考音频。': 'This cloned voice is already in the reference audio list.',
   '已添加克隆声音：': 'Cloned voice added: ',
+  '这张 AI 图片已经添加到参考图片。': 'This AI image is already in the reference image list.',
+  '已添加 AI 图片：': 'AI image added: ',
   '参考素材上传失败。': 'Reference media upload failed.',
   '素材上传完成。': 'Upload complete.',
   '请先输入视频画面与动作描述。': 'Describe the scene and action first.',
@@ -1544,6 +1546,8 @@ const aiVideoClonedVoiceOverrides = {
     '请先选择一个可用的克隆声音。': '请先选择一个可用的克隆声音。',
     '这个克隆声音已经添加到参考音频。': '这个克隆声音已经添加到参考音频。',
     '已添加克隆声音：': '已添加克隆声音：',
+    '这张 AI 图片已经添加到参考图片。': '这张 AI 图片已经添加到参考图片。',
+    '已添加 AI 图片：': '已添加 AI 图片：',
   },
   'zh-TW': {
     '正在加载克隆声音…': '正在載入克隆聲音…',
@@ -1556,6 +1560,8 @@ const aiVideoClonedVoiceOverrides = {
     '请先选择一个可用的克隆声音。': '請先選擇一個可用的克隆聲音。',
     '这个克隆声音已经添加到参考音频。': '這個克隆聲音已加入參考音訊。',
     '已添加克隆声音：': '已新增克隆聲音：',
+    '这张 AI 图片已经添加到参考图片。': '這張 AI 圖片已加入參考圖片。',
+    '已添加 AI 图片：': '已新增 AI 圖片：',
   },
 };
 

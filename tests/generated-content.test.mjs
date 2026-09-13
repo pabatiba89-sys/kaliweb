@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 
 import {
   GENERATED_CONTENT_UNAVAILABLE_MESSAGE,
+  getGeneratedRetryPrompt,
   isGeneratedMarkupFailure,
 } from '../src/generatedContent.js';
 
@@ -22,4 +23,15 @@ test('keeps ordinary copy and harmless angle brackets', () => {
 
 test('uses the playful retry message', () => {
   assert.equal(GENERATED_CONTENT_UNAVAILABLE_MESSAGE, '文案迷路了，请重新生成。');
+});
+
+test('retries a failed generation with the original prompt from the same round', () => {
+  const messages = [
+    { role: 'user', text: '第一轮需求', roundNo: 1 },
+    { role: 'assistant', text: '第一轮结果', roundNo: 1, generated: true },
+    { role: 'user', text: '双人对话视频需求', roundNo: 2 },
+    { role: 'assistant', text: '生成失败', roundNo: 2, error: true },
+  ];
+
+  assert.equal(getGeneratedRetryPrompt(messages, 3), '双人对话视频需求');
 });
