@@ -2339,5 +2339,7 @@
   "Digital Human Assets": "الأصول",
   "AI Images": "الصور",
   "Media Library": "الوسائط",
-  "Publishing Center": "نشر"
+  "Publishing Center": "نشر",
+  "系统账号与同名本机平台账号自动关联；所有团队成员都可以新增，只有团队主账号可以修改。": "System accounts connect automatically to local platform accounts with the same name. All team members can add accounts; only the team owner can edit them.",
+  "暂时无法确认系统账号修改权限，请刷新": "System account editing permission could not be confirmed. Refresh the page"
 }

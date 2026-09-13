@@ -5888,9 +5888,9 @@ function PublishSettingsPage({ authVersion, onLogin }) {
   const loginPlatforms = Object.entries(LOCAL_PUBLISH_PLATFORMS)
     .map(([type, name]) => ({ type: Number(type), name }))
     .filter((platform) => LOCAL_PUBLISH_LOGIN_TYPES.includes(platform.type));
-  const systemAccountManagementHint = canManageSystemAccounts === null
-    ? '暂时无法确认系统账号管理权限，请刷新'
-    : '只有团队主账号可以管理系统账号';
+  const systemAccountUpdateHint = canManageSystemAccounts === null
+    ? '暂时无法确认系统账号修改权限，请刷新'
+    : '只有团队主账号可以修改系统账号';
 
   if (!authed) {
     return (
@@ -5915,16 +5915,16 @@ function PublishSettingsPage({ authVersion, onLogin }) {
 
       <section className="publish-settings-panel" aria-busy={loading}>
         <header>
-          <div><span>SYSTEM ACCOUNTS</span><h2>系统账号管理</h2><p>系统账号与同名本机平台账号自动关联；只有团队主账号可以新增或修改。</p></div>
+          <div><span>SYSTEM ACCOUNTS</span><h2>系统账号管理</h2><p>系统账号与同名本机平台账号自动关联；所有团队成员都可以新增，只有团队主账号可以修改。</p></div>
           <div className="publish-system-account-head-actions">
             <strong>{cloudAccounts.length} 个系统账号 · {localAccounts.length} 个本机账号</strong>
-            <button className="outline-button" type="button" onClick={() => openSystemDialog('create')} disabled={loading || canManageSystemAccounts !== true} title={canManageSystemAccounts ? '' : systemAccountManagementHint}><Plus size={16} />新增系统账号</button>
+            <button className="outline-button" type="button" onClick={() => openSystemDialog('create')} disabled={loading}><Plus size={16} />新增系统账号</button>
           </div>
         </header>
         {loading && !cloudAccounts.length ? (
           <div className="publish-settings-empty"><RefreshCw className="is-spinning" size={28} /><strong>正在读取账号…</strong></div>
         ) : !cloudAccounts.length ? (
-          <div className="publish-settings-empty"><Send size={30} /><strong>暂无系统账号</strong><p>{canManageSystemAccounts === true ? '新增系统账号后，可与同名本机账号自动关联。' : canManageSystemAccounts === null ? '暂时无法确认系统账号管理权限，请刷新。' : '请联系团队主账号添加系统账号。'}</p>{canManageSystemAccounts === true && <button className="primary-button" type="button" onClick={() => openSystemDialog('create')}><Plus size={16} />新增系统账号</button>}</div>
+          <div className="publish-settings-empty"><Send size={30} /><strong>暂无系统账号</strong><p>新增系统账号后，可与同名本机账号自动关联。</p><button className="primary-button" type="button" onClick={() => openSystemDialog('create')}><Plus size={16} />新增系统账号</button></div>
         ) : (
           <div className="publish-name-match-list">
             {cloudAccounts.map((cloudAccount, index) => {
@@ -5937,7 +5937,7 @@ function PublishSettingsPage({ authVersion, onLogin }) {
                     <div className="publish-name-match-platforms">
                       {matchedAccounts.length ? matchedAccounts.map((account) => <em className={`publish-platform-chip is-platform-${account.type}`} key={`${account.type}:${account.id}`}>{account.platform}</em>) : <em className="is-missing">未关联</em>}
                     </div>
-                    <button type="button" onClick={() => openSystemDialog('update', cloudAccount)} disabled={canManageSystemAccounts !== true} title={canManageSystemAccounts ? '' : systemAccountManagementHint}><Edit3 size={14} />修改</button>
+                    <button type="button" onClick={() => openSystemDialog('update', cloudAccount)} disabled={canManageSystemAccounts !== true} title={canManageSystemAccounts ? '' : systemAccountUpdateHint}><Edit3 size={14} />修改</button>
                   </div>
                 </article>
               );
