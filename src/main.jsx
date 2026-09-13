@@ -212,15 +212,14 @@ const primaryNavItems = [
   { id: 'home', label: 'Home', icon: Home },
   { id: 'trends', label: 'Hot Trends', icon: TrendingUp },
   { id: 'assistant', label: 'AI Assistant', icon: Bot },
-  { id: 'video', label: 'Video Studio', icon: Video },
+  { id: 'video', label: 'Digital Human Video', icon: Video },
   { id: 'ai-video', label: 'AI Video Lab', icon: FileVideo },
-  { id: 'publish', label: 'Publish', icon: Send },
-  { id: 'assets', label: 'Asset Studio', icon: Layers3 },
+  { id: 'assets', label: 'Digital Human Assets', icon: Layers3 },
   { id: 'speech', label: 'Text to Speech', icon: AudioLines },
-  { id: 'music', label: 'Music Studio', icon: Music2 },
-  { id: 'image', label: 'Image Studio', icon: Image },
-  { id: 'materials', label: 'Materials', icon: Library },
-  { id: 'templates', label: 'Templates', icon: GalleryVerticalEnd },
+  { id: 'music', label: 'AI Music', icon: Music2 },
+  { id: 'image', label: 'AI Images', icon: Image },
+  { id: 'materials', label: 'Media Library', icon: Library },
+  { id: 'publish', label: 'Publishing Center', icon: Send },
 ];
 
 const accountMenuItems = [
@@ -228,6 +227,7 @@ const accountMenuItems = [
   { id: 'team', label: 'Team Center', icon: Building2 },
   { id: 'affiliate', label: 'Affiliate Center', icon: UsersRound },
   { id: 'presets', label: 'Packaging Presets', icon: Cuboid },
+  { id: 'templates', label: 'Templates', icon: GalleryVerticalEnd },
   { id: 'publish-settings', label: 'Publish Settings', icon: Send },
   { id: 'settings', label: 'Settings', icon: Settings },
 ];

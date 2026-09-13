@@ -99,7 +99,7 @@
   "AI Assistant": "Βοηθός AI",
   "AI Content Production": "Παραγωγή περιεχομένου AI",
   "AI Content Production Workspace": "Χώρος εργασίας παραγωγής περιεχομένου AI",
-  "AI Music": "Μουσική AI",
+  "AI Music": "Μουσική",
   "AI MUSIC": "ΜΟΥΣΙΚΗ AI",
   "AI presenter product demos": "Επιδείξεις προϊόντων παρουσιαστών AI",
   "AI 콘텐츠 제작 워크스페이스": "Χώρος εργασίας δημιουργίας περιεχομένου AI",
@@ -2339,5 +2339,10 @@
   "系统账号管理接口待后台开通": "System account management requires a backend update",
   "系统账号管理接口待后台开通。": "System account management requires a backend update.",
   "暂时无法确认系统账号管理权限，请刷新": "System account management permission could not be confirmed. Refresh the page",
-  "暂时无法确认系统账号管理权限，请刷新。": "System account management permission could not be confirmed. Refresh the page."
+  "暂时无法确认系统账号管理权限，请刷新。": "System account management permission could not be confirmed. Refresh the page.",
+  "Digital Human Video": "Βίντεο",
+  "Digital Human Assets": "Πόροι",
+  "AI Images": "Εικόνες",
+  "Media Library": "Πολυμέσα",
+  "Publishing Center": "Δημοσίευση"
 }

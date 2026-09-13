@@ -100,7 +100,7 @@
   "AI Assistant": "ผู้ช่วย AI",
   "AI Content Production": "การผลิตเนื้อหา AI",
   "AI Content Production Workspace": "พื้นที่ทํางานการผลิตเนื้อหา AI",
-  "AI Music": "เพลง AI",
+  "AI Music": "สตูดิโอเพลง",
   "AI MUSIC": "เพลง AI",
   "AI presenter product demos": "การสาธิตผลิตภัณฑ์ของผู้นําเสนอ AI",
   "AI 콘텐츠 제작 워크스페이스": "พื้นที่ทํางานการสร้างเนื้อหา AI",
@@ -2371,5 +2371,10 @@
   "系统账号管理接口待后台开通": "System account management requires a backend update",
   "系统账号管理接口待后台开通。": "System account management requires a backend update.",
   "暂时无法确认系统账号管理权限，请刷新": "System account management permission could not be confirmed. Refresh the page",
-  "暂时无法确认系统账号管理权限，请刷新。": "System account management permission could not be confirmed. Refresh the page."
+  "暂时无法确认系统账号管理权限，请刷新。": "System account management permission could not be confirmed. Refresh the page.",
+  "Digital Human Video": "สตูดิโอวิดีโอ",
+  "Digital Human Assets": "สตูดิโอแอสเซท",
+  "AI Images": "สตูดิโอรูปภาพ",
+  "Media Library": "สื่อ",
+  "Publishing Center": "เผยแพร่"
 }

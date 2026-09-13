@@ -99,7 +99,7 @@
   "AI Assistant": "Trợ lý AI",
   "AI Content Production": "Sản xuất nội dung AI",
   "AI Content Production Workspace": "Không gian làm việc sản xuất nội dung AI",
-  "AI Music": "Âm nhạc AI",
+  "AI Music": "Âm nhạc",
   "AI MUSIC": "ÂM NHẠC AI",
   "AI presenter product demos": "Bản giới thiệu sản phẩm của người thuyết trình AI",
   "AI 콘텐츠 제작 워크스페이스": "Không gian làm việc sáng tạo nội dung AI",
@@ -2337,5 +2337,10 @@
   "系统账号管理接口待后台开通": "System account management requires a backend update",
   "系统账号管理接口待后台开通。": "System account management requires a backend update.",
   "暂时无法确认系统账号管理权限，请刷新": "System account management permission could not be confirmed. Refresh the page",
-  "暂时无法确认系统账号管理权限，请刷新。": "System account management permission could not be confirmed. Refresh the page."
+  "暂时无法确认系统账号管理权限，请刷新。": "System account management permission could not be confirmed. Refresh the page.",
+  "Digital Human Video": "Video",
+  "Digital Human Assets": "Tài nguyên",
+  "AI Images": "Hình ảnh",
+  "Media Library": "Thư viện",
+  "Publishing Center": "Đăng"
 }

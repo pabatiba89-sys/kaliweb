@@ -89,7 +89,7 @@
   "AI Assistant": "KI-Assistent",
   "AI Content Production": "KI-Inhaltserstellung",
   "AI Content Production Workspace": "KI-Inhaltsproduktionsarbeitsbereich",
-  "AI Music": "KI-Musik",
+  "AI Music": "Musik",
   "AI MUSIC": "AI-MUSIK",
   "AI presenter product demos": "KI-Präsentations-Produktdemos",
   "AI 콘텐츠 제작 워크스페이스": "KI-Inhaltserstellungsarbeitsbereich",
@@ -2267,5 +2267,10 @@
   "系统账号管理接口待后台开通": "System account management requires a backend update",
   "系统账号管理接口待后台开通。": "System account management requires a backend update.",
   "暂时无法确认系统账号管理权限，请刷新": "System account management permission could not be confirmed. Refresh the page",
-  "暂时无法确认系统账号管理权限，请刷新。": "System account management permission could not be confirmed. Refresh the page."
+  "暂时无法确认系统账号管理权限，请刷新。": "System account management permission could not be confirmed. Refresh the page.",
+  "Digital Human Video": "Video",
+  "Digital Human Assets": "Assets",
+  "AI Images": "Bilder",
+  "Media Library": "Medien",
+  "Publishing Center": "Veröffentlichen"
 }

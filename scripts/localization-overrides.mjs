@@ -26,6 +26,34 @@ const siteRows = {
   hi: ['वर्कस्पेस खोलें', 'Kali के साथ बनाएँ', 'और जानें', 'एक्सप्लोर करें', 'हमारी टीम से बात करें'],
 };
 
+const workspaceNavigationKeys = ['Digital Human Video', 'Digital Human Assets', 'AI Music', 'AI Images', 'Media Library', 'Publishing Center'];
+const workspaceNavigationRows = {
+  'ar-AE': ['الفيديو', 'الأصول', 'الموسيقى', 'الصور', 'الوسائط', 'نشر'],
+  'cs-CZ': ['Video', 'Prostředky', 'Hudba', 'Obrázky', 'Média', 'Publikovat'],
+  'de-DE': ['Video', 'Assets', 'Musik', 'Bilder', 'Medien', 'Veröffentlichen'],
+  'el-GR': ['Βίντεο', 'Πόροι', 'Μουσική', 'Εικόνες', 'Πολυμέσα', 'Δημοσίευση'],
+  'en-US': ['Digital Human Video', 'Digital Human Assets', 'AI Music', 'AI Images', 'Media Library', 'Publishing Center'],
+  'es-MX': ['Video', 'Recursos', 'Música', 'Imágenes', 'Contenido', 'Publicar'],
+  'fi-FI': ['Video', 'Resurssit', 'Musiikki', 'Kuvat', 'Media', 'Julkaise'],
+  'fr-FR': ['Vidéo', 'Ressources', 'Musique', 'Images', 'Médias', 'Publier'],
+  'hi-IN': ['वीडियो', 'एसेट', 'संगीत', 'इमेज', 'मीडिया', 'प्रकाशित करें'],
+  'id-ID': ['Video', 'Aset', 'Musik', 'Gambar', 'Media', 'Publikasikan'],
+  'it-IT': ['Video', 'Risorse', 'Musica', 'Immagini', 'Contenuti multimediali', 'Pubblica'],
+  'ja-JP': ['動画', 'アセット', '音楽', '画像', '素材', '公開'],
+  'ko-KR': ['비디오', '에셋', '음악', '이미지', '미디어', '게시'],
+  'nl-NL': ['Video', 'Assets', 'Muziek', 'Afbeeldingen', 'Media', 'Publiceren'],
+  'pl-PL': ['Wideo', 'Zasoby', 'Muzyka', 'Obrazy', 'Multimedia', 'Opublikuj'],
+  'pt-PT': ['Vídeo', 'Recursos', 'Música', 'Imagens', 'Multimédia', 'Publicar'],
+  'ro-RO': ['Video', 'Resurse', 'Muzică', 'Imagini', 'Conținut media', 'Publică'],
+  'ru-RU': ['Видео', 'Ресурсы', 'Музыка', 'Изображения', 'Медиа', 'Опубликовать'],
+  'th-TH': ['สตูดิโอวิดีโอ', 'สตูดิโอแอสเซท', 'สตูดิโอเพลง', 'สตูดิโอรูปภาพ', 'สื่อ', 'เผยแพร่'],
+  'tr-TR': ['Video', 'Varlıklar', 'Müzik', 'Görseller', 'Medya', 'Yayınla'],
+  'uk-UA': ['Відео', 'Ресурси', 'Музика', 'Зображення', 'Медіа', 'Опублікувати'],
+  'vi-VN': ['Video', 'Tài nguyên', 'Âm nhạc', 'Hình ảnh', 'Thư viện', 'Đăng'],
+  'zh-CN': ['数字人视频', '数字人资产', 'AI 音乐', 'AI 图片', '素材库', '发布中心'],
+  'zh-TW': ['數位人影片', '數位人資產', 'AI 音樂', 'AI 圖片', '素材庫', '發布中心'],
+};
+
 const marketingKeys = [
   'Create publish-ready videos from any content idea',
   'One connected production system for your entire content workflow',
@@ -2279,6 +2307,7 @@ export const workspaceLocalizationOverrides = Object.fromEntries(Object.entries(
   workflowKeys.forEach((key, index) => { overrides[key] = workflowRows[locale][index]; });
   homeKeys.forEach((key, index) => { overrides[key] = homeRows[locale][index]; });
   supportKeys.forEach((key, index) => { overrides[key] = supportRows[locale][index]; });
+  workspaceNavigationKeys.forEach((key, index) => { overrides[key] = workspaceNavigationRows[locale][index]; });
   overrides.Account = accountLabels[locale];
   overrides['Seedance 2.5 is now available'] = seedanceReleaseLabels[locale];
   ttsKeys.forEach((key, index) => ttsAliases[key].forEach((source) => { overrides[source] = ttsRows[locale][index]; }));

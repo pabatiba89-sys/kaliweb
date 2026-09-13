@@ -92,7 +92,7 @@
   "AI Assistant": "AI सहायक",
   "AI Content Production": "एआई सामग्री उत्पादन",
   "AI Content Production Workspace": "एआई सामग्री उत्पादन कार्यक्षेत्र",
-  "AI Music": "एआई संगीत",
+  "AI Music": "संगीत",
   "AI MUSIC": "एआई संगीत",
   "AI presenter product demos": "एआई प्रस्तुतकर्ता उत्पाद डेमो",
   "AI 콘텐츠 제작 워크스페이스": "एआई सामग्री निर्माण कार्यक्षेत्र",
@@ -2370,5 +2370,10 @@
   "系统账号管理接口待后台开通": "System account management requires a backend update",
   "系统账号管理接口待后台开通。": "System account management requires a backend update.",
   "暂时无法确认系统账号管理权限，请刷新": "System account management permission could not be confirmed. Refresh the page",
-  "暂时无法确认系统账号管理权限，请刷新。": "System account management permission could not be confirmed. Refresh the page."
+  "暂时无法确认系统账号管理权限，请刷新。": "System account management permission could not be confirmed. Refresh the page.",
+  "Digital Human Video": "वीडियो",
+  "Digital Human Assets": "एसेट",
+  "AI Images": "इमेज",
+  "Media Library": "मीडिया",
+  "Publishing Center": "प्रकाशित करें"
 }
