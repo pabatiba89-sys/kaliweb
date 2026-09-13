@@ -17,6 +17,35 @@ export const LOCAL_PUBLISH_PLATFORMS = {
 
 export const LOCAL_PUBLISH_LOGIN_TYPES = [1, 2, 3, 4, 5, 6];
 
+export const SYSTEM_PUBLISH_ACCOUNT_ENDPOINTS = {
+  create: '/api/team-notion/publish-account/create',
+  update: '/api/team-notion/publish-account/update',
+};
+
+export function buildSystemPublishAccountMutation({ mode, id, name } = {}) {
+  const normalizedName = trimText(name);
+  if (!normalizedName) throw new Error('请输入系统账号名称');
+  if (normalizedName.length > 80) throw new Error('系统账号名称不能超过 80 个字符');
+
+  if (mode === 'create') {
+    return {
+      path: SYSTEM_PUBLISH_ACCOUNT_ENDPOINTS.create,
+      body: { account_name: normalizedName },
+    };
+  }
+
+  if (mode === 'update') {
+    const normalizedId = Number(id);
+    if (!Number.isInteger(normalizedId) || normalizedId <= 0) throw new Error('系统账号编号无效');
+    return {
+      path: SYSTEM_PUBLISH_ACCOUNT_ENDPOINTS.update,
+      body: { id: normalizedId, account_name: normalizedName },
+    };
+  }
+
+  throw new Error('系统账号操作无效');
+}
+
 const buildLocalAccountsPath = (accountName) => {
   const params = new URLSearchParams();
   const normalizedAccountName = trimText(accountName);

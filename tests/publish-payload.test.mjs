@@ -5,6 +5,7 @@ import {
   buildLocalPublishPayload,
   buildLocalPublisherLoginUrl,
   buildProductionVideoPublishPayload,
+  buildSystemPublishAccountMutation,
   buildUploadedVideoPublishPayload,
   checkLocalPublisher,
   deleteLocalPublisherAccount,
@@ -19,6 +20,19 @@ test('normalizes and deduplicates publish topics', () => {
     normalizePublishTopics('#第三 话题，第一话题; 第二 话题 #第一话题'),
     ['第三话题', '第一话题', '第二话题'],
   );
+});
+
+test('builds system publishing account create and update mutations', () => {
+  assert.deepEqual(buildSystemPublishAccountMutation({ mode: 'create', name: ' 喀理AIP ' }), {
+    path: '/api/team-notion/publish-account/create',
+    body: { account_name: '喀理AIP' },
+  });
+  assert.deepEqual(buildSystemPublishAccountMutation({ mode: 'update', id: '12', name: ' 语文刘老师 ' }), {
+    path: '/api/team-notion/publish-account/update',
+    body: { id: 12, account_name: '语文刘老师' },
+  });
+  assert.throws(() => buildSystemPublishAccountMutation({ mode: 'update', id: 'bad', name: '账号' }), /编号无效/);
+  assert.throws(() => buildSystemPublishAccountMutation({ mode: 'create', name: ' ' }), /请输入系统账号名称/);
 });
 
 test('builds a production video payload with legacy aliases', () => {

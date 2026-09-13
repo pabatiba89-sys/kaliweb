@@ -111,6 +111,7 @@ import { buildRealmanPackagingPayload } from './realmanVideo';
 import {
   buildLocalPublisherLoginUrl,
   buildProductionVideoPublishPayload,
+  buildSystemPublishAccountMutation,
   buildUploadedVideoPublishPayload,
   checkLocalPublisher,
   deleteLocalPublisherAccount,
@@ -5639,10 +5640,11 @@ const getVideoHasMore = (result, page, list) => {
 };
 
 const normalizePublishAccount = (item, index) => {
-  if (typeof item === 'string') return { id: `account-${index}`, name: item };
+  if (typeof item === 'string') return { id: `account-${index}`, name: item, isActive: true };
   return {
     id: videoText(item.publishAccountId, item.publish_account_id, item.accountId, item.account_id, item.userId, item.user_id, item.openId, item.open_id, item.aiHumanId, item.ai_human_id, item.humanId, item.human_id, item.virtualmanId, item.virtualman_id, item.id, `publish-account-${index}`),
     name: videoText(item.accountName, item.account_name, item.publishAccountName, item.publish_account_name, item.nickName, item.nickname, item.userName, item.username, item.displayName, item.display_name, item.platformName, item.platform_name, item.notionName, item.notion_name, item.douyinName, item.douyin_name, item.humanName, item.human_name, item.aiHumanName, item.ai_human_name, item.virtualmanName, item.virtualman_name, item.name, item.title, item.custom_tag),
+    isActive: item.is_active !== false && item.isActive !== false,
   };
 };
 
@@ -5660,8 +5662,12 @@ function PublishSettingsPage({ authVersion, onLogin }) {
   const [localAccounts, setLocalAccounts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [localConnected, setLocalConnected] = useState(false);
+  const [canManageSystemAccounts, setCanManageSystemAccounts] = useState(null);
   const [message, setMessage] = useState({ text: '', error: false });
   const [dialog, setDialog] = useState(null);
+  const [systemDialog, setSystemDialog] = useState(null);
+  const [systemDialogBusy, setSystemDialogBusy] = useState(false);
+  const [systemDialogStatus, setSystemDialogStatus] = useState('');
   const [dialogBusy, setDialogBusy] = useState(false);
   const [loginStatus, setLoginStatus] = useState('');
   const [qrCode, setQrCode] = useState('');
@@ -5674,6 +5680,7 @@ function PublishSettingsPage({ authVersion, onLogin }) {
       setCloudAccounts([]);
       setLocalAccounts([]);
       setLocalConnected(false);
+      setCanManageSystemAccounts(null);
       return;
     }
     setLoading(true);
@@ -5686,7 +5693,12 @@ function PublishSettingsPage({ authVersion, onLogin }) {
     const nextCloudAccounts = cloudSource
       .map(normalizeAIVideoPublishAccount)
       .filter((account) => account.name);
+    const cloudPayload = videoObject(cloudResult.data);
+    const canManage = cloudPayload.can_manage ?? cloudPayload.canManage;
     setCloudAccounts(nextCloudAccounts);
+    setCanManageSystemAccounts(canManage === undefined || canManage === null
+      ? null
+      : canManage === true || canManage === 1 || String(canManage).toLowerCase() === 'true');
     setLocalAccounts(localResult.accounts || []);
     setLocalConnected(localResult.ok);
     setLoading(false);
@@ -5829,9 +5841,56 @@ function PublishSettingsPage({ authVersion, onLogin }) {
     }
   };
 
+  const openSystemDialog = (mode, account = null) => {
+    setSystemDialog({
+      mode,
+      id: account?.id || '',
+      name: account?.name || '',
+    });
+    setSystemDialogBusy(false);
+    setSystemDialogStatus('');
+  };
+
+  const submitSystemDialog = async () => {
+    let mutation;
+    try {
+      mutation = buildSystemPublishAccountMutation({
+        mode: systemDialog?.mode,
+        id: systemDialog?.id,
+        name: systemDialog?.name,
+      });
+    } catch (error) {
+      setSystemDialogStatus(error instanceof Error ? error.message : '系统账号信息无效。');
+      return;
+    }
+
+    setSystemDialogBusy(true);
+    setSystemDialogStatus('正在保存…');
+    const result = await apiFetch(mutation.path, {
+      method: 'POST',
+      body: mutation.body,
+      timeoutMs: 10000,
+    });
+    if (!result.ok) {
+      setSystemDialogBusy(false);
+      setSystemDialogStatus(getResultMessage(result, '系统账号保存失败，请重试。'));
+      return;
+    }
+
+    const successText = systemDialog.mode === 'create' ? '系统账号添加成功。' : '系统账号已更新。';
+    setSystemDialog(null);
+    setSystemDialogBusy(false);
+    setSystemDialogStatus('');
+    await loadAccounts();
+    setMessage({ text: successText, error: false });
+  };
+
   const loginPlatforms = Object.entries(LOCAL_PUBLISH_PLATFORMS)
     .map(([type, name]) => ({ type: Number(type), name }))
     .filter((platform) => LOCAL_PUBLISH_LOGIN_TYPES.includes(platform.type));
+  const systemAccountManagementHint = canManageSystemAccounts === null
+    ? '系统账号管理接口待后台开通'
+    : '只有团队主账号可以管理系统账号';
 
   if (!authed) {
     return (
@@ -5855,11 +5914,17 @@ function PublishSettingsPage({ authVersion, onLogin }) {
       {message.text && <div className={`publish-settings-message${message.error ? ' is-error' : ''}`} role="status">{message.error ? <AlertCircle size={17} /> : <CheckCircle2 size={17} />}<span>{message.text}</span></div>}
 
       <section className="publish-settings-panel" aria-busy={loading}>
-        <header><div><span>NAME CONNECTION</span><h2>名称关联</h2><p>只比较账号名称；同名的全部本机平台账号都会用于发布。</p></div><strong>{cloudAccounts.length} 个 Kali 账号 · {localAccounts.length} 个本机账号</strong></header>
+        <header>
+          <div><span>SYSTEM ACCOUNTS</span><h2>系统账号管理</h2><p>系统账号与同名本机平台账号自动关联；只有团队主账号可以新增或修改。</p></div>
+          <div className="publish-system-account-head-actions">
+            <strong>{cloudAccounts.length} 个系统账号 · {localAccounts.length} 个本机账号</strong>
+            <button className="outline-button" type="button" onClick={() => openSystemDialog('create')} disabled={loading || canManageSystemAccounts !== true} title={canManageSystemAccounts ? '' : systemAccountManagementHint}><Plus size={16} />新增系统账号</button>
+          </div>
+        </header>
         {loading && !cloudAccounts.length ? (
           <div className="publish-settings-empty"><RefreshCw className="is-spinning" size={28} /><strong>正在读取账号…</strong></div>
         ) : !cloudAccounts.length ? (
-          <div className="publish-settings-empty"><Send size={30} /><strong>暂无团队发布账号</strong><p>请先配置团队发布账号。</p></div>
+          <div className="publish-settings-empty"><Send size={30} /><strong>暂无系统账号</strong><p>{canManageSystemAccounts === true ? '新增系统账号后，可与同名本机账号自动关联。' : canManageSystemAccounts === null ? '系统账号管理接口待后台开通。' : '请联系团队主账号添加系统账号。'}</p>{canManageSystemAccounts === true && <button className="primary-button" type="button" onClick={() => openSystemDialog('create')}><Plus size={16} />新增系统账号</button>}</div>
         ) : (
           <div className="publish-name-match-list">
             {cloudAccounts.map((cloudAccount, index) => {
@@ -5868,8 +5933,11 @@ function PublishSettingsPage({ authVersion, onLogin }) {
                 <article className={matchedAccounts.length ? 'is-matched' : ''} key={`${cloudAccount.id || index}:${cloudAccount.name}`}>
                   <span className="publish-settings-account__icon"><Send size={17} /></span>
                   <div><strong>{cloudAccount.name}</strong><small>{matchedAccounts.length ? <>已自动关联 {matchedAccounts.length} 个本机账号</> : '没有同名本机账号，暂时不能发布'}</small></div>
-                  <div className="publish-name-match-platforms">
-                    {matchedAccounts.length ? matchedAccounts.map((account) => <em key={`${account.type}:${account.id}`}>{account.platform}</em>) : <em className="is-missing">未关联</em>}
+                  <div className="publish-system-account-row-actions">
+                    <div className="publish-name-match-platforms">
+                      {matchedAccounts.length ? matchedAccounts.map((account) => <em className={`publish-platform-chip is-platform-${account.type}`} key={`${account.type}:${account.id}`}>{account.platform}</em>) : <em className="is-missing">未关联</em>}
+                    </div>
+                    <button type="button" onClick={() => openSystemDialog('update', cloudAccount)} disabled={canManageSystemAccounts !== true} title={canManageSystemAccounts ? '' : systemAccountManagementHint}><Edit3 size={14} />修改</button>
                   </div>
                 </article>
               );
@@ -5892,7 +5960,7 @@ function PublishSettingsPage({ authVersion, onLogin }) {
               const canRelogin = LOCAL_PUBLISH_LOGIN_TYPES.includes(Number(account.type));
               return (
                 <article key={`${account.type}:${account.id}`}>
-                  <span className="publish-local-account-platform">{account.platform}</span>
+                  <span className={`publish-local-account-platform is-platform-${account.type}`}>{account.platform}</span>
                   <div><strong>{account.name}</strong><small>本机账号 #{account.id}</small></div>
                   <em className={Number(account.status) === 1 ? 'is-ready' : 'is-warning'}>{Number(account.status) === 1 ? '可用' : '需重新登录'}</em>
                   <div className="publish-local-account-actions">
@@ -5906,6 +5974,21 @@ function PublishSettingsPage({ authVersion, onLogin }) {
           </div>
         )}
       </section>
+
+      {systemDialog && (
+        <VideoActionDialog
+          className="publish-account-dialog-layer"
+          title={systemDialog.mode === 'create' ? '新增系统账号' : '修改系统账号'}
+          description="系统账号名称必须与准备关联的本机账号名称完全一致。"
+          busy={systemDialogBusy}
+          submitLabel={systemDialog.mode === 'create' ? '添加账号' : '保存修改'}
+          onClose={() => { if (!systemDialogBusy) setSystemDialog(null); }}
+          onSubmit={submitSystemDialog}
+        >
+          <label className="video-dialog-field"><span>系统账号名称</span><input value={systemDialog.name} onChange={(event) => setSystemDialog((current) => ({ ...current, name: event.target.value }))} placeholder="例如：喀理AIP" maxLength={80} disabled={systemDialogBusy} /></label>
+          {systemDialogStatus && <p className={`publish-account-dialog-status${/失败|无效|请输入|超过|无权|只有/.test(systemDialogStatus) ? ' is-error' : ''}`}>{systemDialogStatus}</p>}
+        </VideoActionDialog>
+      )}
 
       {dialog && (
         <VideoActionDialog

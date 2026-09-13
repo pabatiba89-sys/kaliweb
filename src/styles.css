@@ -1614,8 +1614,44 @@
   gap: 5px;
 }
 
+.publish-system-account-head-actions,
+.publish-system-account-row-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 9px;
+}
+
+.publish-system-account-head-actions {
+  flex-wrap: wrap;
+}
+
+.publish-system-account-head-actions .outline-button {
+  width: auto;
+}
+
+.publish-system-account-row-actions > button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 32px;
+  padding: 0 9px;
+  border: 1px solid #d4e4df;
+  border-radius: 9px;
+  color: #53756b;
+  background: #fff;
+  font-size: 8px;
+  font-weight: 760;
+}
+
+.publish-system-account-row-actions > button:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+
 .publish-name-match-platforms em,
 .publish-local-account-list > article > em {
+  border: 1px solid transparent;
   padding: 5px 7px;
   border-radius: 999px;
   color: #11705d;
@@ -1653,6 +1689,7 @@
 }
 
 .publish-local-account-platform {
+  border: 1px solid transparent;
   padding: 7px 9px;
   border-radius: 9px;
   color: #176e5d;
@@ -1660,6 +1697,49 @@
   font-size: 9px;
   font-weight: 800;
   text-align: center;
+}
+
+.publish-platform-chip,
+.publish-local-account-platform {
+  color: var(--publish-platform-color, #176e5d);
+  border-color: var(--publish-platform-border, #cfe9e1);
+  background: var(--publish-platform-background, #e6f5f0);
+}
+
+.is-platform-1 {
+  --publish-platform-color: #ba3654;
+  --publish-platform-border: #f3c8d2;
+  --publish-platform-background: #fff0f3;
+}
+
+.is-platform-2 {
+  --publish-platform-color: #147958;
+  --publish-platform-border: #c8e8dc;
+  --publish-platform-background: #eaf8f2;
+}
+
+.is-platform-3 {
+  --publish-platform-color: #215b72;
+  --publish-platform-border: #c8e0e9;
+  --publish-platform-background: #edf7fa;
+}
+
+.is-platform-4 {
+  --publish-platform-color: #b75820;
+  --publish-platform-border: #f3d2b8;
+  --publish-platform-background: #fff3e8;
+}
+
+.is-platform-5 {
+  --publish-platform-color: #6742a8;
+  --publish-platform-border: #dcd0f2;
+  --publish-platform-background: #f3effc;
+}
+
+.is-platform-6 {
+  --publish-platform-color: #bd3833;
+  --publish-platform-border: #f0c9c6;
+  --publish-platform-background: #fff0ef;
 }
 
 .publish-local-account-actions {
@@ -1785,8 +1865,22 @@
   }
 
   .publish-name-match-platforms,
+  .publish-system-account-head-actions,
+  .publish-system-account-row-actions,
   .publish-local-account-actions {
     justify-content: flex-start;
+  }
+
+  .publish-system-account-head-actions,
+  .publish-system-account-row-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .publish-system-account-head-actions .outline-button,
+  .publish-system-account-row-actions > button {
+    width: 100%;
+    justify-content: center;
   }
 
   .publish-local-accounts > header > button {
