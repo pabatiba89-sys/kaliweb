@@ -109,15 +109,18 @@ import {
 } from './aiVideo';
 import { buildRealmanPackagingPayload } from './realmanVideo';
 import {
+  buildLocalPublisherLoginUrl,
   buildProductionVideoPublishPayload,
   buildUploadedVideoPublishPayload,
   checkLocalPublisher,
-  getPublishAccountBinding,
+  deleteLocalPublisherAccount,
   listLocalPublisherAccounts,
-  loadPublishAccountBindings,
+  LOCAL_PUBLISH_LOGIN_TYPES,
+  LOCAL_PUBLISHER_BASE_URL,
+  LOCAL_PUBLISH_PLATFORMS,
   normalizePublishTopics,
-  savePublishAccountBindings,
   triggerLocalPublish,
+  updateLocalPublisherAccount,
 } from './publish';
 import {
   buildPackagingPresetPayload,
@@ -131,7 +134,6 @@ import './styles.css';
 
 const APP_VERSION = `v${packageJson.version}`;
 const OPEN_SOURCE_PUBLISHER_URL = 'https://github.com/dreammis/social-auto-upload';
-const PUBLISH_ACCOUNT_MANAGER_URL = 'https://p.xyaip.fun/#/account-management';
 
 const copy = {
   en: {
@@ -4826,8 +4828,7 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling, onOpenP
     }
 
     setPublishState((current) => ({ ...current, busy: true, message: '正在检测本地发布服务…', localUnavailable: false }));
-    const accountTargets = getPublishAccountBinding(account.id);
-    const localCheck = await checkLocalPublisher({ accountTargets });
+    const localCheck = await checkLocalPublisher({ accountName: account.name });
     if (!localCheck.ok) {
       const localUnavailable = /本地发布服务|5409|连接/.test(localCheck.message);
       setPublishState((current) => ({ ...current, busy: false, message: localCheck.message, localUnavailable }));
@@ -4862,7 +4863,6 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling, onOpenP
         title,
         topics: topicSnapshot,
         accountName: account.name,
-        accountTargets,
         localAccounts: localCheck.accounts,
         publishAt: localPublishAt,
         publishNow: isNow,
@@ -5658,15 +5658,22 @@ const normalizeAIVideoPublishAccount = (item, index) => {
 function PublishSettingsPage({ authVersion, onLogin }) {
   const [cloudAccounts, setCloudAccounts] = useState([]);
   const [localAccounts, setLocalAccounts] = useState([]);
-  const [bindings, setBindings] = useState(() => loadPublishAccountBindings());
   const [loading, setLoading] = useState(false);
+  const [localConnected, setLocalConnected] = useState(false);
   const [message, setMessage] = useState({ text: '', error: false });
+  const [dialog, setDialog] = useState(null);
+  const [dialogBusy, setDialogBusy] = useState(false);
+  const [loginStatus, setLoginStatus] = useState('');
+  const [qrCode, setQrCode] = useState('');
+  const loginSourceRef = useRef(null);
+  const loginTimerRef = useRef(null);
   const authed = Boolean(getAccessToken());
 
   const loadAccounts = useCallback(async () => {
     if (!getAccessToken()) {
       setCloudAccounts([]);
       setLocalAccounts([]);
+      setLocalConnected(false);
       return;
     }
     setLoading(true);
@@ -5678,15 +5685,15 @@ function PublishSettingsPage({ authVersion, onLogin }) {
     const cloudSource = getVideoRecords(cloudResult.data).length ? getVideoRecords(cloudResult.data) : getVideoRecords(cloudResult.raw);
     const nextCloudAccounts = cloudSource
       .map(normalizeAIVideoPublishAccount)
-      .filter((account) => Number.isInteger(Number(account.id)) && Number(account.id) > 0 && account.name);
+      .filter((account) => account.name);
     setCloudAccounts(nextCloudAccounts);
     setLocalAccounts(localResult.accounts || []);
-    setBindings(loadPublishAccountBindings());
+    setLocalConnected(localResult.ok);
     setLoading(false);
-    if (!cloudResult.ok) {
-      setMessage({ text: getResultMessage(cloudResult, '团队发布账号加载失败'), error: true });
-    } else if (!localResult.ok) {
+    if (!localResult.ok) {
       setMessage({ text: '没有连接到本机发布系统，请先启动本机发布服务。', error: true });
+    } else if (!cloudResult.ok) {
+      setMessage({ text: getResultMessage(cloudResult, '团队发布账号加载失败'), error: true });
     }
   }, []);
 
@@ -5694,43 +5701,143 @@ function PublishSettingsPage({ authVersion, onLogin }) {
     loadAccounts();
   }, [authVersion, loadAccounts]);
 
-  const targetKey = (target) => `${Number(target.type)}:${String(target.id)}`;
-  const isBound = (cloudAccountId, localAccount) => (
-    (bindings[String(cloudAccountId)] || []).some((target) => targetKey(target) === targetKey(localAccount))
-  );
+  const stopLogin = useCallback(() => {
+    loginSourceRef.current?.close();
+    loginSourceRef.current = null;
+    if (loginTimerRef.current) window.clearTimeout(loginTimerRef.current);
+    loginTimerRef.current = null;
+  }, []);
 
-  const toggleBinding = (cloudAccountId, localAccount) => {
-    const cloudKey = String(cloudAccountId);
-    const localKey = targetKey(localAccount);
-    const next = Object.fromEntries(Object.entries(bindings).map(([key, targets]) => [key, [...targets]]));
-    const alreadyBound = (next[cloudKey] || []).some((target) => targetKey(target) === localKey);
-    Object.keys(next).forEach((key) => {
-      next[key] = (next[key] || []).filter((target) => targetKey(target) !== localKey);
+  useEffect(() => () => stopLogin(), [stopLogin]);
+
+  const openDialog = (mode, account = null) => {
+    stopLogin();
+    setDialog({
+      mode,
+      id: account?.id || '',
+      type: Number(account?.type) || 1,
+      name: account?.name || '',
     });
-    if (!alreadyBound) {
-      next[cloudKey] = [...(next[cloudKey] || []), {
-        id: String(localAccount.id),
-        type: Number(localAccount.type),
-        name: localAccount.name,
-      }];
-    }
-    savePublishAccountBindings(next);
-    setBindings(next);
-    setMessage({ text: alreadyBound ? '已取消匹配。' : '匹配已自动保存。', error: false });
+    setDialogBusy(false);
+    setLoginStatus('');
+    setQrCode('');
   };
 
-  const clearBinding = (cloudAccountId) => {
-    const next = { ...bindings, [String(cloudAccountId)]: [] };
-    savePublishAccountBindings(next);
-    setBindings(next);
-    setMessage({ text: '已清除该账号的本机匹配。', error: false });
+  const closeDialog = () => {
+    if (dialogBusy) return;
+    stopLogin();
+    setDialog(null);
   };
+
+  const submitDialog = async () => {
+    const name = String(dialog?.name || '').trim();
+    if (!name) {
+      setLoginStatus('请输入账号名称。');
+      return;
+    }
+
+    if (dialog.mode === 'edit') {
+      setDialogBusy(true);
+      setLoginStatus('正在保存…');
+      try {
+        await updateLocalPublisherAccount({ id: dialog.id, type: dialog.type, name });
+        setDialog(null);
+        await loadAccounts();
+        setMessage({ text: '账号名称已更新，将按新名称自动关联。', error: false });
+      } catch (error) {
+        setLoginStatus(error instanceof Error ? error.message : '账号修改失败，请重试。');
+      } finally {
+        setDialogBusy(false);
+      }
+      return;
+    }
+
+    let loginUrl = '';
+    try {
+      loginUrl = buildLocalPublisherLoginUrl({ type: dialog.type, name, baseUrl: LOCAL_PUBLISHER_BASE_URL });
+    } catch (error) {
+      setLoginStatus(error instanceof Error ? error.message : '当前平台暂不支持登录。');
+      return;
+    }
+
+    setDialogBusy(true);
+    setLoginStatus('正在等待扫码登录…');
+    setQrCode('');
+    let finished = false;
+    const source = new EventSource(loginUrl);
+    loginSourceRef.current = source;
+    source.onmessage = async (event) => {
+      const data = String(event.data || '').trim();
+      if (!qrCode && data.length > 100) {
+        setQrCode(data.startsWith('data:image') ? data : `data:image/png;base64,${data}`);
+        setLoginStatus('请扫码并在平台中确认登录。');
+        return;
+      }
+      if (!['200', '500'].includes(data) || finished) return;
+      finished = true;
+      stopLogin();
+      if (data === '500') {
+        setDialogBusy(false);
+        setLoginStatus('登录失败，请重新尝试。');
+        setQrCode('');
+        return;
+      }
+      setLoginStatus('登录成功，正在同步账号…');
+      let cleanupFailed = false;
+      if (dialog.mode === 'relogin' && dialog.id) {
+        try {
+          await deleteLocalPublisherAccount(dialog.id);
+        } catch {
+          cleanupFailed = true;
+        }
+      }
+      await loadAccounts();
+      setDialogBusy(false);
+      setDialog(null);
+      setMessage({
+        text: cleanupFailed ? '重新登录成功，但旧账号未能删除，请在列表中手动删除。' : (dialog.mode === 'relogin' ? '重新登录成功。' : '账号添加成功。'),
+        error: cleanupFailed,
+      });
+    };
+    source.onerror = () => {
+      if (finished) return;
+      finished = true;
+      stopLogin();
+      setDialogBusy(false);
+      setLoginStatus('无法连接登录服务，请确认本机发布服务已启动。');
+      setQrCode('');
+    };
+    loginTimerRef.current = window.setTimeout(() => {
+      if (finished) return;
+      finished = true;
+      stopLogin();
+      setDialogBusy(false);
+      setLoginStatus('登录等待超时，请重新尝试。');
+      setQrCode('');
+    }, 300000);
+  };
+
+  const removeAccount = async (account) => {
+    if (!window.confirm(`确定删除本机账号“${account.name}”吗？`)) return;
+    setMessage({ text: '正在删除本机账号…', error: false });
+    try {
+      await deleteLocalPublisherAccount(account.id);
+      await loadAccounts();
+      setMessage({ text: '本机账号已删除。', error: false });
+    } catch (error) {
+      setMessage({ text: error instanceof Error ? error.message : '本机账号删除失败。', error: true });
+    }
+  };
+
+  const loginPlatforms = Object.entries(LOCAL_PUBLISH_PLATFORMS)
+    .map(([type, name]) => ({ type: Number(type), name }))
+    .filter((platform) => LOCAL_PUBLISH_LOGIN_TYPES.includes(platform.type));
 
   if (!authed) {
     return (
       <div className="publish-settings-page">
         <section className="publish-settings-hero"><div><span>PUBLISH CONNECTION</span><h1>发布设置</h1></div></section>
-        <div className="video-empty-state"><Send size={38} /><strong>登录后匹配发布账号</strong><p>登录后才能读取团队发布账号。</p><button className="primary-button" onClick={onLogin}>登录</button></div>
+        <div className="video-empty-state"><Send size={38} /><strong>登录后管理发布账号</strong><p>登录后才能读取团队发布账号。</p><button className="primary-button" onClick={onLogin}>登录</button></div>
       </div>
     );
   }
@@ -5738,9 +5845,9 @@ function PublishSettingsPage({ authVersion, onLogin }) {
   return (
     <div className="publish-settings-page">
       <section className="publish-settings-hero">
-        <div><span>PUBLISH CONNECTION</span><h1>发布设置</h1><p>把 Kali 团队账号与这台电脑中的发布账号匹配一次，之后发布时自动使用。</p></div>
+        <div><span>PUBLISH CONNECTION</span><h1>发布设置</h1><p>Kali 团队账号与本机账号名称相同时自动关联，不需要手动匹配。</p></div>
         <div className="publish-settings-actions">
-          <a className="outline-button" href={PUBLISH_ACCOUNT_MANAGER_URL} target="_blank" rel="noreferrer"><ExternalLink size={16} />管理本机账号</a>
+          <button className="outline-button" type="button" onClick={() => openDialog('add')} disabled={loading || !localConnected}><Plus size={16} />新增本机账号</button>
           <button className="outline-button" type="button" onClick={loadAccounts} disabled={loading}><RefreshCw className={loading ? 'is-spinning' : ''} size={16} />刷新账号</button>
         </div>
       </section>
@@ -5748,31 +5855,21 @@ function PublishSettingsPage({ authVersion, onLogin }) {
       {message.text && <div className={`publish-settings-message${message.error ? ' is-error' : ''}`} role="status">{message.error ? <AlertCircle size={17} /> : <CheckCircle2 size={17} />}<span>{message.text}</span></div>}
 
       <section className="publish-settings-panel" aria-busy={loading}>
-        <header><div><span>ACCOUNT MATCHING</span><h2>账号匹配</h2><p>勾选后立即保存；一个本机账号只能匹配一个 Kali 账号。</p></div><strong>{cloudAccounts.length} 个 Kali 账号 · {localAccounts.length} 个本机账号</strong></header>
+        <header><div><span>NAME CONNECTION</span><h2>名称关联</h2><p>只比较账号名称；同名的全部本机平台账号都会用于发布。</p></div><strong>{cloudAccounts.length} 个 Kali 账号 · {localAccounts.length} 个本机账号</strong></header>
         {loading && !cloudAccounts.length ? (
           <div className="publish-settings-empty"><RefreshCw className="is-spinning" size={28} /><strong>正在读取账号…</strong></div>
         ) : !cloudAccounts.length ? (
           <div className="publish-settings-empty"><Send size={30} /><strong>暂无团队发布账号</strong><p>请先配置团队发布账号。</p></div>
-        ) : !localAccounts.length ? (
-          <div className="publish-settings-empty"><Server size={30} /><strong>这台电脑还没有可匹配账号</strong><p>打开账号管理完成登录，再回来刷新。</p><a className="primary-button" href={PUBLISH_ACCOUNT_MANAGER_URL} target="_blank" rel="noreferrer">打开账号管理</a></div>
         ) : (
-          <div className="publish-settings-list">
-            {cloudAccounts.map((cloudAccount) => {
-              const selectedTargets = bindings[String(cloudAccount.id)] || [];
+          <div className="publish-name-match-list">
+            {cloudAccounts.map((cloudAccount, index) => {
+              const matchedAccounts = localAccounts.filter((account) => account.name === cloudAccount.name && account.configured);
               return (
-                <article className="publish-settings-account" key={cloudAccount.id}>
-                  <header><div><span className="publish-settings-account__icon"><Send size={17} /></span><div><strong>{cloudAccount.name}</strong><small>{selectedTargets.length ? <>已匹配 {selectedTargets.length} 个本机账号</> : '尚未匹配，不能发布'}</small></div></div>{selectedTargets.length > 0 && <button type="button" onClick={() => clearBinding(cloudAccount.id)}>清除匹配</button>}</header>
-                  <div className="publish-settings-local-list">
-                    {localAccounts.map((localAccount) => {
-                      const checked = isBound(cloudAccount.id, localAccount);
-                      return (
-                        <label className={checked ? 'is-selected' : ''} key={`${localAccount.type}:${localAccount.id}`}>
-                          <input type="checkbox" checked={checked} disabled={!localAccount.configured} onChange={() => toggleBinding(cloudAccount.id, localAccount)} />
-                          <span><strong>{localAccount.platform}</strong><small>{localAccount.name} · #{localAccount.id}</small></span>
-                          <em className={Number(localAccount.status) === 1 ? 'is-ready' : 'is-warning'}>{localAccount.configured ? (Number(localAccount.status) === 1 ? '可用' : '需检查登录') : '未登录'}</em>
-                        </label>
-                      );
-                    })}
+                <article className={matchedAccounts.length ? 'is-matched' : ''} key={`${cloudAccount.id || index}:${cloudAccount.name}`}>
+                  <span className="publish-settings-account__icon"><Send size={17} /></span>
+                  <div><strong>{cloudAccount.name}</strong><small>{matchedAccounts.length ? <>已自动关联 {matchedAccounts.length} 个本机账号</> : '没有同名本机账号，暂时不能发布'}</small></div>
+                  <div className="publish-name-match-platforms">
+                    {matchedAccounts.length ? matchedAccounts.map((account) => <em key={`${account.type}:${account.id}`}>{account.platform}</em>) : <em className="is-missing">未关联</em>}
                   </div>
                 </article>
               );
@@ -5780,6 +5877,53 @@ function PublishSettingsPage({ authVersion, onLogin }) {
           </div>
         )}
       </section>
+
+      <section className="publish-settings-panel publish-local-accounts" aria-busy={loading}>
+        <header><div><span>LOCAL ACCOUNTS</span><h2>本机账号管理</h2><p>在喀理中直接新增、改名、删除或重新登录本机平台账号。</p></div><button className="outline-button" type="button" onClick={() => openDialog('add')} disabled={loading || !localConnected}><Plus size={16} />新增账号</button></header>
+        {loading && !localAccounts.length ? (
+          <div className="publish-settings-empty"><RefreshCw className="is-spinning" size={28} /><strong>正在读取本机账号…</strong></div>
+        ) : !localConnected ? (
+          <div className="publish-settings-empty"><Server size={30} /><strong>本机发布服务未启动</strong><p>启动本机发布服务后刷新本页。</p></div>
+        ) : !localAccounts.length ? (
+          <div className="publish-settings-empty"><UserRound size={30} /><strong>还没有本机账号</strong><p>新增账号后，名称相同的 Kali 账号会自动关联。</p><button className="primary-button" type="button" onClick={() => openDialog('add')}><Plus size={16} />新增本机账号</button></div>
+        ) : (
+          <div className="publish-local-account-list">
+            {localAccounts.map((account) => {
+              const canRelogin = LOCAL_PUBLISH_LOGIN_TYPES.includes(Number(account.type));
+              return (
+                <article key={`${account.type}:${account.id}`}>
+                  <span className="publish-local-account-platform">{account.platform}</span>
+                  <div><strong>{account.name}</strong><small>本机账号 #{account.id}</small></div>
+                  <em className={Number(account.status) === 1 ? 'is-ready' : 'is-warning'}>{Number(account.status) === 1 ? '可用' : '需重新登录'}</em>
+                  <div className="publish-local-account-actions">
+                    <button type="button" onClick={() => openDialog('edit', account)}><Edit3 size={14} />修改</button>
+                    <button type="button" onClick={() => openDialog('relogin', account)} disabled={!canRelogin} title={canRelogin ? '' : '本机服务暂不支持该平台重新登录'}><RefreshCw size={14} />重新登录</button>
+                    <button type="button" className="is-delete" onClick={() => removeAccount(account)}><Trash2 size={14} />删除</button>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        )}
+      </section>
+
+      {dialog && (
+        <VideoActionDialog
+          className="publish-account-dialog-layer"
+          title={dialog.mode === 'add' ? '新增本机账号' : dialog.mode === 'edit' ? '修改本机账号' : '重新登录本机账号'}
+          description={dialog.mode === 'edit' ? '修改名称后，发布关联会立即按新名称生效。' : '提交后会打开平台登录流程；看到二维码时请扫码确认。'}
+          busy={dialogBusy}
+          submitLabel={dialog.mode === 'edit' ? '保存修改' : dialog.mode === 'relogin' ? '开始重新登录' : '开始登录'}
+          onClose={closeDialog}
+          onSubmit={submitDialog}
+        >
+          <label className="video-dialog-field"><span>平台</span>{dialog.mode === 'add' ? <select value={dialog.type} onChange={(event) => setDialog((current) => ({ ...current, type: Number(event.target.value) }))}>{loginPlatforms.map((platform) => <option key={platform.type} value={platform.type}>{platform.name}</option>)}</select> : <input value={LOCAL_PUBLISH_PLATFORMS[dialog.type] || '未知平台'} disabled />}</label>
+          <label className="video-dialog-field"><span>账号名称</span><input value={dialog.name} onChange={(event) => setDialog((current) => ({ ...current, name: event.target.value }))} placeholder="必须与 Kali 发布账号名称一致" maxLength={80} disabled={dialogBusy} /></label>
+          {qrCode && <div className="publish-account-login-qr"><img src={qrCode} alt="平台登录二维码" /><strong>请扫码完成登录</strong></div>}
+          {dialogBusy && !qrCode && <div className="publish-account-login-wait"><RefreshCw className="is-spinning" size={22} /><span>登录窗口正在打开，请在本机完成登录。</span></div>}
+          {loginStatus && <p className={`publish-account-dialog-status${/失败|无法|请输入|不支持/.test(loginStatus) ? ' is-error' : ''}`}>{loginStatus}</p>}
+        </VideoActionDialog>
+      )}
     </div>
   );
 }
@@ -6217,8 +6361,7 @@ function PublishCenterPage({ authVersion, onLogin }) {
     setBusy(true);
     setUploadProgress(0);
     setMessage({ text: '正在检测本地发布服务…', error: false, localUnavailable: false });
-    const accountTargets = getPublishAccountBinding(account.id);
-    const localCheck = await checkLocalPublisher({ accountTargets });
+    const localCheck = await checkLocalPublisher({ accountName: account.name });
     if (!localCheck.ok) {
       setBusy(false);
       setMessage({ text: localCheck.message, error: true, localUnavailable: /本地发布服务|5409|连接/.test(localCheck.message) });
@@ -6288,7 +6431,6 @@ function PublishCenterPage({ authVersion, onLogin }) {
         title,
         topics: topicSnapshot,
         accountName: account.name,
-        accountTargets,
         localAccounts: localCheck.accounts,
         publishAt: commonFields.publishAt,
         publishNow,
@@ -6594,8 +6736,7 @@ function VideoStudioPage({ authVersion, onLogin, onNewVideo, onCreatePackaging, 
     setPublishBusy(true);
     setPublishMessage('正在检测本地发布服务…');
     setPublishLocalUnavailable(false);
-    const accountTargets = getPublishAccountBinding(account.id);
-    const localCheck = await checkLocalPublisher({ accountTargets });
+    const localCheck = await checkLocalPublisher({ accountName: account.name });
     if (!localCheck.ok) {
       setPublishBusy(false);
       setPublishMessage(localCheck.message);
@@ -6630,7 +6771,6 @@ function VideoStudioPage({ authVersion, onLogin, onNewVideo, onCreatePackaging, 
         title: selectedVideo.title,
         topics: topicSnapshot,
         accountName: account.name,
-        accountTargets,
         localAccounts: localCheck.accounts,
         publishAt: localPublishAt,
         publishNow: isNow,

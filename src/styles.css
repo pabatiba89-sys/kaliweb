@@ -1557,32 +1557,20 @@
   font-size: 9px;
 }
 
-.publish-settings-list {
+.publish-name-match-list,
+.publish-local-account-list {
   display: grid;
-  gap: 12px;
+  gap: 9px;
 }
 
-.publish-settings-account {
-  overflow: hidden;
-  border: 1px solid #d9e8e3;
-  border-radius: 16px;
-  background: #fbfdfc;
-}
-
-.publish-settings-account > header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 13px 14px;
-  border-bottom: 1px solid #e6efec;
-  background: #f4faf8;
-}
-
-.publish-settings-account > header > div {
+.publish-name-match-list > article {
   display: flex;
   align-items: center;
   gap: 10px;
+  padding: 12px 13px;
+  border: 1px solid #e0ebe7;
+  border-radius: 14px;
+  background: #fbfdfc;
 }
 
 .publish-settings-account__icon {
@@ -1595,98 +1583,151 @@
   background: #dff3ed;
 }
 
-.publish-settings-account > header > div > div {
-  display: grid;
-  gap: 2px;
-}
-
-.publish-settings-account > header strong {
-  color: #285f52;
-  font-size: 12px;
-}
-
-.publish-settings-account > header small {
-  color: #829991;
-  font-size: 9px;
-}
-
-.publish-settings-account > header button {
-  padding: 6px 9px;
-  border: 1px solid #cfe1dc;
-  border-radius: 8px;
-  color: #5b7b72;
-  background: #fff;
-  font: inherit;
-  font-size: 9px;
-  font-weight: 750;
-}
-
-.publish-settings-local-list {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
-  padding: 12px;
-}
-
-.publish-settings-local-list label {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  min-width: 0;
-  padding: 10px;
-  border: 1px solid #dbe7e3;
-  border-radius: 12px;
-  background: #fff;
-  cursor: pointer;
-}
-
-.publish-settings-local-list label.is-selected {
-  border-color: #53ad94;
-  background: #eef9f5;
-  box-shadow: inset 0 0 0 1px rgba(43, 151, 122, 0.12);
-}
-
-.publish-settings-local-list input {
-  accent-color: #16826a;
-}
-
-.publish-settings-local-list label > span {
+.publish-name-match-list > article > div:nth-child(2) {
   display: grid;
   min-width: 0;
   flex: 1;
   gap: 2px;
 }
 
-.publish-settings-local-list strong {
-  color: #2e6256;
-  font-size: 10px;
+.publish-name-match-list strong,
+.publish-local-account-list strong {
+  color: #285f52;
+  font-size: 12px;
 }
 
-.publish-settings-local-list small {
-  overflow: hidden;
+.publish-name-match-list small,
+.publish-local-account-list small {
   color: #829991;
-  font-size: 8px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-size: 9px;
 }
 
-.publish-settings-local-list em {
-  flex: 0 0 auto;
-  padding: 4px 6px;
+.publish-name-match-list > article.is-matched {
+  border-color: #b9ded3;
+  background: #f3faf8;
+}
+
+.publish-name-match-platforms {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 5px;
+}
+
+.publish-name-match-platforms em,
+.publish-local-account-list > article > em {
+  padding: 5px 7px;
   border-radius: 999px;
-  font-size: 7px;
+  color: #11705d;
+  background: #dcf2eb;
+  font-size: 8px;
   font-style: normal;
   font-weight: 800;
 }
 
-.publish-settings-local-list em.is-ready {
-  color: #11705d;
-  background: #dcf2eb;
-}
-
-.publish-settings-local-list em.is-warning {
+.publish-name-match-platforms em.is-missing,
+.publish-local-account-list > article > em.is-warning {
   color: #9b692c;
   background: #fff1da;
+}
+
+.publish-local-accounts > header > button {
+  width: auto;
+  flex: 0 0 auto;
+}
+
+.publish-local-account-list > article {
+  display: grid;
+  grid-template-columns: 80px minmax(140px, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 12px;
+  border: 1px solid #e0ebe7;
+  border-radius: 14px;
+  background: #fbfdfc;
+}
+
+.publish-local-account-list > article > div:nth-child(2) {
+  display: grid;
+  gap: 2px;
+}
+
+.publish-local-account-platform {
+  padding: 7px 9px;
+  border-radius: 9px;
+  color: #176e5d;
+  background: #e6f5f0;
+  font-size: 9px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.publish-local-account-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.publish-local-account-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 32px;
+  padding: 0 8px;
+  border: 1px solid #d4e4df;
+  border-radius: 9px;
+  color: #53756b;
+  background: #fff;
+  font-size: 8px;
+  font-weight: 760;
+}
+
+.publish-local-account-actions button.is-delete {
+  border-color: #edd8d8;
+  color: #a95656;
+}
+
+.publish-local-account-actions button:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+
+.publish-account-login-qr,
+.publish-account-login-wait {
+  display: grid;
+  place-items: center;
+  gap: 9px;
+  padding: 16px;
+  border: 1px solid #d7e8e2;
+  border-radius: 14px;
+  color: #52746b;
+  background: #f4faf8;
+  font-size: 11px;
+  text-align: center;
+}
+
+.publish-account-login-qr img {
+  width: min(220px, 100%);
+  aspect-ratio: 1;
+  border-radius: 10px;
+  background: #fff;
+  object-fit: contain;
+}
+
+.publish-account-login-wait {
+  grid-template-columns: auto 1fr;
+  text-align: left;
+}
+
+.publish-account-dialog-status {
+  margin: 0;
+  color: #287461;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.publish-account-dialog-status.is-error {
+  color: #a75353;
 }
 
 .publish-settings-empty {
@@ -1714,12 +1755,6 @@
   text-decoration: none;
 }
 
-@media (max-width: 1080px) {
-  .publish-settings-local-list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
 @media (max-width: 720px) {
   .publish-settings-hero,
   .publish-settings-panel > header {
@@ -1727,8 +1762,7 @@
     flex-direction: column;
   }
 
-  .publish-settings-actions,
-  .publish-settings-local-list {
+  .publish-settings-actions {
     grid-template-columns: 1fr;
   }
 
@@ -1737,6 +1771,25 @@
   }
 
   .publish-settings-actions .outline-button {
+    width: 100%;
+  }
+
+  .publish-name-match-list > article,
+  .publish-local-account-list > article {
+    align-items: flex-start;
+    grid-template-columns: 1fr;
+  }
+
+  .publish-name-match-list > article {
+    display: grid;
+  }
+
+  .publish-name-match-platforms,
+  .publish-local-account-actions {
+    justify-content: flex-start;
+  }
+
+  .publish-local-accounts > header > button {
     width: 100%;
   }
 }

@@ -3,24 +3,16 @@ import test from 'node:test';
 
 import {
   buildLocalPublishPayload,
+  buildLocalPublisherLoginUrl,
   buildProductionVideoPublishPayload,
   buildUploadedVideoPublishPayload,
   checkLocalPublisher,
-  getPublishAccountBinding,
+  deleteLocalPublisherAccount,
   listLocalPublisherAccounts,
-  loadPublishAccountBindings,
   normalizePublishTopics,
-  savePublishAccountBindings,
   triggerLocalPublish,
+  updateLocalPublisherAccount,
 } from '../src/publish.js';
-
-const createMemoryStorage = () => {
-  const values = new Map();
-  return {
-    getItem: (key) => values.get(key) ?? null,
-    setItem: (key, value) => values.set(key, value),
-  };
-};
 
 test('normalizes and deduplicates publish topics', () => {
   assert.deepEqual(
@@ -138,25 +130,17 @@ test('queries by account name and publishes every returned local platform withou
   assert.deepEqual(result, { filePath: 'local-video.mp4', accountCount: 3, platformCount: 3 });
 });
 
-test('stores explicit local account bindings without cookie data', () => {
-  const storage = createMemoryStorage();
-  savePublishAccountBindings({
-    7: [
-      { id: 23, type: 4, name: '主账号', cookie: 'must-not-be-saved.json' },
-      { id: 24, type: 3, name: '主账号' },
-    ],
-  }, storage);
-
-  assert.deepEqual(loadPublishAccountBindings(storage), {
-    7: [
-      { id: '23', type: 4, name: '主账号' },
-      { id: '24', type: 3, name: '主账号' },
-    ],
+test('checks local publishing accounts by exact account name', async () => {
+  const result = await checkLocalPublisher({
+    accountName: '主账号',
+    fetchImpl: async () => new Response(JSON.stringify({ code: 200, data: [
+      [23, 4, 'kuaishou.json', '主账号', 1],
+      [24, 3, 'douyin.json', '其他账号', 1],
+    ] }), { status: 200 }),
   });
-  assert.deepEqual(getPublishAccountBinding('7', storage), [
-    { id: '23', type: 4, name: '主账号' },
-    { id: '24', type: 3, name: '主账号' },
-  ]);
+
+  assert.equal(result.ok, true);
+  assert.deepEqual(result.accounts.map((account) => account.id), ['23']);
 });
 
 test('reads the account-management API with the canonical platform mapping', async () => {
@@ -178,38 +162,18 @@ test('reads the account-management API with the canonical platform mapping', asy
   ]);
 });
 
-test('publishes only explicitly bound local account ids', async () => {
-  const requests = [];
-  const localAccounts = [
-    [23, 4, 'kuaishou.json', '同名账号', 1],
-    [24, 3, 'douyin.json', '同名账号', 1],
-    [25, 2, 'channels.json', '同名账号', 1],
-  ];
-  const fetchImpl = async (url, options = {}) => {
-    requests.push({ url, options });
-    if (url.endsWith('/uploadFromUrl')) return new Response(JSON.stringify({ code: 200, data: { filepath: 'video.mp4' } }), { status: 200 });
-    return new Response(JSON.stringify({ code: 200, data: null }), { status: 200 });
-  };
-
-  const result = await triggerLocalPublish({
-    videoUrl: 'https://cdn.example.com/video.mp4',
-    title: '显式匹配发布',
-    accountName: '云端账号名可以不同',
-    accountTargets: [{ id: '24', type: 3, name: '本机抖音账号' }],
-    localAccounts,
-    publishAt: '2026-09-13 10:00',
-    fetchImpl,
-  });
-
-  assert.equal(requests.length, 2);
-  assert.equal(JSON.parse(requests[1].options.body).type, 3);
-  assert.deepEqual(JSON.parse(requests[1].options.body).accountList, ['douyin.json']);
-  assert.deepEqual(result, { filePath: 'video.mp4', accountCount: 1, platformCount: 1 });
+test('builds the supported local account login URL', () => {
+  assert.equal(
+    buildLocalPublisherLoginUrl({ type: 3, name: ' 抖音 主账号 ' }),
+    'http://127.0.0.1:5409/login?type=3&id=%E6%8A%96%E9%9F%B3+%E4%B8%BB%E8%B4%A6%E5%8F%B7',
+  );
+  assert.equal(buildLocalPublisherLoginUrl({ type: 6, name: 'YouTube' }), 'http://127.0.0.1:5409/login?type=6&id=YouTube');
+  assert.throws(() => buildLocalPublisherLoginUrl({ type: 7, name: '未知平台' }), /不支持该平台登录/);
 });
 
-test('blocks publishing when an explicit account binding is stale', async () => {
+test('blocks publishing when no local account has the same name', async () => {
   const result = await checkLocalPublisher({
-    accountTargets: [{ id: '99', type: 3, name: '已删除账号' }],
+    accountName: '目标账号',
     fetchImpl: async () => new Response(JSON.stringify({ code: 200, data: [
       [24, 3, 'douyin.json', '其他账号', 1],
     ] }), { status: 200 }),
@@ -217,9 +181,29 @@ test('blocks publishing when an explicit account binding is stale', async () => 
 
   assert.deepEqual(result, {
     ok: false,
-    message: '本机账号匹配已失效，请到发布设置重新匹配',
+    message: '本机没有与“目标账号”同名的已登录账号，请先到发布设置添加',
     accounts: [],
   });
+});
+
+test('updates and deletes local publishing accounts through port 5409', async () => {
+  const requests = [];
+  const fetchImpl = async (url, options = {}) => {
+    requests.push({ url, options });
+    return new Response(JSON.stringify({ code: 200, data: null }), { status: 200 });
+  };
+
+  assert.deepEqual(await updateLocalPublisherAccount({ id: '24', type: 3, name: ' 新名称 ', fetchImpl }), {
+    id: '24',
+    type: 3,
+    name: '新名称',
+  });
+  await deleteLocalPublisherAccount('24', { fetchImpl });
+
+  assert.equal(requests[0].url, 'http://127.0.0.1:5409/updateUserinfo');
+  assert.equal(requests[0].options.method, 'POST');
+  assert.deepEqual(JSON.parse(requests[0].options.body), { id: 24, type: 3, userName: '新名称' });
+  assert.equal(requests[1].url, 'http://127.0.0.1:5409/deleteAccount?id=24');
 });
 
 test('posts all local platforms concurrently when accounts were already fetched', async () => {
@@ -261,6 +245,7 @@ test('posts all local platforms concurrently when accounts were already fetched'
 
 test('detects when the local publishing service is unavailable', async () => {
   const unavailable = await checkLocalPublisher({
+    accountName: '海外主账号',
     fetchImpl: async () => { throw new TypeError('Failed to fetch'); },
   });
   assert.deepEqual(unavailable, {
@@ -278,5 +263,5 @@ test('detects when the local publishing service is unavailable', async () => {
     },
   });
   assert.equal(requestedUrl, 'http://127.0.0.1:5409/getAccounts?name=%E6%B5%B7%E5%A4%96+%E4%B8%BB%E8%B4%A6%E5%8F%B7&nocheck=1');
-  assert.deepEqual(available, { ok: true, message: '', accounts: [[1, 3, 'account.json', '海外 主账号', 0]] });
+  assert.deepEqual(available, { ok: true, message: '', accounts: [{ id: '1', type: 3, cookie: 'account.json', name: '海外 主账号', status: 0, platform: '抖音' }] });
 });

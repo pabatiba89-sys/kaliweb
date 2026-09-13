@@ -5,7 +5,6 @@ export { normalizePublishTopics } from './publishTopics.js';
 const trimText = (value) => String(value || '').trim();
 
 export const LOCAL_PUBLISHER_BASE_URL = 'http://127.0.0.1:5409';
-export const PUBLISH_ACCOUNT_BINDINGS_KEY = 'kali_publish_account_bindings_v1';
 
 export const LOCAL_PUBLISH_PLATFORMS = {
   1: '小红书',
@@ -15,6 +14,8 @@ export const LOCAL_PUBLISH_PLATFORMS = {
   5: 'TikTok',
   6: 'YouTube',
 };
+
+export const LOCAL_PUBLISH_LOGIN_TYPES = [1, 2, 3, 4, 5, 6];
 
 const buildLocalAccountsPath = (accountName) => {
   const params = new URLSearchParams();
@@ -69,30 +70,27 @@ const requestLocalPublisher = async (
   }
 };
 
-export async function checkLocalPublisher({ accountName, accountTargets, fetchImpl = globalThis.fetch, baseUrl = LOCAL_PUBLISHER_BASE_URL } = {}) {
+export async function checkLocalPublisher({ accountName, fetchImpl = globalThis.fetch, baseUrl = LOCAL_PUBLISHER_BASE_URL } = {}) {
   try {
-    const hasExplicitTargets = Array.isArray(accountTargets);
-    const result = await requestLocalPublisher(buildLocalAccountsPath(hasExplicitTargets ? '' : accountName), {
+    const normalizedAccountName = trimText(accountName);
+    if (!normalizedAccountName) {
+      return { ok: false, message: '发布账号名称为空，无法匹配本机账号', accounts: [] };
+    }
+    const result = await requestLocalPublisher(buildLocalAccountsPath(normalizedAccountName), {
       timeoutMs: 5000,
       fetchImpl,
       baseUrl,
     });
-    const accountRecords = Array.isArray(result?.data) ? result.data : [];
-    if (hasExplicitTargets) {
-      if (!accountTargets.length) {
-        return { ok: false, message: '该发布账号尚未匹配本机账号，请先完成发布设置', accounts: [] };
-      }
-      const accounts = selectBoundLocalAccounts(accountRecords, accountTargets);
-      const requestedCount = new Set(accountTargets.map(bindingTargetKey)).size;
-      if (accounts.length !== requestedCount) {
-        return { ok: false, message: '本机账号匹配已失效，请到发布设置重新匹配', accounts: [] };
-      }
-      return { ok: true, message: '', accounts };
+    const accounts = (Array.isArray(result?.data) ? result.data : [])
+      .map(normalizeLocalAccount)
+      .filter((account) => account.name === normalizedAccountName && account.cookie && Number.isInteger(account.type) && account.type > 0);
+    if (!accounts.length) {
+      return { ok: false, message: `本机没有与“${normalizedAccountName}”同名的已登录账号，请先到发布设置添加`, accounts: [] };
     }
     return {
       ok: true,
       message: '',
-      accounts: accountRecords,
+      accounts,
     };
   } catch (error) {
     return {
@@ -130,53 +128,6 @@ export const normalizeLocalAccount = (account) => {
   };
 };
 
-const normalizeBindingTarget = (target) => ({
-  id: String(target?.id ?? ''),
-  type: Number(target?.type),
-  name: trimText(target?.name),
-});
-
-const bindingTargetKey = (target) => `${Number(target?.type)}:${String(target?.id ?? '')}`;
-
-export function loadPublishAccountBindings(storage = globalThis.localStorage) {
-  if (!storage?.getItem) return {};
-  try {
-    const parsed = JSON.parse(storage.getItem(PUBLISH_ACCOUNT_BINDINGS_KEY) || '{}');
-    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
-    return Object.fromEntries(Object.entries(parsed).map(([accountId, targets]) => [
-      String(accountId),
-      (Array.isArray(targets) ? targets : [])
-        .map(normalizeBindingTarget)
-        .filter((target) => target.id && Number.isInteger(target.type) && target.type > 0),
-    ]));
-  } catch {
-    return {};
-  }
-}
-
-export function savePublishAccountBindings(bindings, storage = globalThis.localStorage) {
-  if (!storage?.setItem) return false;
-  const normalized = Object.fromEntries(Object.entries(bindings || {}).map(([accountId, targets]) => [
-    String(accountId),
-    (Array.isArray(targets) ? targets : [])
-      .map(normalizeBindingTarget)
-      .filter((target) => target.id && Number.isInteger(target.type) && target.type > 0),
-  ]));
-  storage.setItem(PUBLISH_ACCOUNT_BINDINGS_KEY, JSON.stringify(normalized));
-  return true;
-}
-
-export function getPublishAccountBinding(accountId, storage = globalThis.localStorage) {
-  return loadPublishAccountBindings(storage)[String(accountId)] || [];
-}
-
-const selectBoundLocalAccounts = (accountRecords, accountTargets) => {
-  const requested = new Set((accountTargets || []).map(bindingTargetKey));
-  return (Array.isArray(accountRecords) ? accountRecords : [])
-    .map(normalizeLocalAccount)
-    .filter((account) => requested.has(bindingTargetKey(account)) && account.cookie && Number.isInteger(account.type) && account.type > 0);
-};
-
 export async function listLocalPublisherAccounts({ fetchImpl = globalThis.fetch, baseUrl = LOCAL_PUBLISHER_BASE_URL } = {}) {
   try {
     const result = await requestLocalPublisher('/getValidAccounts', {
@@ -199,6 +150,43 @@ export async function listLocalPublisherAccounts({ fetchImpl = globalThis.fetch,
       accounts: [],
     };
   }
+}
+
+export function buildLocalPublisherLoginUrl({ type, name, baseUrl = LOCAL_PUBLISHER_BASE_URL } = {}) {
+  const normalizedType = Number(type);
+  const normalizedName = trimText(name);
+  if (!LOCAL_PUBLISH_LOGIN_TYPES.includes(normalizedType)) throw localPublisherError('', '当前本机发布服务不支持该平台登录');
+  if (!normalizedName) throw localPublisherError('', '请输入账号名称');
+  const params = new URLSearchParams({ type: String(normalizedType), id: normalizedName });
+  return `${String(baseUrl).replace(/\/$/, '')}/login?${params.toString()}`;
+}
+
+export async function updateLocalPublisherAccount({ id, type, name, fetchImpl = globalThis.fetch, baseUrl = LOCAL_PUBLISHER_BASE_URL } = {}) {
+  const normalizedId = Number(id);
+  const normalizedType = Number(type);
+  const normalizedName = trimText(name);
+  if (!Number.isInteger(normalizedId) || normalizedId <= 0) throw localPublisherError('', '本机账号编号无效');
+  if (!Number.isInteger(normalizedType) || normalizedType <= 0) throw localPublisherError('', '本机账号平台无效');
+  if (!normalizedName) throw localPublisherError('', '请输入账号名称');
+  await requestLocalPublisher('/updateUserinfo', {
+    method: 'POST',
+    body: { id: normalizedId, type: normalizedType, userName: normalizedName },
+    timeoutMs: 15000,
+    fetchImpl,
+    baseUrl,
+  });
+  return { id: String(normalizedId), type: normalizedType, name: normalizedName };
+}
+
+export async function deleteLocalPublisherAccount(id, { fetchImpl = globalThis.fetch, baseUrl = LOCAL_PUBLISHER_BASE_URL } = {}) {
+  const normalizedId = Number(id);
+  if (!Number.isInteger(normalizedId) || normalizedId <= 0) throw localPublisherError('', '本机账号编号无效');
+  await requestLocalPublisher(`/deleteAccount?id=${encodeURIComponent(normalizedId)}`, {
+    timeoutMs: 15000,
+    fetchImpl,
+    baseUrl,
+  });
+  return true;
 }
 
 export function buildLocalPublishPayload({ type, title, topics, filePath, accountCookies, publishAt, publishNow = false } = {}) {
@@ -226,7 +214,6 @@ export async function triggerLocalPublish({
   title,
   topics,
   accountName,
-  accountTargets,
   localAccounts,
   publishAt,
   publishNow = false,
@@ -235,9 +222,8 @@ export async function triggerLocalPublish({
 } = {}) {
   const normalizedVideoUrl = trimText(videoUrl);
   const normalizedAccountName = trimText(accountName);
-  const hasExplicitTargets = Array.isArray(accountTargets);
   if (!normalizedVideoUrl) throw localPublisherError('', '没有可供本地发布的视频地址');
-  if (!normalizedAccountName && !hasExplicitTargets) throw localPublisherError('', '没有可供本地匹配的发布账号');
+  if (!normalizedAccountName) throw localPublisherError('', '没有可供本地匹配的发布账号');
 
   const uploadResult = await requestLocalPublisher('/uploadFromUrl', {
     method: 'POST',
@@ -251,18 +237,16 @@ export async function triggerLocalPublish({
 
   const accountRecords = Array.isArray(localAccounts)
     ? localAccounts
-    : (await requestLocalPublisher(buildLocalAccountsPath(hasExplicitTargets ? '' : normalizedAccountName), {
+    : (await requestLocalPublisher(buildLocalAccountsPath(normalizedAccountName), {
         timeoutMs: 15000,
         fetchImpl,
         baseUrl,
       }))?.data;
-  const matchingAccounts = hasExplicitTargets
-    ? selectBoundLocalAccounts(accountRecords, accountTargets)
-    : (Array.isArray(accountRecords) ? accountRecords : [])
-      .map(normalizeLocalAccount)
-      .filter((account) => account.name === normalizedAccountName && account.cookie && Number.isInteger(account.type) && account.type > 0);
+  const matchingAccounts = (Array.isArray(accountRecords) ? accountRecords : [])
+    .map(normalizeLocalAccount)
+    .filter((account) => account.name === normalizedAccountName && account.cookie && Number.isInteger(account.type) && account.type > 0);
   if (!matchingAccounts.length) {
-    throw localPublisherError('', hasExplicitTargets ? '本机账号匹配已失效，请到发布设置重新匹配' : `本地没有返回账号“${normalizedAccountName}”`);
+    throw localPublisherError('', `本地没有返回账号“${normalizedAccountName}”`);
   }
 
   const accountsByType = new Map();
