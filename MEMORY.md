@@ -228,4 +228,4 @@
 - 2026-09-12：发布提交检测本地 5409 时，`/getAccounts` 必须同时携带 URL 编码后的所选发布账号名 `name` 与 `nocheck=1`；账号响应成功即关闭发布弹窗，并复用该批账号并发调用各平台 `/postVideo`，不再按账号 `status` 判断有效性。
 - 2026-09-12：发布话题必须在提交瞬间生成唯一有序快照：移除话题内部空白、按首次出现顺序去重，并让页面预览、Kali 请求和本地 `/postVideo` 共用该数组；视频详情发布不可回退到任务旧 `tags`。只读后台仍会为“老陆”系列账号插入固定第三话题，Notion 若需完全一致还要单独调整该后台规则。
 - 2026-09-13：用户最终确认发布账号只按名称自动关联，不保存或维护账号 ID 映射；发布中心、视频详情和 AI Video Lab 在创建 Kali 发布任务前通过 `/getAccounts?name=<账号名>&nocheck=1` 查找全部同名本机账号，没有同名已登录账号时阻断。工作台“发布设置”内置本机账号管理：`/getValidAccounts` 列表、`/login` 新增与重新登录、`/updateUserinfo` 改名、`/deleteAccount` 删除；重新登录成功后才删除旧记录。平台编号固定为 1 小红书、2 视频号、3 抖音、4 快手、5 TikTok、6 YouTube。
-- 2026-09-13：发布设置中的六类本机平台账号使用固定独立配色，配色只作用于平台类别标签。Kali 系统发布账号由团队主账号新增和改名，前端契约为 `POST /api/team-notion/publish-account/create` 与 `/update`，列表接口需返回 `can_manage`；现有 `team_publish_accounts` 表无需迁移，后端配合明细见 `docs/publish-system-account-backend-contract.md`。
+- 2026-09-13：发布设置中的六类本机平台账号使用固定独立配色，配色只作用于平台类别标签。Kali 系统发布账号由团队主账号新增和改名，前后端已接通 `POST /api/team-notion/publish-account/create` 与 `/update`，列表接口已返回 `can_manage`；现有 `team_publish_accounts` 表无需迁移，接口明细见 `docs/publish-system-account-backend-contract.md`。

@@ -5889,7 +5889,7 @@ function PublishSettingsPage({ authVersion, onLogin }) {
     .map(([type, name]) => ({ type: Number(type), name }))
     .filter((platform) => LOCAL_PUBLISH_LOGIN_TYPES.includes(platform.type));
   const systemAccountManagementHint = canManageSystemAccounts === null
-    ? '系统账号管理接口待后台开通'
+    ? '暂时无法确认系统账号管理权限，请刷新'
     : '只有团队主账号可以管理系统账号';
 
   if (!authed) {
@@ -5924,7 +5924,7 @@ function PublishSettingsPage({ authVersion, onLogin }) {
         {loading && !cloudAccounts.length ? (
           <div className="publish-settings-empty"><RefreshCw className="is-spinning" size={28} /><strong>正在读取账号…</strong></div>
         ) : !cloudAccounts.length ? (
-          <div className="publish-settings-empty"><Send size={30} /><strong>暂无系统账号</strong><p>{canManageSystemAccounts === true ? '新增系统账号后，可与同名本机账号自动关联。' : canManageSystemAccounts === null ? '系统账号管理接口待后台开通。' : '请联系团队主账号添加系统账号。'}</p>{canManageSystemAccounts === true && <button className="primary-button" type="button" onClick={() => openSystemDialog('create')}><Plus size={16} />新增系统账号</button>}</div>
+          <div className="publish-settings-empty"><Send size={30} /><strong>暂无系统账号</strong><p>{canManageSystemAccounts === true ? '新增系统账号后，可与同名本机账号自动关联。' : canManageSystemAccounts === null ? '暂时无法确认系统账号管理权限，请刷新。' : '请联系团队主账号添加系统账号。'}</p>{canManageSystemAccounts === true && <button className="primary-button" type="button" onClick={() => openSystemDialog('create')}><Plus size={16} />新增系统账号</button>}</div>
         ) : (
           <div className="publish-name-match-list">
             {cloudAccounts.map((cloudAccount, index) => {
