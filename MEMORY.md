@@ -221,7 +221,7 @@
 - 2026-09-03：Video Studio 的真人视频包装入口统一为“创建智能包装”；包装页源视频既可从 AI Video Lab 成片详情带入，也可本地上传 mp4/mov。本地视频先通过通用文件上传获得 URL，再复用原包装提交字段与后续流程。
 - 2026-09-03：工作台信息架构收敛为“左侧高频创作导航 + 首页完整创作入口 + 右上角账户管理菜单”；积分与订单、团队中心、邀请奖励、包装预设和账户设置不再占用左侧导航，新模型上线通知放在首页 Hero 下方并直达 AI Video Lab。
 - 2026-09-05：工作台新增独立发布中心 `/app/?page=publish`，统一支持本地文件、混剪成片、数字人成片和 AI Video Lab 成片四种来源，并配置标题、话题、团队发布账号与立即/定时发布。混剪和数字人复用 `/api/team-notion/publish-video`，AI 成片必须使用 `/api/team-notion/publish-ai-video`；本地上传完成真正发布仍需只读后台新增 `/api/team-notion/publish-uploaded-video`，同时现有视频发布接口需支持请求标题覆盖原任务标题，具体契约见 `docs/publish-center-backend-contract.md`。
-- 2026-09-05：版本按用户明确要求从 `1.5.59` 切换到 `1.6.0`。发布中心只有在发布账号接口成功返回空列表时才展示 [dreammis/social-auto-upload](https://github.com/dreammis/social-auto-upload) 的公开 MIT 开源入口；账号接口失败时单独提示重载，不能误判为未配置。自托管发布优先采用“本地受保护桥接接口 -> 当前主线 `sau` CLI -> 内容平台”，账号文件留在本机；仓库内监听 5409 的 Web API 属于历史实现，不作为生产依赖或直接暴露公网。
+- 2026-09-05：版本按用户明确要求从 `1.5.59` 切换到 `1.6.0`。发布中心只有在发布账号接口成功返回空列表时才展示发布软件下载与开源入口；账号接口失败时单独提示重载，不能误判为未配置。
 - 2026-09-12：按当前产品要求，发布中心、视频详情和 AI Video Lab 的发布按钮在 Kali 发布接口成功后直接调用本机 5409 服务，顺序为 `/uploadFromUrl` 下载成片、`/getAccounts` 按发布账号名匹配启用账号、再按平台类型调用 `/postVideo`；Kali 成功但本地失败必须显示部分成功提示。启用直连后不得让原 n8n 流程再次处理同一条 Notion 待发布记录，避免重复发布；5409 仍禁止暴露公网。
 - 2026-09-12：所有发布入口在创建 Kali 发布任务前先用 `/getAccounts?nocheck=1` 检测本地 5409 服务；未启动时中止提交并保留表单，显示启动提示、开源工具安装入口和“检测并继续发布”，检测成功后才继续，避免本地不可用时先产生云端待发布记录。
 - 2026-09-12：数字人口播与混剪制作新增 `useBackgroundMusic/useCover` 开关，缺省均为 true；关闭后前端隐藏并跳过对应音乐或封面配置、校验和上传，草稿续作恢复显式布尔值。只读后台当前仍会强制随机开启音乐，需按 `docs/video-creator-optional-media-contract.md` 适配后关闭音乐才会真正影响成片。
@@ -230,3 +230,4 @@
 - 2026-09-13：用户最终确认发布账号只按名称自动关联，不保存或维护账号 ID 映射；发布中心、视频详情和 AI Video Lab 在创建 Kali 发布任务前通过 `/getAccounts?name=<账号名>&nocheck=1` 查找全部同名本机账号，没有同名已登录账号时阻断。工作台“发布设置”内置本机账号管理：`/getValidAccounts` 列表、`/login` 新增与重新登录、`/updateUserinfo` 改名、`/deleteAccount` 删除；重新登录成功后才删除旧记录。平台编号固定为 1 小红书、2 视频号、3 抖音、4 快手、5 TikTok、6 YouTube。
 - 2026-09-13：发布设置中的六类本机平台账号使用固定独立配色，配色只作用于平台类别标签。Kali 系统发布账号允许所有已登录团队成员新增，只有团队主账号可改名；前端已拆分新增与修改权限，列表接口的 `can_manage` 只控制修改。只读后台的 `POST /api/team-notion/publish-account/create` 当前仍限团队主账号，需按 `docs/publish-system-account-backend-contract.md` 调整；现有 `team_publish_accounts` 表无需迁移。
 - 2026-09-13：工作台左侧主导航固定按“首页、热点、AI 助手、数字人视频、AI 视频工坊、数字人资产、文字转语音、AI 音乐、AI 图片、素材库、发布中心”排序；模板页从左侧导航移入右上角账号菜单，页面能力和路由保持不变。
+- 2026-09-14：发布软件下载、安装说明和开源代码入口统一指向 [pabatiba89-sys/kali-publish](https://github.com/pabatiba89-sys/kali-publish)。Kali Publish 默认监听本机 `127.0.0.1:5409`，系统账号继续只按名称关联本机平台账号，服务不得直接暴露公网。

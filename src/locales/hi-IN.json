@@ -2377,5 +2377,13 @@
   "Media Library": "मीडिया",
   "Publishing Center": "प्रकाशित करें",
   "系统账号与同名本机平台账号自动关联；所有团队成员都可以新增，只有团队主账号可以修改。": "System accounts connect automatically to local platform accounts with the same name. All team members can add accounts; only the team owner can edit them.",
-  "暂时无法确认系统账号修改权限，请刷新": "System account editing permission could not be confirmed. Refresh the page"
+  "暂时无法确认系统账号修改权限，请刷新": "System account editing permission could not be confirmed. Refresh the page",
+  "MIT 开源 · 小红书、视频号、抖音、快手、TikTok、YouTube": "MIT licensed · Xiaohongshu, WeChat Channels, Douyin, Kuaishou, TikTok, and YouTube",
+  "下载 Kali Publish": "Download Kali Publish",
+  "从项目 Releases 下载对应系统版本，并按说明启动。": "Download the correct build from the project releases and start it as instructed.",
+  "在发布设置中新增或重新登录平台账号，登录数据只保留在本机。": "Add or sign back in to platform accounts in Publishing Settings. Sign-in data stays on this computer.",
+  "按名称自动关联": "Match automatically by name",
+  "Kali 系统账号与同名本机平台账号自动关联，不维护额外映射。": "Kali system accounts automatically match local platform accounts with the same name, without a separate mapping.",
+  "提交发布任务后，Kali Publish 在本机完成上传与发布。": "After a task is submitted, Kali Publish uploads and publishes it from this computer.",
+  "Kali Publish 默认只监听本机 127.0.0.1:5409，请勿修改为公网地址或直接暴露到公网。": "Kali Publish listens only on local address 127.0.0.1:5409 by default. Do not change it to a public address or expose it directly to the internet."
 }

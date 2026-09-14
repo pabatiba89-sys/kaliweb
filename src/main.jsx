@@ -134,7 +134,7 @@ import packageJson from '../package.json';
 import './styles.css';
 
 const APP_VERSION = `v${packageJson.version}`;
-const OPEN_SOURCE_PUBLISHER_URL = 'https://github.com/dreammis/social-auto-upload';
+const OPEN_SOURCE_PUBLISHER_URL = 'https://github.com/pabatiba89-sys/kali-publish';
 
 const copy = {
   en: {
@@ -6598,18 +6598,18 @@ function PublishCenterPage({ authVersion, onLogin }) {
                     <span><Server size={20} /></span>
                     <div><small>团队尚未配置发布账号</small><h3>使用开源工具连接本地发布</h3><p>账号登录状态保留在自己的电脑，通过本地控制服务完成多平台发布。</p></div>
                   </div>
-                  <a className="publish-open-source-link" href={OPEN_SOURCE_PUBLISHER_URL} target="_blank" rel="noopener noreferrer"><span><strong>dreammis/social-auto-upload</strong><small>MIT 开源 · 抖音、小红书、快手、视频号、Bilibili 等</small></span><span>查看开源代码 <ExternalLink size={15} /></span></a>
+                  <a className="publish-open-source-link" href={OPEN_SOURCE_PUBLISHER_URL} target="_blank" rel="noopener noreferrer"><span><strong>pabatiba89-sys/kali-publish</strong><small>MIT 开源 · 小红书、视频号、抖音、快手、TikTok、YouTube</small></span><span>查看开源代码 <ExternalLink size={15} /></span></a>
                   <div className="publish-local-workflow">
                     <strong>推荐 workflow</strong>
                     <ol>
-                      <li><span>1</span><div><b>安装开源工具</b><small>在需要执行发布的电脑上安装项目与浏览器环境。</small></div></li>
-                      <li><span>2</span><div><b>本地登录账号</b><small>使用 sau 完成各平台登录，Cookie 与账号文件不上传到 Kali。</small></div></li>
-                      <li><span>3</span><div><b>启动本地桥接接口</b><small>接口接收视频、标题、话题、账号与发布时间，并转换为 sau 命令。</small></div></li>
-                      <li><span>4</span><div><b>由 Kali 控制发布</b><small>提交发布任务后，本地服务执行上传、定时发布并回传状态。</small></div></li>
+                      <li><span>1</span><div><b>下载 Kali Publish</b><small>从项目 Releases 下载对应系统版本，并按说明启动。</small></div></li>
+                      <li><span>2</span><div><b>本地登录账号</b><small>在发布设置中新增或重新登录平台账号，登录数据只保留在本机。</small></div></li>
+                      <li><span>3</span><div><b>按名称自动关联</b><small>Kali 系统账号与同名本机平台账号自动关联，不维护额外映射。</small></div></li>
+                      <li><span>4</span><div><b>由 Kali 控制发布</b><small>提交发布任务后，Kali Publish 在本机完成上传与发布。</small></div></li>
                     </ol>
-                    <div className="publish-local-route"><span>Kali 发布任务</span><i>→</i><span>本地桥接接口</span><i>→</i><span>sau CLI</span><i>→</i><span>内容平台</span></div>
+                    <div className="publish-local-route"><span>Kali 发布任务</span><i>→</i><span>Kali Publish</span><i>→</i><span>内容平台</span></div>
                   </div>
-                  <p className="publish-local-warning"><ShieldCheck size={15} />项目当前主线是 sau CLI；仓库内 5409 Web API 属于历史实现。生产使用时请为本地桥接接口增加访问令牌，并且不要直接暴露到公网。</p>
+                  <p className="publish-local-warning"><ShieldCheck size={15} />Kali Publish 默认只监听本机 127.0.0.1:5409，请勿修改为公网地址或直接暴露到公网。</p>
                 </section>
               )}
             </div>
