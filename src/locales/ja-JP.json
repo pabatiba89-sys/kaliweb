@@ -2350,5 +2350,13 @@
   "已带入原提示词、生成参数和参考素材，请修改后再制作。": "The original prompt, settings, and references are ready. Edit them before generating.",
   "当前成片缺少时长信息，暂时无法作为续集参考视频。": "This video has no duration data and cannot be used as a sequel reference yet.",
   "当前没有可用于制作续集的参考生视频模型。": "No reference-to-video model is currently available for creating a sequel.",
-  "已将当前成片作为续集参考，请补充“接下来发生什么”，确认积分后再生成。": "The current video is now the sequel reference. Describe what happens next and review the credit estimate before generating."
+  "已将当前成片作为续集参考，请补充“接下来发生什么”，确认积分后再生成。": "The current video is now the sequel reference. Describe what happens next and review the credit estimate before generating.",
+  "无法读取个人形象视频时长，请更换文件后重试": "本人動画の長さを読み取れません。別のファイルを選んで再試行してください。",
+  "个人形象视频不能少于 30 秒": "本人動画は30秒以上必要です。",
+  "个人形象视频不能超过 2 分钟": "本人動画は2分以内にしてください。",
+  "无法读取声音时长，请更换文件后重试": "音声の長さを読み取れません。別のファイルを選んで再試行してください。",
+  "声音时长不能少于 30 秒": "音声は30秒以上必要です。",
+  "声音时长 30 秒到 2 分钟": "音声の長さ：30秒〜2分",
+  "30 秒到 2:00，支持 mp3 / wav / m4a / aac": "30秒〜2:00、mp3 / wav / m4a / aac対応",
+  "清晰正脸，时长 30 秒到 2:00": "顔が正面からはっきり映った、30秒〜2:00の動画"
 }

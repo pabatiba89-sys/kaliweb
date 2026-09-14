@@ -82,6 +82,10 @@ import {
   VOICE_SPEED_STEP,
 } from './voiceSpeed.js';
 import {
+  getTrainingMediaDurationIssue,
+  TRAINING_MEDIA_MAX_DURATION,
+} from './trainingMediaDuration.js';
+import {
   apiFetch,
   bindInviteCode,
   bindPhoneNumber,
@@ -1285,11 +1289,26 @@ const normalizeTemplate = (item = {}, index = 0, group = '') => {
 const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp'];
 const VIDEO_EXTENSIONS = ['mp4', 'mov'];
 const MAX_VIDEO_DURATION = 60;
-const MAX_TRAINING_VIDEO_DURATION = 120;
-const MAX_VOICE_DURATION = 120;
 const DIGITAL_HUMAN_TRAINING_ATH_TEXT = 'kali';
 const MAX_VIDEO_SIDE = 2000;
 const MAX_VIDEO_SIZE = 500 * 1024 * 1024;
+const RECORDING_AUTO_STOP_BUFFER_SECONDS = 1;
+const TRAINING_MEDIA_DURATION_MESSAGES = {
+  profileVideo: {
+    unreadable: '无法读取个人形象视频时长，请更换文件后重试',
+    'too-short': '个人形象视频不能少于 30 秒',
+    'too-long': '个人形象视频不能超过 2 分钟',
+  },
+  voiceAudio: {
+    unreadable: '无法读取声音时长，请更换文件后重试',
+    'too-short': '声音时长不能少于 30 秒',
+    'too-long': '声音时长不能超过 2 分钟',
+  },
+};
+const getTrainingMediaDurationMessage = (duration, mediaType) => {
+  const issue = getTrainingMediaDurationIssue(duration);
+  return issue ? TRAINING_MEDIA_DURATION_MESSAGES[mediaType][issue] : '';
+};
 const VIDEO_PRODUCTION_TYPES = {
   oral: {
     key: 'oral',
@@ -3661,7 +3680,14 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
       return;
     }
     const duration = await getVideoDuration(file);
-    if (duration && duration > MAX_TRAINING_VIDEO_DURATION) {
+    const profileDurationMessage = key === 'profileVideo'
+      ? getTrainingMediaDurationMessage(duration, 'profileVideo')
+      : '';
+    if (profileDurationMessage) {
+      setMessage(profileDurationMessage);
+      return;
+    }
+    if (key === 'authVideo' && duration && duration > TRAINING_MEDIA_MAX_DURATION) {
       setMessage('训练视频不能超过 2 分钟');
       return;
     }
@@ -3702,8 +3728,9 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
       return;
     }
     const duration = durationHint || await getAudioDuration(file);
-    if (duration && duration > MAX_VOICE_DURATION) {
-      setMessage('声音时长不能超过 2 分钟');
+    const durationMessage = getTrainingMediaDurationMessage(duration, 'voiceAudio');
+    if (durationMessage) {
+      setMessage(durationMessage);
       return;
     }
     updateVoice('audio', { file, name: file.name, duration, size: file.size, url: URL.createObjectURL(file) });
@@ -3753,7 +3780,7 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
       recordingTimerRef.current = window.setInterval(() => {
         const seconds = Math.floor((Date.now() - recordingStartedAtRef.current) / 1000);
         setRecordingSeconds(seconds);
-        if (seconds >= MAX_VOICE_DURATION) stopRecording();
+        if (seconds >= TRAINING_MEDIA_MAX_DURATION - RECORDING_AUTO_STOP_BUFFER_SECONDS) stopRecording();
       }, 500);
       setMessage('');
     } catch (error) {
@@ -3819,6 +3846,8 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
     const name = textOf(form.name);
     if (!name) throw new Error('请输入数字人名称');
     if (!form.profileVideo?.file) throw new Error('请上传个人形象视频');
+    const durationMessage = getTrainingMediaDurationMessage(form.profileVideo.duration, 'profileVideo');
+    if (durationMessage) throw new Error(durationMessage);
     if (!profileAgreement) throw new Error('请先同意数字人形象授权和形象信息采集协议');
     updateSubmitProgress(10, '正在上传');
     const videoUrl = await uploadTrainingVideo(form.profileVideo, 'aihuman-profile-video', { progressStart: 10, progressEnd: 42 });
@@ -3903,6 +3932,8 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
   const submitVoiceTraining = async () => {
     updateSubmitProgress(5, '提交中');
     if (!voiceForm.audio?.file) throw new Error('请录制或上传声音文件');
+    const durationMessage = getTrainingMediaDurationMessage(voiceForm.audio.duration, 'voiceAudio');
+    if (durationMessage) throw new Error(durationMessage);
     if (!voiceForm.agreement) throw new Error('请先同意声纹授权协议');
     const uploadResult = await uploadFile(voiceForm.audio.file, {
       source: 'ai-voice-training',
@@ -4019,7 +4050,7 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
                 <strong>录制要求</strong>
                 <span>环境安静，无明显背景噪音</span>
                 <span>使用正常语速和音量说话</span>
-                <span>声音时长不超过 2 分钟</span>
+                <span>声音时长 30 秒到 2 分钟</span>
               </div>
               <label className="training-field">
                 <span>声音名称</span>
@@ -4034,7 +4065,7 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
                     <audio controls src={voiceForm.audio.url} />
                   </div>
                 ) : (
-                  <div className="voice-audio-empty"><Mic2 size={34} /><strong>{isRecording ? `正在录音 ${formatDuration(recordingSeconds)}` : '录制或上传声音文件'}</strong><small>最长 2:00，支持 mp3 / wav / m4a / aac</small></div>
+                  <div className="voice-audio-empty"><Mic2 size={34} /><strong>{isRecording ? `正在录音 ${formatDuration(recordingSeconds)}` : '录制或上传声音文件'}</strong><small>30 秒到 2:00，支持 mp3 / wav / m4a / aac</small></div>
                 )}
                 <div className="voice-audio-actions">
                   <button className={isRecording ? 'danger-button' : 'primary-button'} onClick={isRecording ? stopRecording : startRecording}><Mic2 size={16} /><span>{isRecording ? '停止录音' : '开始录音'}</span></button>
@@ -4059,7 +4090,7 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
               </label>
               {mode === 'video' ? (
                 <div className="training-upload-grid">
-                  <label className="training-uploader"><UserRound size={28} /><strong>{form.profileVideo?.name || '上传个人形象视频'}</strong><small>清晰正脸，最长 2:00</small><input type="file" accept="video/mp4,video/quicktime,video/*" capture="user" onChange={(event) => pickVideo(event, 'profileVideo')} /></label>
+                  <label className="training-uploader"><UserRound size={28} /><strong>{form.profileVideo?.name || '上传个人形象视频'}</strong><small>清晰正脸，时长 30 秒到 2:00</small><input type="file" accept="video/mp4,video/quicktime,video/*" capture="user" onChange={(event) => pickVideo(event, 'profileVideo')} /></label>
                   <label className="training-uploader"><Video size={28} /><strong>{form.authVideo?.name || '上传新的授权视频'}</strong><small>可用团队视频替代</small><input type="file" accept="video/mp4,video/quicktime,video/*" capture="user" onChange={(event) => pickVideo(event, 'authVideo')} /></label>
                 </div>
               ) : (

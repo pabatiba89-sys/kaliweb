@@ -2375,5 +2375,13 @@
   "已带入原提示词、生成参数和参考素材，请修改后再制作。": "The original prompt, settings, and references are ready. Edit them before generating.",
   "当前成片缺少时长信息，暂时无法作为续集参考视频。": "This video has no duration data and cannot be used as a sequel reference yet.",
   "当前没有可用于制作续集的参考生视频模型。": "No reference-to-video model is currently available for creating a sequel.",
-  "已将当前成片作为续集参考，请补充“接下来发生什么”，确认积分后再生成。": "The current video is now the sequel reference. Describe what happens next and review the credit estimate before generating."
+  "已将当前成片作为续集参考，请补充“接下来发生什么”，确认积分后再生成。": "The current video is now the sequel reference. Describe what happens next and review the credit estimate before generating.",
+  "无法读取个人形象视频时长，请更换文件后重试": "개인 영상 길이를 읽을 수 없습니다. 다른 파일을 선택해 다시 시도하세요.",
+  "个人形象视频不能少于 30 秒": "개인 영상은 30초 이상이어야 합니다.",
+  "个人形象视频不能超过 2 分钟": "개인 영상은 2분을 초과할 수 없습니다.",
+  "无法读取声音时长，请更换文件后重试": "오디오 길이를 읽을 수 없습니다. 다른 파일을 선택해 다시 시도하세요.",
+  "声音时长不能少于 30 秒": "오디오는 30초 이상이어야 합니다.",
+  "声音时长 30 秒到 2 分钟": "오디오 길이: 30초~2분",
+  "30 秒到 2:00，支持 mp3 / wav / m4a / aac": "30초~2:00, mp3 / wav / m4a / aac 지원",
+  "清晰正脸，时长 30 秒到 2:00": "얼굴이 정면에서 선명하게 보여야 하며 길이는 30초~2:00"
 }
