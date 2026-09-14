@@ -1738,6 +1738,7 @@ const publishCenterOverrides = {
     'Kali 发布任务': 'Kali publishing task',
     '内容平台': 'Content platform',
     'Kali Publish 默认只监听本机 127.0.0.1:5409，请勿修改为公网地址或直接暴露到公网。': 'Kali Publish listens only on local address 127.0.0.1:5409 by default. Do not change it to a public address or expose it directly to the internet.',
+    '去发布设置': 'Go to Publishing Settings',
   },
   'zh-CN': {},
   'zh-TW': {
@@ -1794,6 +1795,7 @@ const publishCenterOverrides = {
     'Kali 发布任务': 'Kali 發布任務',
     '内容平台': '內容平台',
     'Kali Publish 默认只监听本机 127.0.0.1:5409，请勿修改为公网地址或直接暴露到公网。': 'Kali Publish 預設只監聽本機 127.0.0.1:5409，請勿修改為公網位址或直接暴露到公網。',
+    '去发布设置': '前往發布設定',
   },
 };
 

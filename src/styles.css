@@ -1898,6 +1898,74 @@
   background: linear-gradient(145deg, #f2fbf8, #fbfefd);
 }
 
+.publish-publisher-notice {
+  margin-top: 0;
+  padding: 18px;
+}
+
+.publish-publisher-notice:not(.is-compact) .publish-local-workflow ol {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.publish-publisher-notice.is-compact {
+  padding: 14px;
+}
+
+.publish-account-settings-cta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #cfe5de;
+  border-radius: 13px;
+  background: #f3faf8;
+}
+
+.publish-account-settings-cta > span {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 10px;
+  color: #087d67;
+  background: #dff3ed;
+}
+
+.publish-account-settings-cta > div {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+  gap: 3px;
+}
+
+.publish-account-settings-cta strong {
+  color: #285f52;
+  font-size: 11px;
+}
+
+.publish-account-settings-cta small {
+  color: #78948c;
+  font-size: 9px;
+  line-height: 1.45;
+}
+
+.publish-account-settings-cta button {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 0 10px;
+  border: 1px solid #78c8b1;
+  border-radius: 9px;
+  color: #087d67;
+  background: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
 .publish-account-onboarding__head {
   display: flex;
   align-items: flex-start;
@@ -2204,6 +2272,10 @@
     grid-template-columns: 1fr;
   }
 
+  .publish-publisher-notice:not(.is-compact) .publish-local-workflow ol {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .publish-config-panel {
     position: static;
   }
@@ -2278,7 +2350,17 @@
     flex-direction: column;
   }
 
-  .publish-local-workflow ol {
+  .publish-account-settings-cta {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .publish-account-settings-cta button {
+    width: 100%;
+  }
+
+  .publish-local-workflow ol,
+  .publish-publisher-notice:not(.is-compact) .publish-local-workflow ol {
     grid-template-columns: 1fr;
   }
 }

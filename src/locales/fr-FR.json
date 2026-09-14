@@ -2298,5 +2298,6 @@
   "按名称自动关联": "Match automatically by name",
   "Kali 系统账号与同名本机平台账号自动关联，不维护额外映射。": "Kali system accounts automatically match local platform accounts with the same name, without a separate mapping.",
   "提交发布任务后，Kali Publish 在本机完成上传与发布。": "After a task is submitted, Kali Publish uploads and publishes it from this computer.",
-  "Kali Publish 默认只监听本机 127.0.0.1:5409，请勿修改为公网地址或直接暴露到公网。": "Kali Publish listens only on local address 127.0.0.1:5409 by default. Do not change it to a public address or expose it directly to the internet."
+  "Kali Publish 默认只监听本机 127.0.0.1:5409，请勿修改为公网地址或直接暴露到公网。": "Kali Publish listens only on local address 127.0.0.1:5409 by default. Do not change it to a public address or expose it directly to the internet.",
+  "去发布设置": "Go to Publishing Settings"
 }

@@ -5948,6 +5948,7 @@ function PublishSettingsPage({ authVersion, onLogin }) {
 
       <section className="publish-settings-panel publish-local-accounts" aria-busy={loading}>
         <header><div><span>LOCAL ACCOUNTS</span><h2>本机账号管理</h2><p>在喀理中直接新增、改名、删除或重新登录本机平台账号。</p></div><button className="outline-button" type="button" onClick={() => openDialog('add')} disabled={loading || !localConnected}><Plus size={16} />新增账号</button></header>
+        {!loading && (!localConnected || !localAccounts.length) && <PublisherOpenSourceNotice compact />}
         {loading && !localAccounts.length ? (
           <div className="publish-settings-empty"><RefreshCw className="is-spinning" size={28} /><strong>正在读取本机账号…</strong></div>
         ) : !localConnected ? (
@@ -6036,6 +6037,31 @@ function VideoActionDialog({ className = '', title, description, children, busy,
         </div>
       </section>
     </div>
+  );
+}
+
+function PublisherOpenSourceNotice({ compact = false }) {
+  return (
+    <section className={`publish-account-onboarding publish-publisher-notice${compact ? ' is-compact' : ''}`}>
+      <div className="publish-account-onboarding__head">
+        <span><Server size={20} /></span>
+        <div><small>KALI PUBLISH</small><h3>使用开源工具连接本地发布</h3><p>账号登录状态保留在自己的电脑，通过本地控制服务完成多平台发布。</p></div>
+      </div>
+      <a className="publish-open-source-link" href={OPEN_SOURCE_PUBLISHER_URL} target="_blank" rel="noopener noreferrer"><span><strong>pabatiba89-sys/kali-publish</strong><small>MIT 开源 · 小红书、视频号、抖音、快手、TikTok、YouTube</small></span><span>下载 / 安装说明 <ExternalLink size={15} /></span></a>
+      {!compact && (
+        <div className="publish-local-workflow">
+          <strong>推荐 workflow</strong>
+          <ol>
+            <li><span>1</span><div><b>下载 Kali Publish</b><small>从项目 Releases 下载对应系统版本，并按说明启动。</small></div></li>
+            <li><span>2</span><div><b>本地登录账号</b><small>在发布设置中新增或重新登录平台账号，登录数据只保留在本机。</small></div></li>
+            <li><span>3</span><div><b>按名称自动关联</b><small>Kali 系统账号与同名本机平台账号自动关联，不维护额外映射。</small></div></li>
+            <li><span>4</span><div><b>由 Kali 控制发布</b><small>提交发布任务后，Kali Publish 在本机完成上传与发布。</small></div></li>
+          </ol>
+          <div className="publish-local-route"><span>Kali 发布任务</span><i>→</i><span>Kali Publish</span><i>→</i><span>内容平台</span></div>
+        </div>
+      )}
+      <p className="publish-local-warning"><ShieldCheck size={15} />Kali Publish 默认只监听本机 127.0.0.1:5409，请勿修改为公网地址或直接暴露到公网。</p>
+    </section>
   );
 }
 
@@ -6275,7 +6301,7 @@ const getPublishUploadKey = (result = {}) => {
   return videoText(source.key, source.upload_key, source.uploadKey, source.file_key, source.fileKey);
 };
 
-function PublishCenterPage({ authVersion, onLogin }) {
+function PublishCenterPage({ authVersion, onLogin, onOpenSettings }) {
   const [sourceType, setSourceType] = useState('upload');
   const [sources, setSources] = useState({ mix: [], digital: [], ai: [] });
   const [selectedSource, setSelectedSource] = useState(null);
@@ -6553,6 +6579,8 @@ function PublishCenterPage({ authVersion, onLogin }) {
         <div className="publish-center-hero__status"><CheckCircle2 size={20} /><span><strong>一站式发布</strong><small>选成片 · 填信息 · 定时间</small></span></div>
       </section>
 
+      <PublisherOpenSourceNotice />
+
       {!authed ? <div className="video-empty-state"><Send size={38} /><strong>登录后使用发布中心</strong><p>登录后可读取团队发布账号与已完成的视频。</p><button className="primary-button" onClick={onLogin}>登录</button></div> : (
         <div className="publish-center-grid">
           <section className="publish-source-panel">
@@ -6590,28 +6618,16 @@ function PublishCenterPage({ authVersion, onLogin }) {
               <label className="is-wide"><span>标题 <em>必填</em></span><input maxLength={80} value={title} onChange={(event) => { setTitle(event.target.value); setMessage({ text: '', error: false }); }} placeholder="请输入对外发布标题" /><small>{title.length}/80</small></label>
               <label className="is-wide"><span>话题 <em>选填</em></span><textarea maxLength={500} value={topics} onChange={(event) => { setTopics(event.target.value); setMessage({ text: '', error: false }); }} placeholder="例如：#AI视频，产品发布；支持逗号、# 或换行分隔" /></label>
               {topicList.length > 0 && <div className="publish-topic-list is-wide">{topicList.map((topic) => <span key={topic}>#{topic}</span>)}</div>}
-              <label className="is-wide"><span>发布账号 <em>必填</em></span><select value={accountId} disabled={accountLoadState !== 'success'} onChange={(event) => { setAccountId(event.target.value); setMessage({ text: '', error: false }); }}><option value="">请选择发布账号</option>{accounts.map((account) => <option key={account.id} value={account.id}>{account.name}</option>)}</select></label>
-              {accountLoadState === 'error' && <div className="publish-account-error is-wide"><AlertCircle size={16} /><span>发布账号加载失败，暂时无法判断团队是否已配置账号。</span><button type="button" onClick={loadPublishResources}>重新加载</button></div>}
-              {accountLoadState === 'success' && !accounts.length && (
-                <section className="publish-account-onboarding is-wide">
-                  <div className="publish-account-onboarding__head">
-                    <span><Server size={20} /></span>
-                    <div><small>团队尚未配置发布账号</small><h3>使用开源工具连接本地发布</h3><p>账号登录状态保留在自己的电脑，通过本地控制服务完成多平台发布。</p></div>
-                  </div>
-                  <a className="publish-open-source-link" href={OPEN_SOURCE_PUBLISHER_URL} target="_blank" rel="noopener noreferrer"><span><strong>pabatiba89-sys/kali-publish</strong><small>MIT 开源 · 小红书、视频号、抖音、快手、TikTok、YouTube</small></span><span>查看开源代码 <ExternalLink size={15} /></span></a>
-                  <div className="publish-local-workflow">
-                    <strong>推荐 workflow</strong>
-                    <ol>
-                      <li><span>1</span><div><b>下载 Kali Publish</b><small>从项目 Releases 下载对应系统版本，并按说明启动。</small></div></li>
-                      <li><span>2</span><div><b>本地登录账号</b><small>在发布设置中新增或重新登录平台账号，登录数据只保留在本机。</small></div></li>
-                      <li><span>3</span><div><b>按名称自动关联</b><small>Kali 系统账号与同名本机平台账号自动关联，不维护额外映射。</small></div></li>
-                      <li><span>4</span><div><b>由 Kali 控制发布</b><small>提交发布任务后，Kali Publish 在本机完成上传与发布。</small></div></li>
-                    </ol>
-                    <div className="publish-local-route"><span>Kali 发布任务</span><i>→</i><span>Kali Publish</span><i>→</i><span>内容平台</span></div>
-                  </div>
-                  <p className="publish-local-warning"><ShieldCheck size={15} />Kali Publish 默认只监听本机 127.0.0.1:5409，请勿修改为公网地址或直接暴露到公网。</p>
+              {accountLoadState === 'success' && !accounts.length ? (
+                <section className="publish-account-settings-cta is-wide">
+                  <span><Settings size={19} /></span>
+                  <div><strong>团队尚未配置发布账号</strong><small>新增系统账号后，可与同名本机账号自动关联。</small></div>
+                  <button type="button" onClick={onOpenSettings}>去发布设置 <ChevronRight size={15} /></button>
                 </section>
+              ) : (
+                <label className="is-wide"><span>发布账号 <em>必填</em></span><select value={accountId} disabled={accountLoadState !== 'success'} onChange={(event) => { setAccountId(event.target.value); setMessage({ text: '', error: false }); }}><option value="">请选择发布账号</option>{accounts.map((account) => <option key={account.id} value={account.id}>{account.name}</option>)}</select></label>
               )}
+              {accountLoadState === 'error' && <div className="publish-account-error is-wide"><AlertCircle size={16} /><span>发布账号加载失败，暂时无法判断团队是否已配置账号。</span><button type="button" onClick={loadPublishResources}>重新加载</button></div>}
             </div>
             <div className="publish-time-block">
               <span>发布时间</span>
@@ -6621,7 +6637,7 @@ function PublishCenterPage({ authVersion, onLogin }) {
             {message.localUnavailable && <LocalPublisherSetupNotice />}
             {message.text && <div className={`publish-message${message.error ? ' is-error' : ''}`}>{message.error ? <AlertCircle size={17} /> : <CheckCircle2 size={17} />}<span>{message.text}</span></div>}
             {busy && sourceType === 'upload' && <div className="publish-upload-progress"><span style={{ width: `${Math.max(4, uploadProgress)}%` }} /><strong>{uploadProgress < 100 ? `上传中 ${uploadProgress}%` : '正在加入发布队列…'}</strong></div>}
-            <button type="button" className="primary-button publish-submit-button" onClick={submitPublish} disabled={busy || loading}><Send size={18} />{busy ? '处理中…' : message.localUnavailable ? '检测并继续发布' : publishMode === 'now' ? '确认并立即发布' : '确认定时发布'}</button>
+            <button type="button" className="primary-button publish-submit-button" onClick={accountLoadState === 'success' && !accounts.length ? onOpenSettings : submitPublish} disabled={busy || loading}>{accountLoadState === 'success' && !accounts.length ? <Settings size={18} /> : <Send size={18} />}{busy ? '处理中…' : accountLoadState === 'success' && !accounts.length ? '去发布设置' : message.localUnavailable ? '检测并继续发布' : publishMode === 'now' ? '确认并立即发布' : '确认定时发布'}</button>
             <p className="publish-safety-note"><ShieldCheck size={15} />发布前请确认内容权利、事实准确性，以及目标平台要求的 AI 生成内容标识。</p>
           </section>
         </div>
@@ -14632,6 +14648,7 @@ export default function App() {
               <PublishCenterPage
                 authVersion={authVersion}
                 onLogin={() => setLoginOpen(true)}
+                onOpenSettings={() => selectNav('publish-settings')}
               />
             ) : active === 'publish-settings' ? (
               <PublishSettingsPage
