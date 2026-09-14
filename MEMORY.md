@@ -15,6 +15,7 @@
 
 ## 已知事实
 
+- 2026-09-14：Asset Studio“我的声音”编辑需支持 `0.2-2.0`、步进 `0.1` 的语速调整，卡片和编辑值统一保留一位小数；保存继续走 `/api/ai-voice/update` 并提交 `speed/voice_speed/voiceSpeed`。只读后台当前仍校验 `0.5-2`，需按 `docs/voice-asset-speed-backend-contract.md` 将声音资产训练与更新下限同步为 `0.2`；文字转语音的独立语速范围不随本需求改变。
 - 2026-09-13：音乐生成任务失败时，列表和详情必须优先展示接口返回的 `error_msg`；同时兼容 camelCase、`error_message`、`fail_reason` 及 `related` 内的同类字段，详情在后端未返回原因时也要显示明确兜底信息。
 - 2026-09-13：Asset Studio 的图生数字人形象图网格除 AI 生成记录外，必须固定提供本地图片上传卡片；支持 jpg/jpeg/png/webp，本地图片先走现有文件上传取得 `imageUrl`，再复用 `/api/aihuman/image/train` 提交，不能伪造 `generatedImageId`，重复提交应复用本次已上传的 URL。
 - 2026-09-12：AI Video Lab 的“AI 提示词助手”必须直接进入公开已启用的“双人对话”指令集，生成请求使用该指令集真实 ID 和用户原始需求；成功结果同时提供“复制”和“去制作”，失败结果用同一轮原始需求“重试”，“去制作”将完整结果回填提示词输入框并保留原模型、参数和参考素材。参考图片除 URL 与本地上传外，还可从 AI 图片生成记录中分页选择，重复图片不得再次加入。

@@ -74,6 +74,14 @@ import {
   VIDEO_TEMPLATE_ASPECT_RATIOS,
 } from './videoTemplateRatio.js';
 import {
+  buildVoiceSpeedPayload,
+  formatVoiceSpeed,
+  normalizeVoiceSpeed,
+  VOICE_SPEED_MAX,
+  VOICE_SPEED_MIN,
+  VOICE_SPEED_STEP,
+} from './voiceSpeed.js';
+import {
   apiFetch,
   bindInviteCode,
   bindPhoneNumber,
@@ -1753,7 +1761,7 @@ const normalizeVoiceAsset = (item = {}, index = 0) => {
   const cover = getApiMediaUrl(pick(item.coverUrl, item.cover_url, item.avatarUrl, item.avatar_url, item.imageUrl, item.image_url));
   const rawStatus = pick(item.statusText, item.status_text, item.status, item.train_status, item.trainStatus, item.task_status, item.taskStatus, item.state);
   const status = audioUrl && !rawStatus ? { key: 'success', label: '成功' } : normalizeStatus(rawStatus);
-  const speed = Number(item.voice_speed || item.voiceSpeed || item.speed) || 1;
+  const speed = normalizeVoiceSpeed(item.voice_speed || item.voiceSpeed || item.speed);
   const languages = Array.isArray(item.langs) ? item.langs.join(' / ') : pick(item.langs, item.languages, item.language);
   const voiceId = pick(item.voiceId, item.voice_id);
   const speakerId = pick(item.speakerId, item.speaker_id);
@@ -1765,7 +1773,7 @@ const normalizeVoiceAsset = (item = {}, index = 0) => {
     speakerId,
     language: pick(item.language, Array.isArray(item.langs) ? item.langs[0] : item.langs) || 'zh-CN',
     title: pick(item.custom_tag, item.name, item.title, item.voiceName, item.voice_name, item.speakerName, item.speaker_name) || `克隆声音 ${index + 1}`,
-    meta: [pick(item.gender, item.sex), languages, pick(item.created_at, item.createdAt, item.create_time, item.createTime), `语速 ${speed}x`].filter(Boolean).join(' · '),
+    meta: [pick(item.gender, item.sex), languages, pick(item.created_at, item.createdAt, item.create_time, item.createTime), `语速 ${formatVoiceSpeed(speed)}x`].filter(Boolean).join(' · '),
     audioUrl,
     cover,
     speed,
@@ -3135,6 +3143,7 @@ function AssetLibraryPanel({
 }) {
   const [editTarget, setEditTarget] = useState(null);
   const [editName, setEditName] = useState('');
+  const [editSpeed, setEditSpeed] = useState(1);
   const [editCoverFile, setEditCoverFile] = useState(null);
   const [editCoverPreview, setEditCoverPreview] = useState('');
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -3173,6 +3182,7 @@ function AssetLibraryPanel({
   const openEdit = (asset, type) => {
     setEditTarget({ asset, type });
     setEditName(asset.title || '');
+    setEditSpeed(normalizeVoiceSpeed(asset.speed));
     setEditCoverFile(null);
     setEditCoverPreview(asset.cover || '');
     setActionMessage('');
@@ -3248,6 +3258,7 @@ function AssetLibraryPanel({
         if (!coverUrl) throw new Error('素材保存失败');
       }
       const identity = getAssetPayload(editTarget.asset, editTarget.type);
+      const voiceSpeedPayload = editTarget.type === 'voice' ? buildVoiceSpeedPayload(editSpeed) : {};
       const result = await apiFetch(editTarget.type === 'human' ? '/api/aihuman/update' : '/api/ai-voice/update', {
         method: 'POST',
         timeoutMs: 12000,
@@ -3257,6 +3268,7 @@ function AssetLibraryPanel({
           title: name,
           custom_tag: name,
           customTag: name,
+          ...voiceSpeedPayload,
           cover: coverUrl,
           cover_url: coverUrl,
           coverurl: coverUrl,
@@ -3358,6 +3370,22 @@ function AssetLibraryPanel({
               <button type="button" onClick={closeEdit} disabled={actionBusy} aria-label="关闭"><X size={18} /></button>
             </header>
             <label className="asset-action-field"><span>{editTarget.type === 'human' ? '数字人名称' : '声音名称'}</span><input autoFocus value={editName} maxLength={30} onChange={(event) => { setEditName(event.target.value); setActionMessage(''); }} required /></label>
+            {editTarget.type === 'voice' && (
+              <label className="asset-speed-editor">
+                <span className="asset-speed-editor__head"><b>语速</b><output>{formatVoiceSpeed(editSpeed)}x</output></span>
+                <input
+                  type="range"
+                  min={VOICE_SPEED_MIN}
+                  max={VOICE_SPEED_MAX}
+                  step={VOICE_SPEED_STEP}
+                  value={editSpeed}
+                  aria-label="语速"
+                  aria-valuetext={`${formatVoiceSpeed(editSpeed)}x`}
+                  onChange={(event) => { setEditSpeed(normalizeVoiceSpeed(event.target.value)); setActionMessage(''); }}
+                />
+                <span className="asset-speed-editor__scale" aria-hidden="true"><small>{VOICE_SPEED_MIN.toFixed(1)}x</small><small>{VOICE_SPEED_MAX.toFixed(1)}x</small></span>
+              </label>
+            )}
             <div className="asset-cover-editor">
               <span className="asset-cover-editor__preview">{editCoverPreview ? <img src={editCoverPreview} alt="当前封面" /> : editTarget.type === 'human' ? <UserRound size={34} /> : <Mic2 size={30} />}</span>
               <label><Upload size={15} /><span>{editCoverFile ? '重新上传' : '上传封面图片'}</span><input type="file" accept="image/jpeg,image/png,image/webp,image/*" onChange={chooseEditCover} /></label>
@@ -8568,7 +8596,7 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
       }
       if (coverUrl && !coverUrl.includes('imageView2/')) coverUrl = `${coverUrl}${coverUrl.includes('?') ? '&' : '?'}imageView2/0/w/1980/h/1980/format/copy/ignore-error/1`;
       const speakerExtra = {
-        speedRatio: Math.min(2, Math.max(0.5, Number(selected.voice.speed) || 1)),
+        speedRatio: normalizeVoiceSpeed(selected.voice.speed),
         ...(isCustomMixcut ? { language: professionalOptions.language || 'zh-CN' } : {}),
       };
       const musicVolume = Math.min(2, Math.max(0, Number(professionalOptions.bgmVolume) || 1));

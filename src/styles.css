@@ -11350,6 +11350,53 @@ video.media-preview {
   box-shadow: 0 0 0 3px rgba(0, 168, 132, 0.11);
 }
 
+.asset-speed-editor {
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #f7fbf9;
+  display: grid;
+  gap: 10px;
+}
+
+.asset-speed-editor__head,
+.asset-speed-editor__scale {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.asset-speed-editor__head b {
+  color: #50665f;
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.asset-speed-editor__head output {
+  min-width: 52px;
+  padding: 5px 9px;
+  border-radius: 9px;
+  background: #e5f5ef;
+  color: var(--green-dark);
+  font-size: 13px;
+  font-weight: 900;
+  text-align: center;
+}
+
+.asset-speed-editor input[type='range'] {
+  width: 100%;
+  margin: 0;
+  accent-color: var(--green);
+  cursor: pointer;
+}
+
+.asset-speed-editor__scale small {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 750;
+}
+
 .asset-cover-editor {
   padding: 12px;
   border: 1px solid var(--line);

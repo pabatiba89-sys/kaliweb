@@ -338,6 +338,33 @@ const actionRows = {
   'hi-IN': ['रद्द करें', 'बंद करें', 'हटाएँ', 'अपलोड करें', 'रीफ़्रेश करें', 'और लोड करें', 'डाउनलोड करें', 'सेव करें', 'संपादित करें', 'प्रकाशित करें', 'फिर से कोशिश करें', 'वापस', 'लोड हो रहा है…', 'पूरा हुआ', 'विफल', 'प्रोसेस हो रहा है', 'ड्राफ़्ट', 'तैयार'],
 };
 
+const voiceSpeedLabels = {
+  'en-US': 'Speed',
+  'zh-CN': '语速',
+  'zh-TW': '語速',
+  'es-MX': 'Velocidad',
+  'fr-FR': 'Vitesse',
+  'ru-RU': 'Скорость',
+  'de-DE': 'Geschwindigkeit',
+  'pt-PT': 'Velocidade',
+  'ar-AE': 'السرعة',
+  'it-IT': 'Velocità',
+  'ja-JP': '話速',
+  'ko-KR': '말하기 속도',
+  'id-ID': 'Kecepatan',
+  'vi-VN': 'Tốc độ',
+  'tr-TR': 'Hız',
+  'nl-NL': 'Snelheid',
+  'uk-UA': 'Швидкість',
+  'th-TH': 'ความเร็ว',
+  'pl-PL': 'Prędkość',
+  'ro-RO': 'Viteză',
+  'el-GR': 'Ταχύτητα',
+  'cs-CZ': 'Rychlost',
+  'fi-FI': 'Nopeus',
+  'hi-IN': 'गति',
+};
+
 const chatInteractionKeys = ['复制', '已复制', '长按填入输入框', '文案迷路了，请重新生成。'];
 const chatInteractionRows = {
   'en-US': ['Copy', 'Copied', 'Press and hold to reuse', 'The copy wandered off. Please generate it again.'],
@@ -2398,6 +2425,7 @@ export const workspaceLocalizationOverrides = Object.fromEntries(Object.entries(
   chatHistoryKeys.forEach((key, index) => { overrides[key] = chatHistoryRows[locale][index]; });
   chatRoundKeys.forEach((key, index) => { overrides[key] = chatRoundRows[locale][index]; });
   overrides['重新生成'] = regenerateLabels[locale];
+  overrides['语速'] = voiceSpeedLabels[locale];
   Object.assign(overrides, affiliateOverrides[locale] || {});
   teamCoreKeys.forEach((key, index) => { overrides[key] = teamCoreRows[locale][index]; });
   Object.assign(overrides, teamDetailedOverrides[locale] || {});
