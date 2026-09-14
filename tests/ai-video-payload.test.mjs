@@ -8,6 +8,7 @@ import {
   buildAIVideoPublishPayload,
   getAIVideoDialogueTitle,
   getAIVideoRemakeDraft,
+  getAIVideoSequelDraft,
   normalizeAIVideoTopics,
 } from '../src/aiVideo.js';
 
@@ -133,6 +134,42 @@ test('derives Gemini frame mode instead of trusting its generic stored mode', ()
 
   assert.equal(draft.form.mode, 'first-last-frame');
   assert.equal(draft.form.firstFrameUrl, 'https://example.com/first.jpg');
+});
+
+test('builds an editable sequel draft from the finished video', () => {
+  const draft = getAIVideoSequelDraft({
+    model: 'kling-2.6',
+    mode: 'image-to-video',
+    prompt: '人物走进雨夜车站。',
+    duration: 10,
+    videoUrl: 'https://example.com/finished.mp4',
+    raw: {
+      input: {
+        prompt: '人物走进雨夜车站。',
+        reference_image_urls: ['https://example.com/character.jpg'],
+        reference_audio_urls: ['https://example.com/ambience.mp3'],
+      },
+    },
+  }, 'seedance-2-mini');
+
+  assert.equal(draft.form.model, 'seedance-2-mini');
+  assert.equal(draft.form.mode, 'reference-to-video');
+  assert.match(draft.form.prompt, /续集：从当前视频结尾自然衔接/);
+  assert.equal(draft.form.firstFrameUrl, '');
+  assert.equal(draft.references.images[0].url, 'https://example.com/character.jpg');
+  assert.equal(draft.references.videos[0].url, 'https://example.com/finished.mp4');
+  assert.equal(draft.references.videos[0].duration, 10);
+  assert.equal(draft.references.audios[0].url, 'https://example.com/ambience.mp3');
+});
+
+test('uses an English sequel cue for an English prompt', () => {
+  const draft = getAIVideoSequelDraft({
+    prompt: 'A cyclist reaches the edge of the forest.',
+    videoUrl: 'https://example.com/finished.mp4',
+    duration: 5,
+  });
+
+  assert.match(draft.form.prompt, /Continue seamlessly from the end/);
 });
 
 test('builds a single-output video prompt instruction with current generation settings', () => {

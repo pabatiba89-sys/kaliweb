@@ -105,6 +105,7 @@ import {
   buildAIVideoPublishPayload,
   getAIVideoDialogueTitle,
   getAIVideoRemakeDraft,
+  getAIVideoSequelDraft,
   normalizeAIVideoTopics,
 } from './aiVideo';
 import { buildRealmanPackagingPayload } from './realmanVideo';
@@ -4258,6 +4259,8 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling, onOpenP
   const [uploadState, setUploadState] = useState({ key: '', progress: 0 });
   const [aiImagePicker, setAiImagePicker] = useState({ open: false, items: [], page: 1, hasMore: false, loading: false, loadingMore: false, message: '' });
   const [detail, setDetail] = useState(null);
+  const [detailPromptCopied, setDetailPromptCopied] = useState(false);
+  const [detailActionMessage, setDetailActionMessage] = useState('');
   const [publishDialog, setPublishDialog] = useState(false);
   const [publishTarget, setPublishTarget] = useState(null);
   const [publishAccounts, setPublishAccounts] = useState([]);
@@ -4729,6 +4732,8 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling, onOpenP
   }, [refreshTask, tab, tasks]);
 
   const openDetail = async (record, kind) => {
+    setDetailPromptCopied(false);
+    setDetailActionMessage('');
     setDetail({ ...record, kind, loading: true });
     const path = kind === 'video'
       ? `/api/ai-video/videos/${encodeURIComponent(record.videoId)}`
@@ -4741,9 +4746,39 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling, onOpenP
     setDetail({ ...normalizeAIVideoRecord(result.data || {}), kind, loading: false });
   };
 
-  const remakeDetailVideo = () => {
-    if (!detail) return;
-    const draft = getAIVideoRemakeDraft(detail);
+  const copyDetailPrompt = async () => {
+    const value = String(detail?.prompt || '').trim();
+    if (!value) return;
+    try {
+      let copied = false;
+      if (navigator.clipboard?.writeText) {
+        try {
+          await navigator.clipboard.writeText(value);
+          copied = true;
+        } catch {
+          copied = false;
+        }
+      }
+      if (!copied) {
+        const textarea = document.createElement('textarea');
+        textarea.value = value;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        copied = document.execCommand('copy');
+        textarea.remove();
+      }
+      if (!copied) throw new Error('copy failed');
+      setDetailPromptCopied(true);
+      setDetailActionMessage('提示词已复制。');
+    } catch {
+      setDetailActionMessage('提示词复制失败，请手动选择复制。');
+    }
+  };
+
+  const openDetailDraft = (draft, { focusPrompt = false, message = '' } = {}) => {
     const requiresVideoDuration = draft.form.model !== 'gemini-omni-1.1-flash';
     const missingVideoDuration = requiresVideoDuration && draft.references.videos.some((item) => !(Number(item.duration) > 0));
     setForm(draft.form);
@@ -4758,8 +4793,45 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling, onOpenP
     setTab('create');
     setNotice(missingVideoDuration
       ? '已带入原指令和生成参数；原参考视频缺少时长，请重新添加后再制作。'
-      : '已带入原指令、生成参数和参考素材，请确认后重新制作。', missingVideoDuration);
-    window.requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
+      : message || '已带入原指令、生成参数和参考素材，请确认后重新制作。', missingVideoDuration);
+    window.requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (focusPrompt) promptRef.current?.focus();
+    });
+  };
+
+  const retryDetailVideo = () => {
+    if (!detail) return;
+    openDetailDraft(getAIVideoRemakeDraft(detail), {
+      message: '已原样带入提示词和生成设置；确认积分后可重新生成一个版本。',
+    });
+  };
+
+  const editAndRemakeDetailVideo = () => {
+    if (!detail) return;
+    openDetailDraft(getAIVideoRemakeDraft(detail), {
+      focusPrompt: true,
+      message: '已带入原提示词、生成参数和参考素材，请修改后再制作。',
+    });
+  };
+
+  const continueDetailVideo = () => {
+    if (!detail?.videoUrl || detail.kind !== 'video' || detail.status.key !== 'success') return;
+    if (!(Number(detail.duration) > 0)) {
+      setDetailActionMessage('当前成片缺少时长信息，暂时无法作为续集参考视频。');
+      return;
+    }
+    const currentModel = models.find((model) => model.key === detail.model && getAIVideoModes(model).includes('reference-to-video'));
+    const defaultModel = models.find((model) => model.key === AI_VIDEO_DEFAULT_MODEL_KEY && getAIVideoModes(model).includes('reference-to-video'));
+    const sequelModel = currentModel || defaultModel || models.find((model) => getAIVideoModes(model).includes('reference-to-video'));
+    if (!sequelModel) {
+      setDetailActionMessage('当前没有可用于制作续集的参考生视频模型。');
+      return;
+    }
+    openDetailDraft(getAIVideoSequelDraft(detail, sequelModel.key), {
+      focusPrompt: true,
+      message: '已将当前成片作为续集参考，请补充“接下来发生什么”，确认积分后再生成。',
+    });
   };
 
   const openAIVideoPublish = async () => {
@@ -5002,7 +5074,64 @@ function AIVideoLabPage({ authVersion, language, onLogin, onOpenBilling, onOpenP
         </section>
       )}
 
-      {detail && <div className="ai-video-modal-layer" onMouseDown={(event) => { if (event.target === event.currentTarget && !publishDialog) setDetail(null); }}><section className="ai-video-modal" role="dialog" aria-modal="true" aria-label="AI 视频详情"><header><div><span>{detail.kind === 'video' ? 'VIDEO OUTPUT' : 'GENERATION TASK'}</span><h2>{detail.kind === 'video' ? '成片详情' : '任务详情'}</h2></div><button type="button" onClick={() => setDetail(null)} aria-label="关闭"><X size={18} /></button></header>{detail.loading ? <div className="ai-video-modal-loading"><RefreshCw className="is-spinning" size={28} />正在加载详情…</div> : <>{detail.videoUrl && <video className="ai-video-modal-video" src={detail.videoUrl} controls playsInline preload="metadata" poster={detail.lastFrameUrl || undefined} />}<div className="ai-video-modal-toolbar"><div className="ai-video-modal-toolbar__actions"><button type="button" onClick={remakeDetailVideo}><RefreshCw size={14} />重新制作</button>{detail.kind === 'video' && detail.status.key === 'success' && detail.videoUrl && <><button type="button" onClick={() => onOpenPackaging?.(detail)}><Cuboid size={14} />包装视频</button><button type="button" onClick={openAIVideoPublish}><Send size={14} />发布</button></>}</div><span className={`state-dot state-dot--${detail.status.key}`}>{detail.status.label}</span></div><dl><div><dt>模型</dt><dd>{detail.model}</dd></div><div><dt>生成方式</dt><dd>{AI_VIDEO_MODE_LABELS[detail.mode] || detail.mode || '—'}</dd></div><div><dt>规格</dt><dd>{[detail.duration ? `${detail.duration} 秒` : '', detail.resolution?.toUpperCase(), detail.aspectRatio].filter(Boolean).join(' · ') || '—'}</dd></div><div><dt>积分</dt><dd>{detail.credits || '—'}</dd></div><div><dt>结算状态</dt><dd>{detail.settlementStatus || '—'}</dd></div><div><dt>创建时间</dt><dd>{detail.createdAt || '—'}</dd></div></dl>{(detail.error || detail.errorMessage) && <p className="ai-video-modal-error">{detail.error || detail.errorMessage}</p>}<footer>{detail.kind === 'task' && detail.status.key === 'processing' && <button type="button" className="outline-button" onClick={async () => { const next = await refreshTask(detail); if (next) setDetail({ ...next, kind: 'task', loading: false }); }}><RefreshCw size={16} />刷新任务</button>}{detail.videoUrl && <a className="primary-button" href={detail.videoUrl} download target="_blank" rel="noreferrer"><Download size={16} />下载视频</a>}</footer></>}</section></div>}
+      {detail && <div className="ai-video-modal-layer" onMouseDown={(event) => { if (event.target === event.currentTarget && !publishDialog) setDetail(null); }}>
+        <section className="ai-video-modal ai-video-detail-modal" role="dialog" aria-modal="true" aria-label="AI 视频详情">
+          <header>
+            <div>
+              <span>{detail.kind === 'video' ? 'VIDEO OUTPUT' : 'GENERATION TASK'}</span>
+              <h2>{detail.kind === 'video' ? '成片详情' : '任务详情'}</h2>
+            </div>
+            <div className="ai-video-detail-header-actions">
+              {!detail.loading && <span className={`state-dot state-dot--${detail.status.key}`}>{detail.status.label}</span>}
+              <button type="button" onClick={() => setDetail(null)} aria-label="关闭"><X size={18} /></button>
+            </div>
+          </header>
+          {detail.loading ? <div className="ai-video-modal-loading"><RefreshCw className="is-spinning" size={28} />正在加载详情…</div> : <div className={`ai-video-detail-layout ${detail.videoUrl ? '' : 'is-task-only'}`}>
+            {detail.videoUrl && <section className="ai-video-detail-stage" aria-label="成片预览">
+              <video className="ai-video-modal-video" src={detail.videoUrl} controls playsInline preload="metadata" poster={detail.lastFrameUrl || undefined} />
+              <div className="ai-video-detail-stage-caption">
+                <div><strong>{detail.prompt || 'AI 视频成片'}</strong><small>当前成片是重试、改稿和续集的共同起点</small></div>
+                <div><span>{detail.model}</span><span>{detail.duration ? `${detail.duration} 秒` : '—'}</span><span>{detail.resolution?.toUpperCase() || '—'}</span></div>
+              </div>
+            </section>}
+
+            <div className="ai-video-detail-controls">
+              <div className="ai-video-detail-controls-title"><span>CREATION CONTROLS</span><small>{AI_VIDEO_MODE_LABELS[detail.mode] || detail.mode || '—'}</small></div>
+              <section className="ai-video-detail-prompt">
+                <header><strong>本次提示词</strong><button type="button" onClick={copyDetailPrompt} disabled={!detail.prompt}><Copy size={15} />{detailPromptCopied ? '已复制' : '复制提示词'}</button></header>
+                <p>{detail.prompt || '—'}</p>
+              </section>
+
+              {detail.status.key !== 'processing' && <section className="ai-video-detail-generation">
+                <header><strong>从这条记录继续</strong><small>所有路径都会先进入创建页确认，不会在此处直接扣积分。</small></header>
+                <div className="ai-video-detail-generation-grid">
+                  <button type="button" onClick={retryDetailVideo}><RefreshCw size={17} /><span><strong>重试 · 原样复用</strong><small>同样的提示词和参数，再生成一个版本</small></span><ChevronRight size={17} /></button>
+                  <button type="button" onClick={editAndRemakeDetailVideo}><Edit3 size={17} /><span><strong>编辑后重做</strong><small>完整预填创建页，并把焦点放在提示词</small></span><ChevronRight size={17} /></button>
+                  {detail.kind === 'video' && detail.status.key === 'success' && detail.videoUrl && <button type="button" className="ai-video-detail-sequel" onClick={continueDetailVideo}><Clapperboard size={18} /><span><strong>制作续集</strong><small>以当前片尾为起点，编辑“接下来发生什么”</small></span><ChevronRight size={18} /></button>}
+                </div>
+              </section>}
+
+              {detail.kind === 'task' && detail.status.key === 'processing' && <button type="button" className="outline-button ai-video-detail-refresh" onClick={async () => { const next = await refreshTask(detail); if (next) setDetail({ ...next, kind: 'task', loading: false }); }}><RefreshCw size={16} />刷新任务</button>}
+
+              {detail.kind === 'video' && detail.status.key === 'success' && detail.videoUrl && <section className="ai-video-detail-postprocess">
+                <header><strong>完成后的处理</strong><small>不改变当前成片</small></header>
+                <div><button type="button" onClick={() => onOpenPackaging?.(detail)}><Cuboid size={15} />包装视频</button><button type="button" onClick={openAIVideoPublish}><Send size={15} />发布</button><a href={detail.videoUrl} download target="_blank" rel="noreferrer"><Download size={15} />下载视频</a></div>
+              </section>}
+
+              <dl>
+                <div><dt>模型</dt><dd>{detail.model}</dd></div>
+                <div><dt>生成方式</dt><dd>{AI_VIDEO_MODE_LABELS[detail.mode] || detail.mode || '—'}</dd></div>
+                <div><dt>规格</dt><dd>{[detail.duration ? `${detail.duration} 秒` : '', detail.resolution?.toUpperCase(), detail.aspectRatio].filter(Boolean).join(' · ') || '—'}</dd></div>
+                <div><dt>积分</dt><dd>{detail.credits || '—'}</dd></div>
+                <div><dt>结算状态</dt><dd>{detail.settlementStatus || '—'}</dd></div>
+                <div><dt>创建时间</dt><dd>{detail.createdAt || '—'}</dd></div>
+              </dl>
+              {(detail.error || detail.errorMessage) && <p className="ai-video-modal-error">{detail.error || detail.errorMessage}</p>}
+              {detailActionMessage && <p className="ai-video-detail-action-message" role="status">{detailActionMessage}</p>}
+            </div>
+          </div>}
+        </section>
+      </div>}
       {publishDialog && <VideoActionDialog className="ai-video-publish-layer" title="发布 AI 视频" description="填写对外标题和话题，选择发布账号与时间。" busy={publishState.busy} submitLabel={publishState.localUnavailable ? '检测并继续发布' : '确认发布'} onClose={closeAIVideoPublish} onSubmit={publishAIVideo}>
         <label className="video-dialog-field"><span>标题 <em>必填</em></span><input maxLength={80} value={publishTitle} onChange={(event) => { setPublishTitle(event.target.value); setPublishState((current) => ({ ...current, message: '' })); }} placeholder="请输入对外发布标题" /><small>{publishTitle.length}/80</small></label>
         <label className="video-dialog-field"><span>话题 <em>选填，可手动输入</em></span><textarea maxLength={500} value={publishTopics} onChange={(event) => { setPublishTopics(event.target.value); setPublishState((current) => ({ ...current, message: '' })); }} placeholder="例如：#AI视频，产品发布；支持逗号、# 或换行分隔" /></label>

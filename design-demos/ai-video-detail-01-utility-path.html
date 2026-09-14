@@ -1,0 +1,811 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Video Lab · 成片详情 · Utility Path</title>
+  <style>
+    /*
+      Direction 01 — Utility-First Colorful Docs, translated into Kali's mint system.
+      Form: the finished video is the shared source; prompt, parameters and action groups
+      read like a compact operating document that branches into three next-step paths.
+    */
+    :root {
+      --ink: #172822;
+      --brand: #16785e;
+      --brand-deep: #0e5e49;
+      --mint: #92ecc8;
+      --mint-soft: #e9faf3;
+      --paper: #f7f8f3;
+      --white: #ffffff;
+      --line: #dce9e4;
+      --muted: #60746d;
+      --soft-text: #7d9089;
+      --panel: #f1f6f3;
+      --stage: #0d1714;
+      --teal-soft: #def4ec;
+      --moss-soft: #edf3e7;
+      --shadow: 0 18px 55px rgba(23, 40, 34, 0.10);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { background: var(--ink); }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(146, 236, 200, 0.12) 1px, transparent 1px) 0 0 / 88px 88px,
+        linear-gradient(rgba(146, 236, 200, 0.08) 1px, transparent 1px) 0 0 / 88px 88px,
+        var(--ink);
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button { font: inherit; }
+
+    .app-bar {
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 34px;
+      color: #e9fff7;
+      border-bottom: 1px solid rgba(220, 233, 228, 0.14);
+    }
+
+    .brand-lockup,
+    .app-actions,
+    .status-cluster,
+    .prompt-tools,
+    .group-title,
+    .button-row,
+    .path-steps {
+      display: flex;
+      align-items: center;
+    }
+
+    .brand-lockup { gap: 12px; }
+
+    .brand-mark {
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px 3px 8px 3px;
+      color: var(--ink);
+      background: var(--mint);
+      font-family: Georgia, serif;
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .brand-name {
+      font-size: 14px;
+      font-weight: 750;
+      letter-spacing: 0.08em;
+    }
+
+    .app-divider {
+      width: 1px;
+      height: 18px;
+      background: rgba(255, 255, 255, 0.18);
+    }
+
+    .app-section {
+      color: #a9c0b8;
+      font-size: 13px;
+      letter-spacing: 0.03em;
+    }
+
+    .app-actions { gap: 20px; }
+
+    .app-link {
+      color: #bfd3cc;
+      background: transparent;
+      border: 0;
+      padding: 8px 0;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: var(--ink);
+      background: #c9f7e5;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .surface {
+      width: min(1364px, calc(100% - 32px));
+      margin: 16px auto 28px;
+      padding: 20px 22px 24px;
+      background: var(--paper);
+      border: 1px solid rgba(255, 255, 255, 0.34);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .page-head {
+      min-height: 52px;
+      display: grid;
+      grid-template-columns: minmax(260px, 1fr) auto;
+      gap: 28px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .eyebrow {
+      margin: 0 0 3px;
+      color: var(--brand);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.15em;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(27px, 2.2vw, 34px);
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+
+    .path-steps {
+      gap: 0;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 12px;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      background: var(--white);
+    }
+
+    .step:first-child { border-left: 1px solid var(--line); border-radius: 8px 0 0 8px; }
+    .step:last-child { border-right: 1px solid var(--line); border-radius: 0 8px 8px 0; }
+    .step + .step { border-left: 1px solid var(--line); }
+
+    .step-number {
+      color: var(--brand);
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 11px;
+      font-weight: 850;
+    }
+
+    .step.current {
+      color: var(--ink);
+      background: var(--mint-soft);
+    }
+
+    .player {
+      position: relative;
+      height: 232px;
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      border-radius: 14px 14px 4px 4px;
+      background:
+        radial-gradient(circle at 50% 42%, rgba(57, 99, 84, 0.38), transparent 33%),
+        var(--stage);
+      border: 1px solid #223c33;
+    }
+
+    .player::before,
+    .player::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: rgba(146, 236, 200, 0.08);
+    }
+
+    .player::before { left: calc(50% - 116px); }
+    .player::after { right: calc(50% - 116px); }
+
+    .video-frame {
+      height: 100%;
+      width: min(100%, 414px);
+      object-fit: contain;
+      display: block;
+      filter: saturate(0.94) contrast(1.03);
+    }
+
+    .video-topline {
+      position: absolute;
+      top: 14px;
+      left: 16px;
+      right: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #dff7ed;
+      font-size: 12px;
+      letter-spacing: 0.04em;
+    }
+
+    .status-cluster { gap: 8px; }
+
+    .status-pill {
+      padding: 7px 11px;
+      border: 1px solid rgba(146, 236, 200, 0.46);
+      border-radius: 999px;
+      color: #c9f7e5;
+      background: rgba(22, 120, 94, 0.35);
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .output-label { color: #8faaa0; }
+
+    .play-control {
+      position: absolute;
+      inset: 0;
+      margin: auto;
+      width: 44px;
+      height: 44px;
+      border: 1px solid rgba(255, 255, 255, 0.62);
+      border-radius: 50%;
+      color: var(--white);
+      background: rgba(13, 23, 20, 0.56);
+      backdrop-filter: blur(5px);
+      cursor: pointer;
+    }
+
+    .play-control::after {
+      content: "";
+      position: absolute;
+      left: 17px;
+      top: 13px;
+      border-left: 12px solid currentColor;
+      border-top: 8px solid transparent;
+      border-bottom: 8px solid transparent;
+    }
+
+    .player-controls {
+      position: absolute;
+      left: 16px;
+      right: 16px;
+      bottom: 12px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 13px;
+      align-items: center;
+      color: #f5fff9;
+      font-size: 12px;
+    }
+
+    .progress {
+      height: 3px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .progress > span {
+      display: block;
+      width: 36%;
+      height: 100%;
+      background: var(--mint);
+    }
+
+    .meta-strip {
+      display: grid;
+      grid-template-columns: 1.05fr 1.25fr 0.9fr 0.65fr 0.85fr 1.2fr;
+      min-height: 60px;
+      border: 1px solid var(--line);
+      border-top: 0;
+      border-radius: 0 0 12px 12px;
+      background: var(--white);
+    }
+
+    .meta-item {
+      min-width: 0;
+      padding: 10px 14px;
+    }
+
+    .meta-item + .meta-item { border-left: 1px solid var(--line); }
+
+    .meta-label {
+      display: block;
+      margin-bottom: 3px;
+      color: var(--soft-text);
+      font-size: 12px;
+      font-weight: 650;
+      line-height: 1.2;
+    }
+
+    .meta-value {
+      display: block;
+      overflow: hidden;
+      color: #27473d;
+      font-size: 14px;
+      font-weight: 750;
+      line-height: 1.4;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .document-section {
+      display: grid;
+      grid-template-columns: 56px minmax(0, 1fr);
+      margin-top: 14px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--white);
+    }
+
+    .section-index {
+      padding-top: 17px;
+      text-align: center;
+      color: var(--brand);
+      background: var(--mint-soft);
+      border-right: 1px solid var(--line);
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+      font-weight: 850;
+      letter-spacing: 0.08em;
+    }
+
+    .prompt-document { padding: 14px 18px 13px; }
+
+    .prompt-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 18px;
+      margin-bottom: 8px;
+    }
+
+    .prompt-kicker {
+      margin: 0 0 3px;
+      color: var(--brand);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 17px;
+      line-height: 1.2;
+    }
+
+    .prompt-tools { gap: 10px; }
+
+    .copy-feedback {
+      min-width: 48px;
+      color: var(--brand);
+      font-size: 12px;
+      font-weight: 700;
+      text-align: right;
+    }
+
+    .copy-button {
+      min-height: 34px;
+      padding: 0 13px;
+      color: var(--brand-deep);
+      background: var(--mint-soft);
+      border: 1px solid #c8eadc;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 750;
+      cursor: pointer;
+    }
+
+    .prompt-text {
+      margin: 0;
+      color: #2f443d;
+      font-size: 14px;
+      line-height: 1.68;
+      text-wrap: pretty;
+    }
+
+    .inherit-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 9px;
+    }
+
+    .inherit-label {
+      margin-right: 3px;
+      color: var(--soft-text);
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .inherit-tag {
+      padding: 4px 7px;
+      color: #426158;
+      background: #f3f7f5;
+      border: 1px solid #e1ebe7;
+      border-radius: 5px;
+      font-size: 12px;
+      line-height: 1;
+    }
+
+    .action-zone {
+      margin-top: 14px;
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #eef4f1;
+    }
+
+    .route-notice {
+      min-height: 38px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      padding: 8px 12px;
+      color: #36564c;
+      background: var(--white);
+      border: 1px dashed #b9d8cc;
+      border-radius: 8px;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .route-notice::before {
+      content: "PATH";
+      flex: 0 0 auto;
+      padding: 3px 6px;
+      color: var(--brand-deep);
+      background: var(--mint-soft);
+      border-radius: 4px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 10px;
+      font-weight: 850;
+      letter-spacing: 0.08em;
+    }
+
+    .action-grid {
+      display: grid;
+      grid-template-columns: 1.45fr 1fr 0.72fr;
+      gap: 10px;
+    }
+
+    .action-group {
+      min-width: 0;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-top: 3px solid var(--group-color);
+      border-radius: 8px;
+      background: var(--white);
+    }
+
+    .action-group.generate { --group-color: var(--brand); --group-soft: var(--mint-soft); }
+    .action-group.post { --group-color: #4c8a78; --group-soft: var(--teal-soft); }
+    .action-group.file { --group-color: #718765; --group-soft: var(--moss-soft); }
+
+    .group-title {
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 7px;
+    }
+
+    .group-title h3 {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.2;
+    }
+
+    .group-code {
+      color: var(--soft-text);
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 10px;
+      font-weight: 750;
+      letter-spacing: 0.07em;
+    }
+
+    .group-copy {
+      min-height: 32px;
+      margin: 0 0 9px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .button-row {
+      align-items: stretch;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .action-button {
+      min-height: 36px;
+      padding: 0 12px;
+      color: #29483e;
+      background: var(--group-soft);
+      border: 1px solid color-mix(in srgb, var(--group-color) 28%, white);
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 760;
+      cursor: pointer;
+      transition: transform 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+    }
+
+    .action-button:hover {
+      transform: translateY(-1px);
+      border-color: var(--group-color);
+      box-shadow: 0 5px 14px rgba(23, 40, 34, 0.09);
+    }
+
+    .action-button:focus-visible,
+    .copy-button:focus-visible,
+    .play-control:focus-visible {
+      outline: 3px solid rgba(146, 236, 200, 0.72);
+      outline-offset: 2px;
+    }
+
+    .action-button.primary {
+      color: var(--white);
+      background: var(--brand);
+      border-color: var(--brand);
+    }
+
+    .action-button.selected { box-shadow: 0 0 0 2px var(--group-color); }
+
+    @media (max-width: 900px) {
+      .app-bar { padding: 0 18px; }
+      .path-steps { display: none; }
+      .page-head { grid-template-columns: 1fr; }
+      .meta-strip { grid-template-columns: repeat(3, 1fr); }
+      .meta-item:nth-child(4) { border-left: 0; }
+      .meta-item:nth-child(n + 4) { border-top: 1px solid var(--line); }
+      .action-grid { grid-template-columns: 1fr; }
+      .group-copy { min-height: 0; }
+    }
+
+    @media (max-width: 600px) {
+      .app-bar { height: 52px; padding: 0 14px; }
+      .app-section,
+      .app-divider,
+      .app-link { display: none; }
+      .surface {
+        width: 100%;
+        margin: 0;
+        padding: 16px 12px 0;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+      }
+      .page-head { min-height: 48px; margin-bottom: 12px; }
+      .eyebrow { font-size: 11px; }
+      h1 { font-size: 27px; }
+      .player { height: 236px; border-radius: 12px 12px 4px 4px; }
+      .player::before { left: calc(50% - 118px); }
+      .player::after { right: calc(50% - 118px); }
+      .video-topline { top: 10px; left: 11px; right: 11px; }
+      .output-label { display: none; }
+      .meta-strip { grid-template-columns: repeat(2, 1fr); }
+      .meta-item { padding: 10px 11px; }
+      .meta-item:nth-child(3),
+      .meta-item:nth-child(5) { border-left: 0; }
+      .meta-item:nth-child(3) { border-top: 1px solid var(--line); }
+      .document-section { grid-template-columns: 38px minmax(0, 1fr); }
+      .prompt-document { padding: 13px 12px; }
+      .prompt-head { gap: 10px; }
+      .copy-feedback { display: none; }
+      .prompt-text { line-height: 1.62; }
+      .action-zone {
+        position: relative;
+        margin: 14px -12px 0;
+        padding: 15px 12px 24px;
+        border-left: 0;
+        border-right: 0;
+        border-bottom: 0;
+        border-radius: 24px 24px 0 0;
+        box-shadow: 0 -10px 30px rgba(23, 40, 34, 0.08);
+      }
+      .route-notice { align-items: flex-start; }
+      .button-row { display: grid; grid-template-columns: 1fr; }
+      .action-button { width: 100%; min-height: 42px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="app-bar">
+    <div class="brand-lockup">
+      <div class="brand-mark" aria-hidden="true">K</div>
+      <div class="brand-name">KALI</div>
+      <div class="app-divider" aria-hidden="true"></div>
+      <div class="app-section">AI VIDEO LAB</div>
+    </div>
+    <div class="app-actions">
+      <button class="app-link" type="button">成片库</button>
+      <div class="avatar" aria-label="当前用户">YR</div>
+    </div>
+  </header>
+
+  <main class="surface">
+    <header class="page-head">
+      <div>
+        <p class="eyebrow">VIDEO OUTPUT</p>
+        <h1>成片详情</h1>
+      </div>
+      <div class="path-steps" aria-label="详情操作路径">
+        <div class="step"><span class="step-number">01</span><span>查看成片</span></div>
+        <div class="step"><span class="step-number">02</span><span>核对指令</span></div>
+        <div class="step current"><span class="step-number">03</span><span>选择下一步</span></div>
+      </div>
+    </header>
+
+    <section aria-label="成片预览">
+      <div class="player">
+        <img class="video-frame" src="../public/yixiu-assets/trial-video.jpg" alt="AI 视频成片预览：人物与剪辑画面" />
+        <div class="video-topline">
+          <span class="output-label">REFERENCE TO VIDEO · 9:16</span>
+          <div class="status-cluster">
+            <span class="status-pill">已完成</span>
+          </div>
+        </div>
+        <button class="play-control" id="playControl" type="button" aria-label="播放预览"></button>
+        <div class="player-controls" aria-hidden="true">
+          <span id="timeLabel">0:00 / 0:15</span>
+          <span class="progress"><span id="progressBar"></span></span>
+          <span>HD&nbsp;&nbsp;⛶</span>
+        </div>
+      </div>
+
+      <div class="meta-strip" aria-label="生成参数">
+        <div class="meta-item"><span class="meta-label">模型</span><span class="meta-value">seedance-2-mini</span></div>
+        <div class="meta-item"><span class="meta-label">生成方式</span><span class="meta-value">参考生视频</span></div>
+        <div class="meta-item"><span class="meta-label">规格</span><span class="meta-value">15 秒 · 480P · 9:16</span></div>
+        <div class="meta-item"><span class="meta-label">积分</span><span class="meta-value">57</span></div>
+        <div class="meta-item"><span class="meta-label">结算状态</span><span class="meta-value">charged</span></div>
+        <div class="meta-item"><span class="meta-label">创建时间</span><span class="meta-value">2026-09-14 16:25:17</span></div>
+      </div>
+    </section>
+
+    <section class="document-section" aria-labelledby="promptTitle">
+      <div class="section-index">02</div>
+      <div class="prompt-document">
+        <div class="prompt-head">
+          <div>
+            <p class="prompt-kicker">生成指令 · 完整记录</p>
+            <h2 id="promptTitle">本次使用的提示词</h2>
+          </div>
+          <div class="prompt-tools">
+            <span class="copy-feedback" id="copyFeedback" aria-live="polite"></span>
+            <button class="copy-button" id="copyPrompt" type="button">复制提示词</button>
+          </div>
+        </div>
+        <p class="prompt-text" id="promptText">镜头从咨询师肩后缓慢推进，年轻女性坐在桌前认真记录。自然窗光，浅景深，克制的手持呼吸感。她抬头微笑并说：“我开始明白自己真正想要什么了。”保持人物、服装与房间陈设一致，写实电影质感。</p>
+        <div class="inherit-row" aria-label="可继承内容">
+          <span class="inherit-label">可带入下一步</span>
+          <span class="inherit-tag">原提示词</span>
+          <span class="inherit-tag">模型与规格</span>
+          <span class="inherit-tag">声音设置</span>
+          <span class="inherit-tag">可恢复参考素材</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="action-zone" aria-label="下一步操作">
+      <div class="route-notice" id="pathNotice" aria-live="polite">生成类动作都会先进入创建页确认，并重新试算积分；这里不会直接提交或扣费。</div>
+
+      <div class="action-grid">
+        <article class="action-group generate">
+          <div class="group-title"><h3>继续生成</h3><span class="group-code">CREATE NEXT</span></div>
+          <p class="group-copy">同参再试、修改重做，或从当前结尾继续。</p>
+          <div class="button-row">
+            <button class="action-button primary" type="button" data-route="retry">重试</button>
+            <button class="action-button" type="button" data-route="edit">编辑后重做</button>
+            <button class="action-button" type="button" data-route="extend">制作续集</button>
+          </div>
+        </article>
+
+        <article class="action-group post">
+          <div class="group-title"><h3>后处理</h3><span class="group-code">POST PROCESS</span></div>
+          <p class="group-copy">成片内容不变，进入包装或发布流程。</p>
+          <div class="button-row">
+            <button class="action-button" type="button" data-route="package">包装视频</button>
+            <button class="action-button" type="button" data-route="publish">发布</button>
+          </div>
+        </article>
+
+        <article class="action-group file">
+          <div class="group-title"><h3>文件</h3><span class="group-code">OUTPUT</span></div>
+          <p class="group-copy">保留当前已完成版本。</p>
+          <div class="button-row">
+            <button class="action-button" type="button" data-route="download">下载视频</button>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const routeCopy = {
+      retry: "重试路径：复用原提示词、模型、生成方式、规格、声音与可恢复参考素材 → 创建页确认 → 重新试算积分 → 你确认后才提交。此处不扣积分。",
+      edit: "编辑后重做：完整内容带入创建页，焦点直接落在提示词 → 你可修改指令或参数 → 重新试算积分 → 确认后提交。此处不扣积分。",
+      extend: "续集路径：当前成片作为来源视频，原提示词转为“接下来发生什么”草稿 → 续集确认态 → 模型不兼容时先提示切换 → 重新试算后确认。此处不扣积分。",
+      package: "包装路径：当前成片进入视频包装流程，可继续选择包装配置；不会重新生成当前视频。",
+      publish: "发布路径：当前成片进入发布配置，补充标题、话题、账号与发布时间后再确认。",
+      download: "文件路径：下载当前已完成版本，不会创建新任务，也不会扣积分。"
+    };
+
+    const pathNotice = document.getElementById("pathNotice");
+    const routeButtons = Array.from(document.querySelectorAll("[data-route]"));
+
+    routeButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        routeButtons.forEach((item) => item.classList.remove("selected"));
+        button.classList.add("selected");
+        pathNotice.textContent = routeCopy[button.dataset.route];
+      });
+    });
+
+    async function writePromptToClipboard(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return;
+      }
+
+      const helper = document.createElement("textarea");
+      helper.value = text;
+      helper.setAttribute("readonly", "");
+      helper.style.position = "fixed";
+      helper.style.opacity = "0";
+      document.body.appendChild(helper);
+      helper.select();
+      document.execCommand("copy");
+      helper.remove();
+    }
+
+    const copyButton = document.getElementById("copyPrompt");
+    const copyFeedback = document.getElementById("copyFeedback");
+
+    copyButton.addEventListener("click", async () => {
+      const prompt = document.getElementById("promptText").textContent.trim();
+      try {
+        await writePromptToClipboard(prompt);
+        copyButton.textContent = "已复制";
+        copyFeedback.textContent = "可直接粘贴";
+      } catch (error) {
+        copyButton.textContent = "请手动复制";
+        copyFeedback.textContent = "复制未完成";
+      }
+
+      window.setTimeout(() => {
+        copyButton.textContent = "复制提示词";
+        copyFeedback.textContent = "";
+      }, 1800);
+    });
+
+    const playControl = document.getElementById("playControl");
+    const progressBar = document.getElementById("progressBar");
+    const timeLabel = document.getElementById("timeLabel");
+    let previewing = false;
+
+    playControl.addEventListener("click", () => {
+      previewing = !previewing;
+      playControl.setAttribute("aria-label", previewing ? "暂停预览" : "播放预览");
+      progressBar.style.width = previewing ? "68%" : "36%";
+      timeLabel.textContent = previewing ? "0:10 / 0:15" : "0:00 / 0:15";
+    });
+  </script>
+</body>
+</html>

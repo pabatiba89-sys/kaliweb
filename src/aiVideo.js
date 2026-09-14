@@ -140,6 +140,47 @@ export function getAIVideoRemakeDraft(record = {}) {
   };
 }
 
+export function getAIVideoSequelDraft(record = {}, modelKey = AI_VIDEO_DEFAULT_MODEL_KEY) {
+  const draft = getAIVideoRemakeDraft(record);
+  const source = objectOf(record.raw || record);
+  const input = objectOf(firstValue(source.input, source.input_json, record.input));
+  const result = objectOf(firstValue(source.result_data, source.resultData));
+  const videoUrl = String(firstValue(record.videoUrl, source.video_url, source.videoUrl, result.video_url, result.videoUrl) || '');
+  const duration = Number(firstValue(record.duration, source.duration, result.duration)) || 0;
+  const prompt = String(draft.form.prompt || '').trim();
+  const fallbackImages = listOf(firstValue(input.reference_image_urls, input.referenceImageUrls, input.image_urls, input.imageUrls))
+    .map(urlOf)
+    .filter(Boolean)
+    .map((url, index) => ({ id: `sequel-image-${index}`, url, type: 'image', name: `Reference image ${index + 1}` }));
+  const continuationCue = /[\u3400-\u9fff]/.test(prompt)
+    ? '续集：从当前视频结尾自然衔接。接下来：'
+    : 'Continue seamlessly from the end of the current video. Next:';
+
+  return {
+    form: {
+      ...draft.form,
+      model: String(modelKey || draft.form.model || AI_VIDEO_DEFAULT_MODEL_KEY),
+      mode: 'reference-to-video',
+      prompt: [prompt, continuationCue].filter(Boolean).join('\n\n'),
+      firstFrameUrl: '',
+      lastFrameUrl: '',
+      characterIds: '',
+      audioIds: '',
+    },
+    references: {
+      images: draft.references.images.length ? draft.references.images : fallbackImages,
+      videos: videoUrl ? [{
+        id: 'sequel-source-video',
+        url: videoUrl,
+        type: 'video',
+        name: 'Current finished video',
+        duration,
+      }] : [],
+      audios: draft.references.audios,
+    },
+  };
+}
+
 export function buildAIVideoPayload(form = {}, references = {}) {
   const images = Array.isArray(references.images) ? references.images : [];
   const videos = Array.isArray(references.videos) ? references.videos : [];

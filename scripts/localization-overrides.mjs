@@ -1641,6 +1641,81 @@ const aiVideoPromptAssistantOverrides = {
   },
 };
 
+const aiVideoDetailFlowOverrides = {
+  'en-US': {
+    '本次提示词': 'Prompt used for this video',
+    '复制提示词': 'Copy prompt',
+    '已复制': 'Copied',
+    '从这条记录继续': 'Continue from this result',
+    '所有路径都会先进入创建页确认，不会在此处直接扣积分。': 'Every path opens the creation page for review. No credits are charged here.',
+    '重试 · 原样复用': 'Retry · Reuse everything',
+    '同样的提示词和参数，再生成一个版本': 'Generate another version with the same prompt and settings',
+    '编辑后重做': 'Edit and remake',
+    '完整预填创建页，并把焦点放在提示词': 'Prefill the creation page and focus the prompt',
+    '制作续集': 'Create a sequel',
+    '以当前片尾为起点，编辑“接下来发生什么”': 'Continue from the current ending and describe what happens next',
+    '完成后的处理': 'Post-production',
+    '不改变当前成片': 'Keeps the current video unchanged',
+    '当前成片是重试、改稿和续集的共同起点': 'Use this video as the starting point for retrying, editing, or continuing',
+    'AI 视频成片': 'Finished AI video',
+    '提示词已复制。': 'Prompt copied.',
+    '提示词复制失败，请手动选择复制。': 'The prompt could not be copied. Select and copy it manually.',
+    '已原样带入提示词和生成设置；确认积分后可重新生成一个版本。': 'The original prompt and settings are ready. Review the credit estimate to generate another version.',
+    '已带入原提示词、生成参数和参考素材，请修改后再制作。': 'The original prompt, settings, and references are ready. Edit them before generating.',
+    '当前成片缺少时长信息，暂时无法作为续集参考视频。': 'This video has no duration data and cannot be used as a sequel reference yet.',
+    '当前没有可用于制作续集的参考生视频模型。': 'No reference-to-video model is currently available for creating a sequel.',
+    '已将当前成片作为续集参考，请补充“接下来发生什么”，确认积分后再生成。': 'The current video is now the sequel reference. Describe what happens next and review the credit estimate before generating.',
+  },
+  'zh-CN': {
+    '本次提示词': '本次提示词',
+    '复制提示词': '复制提示词',
+    '已复制': '已复制',
+    '从这条记录继续': '从这条记录继续',
+    '所有路径都会先进入创建页确认，不会在此处直接扣积分。': '所有路径都会先进入创建页确认，不会在此处直接扣积分。',
+    '重试 · 原样复用': '重试 · 原样复用',
+    '同样的提示词和参数，再生成一个版本': '同样的提示词和参数，再生成一个版本',
+    '编辑后重做': '编辑后重做',
+    '完整预填创建页，并把焦点放在提示词': '完整预填创建页，并把焦点放在提示词',
+    '制作续集': '制作续集',
+    '以当前片尾为起点，编辑“接下来发生什么”': '以当前片尾为起点，编辑“接下来发生什么”',
+    '完成后的处理': '完成后的处理',
+    '不改变当前成片': '不改变当前成片',
+    '当前成片是重试、改稿和续集的共同起点': '当前成片是重试、改稿和续集的共同起点',
+    'AI 视频成片': 'AI 视频成片',
+    '提示词已复制。': '提示词已复制。',
+    '提示词复制失败，请手动选择复制。': '提示词复制失败，请手动选择复制。',
+    '已原样带入提示词和生成设置；确认积分后可重新生成一个版本。': '已原样带入提示词和生成设置；确认积分后可重新生成一个版本。',
+    '已带入原提示词、生成参数和参考素材，请修改后再制作。': '已带入原提示词、生成参数和参考素材，请修改后再制作。',
+    '当前成片缺少时长信息，暂时无法作为续集参考视频。': '当前成片缺少时长信息，暂时无法作为续集参考视频。',
+    '当前没有可用于制作续集的参考生视频模型。': '当前没有可用于制作续集的参考生视频模型。',
+    '已将当前成片作为续集参考，请补充“接下来发生什么”，确认积分后再生成。': '已将当前成片作为续集参考，请补充“接下来发生什么”，确认积分后再生成。',
+  },
+  'zh-TW': {
+    '本次提示词': '本次提示詞',
+    '复制提示词': '複製提示詞',
+    '已复制': '已複製',
+    '从这条记录继续': '從這筆結果繼續',
+    '所有路径都会先进入创建页确认，不会在此处直接扣积分。': '所有路徑都會先進入建立頁確認，不會在此處直接扣除積分。',
+    '重试 · 原样复用': '重試 · 原樣沿用',
+    '同样的提示词和参数，再生成一个版本': '使用相同提示詞與參數，再生成一個版本',
+    '编辑后重做': '編輯後重做',
+    '完整预填创建页，并把焦点放在提示词': '完整預填建立頁，並將焦點放在提示詞',
+    '制作续集': '製作續集',
+    '以当前片尾为起点，编辑“接下来发生什么”': '以目前片尾為起點，編輯「接下來發生什麼」',
+    '完成后的处理': '完成後的處理',
+    '不改变当前成片': '不改變目前成片',
+    '当前成片是重试、改稿和续集的共同起点': '目前成片是重試、改稿與續集的共同起點',
+    'AI 视频成片': 'AI 影片成片',
+    '提示词已复制。': '提示詞已複製。',
+    '提示词复制失败，请手动选择复制。': '提示詞複製失敗，請手動選取並複製。',
+    '已原样带入提示词和生成设置；确认积分后可重新生成一个版本。': '已原樣帶入提示詞與生成設定；確認積分後可重新生成一個版本。',
+    '已带入原提示词、生成参数和参考素材，请修改后再制作。': '已帶入原提示詞、生成參數與參考素材，請修改後再製作。',
+    '当前成片缺少时长信息，暂时无法作为续集参考视频。': '目前成片缺少時長資訊，暫時無法作為續集參考影片。',
+    '当前没有可用于制作续集的参考生视频模型。': '目前沒有可用於製作續集的參考生影片模型。',
+    '已将当前成片作为续集参考，请补充“接下来发生什么”，确认积分后再生成。': '已將目前成片作為續集參考，請補充「接下來發生什麼」，確認積分後再生成。',
+  },
+};
+
 const aiVideoPublishOverrides = {
   'en-US': {
     '发布 AI 视频': 'Publish AI video',
@@ -2329,6 +2404,7 @@ export const workspaceLocalizationOverrides = Object.fromEntries(Object.entries(
   Object.assign(overrides, aiVideoEnglishFallbacks);
   Object.assign(overrides, aiVideoClonedVoiceOverrides[locale] || {});
   Object.assign(overrides, aiVideoPromptAssistantOverrides[locale] || aiVideoPromptAssistantOverrides['en-US']);
+  Object.assign(overrides, aiVideoDetailFlowOverrides[locale] || aiVideoDetailFlowOverrides['en-US']);
   Object.assign(overrides, aiVideoPublishOverrides[locale] || aiVideoPublishOverrides['en-US']);
   Object.assign(overrides, publishCenterOverrides[locale] || publishCenterOverrides['en-US']);
   aiVideoCoreKeys.forEach((key, index) => { overrides[key] = aiVideoCoreRows[locale][index]; });
