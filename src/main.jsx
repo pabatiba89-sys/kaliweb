@@ -121,6 +121,7 @@ import {
   normalizeAIVideoTopics,
 } from './aiVideo';
 import { buildRealmanPackagingPayload } from './realmanVideo';
+import { AFFILIATE_UI_ENABLED } from './featureFlags';
 import {
   buildLocalPublisherLoginUrl,
   buildProductionVideoPublishPayload,
@@ -238,7 +239,7 @@ const primaryNavItems = [
 const accountMenuItems = [
   { id: 'billing', label: 'Credits & orders', icon: CircleDollarSign },
   { id: 'team', label: 'Team Center', icon: Building2 },
-  { id: 'affiliate', label: 'Affiliate Center', icon: UsersRound },
+  ...(AFFILIATE_UI_ENABLED ? [{ id: 'affiliate', label: 'Affiliate Center', icon: UsersRound }] : []),
   { id: 'presets', label: 'Packaging Presets', icon: Cuboid },
   { id: 'templates', label: 'Templates', icon: GalleryVerticalEnd },
   { id: 'publish-settings', label: 'Publish Settings', icon: Send },
@@ -14065,16 +14066,18 @@ function LoginModal({ open, initialInviteCode, onClose, onSuccess, onOpenInfo, o
             <span>Nickname</span>
             <input value={form.nickname} onChange={(event) => update('nickname', event.target.value)} placeholder="Optional" />
           </label>
-          <label>
-            <span>Invite code</span>
-            <input
-              value={form.inviteCode}
-              maxLength={6}
-              onChange={(event) => update('inviteCode', event.target.value.replace(/[^a-z0-9]/gi, '').toUpperCase().slice(0, 6))}
-              placeholder="Optional for new accounts"
-              autoCapitalize="characters"
-            />
-          </label>
+          {AFFILIATE_UI_ENABLED && (
+            <label>
+              <span>Invite code</span>
+              <input
+                value={form.inviteCode}
+                maxLength={6}
+                onChange={(event) => update('inviteCode', event.target.value.replace(/[^a-z0-9]/gi, '').toUpperCase().slice(0, 6))}
+                placeholder="Optional for new accounts"
+                autoCapitalize="characters"
+              />
+            </label>
+          )}
           <label className="checkbox-row">
             <input
               type="checkbox"
@@ -14461,18 +14464,19 @@ export default function App() {
     window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
   };
   const selectNav = (id, { preserveHotTopic = false } = {}) => {
-    const useHotTopic = id === 'assistant' && preserveHotTopic;
-    if (id === 'assistant' && !useHotTopic) window.localStorage.removeItem(HOT_TOPIC_FLOW_KEY);
+    const targetId = id === 'affiliate' && !AFFILIATE_UI_ENABLED ? 'home' : id;
+    const useHotTopic = targetId === 'assistant' && preserveHotTopic;
+    if (targetId === 'assistant' && !useHotTopic) window.localStorage.removeItem(HOT_TOPIC_FLOW_KEY);
     setAssistantUsesHotTopic(useHotTopic);
-    syncWorkspacePageQuery(id);
-    setActive(id);
+    syncWorkspacePageQuery(targetId);
+    setActive(targetId);
     setVideoCreatorOpen(false);
     setVideoCreatorPrefill(false);
     setEditorSeed(null);
     setGeneratorAgent(null);
     setAIVideoPromptAssistant(null);
     setAIVideoPackagingSource(null);
-    if (id !== 'ai-video') setAIVideoPromptDraft(null);
+    if (targetId !== 'ai-video') setAIVideoPromptDraft(null);
     setImageTrainingSeed(null);
     setAssetInitialMode('');
     setMobileNav(false);
@@ -14585,7 +14589,7 @@ export default function App() {
 
   return (
     <div className="app-shell">
-      {inviteAttributionNotice.text && (
+      {AFFILIATE_UI_ENABLED && inviteAttributionNotice.text && (
         <div className={`invite-attribution-toast${inviteAttributionNotice.error ? ' is-error' : ''}`} role="status">
           {inviteAttributionNotice.error ? <AlertCircle size={18} /> : <CheckCircle2 size={18} />}
           <span>{inviteAttributionNotice.text}</span>
@@ -14875,7 +14879,7 @@ export default function App() {
                 authVersion={authVersion}
                 onLogin={() => setLoginOpen(true)}
               />
-            ) : active === 'affiliate' ? (
+            ) : active === 'affiliate' && AFFILIATE_UI_ENABLED ? (
               <AffiliatePage
                 language={language}
                 authVersion={authVersion}
