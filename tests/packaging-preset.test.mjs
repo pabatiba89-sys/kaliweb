@@ -2,10 +2,22 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+  buildPackagingPresetListParams,
   buildPackagingPresetPayload,
   getVoiceSpeakerId,
   matchesVoiceIdentifier,
+  shouldShowPackagingPresetPicker,
 } from '../src/packagingPreset.js';
+
+test('keeps the packaging preset picker visible in human video modes', () => {
+  assert.equal(shouldShowPackagingPresetPicker(true), true);
+  assert.equal(shouldShowPackagingPresetPicker(false), false);
+});
+
+test('loads packaging presets even when the team phone is unavailable', () => {
+  assert.deepEqual(buildPackagingPresetListParams(''), {});
+  assert.deepEqual(buildPackagingPresetListParams(' 13800138000 '), { teamPhone: '13800138000' });
+});
 
 test('saves the selected speaker ID instead of the voice training ID', () => {
   const payload = buildPackagingPresetPayload({

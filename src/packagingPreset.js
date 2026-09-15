@@ -6,6 +6,13 @@ const firstText = (...values) => {
   return '';
 };
 
+export const buildPackagingPresetListParams = (teamPhone = '') => {
+  const normalizedTeamPhone = firstText(teamPhone);
+  return normalizedTeamPhone ? { teamPhone: normalizedTeamPhone } : {};
+};
+
+export const shouldShowPackagingPresetPicker = (needsHuman) => Boolean(needsHuman);
+
 export const getVoiceSpeakerId = (voice = {}) => firstText(
   voice.speakerId,
   voice.speaker_id,
