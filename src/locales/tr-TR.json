@@ -2316,5 +2316,8 @@
   "声音时长不能少于 30 秒": "Ses en az 30 saniye olmalıdır.",
   "声音时长 30 秒到 2 分钟": "Ses süresi: 30 saniye ile 2 dakika arası",
   "30 秒到 2:00，支持 mp3 / wav / m4a / aac": "30 saniye ile 2:00 arası; mp3 / wav / m4a / aac desteklenir",
-  "清晰正脸，时长 30 秒到 2:00": "Yüz önden ve net görünmeli; süre 30 saniye ile 2:00 arası"
+  "清晰正脸，时长 30 秒到 2:00": "Yüz önden ve net görünmeli; süre 30 saniye ile 2:00 arası",
+  "选择声音和包装混剪模板，并设置背景音乐和封面。": "Choose a voice and packaging template, then configure music and the cover.",
+  "真人口播模板必选；背景音乐和封面可按需关闭。": "A real-person template is required. Background music and the cover can be turned off.",
+  "补充素材可选，总时长不超过 5 分钟。": "Additional media is optional and limited to five minutes total."
 }

@@ -96,3 +96,31 @@ test('keeps the cover template and cover image in separate submission fields', (
   });
   assert.deepEqual(payload.shanjianData.processRules, payload.processRules);
 });
+
+test('explicitly disables background music and cover for real-person packaging', () => {
+  const payload = buildRealmanPackagingPayload({
+    sourceVideo: { videoUrl: 'https://cdn.example.com/source.mp4', duration: 5 },
+    title: 'No optional media',
+    topic: 'Workplace',
+    template: { id: 'style-11' },
+    music: { audioUrl: 'https://cdn.example.com/old-music.mp3' },
+    cover: { url: 'https://cdn.example.com/old-cover.jpg' },
+    coverTemplate: { id: 'old-cover-template' },
+    useBackgroundMusic: false,
+    useCover: false,
+  });
+
+  assert.equal(payload.useBackgroundMusic, false);
+  assert.equal(payload.useCover, false);
+  assert.equal(payload.coverUrl, '');
+  assert.equal(payload.coverTemplateId, '');
+  assert.deepEqual(payload.packRules.backgroundMusic, {
+    audioSwitch: false,
+    audioUrl: '',
+    url: '',
+    volume: 0.3,
+  });
+  assert.deepEqual(payload.processRules, { firstFrameCover: { coverSwitch: false } });
+  assert.equal(payload.shanjianData.useBackgroundMusic, false);
+  assert.equal(payload.shanjianData.useCover, false);
+});

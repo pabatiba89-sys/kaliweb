@@ -2415,5 +2415,8 @@
   "声音时长不能少于 30 秒": "ऑडियो कम से कम 30 सेकंड का होना चाहिए।",
   "声音时长 30 秒到 2 分钟": "ऑडियो अवधि: 30 सेकंड से 2 मिनट",
   "30 秒到 2:00，支持 mp3 / wav / m4a / aac": "30 सेकंड से 2:00 तक; mp3 / wav / m4a / aac समर्थित",
-  "清晰正脸，时长 30 秒到 2:00": "चेहरा सामने से साफ़ दिखे; अवधि 30 सेकंड से 2:00 तक"
+  "清晰正脸，时长 30 秒到 2:00": "चेहरा सामने से साफ़ दिखे; अवधि 30 सेकंड से 2:00 तक",
+  "选择声音和包装混剪模板，并设置背景音乐和封面。": "Choose a voice and packaging template, then configure music and the cover.",
+  "真人口播模板必选；背景音乐和封面可按需关闭。": "A real-person template is required. Background music and the cover can be turned off.",
+  "补充素材可选，总时长不超过 5 分钟。": "Additional media is optional and limited to five minutes total."
 }

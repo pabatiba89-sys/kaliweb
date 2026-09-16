@@ -1,6 +1,12 @@
 # 视频制作可选背景音乐与封面
 
-数字人口播 `POST /api/video/production/create` 和混剪视频 `POST /api/video-mix/create` 的前端请求新增两个布尔字段：
+以下视频制作请求统一使用两个布尔字段：
+
+- 数字人口播 `POST /api/video/production/create`
+- 混剪视频 `POST /api/video-mix/create`
+- 形象播报 Pro `POST /api/video/custom-virtualman-broadcast/create`
+- 素材成片 Pro `POST /api/video-mix/custom-broadcast-mixcut/create`
+- 真人视频包装 `POST /api/video/realman-broadcast/create`
 
 ```json
 {
@@ -21,4 +27,4 @@
 
 ## 当前兼容差异
 
-当前只读后台会在数字人口播和混剪正式提交时强制随机匹配并开启背景音乐，还会在没有可用音乐时返回错误。后台完成上述适配前，前端关闭音乐的选择可以正确保存和提交，但不会改变最终成片。
+当前只读后台会在部分正式提交路径中强制随机匹配并开启背景音乐，还可能在没有可用音乐时返回错误。上述五条创建路径都必须按相同规则解析并下传开关；后台完成适配前，前端可正确保存和提交关闭状态，但某些路径的最终成片仍可能不受影响。
