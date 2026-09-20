@@ -13220,6 +13220,12 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
     setInput('');
     const controller = new AbortController();
     streamAbortRef.current = controller;
+    let timedOut = false;
+    const timeout = window.setTimeout(() => {
+      timedOut = true;
+      controller.abort();
+    }, 120000);
+    controller.signal.addEventListener('abort', () => window.clearTimeout(timeout), { once: true });
     try {
       const reply = await requestGeneratedCopy({
         prompt,
@@ -13237,6 +13243,7 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
           setMessages(nextMessages.concat({ role: 'assistant', text: partialText, roundNo: nextRoundNo, streaming: true }));
         },
       });
+      window.clearTimeout(timeout);
       if (isGeneratedMarkupFailure(reply.text)) throw new Error(GENERATED_CONTENT_UNAVAILABLE_MESSAGE);
       if (reply.conversationId) {
         setCurrentConversationId(reply.conversationId);
@@ -13265,15 +13272,16 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
       }
       if (!restoredReusedConversation) setMessages(localMessages);
     } catch (error) {
-      if (error.name !== 'AbortError') {
+      if (timedOut || error.name !== 'AbortError') {
         setMessages(nextMessages.concat({
           role: 'assistant',
-          text: error.message || '文案生成失败，请重试',
+          text: timedOut ? '文案生成超过 2 分钟，请重新生成。' : error.message || '文案生成失败，请重试',
           roundNo: nextRoundNo,
           error: true,
         }));
       }
     } finally {
+      window.clearTimeout(timeout);
       if (streamAbortRef.current === controller) streamAbortRef.current = null;
       generatingRef.current = false;
       setLoading(false);

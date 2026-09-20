@@ -2450,6 +2450,32 @@ const publishSettingsOverrides = {
   },
 };
 
+const copyGenerationTimeoutMessages = {
+  'zh-TW': '文案生成超過 2 分鐘，請重新生成。',
+  'en-US': 'Text generation exceeded 2 minutes. Please generate again.',
+  'es-MX': 'La generación de texto superó los 2 minutos. Vuelve a generarlo.',
+  'fr-FR': 'La génération du texte a dépassé 2 minutes. Veuillez réessayer.',
+  'ru-RU': 'Генерация текста заняла больше 2 минут. Попробуйте снова.',
+  'de-DE': 'Die Texterstellung hat länger als 2 Minuten gedauert. Bitte erneut generieren.',
+  'pt-PT': 'A geração de texto excedeu 2 minutos. Tente gerar novamente.',
+  'ar-AE': 'تجاوز إنشاء النص دقيقتين. يرجى إعادة المحاولة.',
+  'it-IT': 'La generazione del testo ha superato i 2 minuti. Riprova.',
+  'ja-JP': '文章の生成が2分を超えました。もう一度生成してください。',
+  'ko-KR': '텍스트 생성 시간이 2분을 초과했습니다. 다시 생성해 주세요.',
+  'id-ID': 'Pembuatan teks melebihi 2 menit. Silakan buat ulang.',
+  'vi-VN': 'Quá trình tạo văn bản đã vượt quá 2 phút. Vui lòng tạo lại.',
+  'tr-TR': 'Metin oluşturma 2 dakikayı aştı. Lütfen yeniden oluşturun.',
+  'nl-NL': 'Het genereren van tekst duurde langer dan 2 minuten. Probeer het opnieuw.',
+  'uk-UA': 'Генерація тексту тривала понад 2 хвилини. Спробуйте ще раз.',
+  'th-TH': 'การสร้างข้อความใช้เวลาเกิน 2 นาที กรุณาสร้างใหม่อีกครั้ง',
+  'pl-PL': 'Generowanie tekstu przekroczyło 2 minuty. Wygeneruj ponownie.',
+  'ro-RO': 'Generarea textului a depășit 2 minute. Încearcă din nou.',
+  'el-GR': 'Η δημιουργία κειμένου ξεπέρασε τα 2 λεπτά. Δοκιμάστε ξανά.',
+  'cs-CZ': 'Generování textu překročilo 2 minuty. Zkuste to znovu.',
+  'fi-FI': 'Tekstin luominen kesti yli 2 minuuttia. Yritä uudelleen.',
+  'hi-IN': 'टेक्स्ट बनाने में 2 मिनट से अधिक समय लगा। कृपया दोबारा बनाएँ।',
+};
+
 export const workspaceLocalizationOverrides = Object.fromEntries(Object.entries(actionRows).map(([locale, values]) => {
   const overrides = {};
   actionKeys.forEach((key, index) => actionAliases[key].forEach((source) => { overrides[source] = values[index]; }));
@@ -2468,6 +2494,7 @@ export const workspaceLocalizationOverrides = Object.fromEntries(Object.entries(
   chatHistoryKeys.forEach((key, index) => { overrides[key] = chatHistoryRows[locale][index]; });
   chatRoundKeys.forEach((key, index) => { overrides[key] = chatRoundRows[locale][index]; });
   overrides['重新生成'] = regenerateLabels[locale];
+  overrides['文案生成超过 2 分钟，请重新生成。'] = copyGenerationTimeoutMessages[locale];
   overrides['语速'] = voiceSpeedLabels[locale];
   trainingMediaDurationKeys.forEach((key, index) => { overrides[key] = trainingMediaDurationRows[locale][index]; });
   Object.assign(overrides, affiliateOverrides[locale] || {});

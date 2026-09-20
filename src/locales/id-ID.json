@@ -2345,5 +2345,6 @@
   "清晰正脸，时长 30 秒到 2:00": "Wajah terlihat jelas dari depan; durasi 30 detik hingga 2:00",
   "选择声音和包装混剪模板，并设置背景音乐和封面。": "Choose a voice and packaging template, then configure music and the cover.",
   "真人口播模板必选；背景音乐和封面可按需关闭。": "A real-person template is required. Background music and the cover can be turned off.",
-  "补充素材可选，总时长不超过 5 分钟。": "Additional media is optional and limited to five minutes total."
+  "补充素材可选，总时长不超过 5 分钟。": "Additional media is optional and limited to five minutes total.",
+  "文案生成超过 2 分钟，请重新生成。": "Pembuatan teks melebihi 2 menit. Silakan buat ulang."
 }
