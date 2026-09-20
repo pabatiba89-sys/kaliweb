@@ -2465,6 +2465,8 @@ function MusicStudioPage({ authVersion, onLogin, onOpenLyrics, onOpenBilling }) 
   const [musicVideoAuthor, setMusicVideoAuthor] = useState('');
   const [musicVideoFormMessage, setMusicVideoFormMessage] = useState('');
   const [lastMusicVideoAuthor, setLastMusicVideoAuthor] = useState('');
+  const [lyricsLoading, setLyricsLoading] = useState(false);
+  const lyricsRequestRef = useRef(null);
   const authed = Boolean(getAccessToken());
   const selectedStyle = MUSIC_STYLES.find((item) => item.key === form.styleKey) || MUSIC_STYLES[0];
   const isPrompt = inputType === 'prompt';
@@ -2478,6 +2480,33 @@ function MusicStudioPage({ authVersion, onLogin, onOpenLyrics, onOpenBilling }) 
     : Boolean(textOf(form.title) && styleText && (isInstrumental || promptText));
 
   const updateForm = (key, value) => setForm((current) => ({ ...current, [key]: value }));
+  useEffect(() => () => { lyricsRequestRef.current = null; }, []);
+
+  const openLyrics = async () => {
+    if (!authed) {
+      onLogin();
+      return;
+    }
+    if (lyricsRequestRef.current) return;
+    const request = {};
+    lyricsRequestRef.current = request;
+    setLyricsLoading(true);
+    setMessage('');
+    try {
+      const agent = await loadAgentByExactName('歌曲制作', '创作助手列表获取失败');
+      if (lyricsRequestRef.current !== request) return;
+      if (!agent) throw new Error('暂无创作助手');
+      onOpenLyrics(agent);
+    } catch (error) {
+      if (lyricsRequestRef.current === request) setMessage(error?.message || '创作助手列表获取失败');
+    } finally {
+      if (lyricsRequestRef.current === request) {
+        lyricsRequestRef.current = null;
+        setLyricsLoading(false);
+      }
+    }
+  };
+
   const loadMusic = async ({ nextPage = 1, append = false } = {}) => {
     if (!authed) {
       setItems([]);
@@ -2786,7 +2815,7 @@ function MusicStudioPage({ authVersion, onLogin, onOpenLyrics, onOpenBilling }) 
           <button className="outline-button" onClick={() => { setView('list'); setMessage(''); }}>返回音乐列表</button>
           <div><span>MUSIC CREATOR</span><h1>音乐制作</h1><p>描述想法、写入歌词或选择纯音乐，生成可直接试听的 AI 音乐。</p></div>
           <div className="music-create-tools">
-            <button onClick={onOpenLyrics}><Edit3 size={16} />AI 写歌词</button>
+            <button onClick={openLyrics} disabled={lyricsLoading} aria-busy={lyricsLoading}><Edit3 size={16} />{lyricsLoading ? '加载中…' : 'AI 写歌词'}</button>
             <span><Music2 size={16} />剩余 {musicRemaining === null ? '--' : musicRemaining} 次</span>
           </div>
         </header>
@@ -12068,7 +12097,7 @@ const mapAgent = (item = {}, index = 0) => {
 };
 const AI_VIDEO_DIALOGUE_AGENT_NAME = '双人对话';
 const normalizeAgentName = (value) => textOf(value).replace(/\s+/g, '');
-const loadAgentByExactName = async (targetName) => {
+const loadAgentByExactName = async (targetName, errorMessage = '双人对话指令集加载失败，请重试。') => {
   const normalizedTarget = normalizeAgentName(targetName);
   const pageSize = 100;
   const seenIds = new Set();
@@ -12088,7 +12117,7 @@ const loadAgentByExactName = async (targetName) => {
       },
       timeoutMs: 12000,
     });
-    if (!result.ok) throw new Error(getResultMessage(result, '双人对话指令集加载失败，请重试。'));
+    if (!result.ok) throw new Error(getResultMessage(result, errorMessage));
 
     const received = getAgentList(result).map((item, index) => mapAgent(item, (page - 1) * pageSize + index));
     const matched = received.find((agent) => normalizeAgentName(agent.name) === normalizedTarget);
@@ -14786,7 +14815,10 @@ export default function App() {
               <MusicStudioPage
                 authVersion={authVersion}
                 onLogin={() => setLoginOpen(true)}
-                onOpenLyrics={() => selectNav('assistant')}
+                onOpenLyrics={(agent) => {
+                  selectNav('assistant');
+                  setGeneratorAgent(agent);
+                }}
                 onOpenBilling={() => selectNav('billing')}
               />
             ) : active === 'speech' ? (
