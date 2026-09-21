@@ -3916,7 +3916,6 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
     updateSubmitProgress(5, '提交中');
     if (!selectedImage?.id) throw new Error('请选择或上传形象图片');
     if (!profileAgreement) throw new Error('请先同意数字人形象授权和形象信息采集协议');
-    let generatedImageId = selectedImage.origin === 'local' ? '' : selectedImage.id;
     let imageUrl = selectedImage.uploadedUrl || selectedImage.url;
     const requiresImageUpload = selectedImage.origin === 'local' && !selectedImage.uploadedUrl;
     if (requiresImageUpload) {
@@ -3929,15 +3928,11 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
       imageUrl = getUploadedUrl(uploadResult);
       if (!imageUrl) throw new Error('形象图片上传未返回可用地址');
       setUploadedImage((current) => current?.id === selectedImage.id ? { ...current, uploadedUrl: imageUrl } : current);
-      generatedImageId = '';
       updateSubmitProgress(42, '提交中');
     }
+    if (!imageUrl) throw new Error('形象图片缺少可用地址，请重新选择或上传');
     const { authorizationVideoId, authVideoUrl, isUploadedAuthVideo } = await resolveAuthVideo({ progressStart: requiresImageUpload ? 45 : 12, progressEnd: 76 });
     const payload = omitEmpty({
-      generatedImageId,
-      generated_image_id: generatedImageId,
-      imageGenerationId: generatedImageId,
-      image_generation_id: generatedImageId,
       imageUrl,
       image_url: imageUrl,
       coverUrl: imageUrl,
