@@ -3,8 +3,20 @@ export const pageConfigs = {
     title: 'Hot Trends',
     description: 'Track public and media trends, then turn a selected topic into a script flow.',
     endpoints: [
-      { label: 'Aggregated trends', path: '/api/hotlist/list', auth: false, params: { category: 'all' } },
-      { label: 'Media trends', path: '/api/hotlist/search', auth: false, params: { source: '抖音' } },
+      {
+        label: 'Realtime news and media',
+        path: '/api/hotlist/search',
+        method: 'POST',
+        auth: false,
+        body: {
+          mode: 'REALTIME',
+          rootCategories: ['新闻', '媒体'],
+          keywords: [],
+          limit: 50,
+          offset: 0,
+          distinct: false,
+        },
+      },
     ],
     actions: ['Send to AI Assistant', 'Save topic', 'Refresh'],
   },

@@ -438,28 +438,16 @@ const trendRows = [
   { source: 'BBC', topic: 'Synthetic media disclosure rules', category: 'News' },
 ];
 const trendCategories = [
-  { key: 'all', label: '综合', icon: '🐌', aliases: ['all', '综合', '全部'] },
-  { key: 'technology', label: '科技', icon: '💡', aliases: ['technology', '科技'] },
-  { key: 'finance', label: '财经', icon: '💹', aliases: ['finance', '财经'] },
-  { key: 'livelihood', label: '民生', icon: '🏡', aliases: ['livelihood', '民生', '生活'] },
-  { key: 'ai', label: 'AI', icon: '🤖', aliases: ['ai', 'AI'] },
-  { key: 'alltalk', label: '争议', icon: '🎬', aliases: ['alltalk', '争议', '争议榜'] },
-  { key: 'education', label: '教育', icon: '🎬', aliases: ['education', '教育', 'jiaoyu'] },
-  { key: 'game', label: '游戏', icon: '🎮', aliases: ['game', '游戏'] },
-  { key: 'entertainment', label: '媒体', icon: '🎬', aliases: ['entertainment', '媒体'] },
+  { key: 'all', label: '综合', icon: '🐌' },
+  { key: 'technology', label: '科技', icon: '💡' },
+  { key: 'finance', label: '财经', icon: '💹' },
+  { key: 'livelihood', label: '民生', icon: '🏡' },
+  { key: 'ai', label: 'AI', icon: '🤖' },
+  { key: 'alltalk', label: '争议', icon: '🎬' },
+  { key: 'education', label: '教育', icon: '🎬' },
+  { key: 'game', label: '游戏', icon: '🎮' },
+  { key: 'entertainment', label: '媒体', icon: '🎬' },
 ];
-const mediaSources = [
-  ['抖音', '🎵'],
-  ['B站', '📺'],
-  ['微博', '📣'],
-  ['百度', '🎬'],
-  ['头条新闻', '📰'],
-  ['腾讯新闻', '📱'],
-  ['纽约时报', '🌎'],
-  ['BBC', '🌐'],
-  ['法广', '📻'],
-  ['澎湃新闻', '🌊'],
-].map(([key, icon]) => ({ key, label: key, icon }));
 const instructionSetTypes = [
   { value: '文案创作', key: 'copywriting', label: '文案创作', shortLabel: '文案', color: '#0b796f', icon: Edit3 },
   { value: '音乐创作', key: 'music', label: '音乐创作', shortLabel: '音乐', color: '#a05b12', icon: Music2 },
@@ -980,7 +968,19 @@ function TrendsPanel() {
     let ignore = false;
 
     setStatus('loading');
-    apiFetch('/api/hotlist/list', { auth: false, params: { category: 'all' } }).then((result) => {
+    apiFetch('/api/hotlist/search', {
+      method: 'POST',
+      auth: false,
+      timeoutMs: 12000,
+      body: {
+        mode: 'REALTIME',
+        rootCategories: ['新闻', '媒体'],
+        keywords: [],
+        limit: 3,
+        offset: 0,
+        distinct: false,
+      },
+    }).then((result) => {
       if (ignore) return;
 
       const list = toList(result.data);
@@ -11810,15 +11810,6 @@ const arrayOf = (value) => {
   if (Array.isArray(value?.data)) return value.data;
   return [];
 };
-const categoryFrom = (value) => {
-  const name = textOf(value);
-  const exact = trendCategories.find((item) =>
-    item.aliases.some((alias) => alias.toLowerCase() === name.toLowerCase()),
-  );
-  if (exact) return exact;
-  return trendCategories.find((item) => item.aliases.some((alias) => alias && name.includes(alias))) || trendCategories[0];
-};
-const categoryRequest = (category) => category.aliases.find((alias) => /^[a-z]+$/i.test(alias)) || category.key;
 const normalizeTopic = (item = {}, index = 0) => {
   const heat = pick(
     item.hotScore,
@@ -11840,87 +11831,46 @@ const normalizeTopic = (item = {}, index = 0) => {
     summary: pick(item.summary, item.desc, item.description, item.subtitle, item.content, item.reason, item.brief),
     heat,
     url: pick(item.url, item.link),
+    source: pick(item.source, item.platform, item.site, item.rootCategory, item.root_category, '其他'),
+    category: pick(item.category, item.channel),
+    rootCategory: pick(item.rootCategory, item.root_category),
+    sourceType: pick(item.sourceType, item.source_type),
+    publishedAt: pick(item.publishedAt, item.published_at, item.updatedAt, item.updated_at),
   };
 };
-const makeBoard = (source = {}, index = 0) => {
-  const rawCategory = pick(source.category, source.cat_name, source.channel, source.type_name, source.tab, source.name, '综合');
-  const category = categoryFrom(rawCategory);
-  const topics = arrayOf(source.items || source.list || source.hot_list || source.rank_list || source.topics).map(normalizeTopic);
+const normalizeHotSearch = (response = {}) => {
+  const payload = response.data?.data || response.data || response.raw?.data || {};
+  const items = arrayOf(payload.items || payload).map(normalizeTopic);
+  const summary = payload.summary || response.raw?.data?.summary || {};
+  const returned = Number(summary.returned);
+  const total = Number(summary.total);
   return {
-    id: pick(source.id, source.board_id, source.code, source.title, source.name, `${index}`),
-    categoryKey: category.key,
-    categoryLabel: category.label,
-    title: pick(source.title, source.name, `${category.label} 热榜`),
-    icon: pick(source.icon, source.emoji) || category.icon,
-    topics,
+    items,
+    returned: Number.isFinite(returned) ? returned : items.length,
+    total: Number.isFinite(total) ? total : items.length,
+    hasMore: summary.hasMore !== undefined ? Boolean(summary.hasMore) : items.length >= HOT_PAGE_SIZE,
   };
 };
-const groupToBoards = (items = []) => {
-  const groups = {};
-  items.forEach((item, index) => {
-    const category = categoryFrom(pick(item.category, item.channel, item.type_name, item.tab, item.provider, '综合'));
-    if (!groups[category.key]) {
-      groups[category.key] = {
-        id: category.key,
-        categoryKey: category.key,
-        categoryLabel: category.label,
-        title: category.label,
-        icon: category.icon,
+const hotSourceIcon = (rootCategory) => (rootCategory === '媒体' ? '📣' : '📰');
+const groupHotItemsBySource = (items = []) => {
+  const boards = new Map();
+  items.forEach((topic) => {
+    const source = topic.source || topic.rootCategory || '其他';
+    const rootCategory = topic.rootCategory || (topic.sourceType === 'media' ? '媒体' : '新闻');
+    const key = `${rootCategory}:${source}`;
+    if (!boards.has(key)) {
+      boards.set(key, {
+        id: key,
+        source: key,
+        title: source,
+        icon: hotSourceIcon(rootCategory),
+        categoryLabel: rootCategory,
         topics: [],
-      };
+      });
     }
-    groups[category.key].topics.push(normalizeTopic(item, index));
+    boards.get(key).topics.push(topic);
   });
-  return Object.values(groups).map((board) => ({
-    ...board,
-    topics: board.topics
-      .slice()
-      .sort((a, b) => (a.rank || 0) - (b.rank || 0))
-      .map((topic, index) => ({ ...topic, rank: index + 1 })),
-  }));
-};
-const normalizeBoards = (response = {}) => {
-  const payload = response.data?.data || response.data || response || {};
-  const nested = payload.boards || payload.categories || payload.list || arrayOf(payload);
-  if (!Array.isArray(nested) || !nested.length) return [];
-  if (nested[0]?.items || nested[0]?.list || nested[0]?.hot_list || nested[0]?.rank_list || nested[0]?.topics) {
-    return nested.map(makeBoard).filter((board) => board.topics.length);
-  }
-  return groupToBoards(nested);
-};
-const mergeBoards = (current, next) => {
-  const map = new Map(current.map((board) => [board.id, { ...board, topics: board.topics.slice() }]));
-  next.forEach((board) => {
-    const existing = map.get(board.id);
-    if (existing) existing.topics = existing.topics.concat(board.topics);
-    else map.set(board.id, board);
-  });
-  return Array.from(map.values());
-};
-const normalizeMediaBoards = (response = {}) => {
-  const payload = response.data?.data || response.data || response || {};
-  const sourceIconMap = Object.fromEntries(mediaSources.map((item) => [item.key, item.icon]));
-  return Object.values(
-    arrayOf(payload).reduce((boards, item, index) => {
-      const source = pick(item.source, item.platform, item.site, '其他媒体');
-      if (!boards[source]) {
-        boards[source] = {
-          id: `media-${source}`,
-          source,
-          title: source,
-          icon: sourceIconMap[source] || '📰',
-          categoryLabel: pick(item.rootCategory, item.category, '媒体'),
-          topics: [],
-        };
-      }
-      boards[source].topics.push(normalizeTopic(item, index));
-      return boards;
-    }, {}),
-  ).sort((a, b) => {
-    const ai = mediaSources.findIndex((item) => item.key === a.source);
-    const bi = mediaSources.findIndex((item) => item.key === b.source);
-    return (ai === -1 ? mediaSources.length : ai) - (bi === -1 ? mediaSources.length : bi);
-  });
+  return Array.from(boards.values());
 };
 
 const normalizeInstructionType = (type) => {
@@ -13551,7 +13501,7 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
 function HotTrendsPage({ onTopicSelect }) {
   const [mode, setMode] = useState('aggregate');
   const [category, setCategory] = useState(trendCategories[0]);
-  const [source, setSource] = useState(mediaSources[0]);
+  const [source, setSource] = useState('');
   const [boards, setBoards] = useState(() =>
     trendCategories.map((item) => ({
       id: `aggregate-${item.key}`,
@@ -13562,38 +13512,45 @@ function HotTrendsPage({ onTopicSelect }) {
       topics: [],
     })),
   );
-  const [mediaBoards, setMediaBoards] = useState(() =>
-    mediaSources.map((item) => ({
-      id: `media-${item.key}`,
-      source: item.key,
-      categoryLabel: '媒体',
-      title: item.label,
-      icon: item.icon,
-      topics: [],
-    })),
-  );
+  const [mediaBoards, setMediaBoards] = useState([]);
   const [loading, setLoading] = useState(false);
   const [boardLoading, setBoardLoading] = useState({});
   const [mediaLoaded, setMediaLoaded] = useState(false);
   const [mediaLoading, setMediaLoading] = useState({});
 
-  const loadAggregateBoard = async (nextCategory) => {
-    setBoardLoading((current) => ({ ...current, [nextCategory.key]: true }));
-    const result = await apiFetch('/api/hotlist/list', {
+  const requestHotItems = async ({ rootCategories, keywords = [], limit = HOT_PAGE_SIZE }) => {
+    const result = await apiFetch('/api/hotlist/search', {
+      method: 'POST',
       auth: false,
-      params: { page: 1, page_size: HOT_PAGE_SIZE, pageSize: HOT_PAGE_SIZE, categories: categoryRequest(nextCategory) },
+      timeoutMs: 12000,
+      body: {
+        mode: 'REALTIME',
+        rootCategories,
+        keywords,
+        limit,
+        offset: 0,
+        distinct: keywords.length > 0,
+      },
     });
-    const nextBoards = normalizeBoards(result);
-    const matchingBoards = nextBoards.filter((board) =>
-      nextCategory.key === 'all' || board.categoryKey === nextCategory.key,
-    );
+    return result.ok ? normalizeHotSearch(result).items : [];
+  };
+
+  const loadAggregateBoard = async (nextCategory) => {
+    if (!nextCategory) return;
+    setBoardLoading((current) => ({ ...current, [nextCategory.key]: true }));
+    const isAll = nextCategory.key === 'all';
+    const isMedia = nextCategory.key === 'entertainment';
+    const topics = await requestHotItems({
+      rootCategories: isMedia ? ['媒体'] : ['新闻', '媒体'],
+      keywords: isAll || isMedia ? [] : [nextCategory.label],
+    });
     const nextBoard = {
       id: `aggregate-${nextCategory.key}`,
       categoryKey: nextCategory.key,
       categoryLabel: nextCategory.label,
       title: nextCategory.label,
       icon: nextCategory.icon,
-      topics: matchingBoards.flatMap((board) => board.topics).slice(0, HOT_PAGE_SIZE),
+      topics: topics.slice(0, HOT_PAGE_SIZE),
     };
     setBoards((current) =>
       trendCategories.map((item) =>
@@ -13618,38 +13575,24 @@ function HotTrendsPage({ onTopicSelect }) {
   };
   const loadMedia = async () => {
     setLoading(true);
-    setMediaLoading(Object.fromEntries(mediaSources.map((item) => [item.key, true])));
-    const result = await apiFetch('/api/hotlist/search', { auth: false, params: { limit: 0 } });
-    const nextBoards = normalizeMediaBoards(result);
-    setMediaBoards(
-      mediaSources.map((item) =>
-        nextBoards.find((board) => board.source === item.key) || {
-          id: `media-${item.key}`,
-          source: item.key,
-          categoryLabel: '媒体',
-          title: item.label,
-          icon: item.icon,
-          topics: [],
-        },
-      ),
-    );
+    const items = await requestHotItems({ rootCategories: ['新闻', '媒体'], limit: 0 });
+    const nextBoards = groupHotItemsBySource(items);
+    setMediaBoards(nextBoards);
+    setSource((current) => (nextBoards.some((board) => board.source === current) ? current : (nextBoards[0]?.source || '')));
     setMediaLoaded(true);
-    setMediaLoading(Object.fromEntries(mediaSources.map((item) => [item.key, false])));
+    setMediaLoading({});
     setLoading(false);
   };
-  const loadMediaBoard = async (nextSource) => {
-    setMediaLoading((current) => ({ ...current, [nextSource.key]: true }));
-    const result = await apiFetch('/api/hotlist/search', { auth: false, params: { limit: 0 } });
-    const refreshed = normalizeMediaBoards(result).find((board) => board.source === nextSource.key) || {
-      id: `media-${nextSource.key}`,
-      source: nextSource.key,
-      categoryLabel: '媒体',
-      title: nextSource.label,
-      icon: nextSource.icon,
+  const loadMediaBoard = async (nextBoard) => {
+    if (!nextBoard) return;
+    setMediaLoading((current) => ({ ...current, [nextBoard.source]: true }));
+    const items = await requestHotItems({ rootCategories: ['新闻', '媒体'], limit: 0 });
+    const refreshed = groupHotItemsBySource(items).find((board) => board.source === nextBoard.source) || {
+      ...nextBoard,
       topics: [],
     };
-    setMediaBoards((current) => current.map((board) => (board.source === nextSource.key ? refreshed : board)));
-    setMediaLoading((current) => ({ ...current, [nextSource.key]: false }));
+    setMediaBoards((current) => current.map((board) => (board.source === nextBoard.source ? refreshed : board)));
+    setMediaLoading((current) => ({ ...current, [nextBoard.source]: false }));
   };
 
   useEffect(() => {
@@ -13657,6 +13600,7 @@ function HotTrendsPage({ onTopicSelect }) {
   }, []);
 
   const visibleBoards = mode === 'aggregate' ? boards : mediaBoards;
+  const mediaSources = mediaBoards.map((board) => ({ key: board.source, label: board.title, icon: board.icon }));
 
   const changeMode = async (nextMode) => {
     if (nextMode === mode) return;
@@ -13670,7 +13614,7 @@ function HotTrendsPage({ onTopicSelect }) {
     });
   };
   const changeSource = (nextSource) => {
-    setSource(nextSource);
+    setSource(nextSource.key);
     window.requestAnimationFrame(() => {
       document.getElementById(`hot-board-${nextSource.key}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
@@ -13713,7 +13657,7 @@ function HotTrendsPage({ onTopicSelect }) {
         {(mode === 'aggregate' ? trendCategories : mediaSources).map((item) => (
           <button
             key={item.key}
-            className={(mode === 'aggregate' ? category.key : source.key) === item.key ? 'is-active' : ''}
+            className={(mode === 'aggregate' ? category.key : source) === item.key ? 'is-active' : ''}
             onClick={() => (mode === 'aggregate' ? changeCategory(item) : changeSource(item))}
           >
             <span>{item.icon}</span>
@@ -13734,7 +13678,7 @@ function HotTrendsPage({ onTopicSelect }) {
                 onClick={() =>
                   mode === 'aggregate'
                     ? loadAggregateBoard(trendCategories.find((item) => item.key === board.categoryKey))
-                    : loadMediaBoard(mediaSources.find((item) => item.key === board.source))
+                    : loadMediaBoard(board)
                 }
                 disabled={mode === 'aggregate' ? boardLoading[board.categoryKey] : mediaLoading[board.source]}
                 aria-label={`刷新${board.title}`}
@@ -13768,7 +13712,7 @@ function HotTrendsPage({ onTopicSelect }) {
               )}
             </div>
           </div>
-          ))}
+        ))}
         {!visibleBoards.length && !loading && <div className="hot-empty">暂无热点</div>}
         {mode === 'media' && loading && <div className="hot-loading">加载中</div>}
       </section>
