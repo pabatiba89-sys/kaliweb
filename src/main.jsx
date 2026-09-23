@@ -976,14 +976,14 @@ function TrendsPanel() {
         mode: 'REALTIME',
         rootCategories: ['新闻', '媒体'],
         keywords: [],
-        limit: 3,
+        limit: 20,
         offset: 0,
         distinct: false,
       },
     }).then((result) => {
       if (ignore) return;
 
-      const list = toList(result.data);
+      const list = toList(result.data).filter((item) => !isHotSourceExcluded(pick(item.source, item.platform, item.site)));
       setRows(
         result.ok && list.length
           ? list.slice(0, 3).map((item, index) => ({
@@ -11852,10 +11852,19 @@ const normalizeHotSearch = (response = {}) => {
   };
 };
 const hotSourceIcon = (rootCategory) => (rootCategory === '媒体' ? '📣' : '📰');
+const excludedHotSources = new Set(['索比光伏', '储能中国网', '能源界', '国家能源局', '电视猫']);
+const prioritizedHotSources = ['抖音', '法广', 'youtube', 'cnn'];
+const isHotSourceExcluded = (source) => excludedHotSources.has(textOf(source));
+const hotSourcePriority = (source) => {
+  const normalized = textOf(source).toLowerCase();
+  const index = prioritizedHotSources.findIndex((keyword) => normalized.includes(keyword));
+  return index === -1 ? prioritizedHotSources.length : index;
+};
 const groupHotItemsBySource = (items = []) => {
   const boards = new Map();
   items.forEach((topic) => {
     const source = topic.source || topic.rootCategory || '其他';
+    if (isHotSourceExcluded(source)) return;
     const rootCategory = topic.rootCategory || (topic.sourceType === 'media' ? '媒体' : '新闻');
     const key = `${rootCategory}:${source}`;
     if (!boards.has(key)) {
@@ -11870,7 +11879,7 @@ const groupHotItemsBySource = (items = []) => {
     }
     boards.get(key).topics.push(topic);
   });
-  return Array.from(boards.values());
+  return Array.from(boards.values()).sort((a, b) => hotSourcePriority(a.title) - hotSourcePriority(b.title));
 };
 
 const normalizeInstructionType = (type) => {
@@ -13532,7 +13541,9 @@ function HotTrendsPage({ onTopicSelect }) {
         distinct: keywords.length > 0,
       },
     });
-    return result.ok ? normalizeHotSearch(result).items : [];
+    return result.ok
+      ? normalizeHotSearch(result).items.filter((topic) => !isHotSourceExcluded(topic.source))
+      : [];
   };
 
   const loadAggregateBoard = async (nextCategory) => {
