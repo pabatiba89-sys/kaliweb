@@ -4,6 +4,12 @@ export const pageConfigs = {
     description: 'Track public and media trends, then turn a selected topic into a script flow.',
     endpoints: [
       {
+        label: 'Candy Index trends',
+        path: '/api/hotlist/list',
+        auth: false,
+        params: { categories: 'all' },
+      },
+      {
         label: 'Realtime news and media',
         path: '/api/hotlist/search',
         method: 'POST',

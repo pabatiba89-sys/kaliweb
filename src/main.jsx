@@ -968,22 +968,13 @@ function TrendsPanel() {
     let ignore = false;
 
     setStatus('loading');
-    apiFetch('/api/hotlist/search', {
-      method: 'POST',
+    apiFetch('/api/hotlist/list', {
       auth: false,
-      timeoutMs: 12000,
-      body: {
-        mode: 'REALTIME',
-        rootCategories: ['新闻', '媒体'],
-        keywords: [],
-        limit: 20,
-        offset: 0,
-        distinct: false,
-      },
+      params: { page: 1, page_size: 20, pageSize: 20, categories: 'all' },
     }).then((result) => {
       if (ignore) return;
 
-      const list = toList(result.data).filter((item) => !isHotSourceExcluded(pick(item.source, item.platform, item.site)));
+      const list = toList(result.data);
       setRows(
         result.ok && list.length
           ? list.slice(0, 3).map((item, index) => ({
@@ -11851,6 +11842,7 @@ const normalizeHotSearch = (response = {}) => {
     hasMore: summary.hasMore !== undefined ? Boolean(summary.hasMore) : items.length >= HOT_PAGE_SIZE,
   };
 };
+const normalizeHotList = (response = {}) => toList(response.data || response.raw?.data).map(normalizeTopic);
 const hotSourceIcon = (rootCategory) => (rootCategory === '媒体' ? '📣' : '📰');
 const excludedHotSources = new Set(['索比光伏', '储能中国网', '能源界', '国家能源局', '电视猫']);
 const prioritizedHotSources = ['抖音', '法广', 'youtube', 'cnn'];
@@ -13549,12 +13541,17 @@ function HotTrendsPage({ onTopicSelect }) {
   const loadAggregateBoard = async (nextCategory) => {
     if (!nextCategory) return;
     setBoardLoading((current) => ({ ...current, [nextCategory.key]: true }));
-    const isAll = nextCategory.key === 'all';
-    const isMedia = nextCategory.key === 'entertainment';
-    const topics = await requestHotItems({
-      rootCategories: isMedia ? ['媒体'] : ['新闻', '媒体'],
-      keywords: isAll || isMedia ? [] : [nextCategory.label],
+    const result = await apiFetch('/api/hotlist/list', {
+      auth: false,
+      timeoutMs: 12000,
+      params: {
+        page: 1,
+        page_size: HOT_PAGE_SIZE,
+        pageSize: HOT_PAGE_SIZE,
+        categories: nextCategory.key,
+      },
     });
+    const topics = result.ok ? normalizeHotList(result) : [];
     const nextBoard = {
       id: `aggregate-${nextCategory.key}`,
       categoryKey: nextCategory.key,
