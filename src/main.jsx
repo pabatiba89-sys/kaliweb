@@ -2835,7 +2835,7 @@ function MusicStudioPage({ authVersion, onLogin, onOpenLyrics, onOpenBilling }) 
           {!isPrompt && <section className="music-form-panel">
             <div className="music-panel-head"><span>02</span><div><strong>设置风格与声音</strong><small>从预设开始，再补充细节</small></div></div>
             <div className="music-style-grid">{MUSIC_STYLES.map((style) => <button key={style.key} className={form.styleKey === style.key ? 'is-active' : ''} onClick={() => updateForm('styleKey', style.key)}><strong>{style.label}</strong><small>{style.desc}</small>{form.styleKey === style.key && <Check size={14} />}</button>)}</div>
-            <label className="music-field music-field--textarea is-compact"><span>风格补充 <em>可选</em></span><textarea value={form.customStyle} maxLength={500} onChange={(event) => updateForm('customStyle', event.target.value)} placeholder="例如：钢琴、木吉他、女声、慢板" /></label>
+            <label className="music-field music-field--textarea is-compact"><span>风格补充 <em>可选</em></span><textarea value={form.customStyle} onChange={(event) => updateForm('customStyle', event.target.value)} placeholder="例如：钢琴、木吉他、女声、慢板" /></label>
             {!isInstrumental ? <>
               <label className="music-field"><span>生成声音</span><select value={form.voiceId} onChange={(event) => updateForm('voiceId', event.target.value)}><option value="">默认声音</option>{voices.map((voice) => <option key={voice.id} value={voice.voiceId}>{voice.name}</option>)}</select></label>
               <div className="music-choice-row"><span>人声性别</span>{[['自动', ''], ['男声', 'm'], ['女声', 'f']].map(([label, value]) => <button key={label} className={form.vocalGender === value ? 'is-active' : ''} onClick={() => updateForm('vocalGender', value)}>{label}</button>)}</div>
