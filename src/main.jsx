@@ -499,6 +499,7 @@ const studioModes = [
 ];
 const PAGE_SIZE = 20;
 const HOT_PAGE_SIZE = 100;
+const COLLAPSED_MEDIA_SOURCE_COUNT = 10;
 const MATERIAL_PAGE_SIZE = 48;
 const MATERIAL_MIN_PAGE_SIZE_FOR_MORE = 20;
 const TEMPLATE_PAGE_SIZE = 100;
@@ -13518,6 +13519,7 @@ function HotTrendsPage({ onTopicSelect }) {
   const [boardLoading, setBoardLoading] = useState({});
   const [mediaLoaded, setMediaLoaded] = useState(false);
   const [mediaLoading, setMediaLoading] = useState({});
+  const [mediaSourcesExpanded, setMediaSourcesExpanded] = useState(false);
 
   const requestHotItems = async ({ rootCategories, keywords = [], limit = HOT_PAGE_SIZE }) => {
     const result = await apiFetch('/api/hotlist/search', {
@@ -13609,6 +13611,13 @@ function HotTrendsPage({ onTopicSelect }) {
 
   const visibleBoards = mode === 'aggregate' ? boards : mediaBoards;
   const mediaSources = mediaBoards.map((board) => ({ key: board.source, label: board.title, icon: board.icon }));
+  const compactMediaSources = mediaSources.slice(0, COLLAPSED_MEDIA_SOURCE_COUNT);
+  const activeMediaSource = mediaSources.find((item) => item.key === source);
+  const visibleMediaSources = mediaSourcesExpanded
+    ? mediaSources
+    : activeMediaSource && !compactMediaSources.some((item) => item.key === activeMediaSource.key)
+      ? compactMediaSources.slice(0, COLLAPSED_MEDIA_SOURCE_COUNT - 1).concat(activeMediaSource)
+      : compactMediaSources;
 
   const changeMode = async (nextMode) => {
     if (nextMode === mode) return;
@@ -13661,17 +13670,34 @@ function HotTrendsPage({ onTopicSelect }) {
           媒体热点
         </button>
       </div>
-      <div className={`hot-cats ${mode === 'aggregate' ? 'is-aggregate' : 'is-media'}`}>
-        {(mode === 'aggregate' ? trendCategories : mediaSources).map((item) => (
+      <div className="hot-cats-shell">
+        <div
+          className={`hot-cats ${mode === 'aggregate' ? 'is-aggregate' : 'is-media'}`}
+          id={mode === 'media' ? 'media-source-list' : undefined}
+        >
+          {(mode === 'aggregate' ? trendCategories : visibleMediaSources).map((item) => (
+            <button
+              key={item.key}
+              className={(mode === 'aggregate' ? category.key : source) === item.key ? 'is-active' : ''}
+              onClick={() => (mode === 'aggregate' ? changeCategory(item) : changeSource(item))}
+            >
+              <span>{item.icon}</span>
+              {item.label}
+            </button>
+          ))}
+        </div>
+        {mode === 'media' && mediaSources.length > COLLAPSED_MEDIA_SOURCE_COUNT && (
           <button
-            key={item.key}
-            className={(mode === 'aggregate' ? category.key : source) === item.key ? 'is-active' : ''}
-            onClick={() => (mode === 'aggregate' ? changeCategory(item) : changeSource(item))}
+            type="button"
+            className={`hot-cats-toggle ${mediaSourcesExpanded ? 'is-expanded' : ''}`}
+            onClick={() => setMediaSourcesExpanded((current) => !current)}
+            aria-controls="media-source-list"
+            aria-expanded={mediaSourcesExpanded}
           >
-            <span>{item.icon}</span>
-            {item.label}
+            {mediaSourcesExpanded ? '收起来源' : `展开全部 ${mediaSources.length} 个来源`}
+            <ChevronDown size={15} />
           </button>
-        ))}
+        )}
       </div>
       <section className={`hot-board ${visibleBoards.length > 1 ? 'hot-board--sections' : ''}`}>
         {visibleBoards.map((board) => (

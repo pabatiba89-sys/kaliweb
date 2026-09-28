@@ -7800,6 +7800,11 @@ html[dir="rtl"] .legal-back-button svg {
   overflow: visible;
 }
 
+.hot-cats-shell {
+  display: grid;
+  gap: 6px;
+}
+
 .hot-cats.is-aggregate,
 .hot-cats.is-media {
   display: grid;
@@ -7849,6 +7854,36 @@ html[dir="rtl"] .legal-back-button svg {
 
 .hot-cats button:disabled {
   opacity: 0.55;
+}
+
+.hot-cats-toggle {
+  justify-self: center;
+  min-height: 28px;
+  padding: 0 14px;
+  border: 1px solid #cfe5df;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  color: #60777a;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 800;
+  box-shadow: 0 5px 12px rgba(24, 62, 53, 0.06);
+}
+
+.hot-cats-toggle:hover {
+  border-color: #82d9c9;
+  color: #008d72;
+}
+
+.hot-cats-toggle svg {
+  transition: transform 160ms ease;
+}
+
+.hot-cats-toggle.is-expanded svg {
+  transform: rotate(180deg);
 }
 
 .hot-board {
