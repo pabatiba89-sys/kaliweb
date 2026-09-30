@@ -5,6 +5,7 @@ export { normalizePublishTopics } from './publishTopics.js';
 const trimText = (value) => String(value || '').trim();
 
 export const LOCAL_PUBLISHER_BASE_URL = 'http://127.0.0.1:5409';
+export const LOCAL_PUBLISHER_TIMEOUT_MS = 120_000;
 
 export const LOCAL_PUBLISH_PLATFORMS = {
   1: '小红书',
@@ -76,11 +77,11 @@ const parseLocalPublisherResponse = async (response, fallback) => {
 
 const requestLocalPublisher = async (
   path,
-  { method = 'GET', body, timeoutMs = 300000, fetchImpl = globalThis.fetch, baseUrl = LOCAL_PUBLISHER_BASE_URL } = {},
+  { method = 'GET', body, fetchImpl = globalThis.fetch, baseUrl = LOCAL_PUBLISHER_BASE_URL } = {},
 ) => {
   if (typeof fetchImpl !== 'function') throw localPublisherError('', '当前环境无法访问本地发布服务');
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  const timer = setTimeout(() => controller.abort(), LOCAL_PUBLISHER_TIMEOUT_MS);
   try {
     const response = await fetchImpl(`${String(baseUrl).replace(/\/$/, '')}${path}`, {
       method,
@@ -110,7 +111,6 @@ export async function checkLocalPublisher({ accountName, fetchImpl = globalThis.
       return { ok: false, message: '发布账号名称为空，无法匹配本机账号', accounts: [] };
     }
     const result = await requestLocalPublisher(buildLocalAccountsPath(normalizedAccountName), {
-      timeoutMs: 5000,
       fetchImpl,
       baseUrl,
     });
@@ -164,7 +164,6 @@ export const normalizeLocalAccount = (account) => {
 export async function listLocalPublisherAccounts({ fetchImpl = globalThis.fetch, baseUrl = LOCAL_PUBLISHER_BASE_URL } = {}) {
   try {
     const result = await requestLocalPublisher('/getValidAccounts', {
-      timeoutMs: 30000,
       fetchImpl,
       baseUrl,
     });
@@ -204,7 +203,6 @@ export async function updateLocalPublisherAccount({ id, type, name, fetchImpl = 
   await requestLocalPublisher('/updateUserinfo', {
     method: 'POST',
     body: { id: normalizedId, type: normalizedType, userName: normalizedName },
-    timeoutMs: 15000,
     fetchImpl,
     baseUrl,
   });
@@ -215,7 +213,6 @@ export async function deleteLocalPublisherAccount(id, { fetchImpl = globalThis.f
   const normalizedId = Number(id);
   if (!Number.isInteger(normalizedId) || normalizedId <= 0) throw localPublisherError('', '本机账号编号无效');
   await requestLocalPublisher(`/deleteAccount?id=${encodeURIComponent(normalizedId)}`, {
-    timeoutMs: 15000,
     fetchImpl,
     baseUrl,
   });
@@ -261,7 +258,6 @@ export async function triggerLocalPublish({
   const uploadResult = await requestLocalPublisher('/uploadFromUrl', {
     method: 'POST',
     body: { videoUrl: normalizedVideoUrl },
-    timeoutMs: 300000,
     fetchImpl,
     baseUrl,
   });
@@ -271,7 +267,6 @@ export async function triggerLocalPublish({
   const accountRecords = Array.isArray(localAccounts)
     ? localAccounts
     : (await requestLocalPublisher(buildLocalAccountsPath(normalizedAccountName), {
-        timeoutMs: 15000,
         fetchImpl,
         baseUrl,
       }))?.data;
@@ -291,7 +286,6 @@ export async function triggerLocalPublish({
     requestLocalPublisher('/postVideo', {
       method: 'POST',
       body: buildLocalPublishPayload({ type, title, topics, filePath, accountCookies, publishAt, publishNow }),
-      timeoutMs: 300000,
       fetchImpl,
       baseUrl,
     })
