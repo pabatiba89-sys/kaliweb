@@ -1742,6 +1742,24 @@
   --publish-platform-background: #fff0ef;
 }
 
+.is-platform-7 {
+  --publish-platform-color: #25282c;
+  --publish-platform-border: #d5d9dc;
+  --publish-platform-background: #f1f3f4;
+}
+
+.is-platform-8 {
+  --publish-platform-color: #a23873;
+  --publish-platform-border: #edc8dd;
+  --publish-platform-background: #fff0f7;
+}
+
+.is-platform-9 {
+  --publish-platform-color: #2864ad;
+  --publish-platform-border: #c9dcf3;
+  --publish-platform-background: #eef5ff;
+}
+
 .publish-local-account-actions {
   display: flex;
   justify-content: flex-end;

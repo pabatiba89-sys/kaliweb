@@ -165,6 +165,9 @@ test('reads the account-management API with the canonical platform mapping', asy
       return new Response(JSON.stringify({ code: 200, data: [
         [1, 5, 'tiktok.json', '海外账号', 1],
         [2, 6, 'youtube.json', '海外账号', 0],
+        [3, 7, 'x.json', '海外账号', 1],
+        [4, 8, 'instagram.json', '海外账号', 1],
+        [5, 9, 'facebook.json', '海外账号', 1],
       ] }), { status: 200 });
     },
   });
@@ -173,6 +176,9 @@ test('reads the account-management API with the canonical platform mapping', asy
   assert.deepEqual(result.accounts, [
     { id: '1', type: 5, name: '海外账号', status: 1, platform: 'TikTok', configured: true },
     { id: '2', type: 6, name: '海外账号', status: 0, platform: 'YouTube', configured: true },
+    { id: '3', type: 7, name: '海外账号', status: 1, platform: 'X', configured: true },
+    { id: '4', type: 8, name: '海外账号', status: 1, platform: 'Instagram', configured: true },
+    { id: '5', type: 9, name: '海外账号', status: 1, platform: 'Facebook', configured: true },
   ]);
 });
 
@@ -182,7 +188,9 @@ test('builds the supported local account login URL', () => {
     'http://127.0.0.1:5409/login?type=3&id=%E6%8A%96%E9%9F%B3+%E4%B8%BB%E8%B4%A6%E5%8F%B7',
   );
   assert.equal(buildLocalPublisherLoginUrl({ type: 6, name: 'YouTube' }), 'http://127.0.0.1:5409/login?type=6&id=YouTube');
-  assert.throws(() => buildLocalPublisherLoginUrl({ type: 7, name: '未知平台' }), /不支持该平台登录/);
+  assert.throws(() => buildLocalPublisherLoginUrl({ type: 7, name: 'X' }), /不支持该平台登录/);
+  assert.throws(() => buildLocalPublisherLoginUrl({ type: 8, name: 'Instagram' }), /不支持该平台登录/);
+  assert.throws(() => buildLocalPublisherLoginUrl({ type: 9, name: 'Facebook' }), /不支持该平台登录/);
 });
 
 test('blocks publishing when no local account has the same name', async () => {
