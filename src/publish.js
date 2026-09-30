@@ -16,12 +16,10 @@ export const LOCAL_PUBLISH_PLATFORMS = {
   7: 'X',
   8: 'Instagram',
   9: 'Facebook',
+  10: '支付宝生活号',
 };
 
-// Only browser-account platforms expose the local QR login flow.
-// API-account platforms (X, Instagram, and Facebook) can still be listed,
-// matched by name, and published through the local service.
-export const LOCAL_PUBLISH_LOGIN_TYPES = [1, 2, 3, 4, 5, 6];
+export const LOCAL_PUBLISH_LOGIN_TYPES = Object.keys(LOCAL_PUBLISH_PLATFORMS).map(Number);
 
 export const SYSTEM_PUBLISH_ACCOUNT_ENDPOINTS = {
   create: '/api/team-notion/publish-account/create',

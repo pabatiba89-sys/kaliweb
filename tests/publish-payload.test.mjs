@@ -10,6 +10,8 @@ import {
   checkLocalPublisher,
   deleteLocalPublisherAccount,
   listLocalPublisherAccounts,
+  LOCAL_PUBLISH_LOGIN_TYPES,
+  LOCAL_PUBLISH_PLATFORMS,
   normalizePublishTopics,
   triggerLocalPublish,
   updateLocalPublisherAccount,
@@ -20,6 +22,22 @@ test('normalizes and deduplicates publish topics', () => {
     normalizePublishTopics('#第三 话题，第一话题; 第二 话题 #第一话题'),
     ['第三话题', '第一话题', '第二话题'],
   );
+});
+
+test('defines all ten local platforms as browser-login platforms', () => {
+  assert.deepEqual(LOCAL_PUBLISH_PLATFORMS, {
+    1: '小红书',
+    2: '视频号',
+    3: '抖音',
+    4: '快手',
+    5: 'TikTok',
+    6: 'YouTube',
+    7: 'X',
+    8: 'Instagram',
+    9: 'Facebook',
+    10: '支付宝生活号',
+  });
+  assert.deepEqual(LOCAL_PUBLISH_LOGIN_TYPES, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
 });
 
 test('builds system publishing account create and update mutations', () => {
@@ -168,6 +186,7 @@ test('reads the account-management API with the canonical platform mapping', asy
         [3, 7, 'x.json', '海外账号', 1],
         [4, 8, 'instagram.json', '海外账号', 1],
         [5, 9, 'facebook.json', '海外账号', 1],
+        [6, 10, 'alipay.json', '国内账号', 1],
       ] }), { status: 200 });
     },
   });
@@ -179,6 +198,7 @@ test('reads the account-management API with the canonical platform mapping', asy
     { id: '3', type: 7, name: '海外账号', status: 1, platform: 'X', configured: true },
     { id: '4', type: 8, name: '海外账号', status: 1, platform: 'Instagram', configured: true },
     { id: '5', type: 9, name: '海外账号', status: 1, platform: 'Facebook', configured: true },
+    { id: '6', type: 10, name: '国内账号', status: 1, platform: '支付宝生活号', configured: true },
   ]);
 });
 
@@ -188,9 +208,10 @@ test('builds the supported local account login URL', () => {
     'http://127.0.0.1:5409/login?type=3&id=%E6%8A%96%E9%9F%B3+%E4%B8%BB%E8%B4%A6%E5%8F%B7',
   );
   assert.equal(buildLocalPublisherLoginUrl({ type: 6, name: 'YouTube' }), 'http://127.0.0.1:5409/login?type=6&id=YouTube');
-  assert.throws(() => buildLocalPublisherLoginUrl({ type: 7, name: 'X' }), /不支持该平台登录/);
-  assert.throws(() => buildLocalPublisherLoginUrl({ type: 8, name: 'Instagram' }), /不支持该平台登录/);
-  assert.throws(() => buildLocalPublisherLoginUrl({ type: 9, name: 'Facebook' }), /不支持该平台登录/);
+  assert.equal(buildLocalPublisherLoginUrl({ type: 7, name: 'X' }), 'http://127.0.0.1:5409/login?type=7&id=X');
+  assert.equal(buildLocalPublisherLoginUrl({ type: 8, name: 'Instagram' }), 'http://127.0.0.1:5409/login?type=8&id=Instagram');
+  assert.equal(buildLocalPublisherLoginUrl({ type: 9, name: 'Facebook' }), 'http://127.0.0.1:5409/login?type=9&id=Facebook');
+  assert.equal(buildLocalPublisherLoginUrl({ type: 10, name: '支付宝生活号' }), 'http://127.0.0.1:5409/login?type=10&id=%E6%94%AF%E4%BB%98%E5%AE%9D%E7%94%9F%E6%B4%BB%E5%8F%B7');
 });
 
 test('blocks publishing when no local account has the same name', async () => {

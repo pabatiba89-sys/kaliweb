@@ -6254,7 +6254,7 @@ function PublisherOpenSourceNotice({ compact = false }) {
         <span><Server size={20} /></span>
         <div><small>KALI PUBLISH</small><h3>使用开源工具连接本地发布</h3><p>账号登录状态保留在自己的电脑，通过本地控制服务完成多平台发布。</p></div>
       </div>
-      <a className="publish-open-source-link" href={OPEN_SOURCE_PUBLISHER_URL} target="_blank" rel="noopener noreferrer"><span><strong>pabatiba89-sys/kali-publish</strong><small>MIT 开源 · 小红书、视频号、抖音、快手、TikTok、YouTube</small></span><span>下载 / 安装说明 <ExternalLink size={15} /></span></a>
+      <a className="publish-open-source-link" href={OPEN_SOURCE_PUBLISHER_URL} target="_blank" rel="noopener noreferrer"><span><strong>pabatiba89-sys/kali-publish</strong><small>MIT · {Object.values(LOCAL_PUBLISH_PLATFORMS).join('、')}</small></span><span>下载 / 安装说明 <ExternalLink size={15} /></span></a>
       {!compact && (
         <div className="publish-local-workflow">
           <strong>推荐 workflow</strong>

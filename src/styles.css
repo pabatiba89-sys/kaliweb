@@ -1760,6 +1760,12 @@
   --publish-platform-background: #eef5ff;
 }
 
+.is-platform-10 {
+  --publish-platform-color: #1677ff;
+  --publish-platform-border: #bfd9ff;
+  --publish-platform-background: #edf5ff;
+}
+
 .publish-local-account-actions {
   display: flex;
   justify-content: flex-end;
