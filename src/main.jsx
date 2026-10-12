@@ -1688,6 +1688,7 @@ const normalizeAuthVideo = (item = {}, index = 0) => {
     key: id || url,
     url,
     name: pick(source.name, source.title, source.label, source.fileName, source.file_name, source.videoName, source.video_name) || `${owner || '团队'}授权视频 ${index + 1}`,
+    authText: pick(source.authText, source.auth_text),
     meta: `${owner || '团队共享'} · ${durationText}`,
     duration,
     saved: true,
@@ -3840,7 +3841,7 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
       return {
         authorizationVideoId: selectedAuthVideo.authorizationVideoId,
         authVideoUrl: selectedAuthVideo.url,
-        isUploadedAuthVideo: false,
+        authText: pick(selectedAuthVideo.authText, selectedAuthVideo.raw?.auth_text, selectedAuthVideo.raw?.authText),
       };
     }
     if (!form.authVideo?.file) throw new Error('请选择团队授权视频或上传新的授权视频');
@@ -3862,7 +3863,7 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
     return {
       authorizationVideoId,
       authVideoUrl: url,
-      isUploadedAuthVideo: true,
+      authText: uploadedAuthText,
     };
   };
   const submitVideoTraining = async () => {
@@ -3875,7 +3876,7 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
     if (!profileAgreement) throw new Error('请先同意数字人形象授权和形象信息采集协议');
     updateSubmitProgress(10, '正在上传');
     const videoUrl = await uploadTrainingVideo(form.profileVideo, 'aihuman-profile-video', { progressStart: 10, progressEnd: 42 });
-    const { authorizationVideoId, authVideoUrl, isUploadedAuthVideo } = await resolveAuthVideo({ progressStart: 45, progressEnd: 76 });
+    const { authorizationVideoId, authVideoUrl, authText } = await resolveAuthVideo({ progressStart: 45, progressEnd: 76 });
     const payload = omitEmpty({
       name,
       custom_tag: name,
@@ -3892,7 +3893,7 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
       authorization_text: authorizationText,
       authorizationText,
       ath_text: DIGITAL_HUMAN_TRAINING_ATH_TEXT,
-      ...(isUploadedAuthVideo ? { authText: uploadedAuthText } : {}),
+      auth_text: authText,
     });
     updateSubmitProgress(84, '提交中');
     const result = await apiFetch('/api/aihuman/train', {
@@ -3923,7 +3924,7 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
       updateSubmitProgress(42, '提交中');
     }
     if (!imageUrl) throw new Error('形象图片缺少可用地址，请重新选择或上传');
-    const { authorizationVideoId, authVideoUrl, isUploadedAuthVideo } = await resolveAuthVideo({ progressStart: requiresImageUpload ? 45 : 12, progressEnd: 76 });
+    const { authorizationVideoId, authVideoUrl, authText } = await resolveAuthVideo({ progressStart: requiresImageUpload ? 45 : 12, progressEnd: 76 });
     const payload = omitEmpty({
       imageUrl,
       image_url: imageUrl,
@@ -3936,7 +3937,7 @@ function AssetStudioPage({ authVersion, language, onLogin, onOpenInfo, onUseAsse
       customTag: textOf(form.name),
       name: textOf(form.name),
       ath_text: DIGITAL_HUMAN_TRAINING_ATH_TEXT,
-      ...(isUploadedAuthVideo ? { authText: uploadedAuthText } : {}),
+      auth_text: authText,
     });
     updateSubmitProgress(84, '提交中');
     const result = await apiFetch('/api/aihuman/image/train', {
