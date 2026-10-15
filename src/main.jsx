@@ -12835,7 +12835,7 @@ const parseGeneratedResult = (value) => {
     scenes,
   };
 };
-async function requestGeneratedCopy({ prompt, topic, agent, messages, conversationId, instructionSetId, signal, onProgress }) {
+async function requestGeneratedCopy({ prompt, topic, agent, messages, conversationId, instructionSetId, signal, onActivity, onProgress }) {
   const token = getAccessToken();
   const body = {
     content: buildTypedPrompt(prompt, agent?.type?.value, agent),
@@ -12857,6 +12857,7 @@ async function requestGeneratedCopy({ prompt, topic, agent, messages, conversati
     body: JSON.stringify(body),
     signal,
   });
+  onActivity?.();
   const responseConversationId = Number(response.headers.get('X-Conversation-Id')) || Number(conversationId) || null;
   const responseRoundNo = Number(response.headers.get('X-Conversation-Round')) || null;
   const reusedConversation = response.headers.get('X-Conversation-Reused') === '1';
@@ -12930,6 +12931,7 @@ async function requestGeneratedCopy({ prompt, topic, agent, messages, conversati
   while (true) {
     const { done, value } = await reader.read();
     if (done) break;
+    onActivity?.();
     const decoded = decoder.decode(value, { stream: true });
     transportText += decoded;
     eventBuffer += decoded;
@@ -12973,6 +12975,7 @@ const GENERATED_THINKING_MESSAGES = [
   'Думаю',
   'جارٍ التفكير',
 ];
+const COPY_GENERATION_INACTIVITY_TIMEOUT_MS = 5 * 60 * 1000;
 
 const formatCopyHistoryTime = (value) => {
   const raw = textOf(value);
@@ -13009,15 +13012,21 @@ const normalizeCopyHistoryMessages = (data) => {
 
   return storedMessages
     .filter((message) => message?.role === 'user' || message?.role === 'assistant')
-    .map((message) => ({
-      role: message.role,
-      text: textOf(message.content),
-      roundNo: Number(message.round_no || message.roundNo) || null,
-      ...(message.role === 'assistant' ? {
-        generated: true,
-        script: parseGeneratedResult(message.content),
-      } : {}),
-    }))
+    .map((message) => {
+      const content = textOf(message.content);
+      const markupFailure = message.role === 'assistant' && isGeneratedMarkupFailure(content);
+      return {
+        role: message.role,
+        text: markupFailure ? GENERATED_CONTENT_UNAVAILABLE_MESSAGE : content,
+        roundNo: Number(message.round_no || message.roundNo) || null,
+        ...(message.role === 'assistant' ? markupFailure ? {
+          error: true,
+        } : {
+          generated: true,
+          script: parseGeneratedResult(content),
+        } : {}),
+      };
+    })
     .filter((message) => message.text);
 };
 
@@ -13169,11 +13178,16 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
     const controller = new AbortController();
     streamAbortRef.current = controller;
     let timedOut = false;
-    const timeout = window.setTimeout(() => {
-      timedOut = true;
-      controller.abort();
-    }, 120000);
-    controller.signal.addEventListener('abort', () => window.clearTimeout(timeout), { once: true });
+    let inactivityTimeout = 0;
+    const resetInactivityTimeout = () => {
+      window.clearTimeout(inactivityTimeout);
+      inactivityTimeout = window.setTimeout(() => {
+        timedOut = true;
+        controller.abort();
+      }, COPY_GENERATION_INACTIVITY_TIMEOUT_MS);
+    };
+    resetInactivityTimeout();
+    controller.signal.addEventListener('abort', () => window.clearTimeout(inactivityTimeout), { once: true });
     try {
       const reply = await requestGeneratedCopy({
         prompt,
@@ -13183,6 +13197,7 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
         conversationId: currentConversationId,
         instructionSetId: conversationInstructionSetId,
         signal: controller.signal,
+        onActivity: resetInactivityTimeout,
         onProgress: (partialText) => {
           if (isGeneratedMarkupFailure(partialText)) {
             controller.abort();
@@ -13191,7 +13206,7 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
           setMessages(nextMessages.concat({ role: 'assistant', text: partialText, roundNo: nextRoundNo, streaming: true }));
         },
       });
-      window.clearTimeout(timeout);
+      window.clearTimeout(inactivityTimeout);
       if (isGeneratedMarkupFailure(reply.text)) throw new Error(GENERATED_CONTENT_UNAVAILABLE_MESSAGE);
       if (reply.conversationId) {
         setCurrentConversationId(reply.conversationId);
@@ -13223,13 +13238,13 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
       if (timedOut || error.name !== 'AbortError') {
         setMessages(nextMessages.concat({
           role: 'assistant',
-          text: timedOut ? '文案生成超过 2 分钟，请重新生成。' : error.message || '文案生成失败，请重试',
+          text: timedOut ? '文案生成超过 5 分钟，请重新生成。' : error.message || '文案生成失败，请重试',
           roundNo: nextRoundNo,
           error: true,
         }));
       }
     } finally {
-      window.clearTimeout(timeout);
+      window.clearTimeout(inactivityTimeout);
       if (streamAbortRef.current === controller) streamAbortRef.current = null;
       generatingRef.current = false;
       setLoading(false);
