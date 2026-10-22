@@ -2333,5 +2333,5 @@
   "真人口播模板必选；背景音乐和封面可按需关闭。": "A real-person template is required. Background music and the cover can be turned off.",
   "补充素材可选，总时长不超过 5 分钟。": "Additional media is optional and limited to five minutes total.",
   "文案生成超过 2 分钟，请重新生成。": "Generarea textului a depășit 2 minute. Încearcă din nou.",
-  "文案生成超过 5 分钟，请重新生成。": "Generarea textului a depășit 5 minute. Încearcă din nou."
+  "文案生成超过 10 分钟，请重新生成。": "Generarea textului a depășit 10 minute. Încearcă din nou."
 }

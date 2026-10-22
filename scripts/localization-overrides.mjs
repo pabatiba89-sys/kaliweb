@@ -2451,29 +2451,29 @@ const publishSettingsOverrides = {
 };
 
 const copyGenerationTimeoutMessages = {
-  'zh-TW': '文案生成超過 5 分鐘，請重新生成。',
-  'en-US': 'Text generation exceeded 5 minutes. Please generate again.',
-  'es-MX': 'La generación de texto superó los 5 minutos. Vuelve a generarlo.',
-  'fr-FR': 'La génération du texte a dépassé 5 minutes. Veuillez réessayer.',
-  'ru-RU': 'Генерация текста заняла больше 5 минут. Попробуйте снова.',
-  'de-DE': 'Die Texterstellung hat länger als 5 Minuten gedauert. Bitte erneut generieren.',
-  'pt-PT': 'A geração de texto excedeu 5 minutos. Tente gerar novamente.',
-  'ar-AE': 'تجاوز إنشاء النص 5 دقائق. يرجى إعادة المحاولة.',
-  'it-IT': 'La generazione del testo ha superato i 5 minuti. Riprova.',
-  'ja-JP': '文章の生成が5分を超えました。もう一度生成してください。',
-  'ko-KR': '텍스트 생성 시간이 5분을 초과했습니다. 다시 생성해 주세요.',
-  'id-ID': 'Pembuatan teks melebihi 5 menit. Silakan buat ulang.',
-  'vi-VN': 'Quá trình tạo văn bản đã vượt quá 5 phút. Vui lòng tạo lại.',
-  'tr-TR': 'Metin oluşturma 5 dakikayı aştı. Lütfen yeniden oluşturun.',
-  'nl-NL': 'Het genereren van tekst duurde langer dan 5 minuten. Probeer het opnieuw.',
-  'uk-UA': 'Генерація тексту тривала понад 5 хвилин. Спробуйте ще раз.',
-  'th-TH': 'การสร้างข้อความใช้เวลาเกิน 5 นาที กรุณาสร้างใหม่อีกครั้ง',
-  'pl-PL': 'Generowanie tekstu przekroczyło 5 minut. Wygeneruj ponownie.',
-  'ro-RO': 'Generarea textului a depășit 5 minute. Încearcă din nou.',
-  'el-GR': 'Η δημιουργία κειμένου ξεπέρασε τα 5 λεπτά. Δοκιμάστε ξανά.',
-  'cs-CZ': 'Generování textu překročilo 5 minut. Zkuste to znovu.',
-  'fi-FI': 'Tekstin luominen kesti yli 5 minuuttia. Yritä uudelleen.',
-  'hi-IN': 'टेक्स्ट बनाने में 5 मिनट से अधिक समय लगा। कृपया दोबारा बनाएँ।',
+  'zh-TW': '文案生成超過 10 分鐘，請重新生成。',
+  'en-US': 'Text generation exceeded 10 minutes. Please generate again.',
+  'es-MX': 'La generación de texto superó los 10 minutos. Vuelve a generarlo.',
+  'fr-FR': 'La génération du texte a dépassé 10 minutes. Veuillez réessayer.',
+  'ru-RU': 'Генерация текста заняла больше 10 минут. Попробуйте снова.',
+  'de-DE': 'Die Texterstellung hat länger als 10 Minuten gedauert. Bitte erneut generieren.',
+  'pt-PT': 'A geração de texto excedeu 10 minutos. Tente gerar novamente.',
+  'ar-AE': 'تجاوز إنشاء النص 10 دقائق. يرجى إعادة المحاولة.',
+  'it-IT': 'La generazione del testo ha superato i 10 minuti. Riprova.',
+  'ja-JP': '文章の生成が10分を超えました。もう一度生成してください。',
+  'ko-KR': '텍스트 생성 시간이 10분을 초과했습니다. 다시 생성해 주세요.',
+  'id-ID': 'Pembuatan teks melebihi 10 menit. Silakan buat ulang.',
+  'vi-VN': 'Quá trình tạo văn bản đã vượt quá 10 phút. Vui lòng tạo lại.',
+  'tr-TR': 'Metin oluşturma 10 dakikayı aştı. Lütfen yeniden oluşturun.',
+  'nl-NL': 'Het genereren van tekst duurde langer dan 10 minuten. Probeer het opnieuw.',
+  'uk-UA': 'Генерація тексту тривала понад 10 хвилин. Спробуйте ще раз.',
+  'th-TH': 'การสร้างข้อความใช้เวลาเกิน 10 นาที กรุณาสร้างใหม่อีกครั้ง',
+  'pl-PL': 'Generowanie tekstu przekroczyło 10 minut. Wygeneruj ponownie.',
+  'ro-RO': 'Generarea textului a depășit 10 minute. Încearcă din nou.',
+  'el-GR': 'Η δημιουργία κειμένου ξεπέρασε τα 10 λεπτά. Δοκιμάστε ξανά.',
+  'cs-CZ': 'Generování textu překročilo 10 minut. Zkuste to znovu.',
+  'fi-FI': 'Tekstin luominen kesti yli 10 minuuttia. Yritä uudelleen.',
+  'hi-IN': 'टेक्स्ट बनाने में 10 मिनट से अधिक समय लगा। कृपया दोबारा बनाएँ।',
 };
 
 export const workspaceLocalizationOverrides = Object.fromEntries(Object.entries(actionRows).map(([locale, values]) => {
@@ -2494,7 +2494,7 @@ export const workspaceLocalizationOverrides = Object.fromEntries(Object.entries(
   chatHistoryKeys.forEach((key, index) => { overrides[key] = chatHistoryRows[locale][index]; });
   chatRoundKeys.forEach((key, index) => { overrides[key] = chatRoundRows[locale][index]; });
   overrides['重新生成'] = regenerateLabels[locale];
-  overrides['文案生成超过 5 分钟，请重新生成。'] = copyGenerationTimeoutMessages[locale];
+  overrides['文案生成超过 10 分钟，请重新生成。'] = copyGenerationTimeoutMessages[locale];
   overrides['语速'] = voiceSpeedLabels[locale];
   trainingMediaDurationKeys.forEach((key, index) => { overrides[key] = trainingMediaDurationRows[locale][index]; });
   Object.assign(overrides, affiliateOverrides[locale] || {});

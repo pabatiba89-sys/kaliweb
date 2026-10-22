@@ -12975,7 +12975,7 @@ const GENERATED_THINKING_MESSAGES = [
   'Думаю',
   'جارٍ التفكير',
 ];
-const COPY_GENERATION_INACTIVITY_TIMEOUT_MS = 5 * 60 * 1000;
+const COPY_GENERATION_INACTIVITY_TIMEOUT_MS = 10 * 60 * 1000;
 
 const formatCopyHistoryTime = (value) => {
   const raw = textOf(value);
@@ -13238,7 +13238,7 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
       if (timedOut || error.name !== 'AbortError') {
         setMessages(nextMessages.concat({
           role: 'assistant',
-          text: timedOut ? '文案生成超过 5 分钟，请重新生成。' : error.message || '文案生成失败，请重试',
+          text: timedOut ? '文案生成超过 10 分钟，请重新生成。' : error.message || '文案生成失败，请重试',
           roundNo: nextRoundNo,
           error: true,
         }));
