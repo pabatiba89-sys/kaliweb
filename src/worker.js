@@ -41,7 +41,9 @@ const readCookie = (request, name) => {
   const cookieHeader = request.headers.get('cookie') || '';
   for (const part of cookieHeader.split(';')) {
     const [key, ...valueParts] = part.trim().split('=');
-    if (key === name) return decodeURIComponent(valueParts.join('='));
+    if (key === name) {
+      try { return decodeURIComponent(valueParts.join('=')); } catch { return ''; }
+    }
   }
   return '';
 };
@@ -75,7 +77,14 @@ export default {
 
     if (url.pathname === '/' && (request.method === 'GET' || request.method === 'HEAD')) {
       const locale = defaultLocaleForRequest(request);
-      return Response.redirect(new URL(`/${locale}/${url.search}`, url), 302);
+      return new Response(null, {
+        status: 302,
+        headers: {
+          Location: new URL(`/${locale}/${url.search}`, url).toString(),
+          'Cache-Control': 'private, no-store',
+          Vary: 'Cookie, Accept-Language, CF-IPCountry',
+        },
+      });
     }
 
     if (!isApiRequest(url.pathname)) {

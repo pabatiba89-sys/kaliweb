@@ -1,3 +1,28 @@
----
-return Astro.redirect('/en/', 302);
----
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, follow" />
+    <title>Kali</title>
+  </head>
+  <body>
+    <p><a href="/en/">Kali</a></p>
+    <script>
+      // Production redirects at the edge with IP-country data. Static previews
+      // use the saved choice or browser language because they have no geo data.
+      const supported = new Set(['en', 'zh-cn', 'zh-tw', 'es', 'fr', 'ru', 'de', 'pt', 'ar', 'it', 'ja', 'ko', 'id', 'vi', 'tr', 'nl', 'uk', 'th', 'pl', 'ro', 'el', 'cs', 'fi', 'hi']);
+      const preferred = (value: string) => {
+        const language = value.toLowerCase();
+        if (/^zh-(tw|hk|hant)/.test(language)) return 'zh-tw';
+        if (language.startsWith('zh')) return 'zh-cn';
+        return language.split('-')[0];
+      };
+      let saved = '';
+      try { saved = decodeURIComponent(document.cookie.match(/(?:^|;\s*)kali_site_locale=([^;]*)/)?.[1] || ''); } catch { /* Ignore malformed preferences. */ }
+      const detected = (navigator.languages || [navigator.language]).map(preferred).find((locale) => supported.has(locale));
+      const locale = supported.has(saved) ? saved : detected || 'en';
+      window.location.replace(`/${locale}/${window.location.search}${window.location.hash}`);
+    </script>
+  </body>
+</html>
