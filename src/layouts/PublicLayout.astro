@@ -13,6 +13,8 @@ import { defaultSeoLocale, indexableLocales, isIndexableLocale } from '../site/s
 import { GOOGLE_SITE_VERIFICATION } from '../site/site-config.js';
 import { CONTACT_EMAIL, OFFICIAL_SOCIAL_LINKS } from '../contact.js';
 import '../site/public.css';
+import '../site/showcase.css';
+import { productScenes, showcaseMedia } from '../site/showcase.js';
 
 type SchemaEntry = Record<string, unknown>;
 
@@ -47,6 +49,9 @@ const alternates = shouldIndex ? indexableLocales.map((code) => ({
 const xDefault = new URL(pagePath(defaultSeoLocale, slug), Astro.site);
 const graph = Array.isArray(schema) ? schema : [schema];
 const keywordContent = [...new Set(keywords.map((keyword) => keyword.trim()).filter(Boolean))].join(', ');
+const usesShowcaseImage = slug === '' || Object.hasOwn(productScenes, slug);
+const socialImage = usesShowcaseImage ? showcaseMedia[slug as keyof typeof showcaseMedia]?.poster || showcaseMedia.overview.poster : '/og.png';
+const socialImageAlt = usesShowcaseImage ? t('Creative studio illustration') : `${brandName(locale)} content production workflow`;
 const jsonLd = {
   '@context': 'https://schema.org',
   '@graph': [
@@ -95,14 +100,14 @@ const jsonLd = {
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
-    <meta property="og:image" content={new URL('/og.png', Astro.site)} />
-    <meta property="og:image:width" content="1731" />
-    <meta property="og:image:height" content="909" />
-    <meta property="og:image:alt" content={`${brandName(locale)} content production workflow`} />
+    <meta property="og:image" content={new URL(socialImage, Astro.site)} />
+    <meta property="og:image:width" content={usesShowcaseImage ? '1536' : '1731'} />
+    <meta property="og:image:height" content={usesShowcaseImage ? '1024' : '909'} />
+    <meta property="og:image:alt" content={socialImageAlt} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={new URL('/og.png', Astro.site)} />
+    <meta name="twitter:image" content={new URL(socialImage, Astro.site)} />
     <script is:inline src="/invite-attribution.js"></script>
     <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   </head>

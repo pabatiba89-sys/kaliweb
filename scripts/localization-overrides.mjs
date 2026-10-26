@@ -297,10 +297,12 @@ const legalSiteOverrides = {
   },
 };
 
+import { publicShowcaseTranslations } from './public-showcase-translations.mjs';
+
 export const siteLocalizationOverrides = Object.fromEntries(Object.keys(siteRows).map((locale) => {
   const cta = Object.fromEntries(siteKeys.map((key, index) => [key, siteRows[locale][index]]));
   const marketing = Object.fromEntries(marketingKeys.map((key, index) => [key, marketingRows[locale][index]]));
-  return [locale, { ...cta, ...marketing, ...(helpRows[locale] || {}), ...(legalSiteOverrides[locale] || {}) }];
+  return [locale, { ...cta, ...marketing, ...(helpRows[locale] || {}), ...(legalSiteOverrides[locale] || {}), ...(publicShowcaseTranslations[locale] || {}) }];
 }));
 
 const actionKeys = ['Cancel', 'Close', 'Delete', 'Upload', 'Refresh', 'Load more', 'Download', 'Save', 'Edit', 'Publish', 'Retry', 'Back', 'Loading', 'Success', 'Failed', 'Processing', 'Draft', 'Ready'];

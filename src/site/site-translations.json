@@ -955,7 +955,16 @@
     "Does a preservation request disclose user data?": "保存请求会披露用户数据吗？",
     "No. Preservation temporarily protects available, specifically identified data from ordinary deletion; disclosure still requires valid legal process.": "不。保存暂时保护可用且具体识别的数据免受普通删除;披露仍然需要有效的法律程序。",
     "Can Kali reject a government request?": "Kali可以拒绝政府请求吗？",
-    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "是的。我们可能会拒绝、质疑或狭窄要求，这些请求无效、非正式、过于宽泛、不成比例或与适用法律和权利保护不符。"
+    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "是的。我们可能会拒绝、质疑或狭窄要求，这些请求无效、非正式、过于宽泛、不成比例或与适用法律和权利保护不符。",
+    "Interactive walkthrough": "交互式流程演示",
+    "Explore the steps. No account or credits needed.": "逐步了解制作流程，无需登录或消耗积分。",
+    "Illustrative demo": "流程示意",
+    "Creative studio illustration": "创作场景示意图",
+    "Watch the video": "观看视频",
+    "Previous step": "上一步",
+    "Next step": "下一步",
+    "Workspace preview": "工作台实景",
+    "Download": "下载"
   },
   "zh-tw": {
     "Home": "首頁",
@@ -1913,7 +1922,16 @@
     "Does a preservation request disclose user data?": "保存請求會揭露使用者資料嗎？",
     "No. Preservation temporarily protects available, specifically identified data from ordinary deletion; disclosure still requires valid legal process.": "不。保存暫時保護可用且特定識別的資料免於一般刪除;揭露仍需合法法律程序。",
     "Can Kali reject a government request?": "Kali可以拒絕政府的申請嗎？",
-    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "是的。我們可能會拒絕、挑戰或狹義化申請，這些請求無效、非正式、過於寬泛、不成比例，或與適用法律及權利保障不符。"
+    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "是的。我們可能會拒絕、挑戰或狹義化申請，這些請求無效、非正式、過於寬泛、不成比例，或與適用法律及權利保障不符。",
+    "Interactive walkthrough": "互動式流程示範",
+    "Explore the steps. No account or credits needed.": "逐步了解製作流程，無需登入或消耗點數。",
+    "Illustrative demo": "流程示意",
+    "Creative studio illustration": "創作場景示意圖",
+    "Watch the video": "觀看影片",
+    "Previous step": "上一步",
+    "Next step": "下一步",
+    "Workspace preview": "工作區實景",
+    "Download": "下載"
   },
   "es": {
     "Home": "Inicio",
@@ -2871,7 +2889,16 @@
     "Does a preservation request disclose user data?": "¿Una solicitud de preservación revela los datos de los usuarios?",
     "No. Preservation temporarily protects available, specifically identified data from ordinary deletion; disclosure still requires valid legal process.": "No. La preservación protege temporalmente los datos disponibles, específicamente identificados, de la eliminación ordinaria; La divulgación sigue requiriendo un proceso legal válido.",
     "Can Kali reject a government request?": "¿Puede Kali rechazar una solicitud del gobierno?",
-    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "Sí. Podemos rechazar, impugnar o restringir solicitudes que sean inválidas, informales, excesivamente amplias, desproporcionadas o incompatibles con la ley y las protecciones de derechos aplicables."
+    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "Sí. Podemos rechazar, impugnar o restringir solicitudes que sean inválidas, informales, excesivamente amplias, desproporcionadas o incompatibles con la ley y las protecciones de derechos aplicables.",
+    "Interactive walkthrough": "Recorrido interactivo",
+    "Explore the steps. No account or credits needed.": "Explora los pasos. No necesitas cuenta ni créditos.",
+    "Illustrative demo": "Demo ilustrativa",
+    "Creative studio illustration": "Ilustración del estudio creativo",
+    "Watch the video": "Ver el vídeo",
+    "Previous step": "Paso anterior",
+    "Next step": "Siguiente paso",
+    "Workspace preview": "Vista del espacio de trabajo",
+    "Download": "Descargar"
   },
   "fr": {
     "Home": "Accueil",
@@ -3829,7 +3856,16 @@
     "Does a preservation request disclose user data?": "Une demande de préservation divulgue-t-elle les données des utilisateurs ?",
     "No. Preservation temporarily protects available, specifically identified data from ordinary deletion; disclosure still requires valid legal process.": "Non. La préservation protège temporairement les données disponibles, spécifiquement identifiées, contre la suppression ordinaire ; La divulgation nécessite toujours une procédure légale valide.",
     "Can Kali reject a government request?": "Peut-Kali rejeter une demande gouvernementale ?",
-    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "Oui. Nous pouvons rejeter, contester ou restreindre des demandes invalides, informelles, trop larges, disproportionnées ou incompatibles avec la loi et les protections des droits applicables."
+    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "Oui. Nous pouvons rejeter, contester ou restreindre des demandes invalides, informelles, trop larges, disproportionnées ou incompatibles avec la loi et les protections des droits applicables.",
+    "Interactive walkthrough": "Visite interactive",
+    "Explore the steps. No account or credits needed.": "Explorez les étapes sans compte ni crédits.",
+    "Illustrative demo": "Démo illustrative",
+    "Creative studio illustration": "Illustration du studio créatif",
+    "Watch the video": "Voir la vidéo",
+    "Previous step": "Étape précédente",
+    "Next step": "Étape suivante",
+    "Workspace preview": "Aperçu de l’espace de travail",
+    "Download": "Télécharger"
   },
   "ru": {
     "Home": "Дом",
@@ -4787,7 +4823,16 @@
     "Does a preservation request disclose user data?": "Раскрывает ли запрос на сохранение данные пользователей?",
     "No. Preservation temporarily protects available, specifically identified data from ordinary deletion; disclosure still requires valid legal process.": "Нет. Сохранение временно защищает доступные, специально идентифицированные данные от обычного удаления; Раскрытие информации всё равно требует действительной юридической процедуры.",
     "Can Kali reject a government request?": "Могут ли Kali отклонить запрос правительства?",
-    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "Да. Мы можем отклонять, оспаривать или сузить запросы, которые являются недействительными, неформальными, чрезмерно широкими, несоразмерными или несовместимыми с применимым законодательством и защитой прав."
+    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "Да. Мы можем отклонять, оспаривать или сузить запросы, которые являются недействительными, неформальными, чрезмерно широкими, несоразмерными или несовместимыми с применимым законодательством и защитой прав.",
+    "Interactive walkthrough": "Интерактивный обзор",
+    "Explore the steps. No account or credits needed.": "Изучите этапы без аккаунта и кредитов.",
+    "Illustrative demo": "Демонстрация процесса",
+    "Creative studio illustration": "Иллюстрация творческой студии",
+    "Watch the video": "Смотреть видео",
+    "Previous step": "Предыдущий шаг",
+    "Next step": "Следующий шаг",
+    "Workspace preview": "Обзор рабочего пространства",
+    "Download": "Скачать"
   },
   "de": {
     "Home": "Zuhause",
@@ -5745,7 +5790,16 @@
     "Does a preservation request disclose user data?": "Gibt ein Erhaltungsantrag Nutzerdaten preis?",
     "No. Preservation temporarily protects available, specifically identified data from ordinary deletion; disclosure still requires valid legal process.": "Nein. Die Erhaltung schützt vorübergehend verfügbare, speziell identifizierte Daten vor gewöhnlicher Löschung; Die Offenlegung erfordert weiterhin ein gültiges rechtliches Verfahren.",
     "Can Kali reject a government request?": "Kann Kali einen Regierungsantrag ablehnen?",
-    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "Ja. Wir können Anträge ablehnen, anfechten oder einschränken, die ungültig, informell, zu weit gefasst, unverhältnismäßig oder im Widerspruch zu geltendem Recht und Rechteschutz stehen."
+    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "Ja. Wir können Anträge ablehnen, anfechten oder einschränken, die ungültig, informell, zu weit gefasst, unverhältnismäßig oder im Widerspruch zu geltendem Recht und Rechteschutz stehen.",
+    "Interactive walkthrough": "Interaktive Tour",
+    "Explore the steps. No account or credits needed.": "Entdecke die Schritte. Ohne Konto oder Credits.",
+    "Illustrative demo": "Beispieldemo",
+    "Creative studio illustration": "Illustration des Kreativstudios",
+    "Watch the video": "Video ansehen",
+    "Previous step": "Vorheriger Schritt",
+    "Next step": "Nächster Schritt",
+    "Workspace preview": "Workspace-Vorschau",
+    "Download": "Herunterladen"
   },
   "pt": {
     "Home": "Casa",
@@ -6703,7 +6757,16 @@
     "Does a preservation request disclose user data?": "Um pedido de preservação divulga os dados dos utilizadores?",
     "No. Preservation temporarily protects available, specifically identified data from ordinary deletion; disclosure still requires valid legal process.": "Não. A preservação protege temporariamente os dados disponíveis, especificamente identificados, da eliminação comum; A divulgação ainda exige um processo legal válido.",
     "Can Kali reject a government request?": "Pode Kali rejeitar um pedido do governo?",
-    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "Sim. Podemos rejeitar, contestar ou restringir pedidos que sejam inválidos, informais, excessivamente amplos, desproporcionados ou incompatíveis com a lei aplicável e as proteções de direitos."
+    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "Sim. Podemos rejeitar, contestar ou restringir pedidos que sejam inválidos, informais, excessivamente amplos, desproporcionados ou incompatíveis com a lei aplicável e as proteções de direitos.",
+    "Interactive walkthrough": "Demonstração interativa",
+    "Explore the steps. No account or credits needed.": "Explore os passos sem conta nem créditos.",
+    "Illustrative demo": "Demonstração ilustrativa",
+    "Creative studio illustration": "Ilustração do estúdio criativo",
+    "Watch the video": "Ver vídeo",
+    "Previous step": "Passo anterior",
+    "Next step": "Passo seguinte",
+    "Workspace preview": "Pré-visualização do espaço de trabalho",
+    "Download": "Descarregar"
   },
   "ar": {
     "Home": "المنزل",
@@ -7661,7 +7724,16 @@
     "Does a preservation request disclose user data?": "هل يكشف طلب الحفظ عن بيانات المستخدم؟",
     "No. Preservation temporarily protects available, specifically identified data from ordinary deletion; disclosure still requires valid legal process.": "لا. يحمي الحفظ مؤقتا البيانات المتاحة، المحددة تحديدا، من الحذف العادي؛ الإفصاح لا يزال يتطلب إجراء قانونيا صحيحا.",
     "Can Kali reject a government request?": "هل Kali يمكنه رفض طلب حكومي؟",
-    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "نعم. قد نرفض أو نطعن أو نضيق طلبات غير صالحة أو غير رسمية أو واسعة جدا أو غير متناسبة أو غير متسقة مع القوانين وحماية الحقوق المعمول بها."
+    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "نعم. قد نرفض أو نطعن أو نضيق طلبات غير صالحة أو غير رسمية أو واسعة جدا أو غير متناسبة أو غير متسقة مع القوانين وحماية الحقوق المعمول بها.",
+    "Interactive walkthrough": "جولة تفاعلية",
+    "Explore the steps. No account or credits needed.": "استكشف الخطوات دون حساب أو رصيد.",
+    "Illustrative demo": "عرض توضيحي",
+    "Creative studio illustration": "صورة توضيحية للاستوديو الإبداعي",
+    "Watch the video": "شاهد الفيديو",
+    "Previous step": "الخطوة السابقة",
+    "Next step": "الخطوة التالية",
+    "Workspace preview": "معاينة مساحة العمل",
+    "Download": "تنزيل"
   },
   "it": {
     "Home": "Casa",
@@ -8619,7 +8691,16 @@
     "Does a preservation request disclose user data?": "Una richiesta di preservazione divulga i dati degli utenti?",
     "No. Preservation temporarily protects available, specifically identified data from ordinary deletion; disclosure still requires valid legal process.": "No. La conservazione protegge temporaneamente i dati disponibili, specificamente identificati, dalla cancellazione ordinaria; La divulgazione richiede comunque un processo legale valido.",
     "Can Kali reject a government request?": "Può Kali respingere una richiesta del governo?",
-    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "Sì. Possiamo rifiutare, contestare o restringere richieste che siano invalide, informali, eccessivamente ampie, sproporzionate o incompatibili con la legge e le tutele dei diritti applicabili."
+    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "Sì. Possiamo rifiutare, contestare o restringere richieste che siano invalide, informali, eccessivamente ampie, sproporzionate o incompatibili con la legge e le tutele dei diritti applicabili.",
+    "Interactive walkthrough": "Tour interattivo",
+    "Explore the steps. No account or credits needed.": "Esplora i passaggi senza account o crediti.",
+    "Illustrative demo": "Demo illustrativa",
+    "Creative studio illustration": "Illustrazione dello studio creativo",
+    "Watch the video": "Guarda il video",
+    "Previous step": "Passaggio precedente",
+    "Next step": "Passaggio successivo",
+    "Workspace preview": "Anteprima dello spazio di lavoro",
+    "Download": "Scarica"
   },
   "ja": {
     "Home": "ホーム",
@@ -9577,7 +9658,16 @@
     "Does a preservation request disclose user data?": "保存リクエストはユーザーデータを開示しますか?",
     "No. Preservation temporarily protects available, specifically identified data from ordinary deletion; disclosure still requires valid legal process.": "いいえ。保存は、利用可能な特定されたデータを通常の削除から一時的に保護します。開示には依然として有効な法的手続きが必要です。",
     "Can Kali reject a government request?": "政府の申請Kali却下できますか?",
-    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "はい。無効、非公式、過度に広範、不釣り合い、または適用される法律や権利保護と矛盾する申請は、拒否、異議申し立て、または狭義化する場合があります。"
+    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "はい。無効、非公式、過度に広範、不釣り合い、または適用される法律や権利保護と矛盾する申請は、拒否、異議申し立て、または狭義化する場合があります。",
+    "Interactive walkthrough": "操作の流れを体験",
+    "Explore the steps. No account or credits needed.": "アカウントやクレジットなしで手順を確認できます。",
+    "Illustrative demo": "デモ画面",
+    "Creative studio illustration": "制作シーンのイメージ",
+    "Watch the video": "動画を見る",
+    "Previous step": "前のステップ",
+    "Next step": "次のステップ",
+    "Workspace preview": "ワークスペース画面",
+    "Download": "ダウンロード"
   },
   "ko": {
     "Home": "홈",
@@ -10535,7 +10625,16 @@
     "Does a preservation request disclose user data?": "보존 요청이 사용자 데이터를 공개하나요?",
     "No. Preservation temporarily protects available, specifically identified data from ordinary deletion; disclosure still requires valid legal process.": "아니. 보존은 일시적으로 이용 가능하고 구체적으로 식별된 데이터를 일반 삭제로부터 보호합니다; 공개는 여전히 유효한 법적 절차가 필요합니다.",
     "Can Kali reject a government request?": "정부 요청을 거절할 수 Kali 있나요?",
-    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "네. 우리는 무효, 비공식, 지나치게 광범위하거나 불균형하거나 적용 가능한 법률 및 권리 보호와 일치하지 않는 요청을 거부, 이의를 제기하거나 좁힐 수 있습니다."
+    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "네. 우리는 무효, 비공식, 지나치게 광범위하거나 불균형하거나 적용 가능한 법률 및 권리 보호와 일치하지 않는 요청을 거부, 이의를 제기하거나 좁힐 수 있습니다.",
+    "Interactive walkthrough": "인터랙티브 가이드",
+    "Explore the steps. No account or credits needed.": "계정이나 크레딧 없이 제작 과정을 살펴보세요.",
+    "Illustrative demo": "예시 데모",
+    "Creative studio illustration": "크리에이티브 스튜디오 예시 이미지",
+    "Watch the video": "영상 보기",
+    "Previous step": "이전 단계",
+    "Next step": "다음 단계",
+    "Workspace preview": "작업 공간 미리보기",
+    "Download": "다운로드"
   },
   "id": {
     "Home": "Beranda",
@@ -11493,7 +11592,16 @@
     "Does a preservation request disclose user data?": "Apakah permintaan pelestarian mengungkapkan data pengguna?",
     "No. Preservation temporarily protects available, specifically identified data from ordinary deletion; disclosure still requires valid legal process.": "Tidak. Pelestarian sementara melindungi data yang tersedia dan diidentifikasi secara spesifik dari penghapusan biasa; Pengungkapan masih memerlukan proses hukum yang valid.",
     "Can Kali reject a government request?": "Apakah Kali bisa menolak permintaan pemerintah?",
-    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "Ya. Kami dapat menolak, menantang, atau mempersempit permintaan yang tidak sah, informal, terlalu luas, tidak proporsional, atau tidak konsisten dengan hukum yang berlaku dan perlindungan hak."
+    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "Ya. Kami dapat menolak, menantang, atau mempersempit permintaan yang tidak sah, informal, terlalu luas, tidak proporsional, atau tidak konsisten dengan hukum yang berlaku dan perlindungan hak.",
+    "Interactive walkthrough": "Panduan interaktif",
+    "Explore the steps. No account or credits needed.": "Jelajahi langkahnya tanpa akun atau kredit.",
+    "Illustrative demo": "Demo ilustratif",
+    "Creative studio illustration": "Ilustrasi studio kreatif",
+    "Watch the video": "Tonton video",
+    "Previous step": "Langkah sebelumnya",
+    "Next step": "Langkah berikutnya",
+    "Workspace preview": "Pratinjau ruang kerja",
+    "Download": "Unduh"
   },
   "vi": {
     "Home": "Trang chủ",
@@ -12451,7 +12559,16 @@
     "Does a preservation request disclose user data?": "Yêu cầu bảo tồn có tiết lộ dữ liệu người dùng không?",
     "No. Preservation temporarily protects available, specifically identified data from ordinary deletion; disclosure still requires valid legal process.": "Không. Bảo tồn tạm thời bảo vệ dữ liệu có sẵn, được xác định cụ thể khỏi việc xóa thông thường; Việc tiết lộ vẫn đòi hỏi quy trình pháp lý hợp lệ.",
     "Can Kali reject a government request?": "Kali có thể từ chối yêu cầu của chính phủ không?",
-    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "Đúng vậy. Chúng tôi có thể từ chối, thách thức hoặc thu hẹp các yêu cầu không hợp lệ, không chính thức, quá rộng, không cân xứng hoặc không phù hợp với luật pháp và quyền lợi hiện hành."
+    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "Đúng vậy. Chúng tôi có thể từ chối, thách thức hoặc thu hẹp các yêu cầu không hợp lệ, không chính thức, quá rộng, không cân xứng hoặc không phù hợp với luật pháp và quyền lợi hiện hành.",
+    "Interactive walkthrough": "Hướng dẫn tương tác",
+    "Explore the steps. No account or credits needed.": "Khám phá các bước mà không cần tài khoản hay điểm.",
+    "Illustrative demo": "Bản demo minh họa",
+    "Creative studio illustration": "Hình minh họa studio sáng tạo",
+    "Watch the video": "Xem video",
+    "Previous step": "Bước trước",
+    "Next step": "Bước tiếp theo",
+    "Workspace preview": "Xem trước không gian làm việc",
+    "Download": "Tải xuống"
   },
   "tr": {
     "Home": "Ana Sayfa",
@@ -13409,7 +13526,16 @@
     "Does a preservation request disclose user data?": "Bir koruma talebi kullanıcı verilerini açıklar mı?",
     "No. Preservation temporarily protects available, specifically identified data from ordinary deletion; disclosure still requires valid legal process.": "Hayır. Koruma, mevcut ve özel olarak tanımlanmış verileri geçici olarak sıradan silmeden korur; Açıklama yine de geçerli yasal süreç gerektirir.",
     "Can Kali reject a government request?": "Kali bir devlet talebini reddedebilir mi?",
-    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "Evet. Geçersiz, gayri resmi, aşırı geniş, orantısız veya geçerli yasa ve hak korumalarıyla tutarsız talepleri reddedebilir, itiraz edebilir veya daraltabiliriz."
+    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "Evet. Geçersiz, gayri resmi, aşırı geniş, orantısız veya geçerli yasa ve hak korumalarıyla tutarsız talepleri reddedebilir, itiraz edebilir veya daraltabiliriz.",
+    "Interactive walkthrough": "Etkileşimli tur",
+    "Explore the steps. No account or credits needed.": "Hesap veya kredi olmadan adımları keşfedin.",
+    "Illustrative demo": "Örnek demo",
+    "Creative studio illustration": "Yaratıcı stüdyo görseli",
+    "Watch the video": "Videoyu izle",
+    "Previous step": "Önceki adım",
+    "Next step": "Sonraki adım",
+    "Workspace preview": "Çalışma alanı önizlemesi",
+    "Download": "İndir"
   },
   "nl": {
     "Home": "Home",
@@ -14367,7 +14493,16 @@
     "Does a preservation request disclose user data?": "Maakt een behoudsverzoek gebruikersgegevens openbaar?",
     "No. Preservation temporarily protects available, specifically identified data from ordinary deletion; disclosure still requires valid legal process.": "Nee. Behoud beschermt tijdelijk beschikbaare, specifiek geïdentificeerde gegevens tegen gewone verwijdering; Openbaarmaking vereist nog steeds een geldig juridisch proces.",
     "Can Kali reject a government request?": "Kan Kali een overheidsverzoek afwijzen?",
-    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "Ja. We kunnen verzoeken afwijzen, aanvechten of beperken die ongeldig, informeel, te breed, onevenredig zijn of niet in overeenstemming zijn met toepasselijke wetgeving en rechtenbescherming."
+    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "Ja. We kunnen verzoeken afwijzen, aanvechten of beperken die ongeldig, informeel, te breed, onevenredig zijn of niet in overeenstemming zijn met toepasselijke wetgeving en rechtenbescherming.",
+    "Interactive walkthrough": "Interactieve rondleiding",
+    "Explore the steps. No account or credits needed.": "Ontdek de stappen zonder account of credits.",
+    "Illustrative demo": "Voorbeelddemo",
+    "Creative studio illustration": "Illustratie van de creatieve studio",
+    "Watch the video": "Bekijk de video",
+    "Previous step": "Vorige stap",
+    "Next step": "Volgende stap",
+    "Workspace preview": "Werkruimtevoorbeeld",
+    "Download": "Downloaden"
   },
   "uk": {
     "Home": "Дім",
@@ -15325,7 +15460,16 @@
     "Does a preservation request disclose user data?": "Чи розкриває запит на збереження дані користувачів?",
     "No. Preservation temporarily protects available, specifically identified data from ordinary deletion; disclosure still requires valid legal process.": "Ні. Збереження тимчасово захищає доступні, конкретно ідентифіковані дані від звичайного видалення; Розкриття інформації все одно вимагає дійсного юридичного процесу.",
     "Can Kali reject a government request?": "Чи може Kali відхилити урядовий запит?",
-    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "Так. Ми можемо відхиляти, оскаржувати або звужувати запити, які є недійсними, неформальними, надто широкими, непропорційними або суперечать чинному законодавству та захисту прав."
+    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "Так. Ми можемо відхиляти, оскаржувати або звужувати запити, які є недійсними, неформальними, надто широкими, непропорційними або суперечать чинному законодавству та захисту прав.",
+    "Interactive walkthrough": "Інтерактивний огляд",
+    "Explore the steps. No account or credits needed.": "Перегляньте етапи без облікового запису та кредитів.",
+    "Illustrative demo": "Демонстрація процесу",
+    "Creative studio illustration": "Ілюстрація творчої студії",
+    "Watch the video": "Дивитися відео",
+    "Previous step": "Попередній крок",
+    "Next step": "Наступний крок",
+    "Workspace preview": "Огляд робочого простору",
+    "Download": "Завантажити"
   },
   "th": {
     "Home": "หน้าแรก",
@@ -16283,7 +16427,16 @@
     "Does a preservation request disclose user data?": "คําขอเก็บรักษาข้อมูลผู้ใช้เปิดเผยหรือไม่?",
     "No. Preservation temporarily protects available, specifically identified data from ordinary deletion; disclosure still requires valid legal process.": "ไม่ การอนุรักษ์ช่วยปกป้องข้อมูลที่มีอยู่ซึ่งระบุไว้เฉพาะจากการลบข้อมูลทั่วไปได้ชั่วคราว; การเปิดเผยข้อมูลยังคงต้องใช้กระบวนการทางกฎหมายที่ถูกต้อง",
     "Can Kali reject a government request?": "Kali สามารถปฏิเสธคําขอของรัฐบาลได้หรือไม่?",
-    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "ใช่ เราอาจปฏิเสธ ท้าทาย หรือจํากัดคําขอที่ไม่ถูกต้อง ไม่เป็นทางการ กว้างเกินไป ไม่สมส่วน หรือไม่สอดคล้องกับกฎหมายและการคุ้มครองสิทธิที่ใช้บังคับ"
+    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "ใช่ เราอาจปฏิเสธ ท้าทาย หรือจํากัดคําขอที่ไม่ถูกต้อง ไม่เป็นทางการ กว้างเกินไป ไม่สมส่วน หรือไม่สอดคล้องกับกฎหมายและการคุ้มครองสิทธิที่ใช้บังคับ",
+    "Interactive walkthrough": "สาธิตแบบโต้ตอบ",
+    "Explore the steps. No account or credits needed.": "สำรวจขั้นตอนโดยไม่ต้องมีบัญชีหรือใช้เครดิต",
+    "Illustrative demo": "ตัวอย่างการสาธิต",
+    "Creative studio illustration": "ภาพประกอบสตูดิโอสร้างสรรค์",
+    "Watch the video": "ดูวิดีโอ",
+    "Previous step": "ขั้นตอนก่อนหน้า",
+    "Next step": "ขั้นตอนถัดไป",
+    "Workspace preview": "ตัวอย่างพื้นที่ทำงาน",
+    "Download": "ดาวน์โหลด"
   },
   "pl": {
     "Home": "Dom",
@@ -17241,7 +17394,16 @@
     "Does a preservation request disclose user data?": "Czy żądanie zachowania ujawnia dane użytkownika?",
     "No. Preservation temporarily protects available, specifically identified data from ordinary deletion; disclosure still requires valid legal process.": "Nie. Zachowanie tymczasowo chroni dostępne, konkretnie zidentyfikowane dane przed zwykłym usunięciem; ujawnienie nadal wymaga ważnego procesu prawnego.",
     "Can Kali reject a government request?": "Czy Kali może odrzucić wniosek rządu?",
-    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "Tak. Możemy odrzucać, kwestionować lub zawężać wnioski, które są nieważne, nieformalne, zbyt szerokie, nieproporcjonalne lub niezgodne z obowiązującym prawem i ochroną praw."
+    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "Tak. Możemy odrzucać, kwestionować lub zawężać wnioski, które są nieważne, nieformalne, zbyt szerokie, nieproporcjonalne lub niezgodne z obowiązującym prawem i ochroną praw.",
+    "Interactive walkthrough": "Interaktywny przewodnik",
+    "Explore the steps. No account or credits needed.": "Poznaj kroki bez konta i kredytów.",
+    "Illustrative demo": "Demo poglądowe",
+    "Creative studio illustration": "Ilustracja studia kreatywnego",
+    "Watch the video": "Obejrzyj film",
+    "Previous step": "Poprzedni krok",
+    "Next step": "Następny krok",
+    "Workspace preview": "Podgląd obszaru roboczego",
+    "Download": "Pobierz"
   },
   "ro": {
     "Home": "Acasă",
@@ -18199,7 +18361,16 @@
     "Does a preservation request disclose user data?": "O cerere de conservare dezvăluie datele utilizatorilor?",
     "No. Preservation temporarily protects available, specifically identified data from ordinary deletion; disclosure still requires valid legal process.": "Nu. Conservarea protejează temporar datele disponibile, identificate în mod specific, de ștergerea obișnuită; Dezvăluirea necesită în continuare un proces legal valabil.",
     "Can Kali reject a government request?": "Poate Kali respinge o cerere guvernamentală?",
-    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "Da. Putem respinge, contesta sau restrânge cererile care sunt invalide, informale, excesiv de largi, disproporționate sau inconforme cu legea aplicabilă și protecțiile drepturilor."
+    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "Da. Putem respinge, contesta sau restrânge cererile care sunt invalide, informale, excesiv de largi, disproporționate sau inconforme cu legea aplicabilă și protecțiile drepturilor.",
+    "Interactive walkthrough": "Tur interactiv",
+    "Explore the steps. No account or credits needed.": "Explorează pașii fără cont sau credite.",
+    "Illustrative demo": "Demo ilustrativ",
+    "Creative studio illustration": "Ilustrație a studioului creativ",
+    "Watch the video": "Vezi videoclipul",
+    "Previous step": "Pasul anterior",
+    "Next step": "Pasul următor",
+    "Workspace preview": "Previzualizare a spațiului de lucru",
+    "Download": "Descarcă"
   },
   "el": {
     "Home": "Σπίτι",
@@ -19157,7 +19328,16 @@
     "Does a preservation request disclose user data?": "Ένα αίτημα διατήρησης αποκαλύπτει δεδομένα χρήστη;",
     "No. Preservation temporarily protects available, specifically identified data from ordinary deletion; disclosure still requires valid legal process.": "Όχι. Η διατήρηση προστατεύει προσωρινά τα διαθέσιμα, ειδικά προσδιορισμένα δεδομένα από τη συνηθισμένη διαγραφή. Η αποκάλυψη εξακολουθεί να απαιτεί έγκυρη νομική διαδικασία.",
     "Can Kali reject a government request?": "Μπορούν Kali να απορρίψουν ένα κυβερνητικό αίτημα;",
-    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "Ναί. Ενδέχεται να απορρίψουμε, να αμφισβητήσουμε ή να περιορίσουμε αιτήματα που είναι άκυρα, ανεπίσημα, υπερβολικά ευρεία, δυσανάλογα ή δεν συνάδουν με την ισχύουσα νομοθεσία και την προστασία των δικαιωμάτων."
+    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "Ναί. Ενδέχεται να απορρίψουμε, να αμφισβητήσουμε ή να περιορίσουμε αιτήματα που είναι άκυρα, ανεπίσημα, υπερβολικά ευρεία, δυσανάλογα ή δεν συνάδουν με την ισχύουσα νομοθεσία και την προστασία των δικαιωμάτων.",
+    "Interactive walkthrough": "Διαδραστική περιήγηση",
+    "Explore the steps. No account or credits needed.": "Δείτε τα βήματα χωρίς λογαριασμό ή μονάδες.",
+    "Illustrative demo": "Ενδεικτική επίδειξη",
+    "Creative studio illustration": "Εικόνα δημιουργικού στούντιο",
+    "Watch the video": "Δείτε το βίντεο",
+    "Previous step": "Προηγούμενο βήμα",
+    "Next step": "Επόμενο βήμα",
+    "Workspace preview": "Προεπισκόπηση χώρου εργασίας",
+    "Download": "Λήψη"
   },
   "cs": {
     "Home": "Domov",
@@ -20115,7 +20295,16 @@
     "Does a preservation request disclose user data?": "Zveřejňuje žádost o zachování uživatelská data?",
     "No. Preservation temporarily protects available, specifically identified data from ordinary deletion; disclosure still requires valid legal process.": "Ne. Ochrana dočasně chrání dostupná, konkrétně identifikovaná data před běžným mazáním; Zveřejnění stále vyžaduje platný právní proces.",
     "Can Kali reject a government request?": "Může Kali odmítnout žádost vlády?",
-    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "Ano. Můžeme odmítnout, napadnout nebo zúžit žádosti, které jsou neplatné, neformální, příliš široké, nepřiměřené nebo v rozporu s platnými právními a právními ochranami."
+    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "Ano. Můžeme odmítnout, napadnout nebo zúžit žádosti, které jsou neplatné, neformální, příliš široké, nepřiměřené nebo v rozporu s platnými právními a právními ochranami.",
+    "Interactive walkthrough": "Interaktivní průvodce",
+    "Explore the steps. No account or credits needed.": "Projděte si kroky bez účtu a kreditů.",
+    "Illustrative demo": "Ukázkové demo",
+    "Creative studio illustration": "Ilustrace kreativního studia",
+    "Watch the video": "Přehrát video",
+    "Previous step": "Předchozí krok",
+    "Next step": "Další krok",
+    "Workspace preview": "Náhled pracovního prostoru",
+    "Download": "Stáhnout"
   },
   "fi": {
     "Home": "Koti",
@@ -21073,7 +21262,16 @@
     "Does a preservation request disclose user data?": "Paljastaako säilytyspyyntö käyttäjätietoja?",
     "No. Preservation temporarily protects available, specifically identified data from ordinary deletion; disclosure still requires valid legal process.": "Ei. Säilytys suojaa väliaikaisesti saatavilla olevaa, tarkasti tunnistettua dataa tavallisilta poistoilta; Tietojen antaminen vaatii edelleen pätevän oikeudellisen prosessin.",
     "Can Kali reject a government request?": "Voiko Kali hylätä hallituksen pyynnön?",
-    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "Kyllä. Voimme hylätä, haastaa tai rajata pyyntöjä, jotka ovat pätemättömiä, epävirallisia, liian laajoja, suhteettomia tai ristiriidassa sovellettavan lain ja oikeuksien kanssa."
+    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "Kyllä. Voimme hylätä, haastaa tai rajata pyyntöjä, jotka ovat pätemättömiä, epävirallisia, liian laajoja, suhteettomia tai ristiriidassa sovellettavan lain ja oikeuksien kanssa.",
+    "Interactive walkthrough": "Interaktiivinen esittely",
+    "Explore the steps. No account or credits needed.": "Tutustu vaiheisiin ilman tiliä tai krediittejä.",
+    "Illustrative demo": "Havainnollistava demo",
+    "Creative studio illustration": "Luovan studion kuvitus",
+    "Watch the video": "Katso video",
+    "Previous step": "Edellinen vaihe",
+    "Next step": "Seuraava vaihe",
+    "Workspace preview": "Työtilan esikatselu",
+    "Download": "Lataa"
   },
   "hi": {
     "Home": "घर",
@@ -22031,6 +22229,15 @@
     "Does a preservation request disclose user data?": "क्या संरक्षण अनुरोध उपयोगकर्ता डेटा का खुलासा करता है?",
     "No. Preservation temporarily protects available, specifically identified data from ordinary deletion; disclosure still requires valid legal process.": "नहीं। संरक्षण अस्थायी रूप से उपलब्ध, विशेष रूप से पहचाने गए डेटा को सामान्य विलोपन से बचाता है; प्रकटीकरण के लिए अभी भी वैध कानूनी प्रक्रिया की आवश्यकता है।",
     "Can Kali reject a government request?": "क्या Kali सरकार के अनुरोध को अस्वीकार कर सकते हैं?",
-    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "हाँ। हम उन अनुरोधों को अस्वीकार कर सकते हैं, चुनौती दे सकते हैं या संकीर्ण कर सकते हैं जो अमान्य, अनौपचारिक, अत्यधिक व्यापक, अनुपातहीन या लागू कानून और अधिकारों की सुरक्षा के साथ असंगत हैं।"
+    "Yes. We may reject, challenge, or narrow requests that are invalid, informal, overly broad, disproportionate, or inconsistent with applicable law and rights protections.": "हाँ। हम उन अनुरोधों को अस्वीकार कर सकते हैं, चुनौती दे सकते हैं या संकीर्ण कर सकते हैं जो अमान्य, अनौपचारिक, अत्यधिक व्यापक, अनुपातहीन या लागू कानून और अधिकारों की सुरक्षा के साथ असंगत हैं।",
+    "Interactive walkthrough": "इंटरैक्टिव गाइड",
+    "Explore the steps. No account or credits needed.": "बिना खाते या क्रेडिट के चरण देखें।",
+    "Illustrative demo": "उदाहरण डेमो",
+    "Creative studio illustration": "क्रिएटिव स्टूडियो का चित्रण",
+    "Watch the video": "वीडियो देखें",
+    "Previous step": "पिछला चरण",
+    "Next step": "अगला चरण",
+    "Workspace preview": "वर्कस्पेस की झलक",
+    "Download": "डाउनलोड करें"
   }
 }

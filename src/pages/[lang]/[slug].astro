@@ -4,6 +4,9 @@ import { pagePath, pagesByLocale, supportedLocales } from '../../site/content.js
 import { translateText } from '../../site/localization.js';
 import { brandName } from '../../site/localization.js';
 import { getSeoMetadata } from '../../site/seo.js';
+import MediaStage from '../../components/site/MediaStage.astro';
+import WorkflowDemo from '../../components/site/WorkflowDemo.astro';
+import { productScenes, showcaseMedia } from '../../site/showcase.js';
 
 type TextPair = [string, string];
 type PublicPage = {
@@ -40,6 +43,7 @@ const allPages = (pagesByLocale[lang] || []) as PublicPage[];
 const findPage = (slug: string) => allPages.find((item) => item.slug === slug);
 const isHelpIndex = page.contentType === 'helpIndex';
 const isGuide = page.contentType === 'guide';
+const productScene = productScenes[page.slug as keyof typeof productScenes];
 const relatedPages = (page.related || []).map(findPage).filter(Boolean);
 const pageSchema = {
   '@type': 'WebPage',
@@ -50,6 +54,7 @@ const pageSchema = {
   isPartOf: { '@id': `${Astro.site}#website` },
   about: { '@id': `${Astro.site}#organization` },
   inLanguage: lang,
+  ...((productScene || isHelpIndex || isGuide) ? { primaryImageOfPage: { '@type': 'ImageObject', url: new URL(productScene ? showcaseMedia[page.slug as keyof typeof showcaseMedia].poster : '/previews/workspace.webp', Astro.site), caption: t(productScene ? 'Creative studio illustration' : 'Workspace preview') } } : {}),
 };
 const howToSchema = isGuide ? {
   '@type': 'HowTo',
@@ -63,37 +68,17 @@ const faqSchema = {
   mainEntity: page.faq.map(([question, answer]) => ({ '@type': 'Question', name: question, acceptedAnswer: { '@type': 'Answer', text: answer } })),
 };
 ---
-<PublicLayout locale={lang} slug={page.slug} title={`${seo.title} | ${brandName(lang)}`} description={seo.description} keywords={seo.keywords} eyebrow={page.eyebrow} schema={[pageSchema, howToSchema, faqSchema].filter(Boolean)}>
-  <section class:list={['page-hero', { 'help-hero': isHelpIndex || isGuide }]}>
-    <div><p class="eyebrow">{page.eyebrow}</p><h1>{page.headline}</h1><p class="hero-lead">{page.lead}</p>{!isHelpIndex && !isGuide && <div class="hero-actions"><a class="primary-cta" href="/app/">{t('Open the workspace')} <span>↗</span></a><a class="text-cta" href={pagePath(lang, 'contact')}>{t('Talk to the team')} <span>→</span></a></div>}</div>
-    <aside><p>{isGuide ? t('IN THIS GUIDE') : t('WHAT YOU CAN DO')}</p><ul>{page.bullets.map((bullet) => <li><span>✓</span>{bullet}</li>)}</ul></aside>
+<PublicLayout locale={lang} slug={page.slug} title={`${seo.title} | ${brandName(lang)}`} description={seo.description} keywords={seo.keywords} eyebrow={page.eyebrow} schema={[pageSchema, howToSchema, faqSchema].filter(Boolean)} pageClass={productScene ? 'showcase-product' : isHelpIndex || isGuide ? 'showcase-help' : 'showcase-info'}>
+  <section class:list={['page-hero', { 'help-hero': isHelpIndex || isGuide, 'product-hero': Boolean(productScene) }]}>
+    <div><p class="eyebrow">{page.eyebrow}</p><h1>{page.headline}</h1><p class="hero-lead">{page.lead}</p>{!isHelpIndex && !isGuide && <div class="hero-actions"><a class="primary-cta" href="/app/">{t('Open the workspace')} <span>↗</span></a><a class="text-cta" href={productScene ? '#workflow-demo' : pagePath(lang, 'contact')}>{t(productScene ? 'See the production flow' : 'Talk to the team')} <span>→</span></a></div>}</div>
+    {productScene ? <MediaStage locale={lang} mediaKey={page.slug} position={productScene.position} eager={true} /> : <aside><p>{isGuide ? t('IN THIS GUIDE') : t('WHAT YOU CAN DO')}</p><ul>{page.bullets.map((bullet) => <li><span>✓</span>{bullet}</li>)}</ul></aside>}
   </section>
+
+  {productScene && <><section class="product-benefits section-wrap" aria-label={t('WHAT YOU CAN DO')}>{page.bullets.map((bullet, index) => <div><span>{String(index + 1).padStart(2, '0')}</span><p>{bullet}</p></div>)}</section><WorkflowDemo locale={lang} mediaKey={page.slug} /><section class="product-studio-link section-wrap"><p>{t('Use each studio on its own, or move assets and decisions through one consistent workflow from idea to publish.')}</p><a class="text-cta" href="/app/">{t('Open the workspace')} ↗</a></section></>}
 
   {isHelpIndex && (
     <>
-      <section class="help-demo-showcase">
-        <div class="demo-copy">
-          <p class="eyebrow">{t('SMART VIDEO DEMO')}</p>
-          <h2>{t('One path from script to finished video')}</h2>
-          <p>{t('Use the same four-step rhythm in the product and in the help center: write the script, add materials, choose the presenter and style, then review the generated video.')}</p>
-        </div>
-        <div class="demo-stage">
-          <div class="demo-phone" aria-label={t('Smart video workflow preview')}>
-            <div class="demo-phone-top"><span></span><b>{t('Smart video')}</b><em>{t('Ready')}</em></div>
-            <div class="demo-editor">
-              <div class="demo-script"><small>{t('SCRIPT')}</small><strong>{t('Three short scenes about a trending topic')}</strong><p>{t('Opening hook, key point, final call to action.')}</p></div>
-              <div class="demo-assets"><img src="/yixiu-assets/hot-aggregate.png" alt={t('Trend discovery')} /><img src="/yixiu-assets/digital-human.png" alt={t('Digital Human')} /><img src="/yixiu-assets/smart-video.png" alt={t('Smart video')} /></div>
-              <div class="demo-result"><span>{t('Digital Human')}</span><span>{t('Template')}</span><span>{t('Cover')}</span><b>{t('Generate video')}</b></div>
-            </div>
-          </div>
-          <ol class="demo-flow-list">
-            <li><span>01</span><div><strong>{t('Write the script')}</strong><p>{t('Start with a topic, a pasted script, or assistant output.')}</p></div></li>
-            <li><span>02</span><div><strong>{t('Add materials')}</strong><p>{t('Attach images, video clips, covers, or product media where needed.')}</p></div></li>
-            <li><span>03</span><div><strong>{t('Choose presenter and style')}</strong><p>{t('Select the digital human, voice, template, cover style, and music.')}</p></div></li>
-            <li><span>04</span><div><strong>{t('Generate and review')}</strong><p>{t('Submit, track the task, then download or publish after review.')}</p></div></li>
-          </ol>
-        </div>
-      </section>
+      <WorkflowDemo locale={lang} />
       <section class="help-groups">
         <div class="section-heading"><p class="eyebrow">{t('START HERE')}</p><h2>{t('Guides grouped by the production path')}</h2></div>
         <div class="help-group-grid">
@@ -136,12 +121,7 @@ const faqSchema = {
             <p class="eyebrow">{page.visual.label}</p>
             <ol>{page.visual.stages.map((stage, index) => <li><span>{String(index + 1).padStart(2, '0')}</span><strong>{stage}</strong></li>)}</ol>
           </div>
-          <div class="guide-demo-board" aria-label={page.visual.label}>
-            <div class="board-panel board-script"><small>{t('SCRIPT')}</small><strong>{page.headline}</strong><p>{page.lead}</p></div>
-            <div class="board-panel board-media"><img src={page.visual.image} alt={page.visual.label} loading="lazy" /><span>{t('Materials ready')}</span></div>
-            <div class="board-panel board-options"><span>{t('Digital Human')}</span><span>{t('Voice')}</span><span>{t('Template')}</span><span>{t('Cover')}</span></div>
-            <div class="board-panel board-status"><b>{t('Ready to submit')}</b><i></i></div>
-          </div>
+          <figure class="guide-preview"><img src="/previews/workspace.webp" width="1440" height="960" alt={t('Workspace preview')} loading="lazy" /><figcaption>{t('Workspace preview')}</figcaption><a class="text-cta" href={pagePath(lang, 'help') + '#workflow-demo'}>{t('See the production flow')} →</a></figure>
         </div>
       </section>
       <section class="guide-steps">

@@ -1,0 +1,66 @@
+---
+import { translateText } from '../../site/localization.js';
+import { demoSteps } from '../../site/showcase.js';
+import { showcaseMedia } from '../../site/showcase.js';
+import MediaStage from './MediaStage.astro';
+const { locale, id = 'workflow-demo', mediaKey = 'overview' } = Astro.props;
+const media = showcaseMedia[mediaKey as keyof typeof showcaseMedia] || showcaseMedia.overview;
+const t = (value: string) => translateText(value, locale);
+---
+<section class="walkthrough section-wrap" id={id} data-walkthrough>
+  <div class="section-heading">
+    <p class="eyebrow">{t('Interactive walkthrough')}</p>
+    <h2>{t('One path from script to finished video')}</h2>
+    <p>{t('Explore the steps. No account or credits needed.')}</p>
+  </div>
+  <div class="walkthrough-shell">
+    <div class="walkthrough-tabs" role="tablist" aria-label={t('THE WORKFLOW')}>
+      {demoSteps.map((step, i) => <button type="button" role="tab" id={`${id}-tab-${i}`} aria-controls={`${id}-panel-${i}`} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1} data-step={i}><span>{String(i + 1).padStart(2, '0')}</span>{t(step.label)}</button>)}
+    </div>
+    {demoSteps.map((step, i) => (
+      <div class="walkthrough-panel" id={`${id}-panel-${i}`} role="tabpanel" aria-labelledby={`${id}-tab-${i}`} tabindex="0" hidden={i !== 0}>
+        <div class="walkthrough-caption"><span class="demo-tag">{t('Illustrative demo')}</span><h3>{t(step.title)}</h3><p>{t(step.body)}</p></div>
+        <div class:list={['demo-workspace', `demo-workspace--${i}`]} aria-label={t(step.title)}>
+          <div class="demo-windowbar"><span class="mini-brand">K</span><strong>{t('Content production workspace')}</strong><span class="demo-windowbar__status">{t('Illustrative demo')}</span></div>
+          {i === 0 && <div class="demo-discovery"><div><small>{t('Trend discovery')}</small><h4>{t('Find the angle')}</h4><div class="demo-search">{t('Start from a trend, topic, brief, or existing content idea.')}</div><div class="demo-topic"><b>01</b><span>{t('Trend discovery')}</span><span>↗</span></div><div class="demo-topic"><b>02</b><span>{t('Script generation')}</span><span>↗</span></div><div class="demo-topic"><b>03</b><span>{t('Video publishing')}</span><span>↗</span></div></div><div class="demo-photo demo-photo--center"><img src="/previews/creative-studio.webp" alt={t('Creative studio illustration')} width="1536" height="1024" loading="lazy" /></div></div>}
+          {i === 1 && <div class="demo-writing"><aside><span class="demo-mini-label">{t('SCRIPT')}</span><h4>{t('Shape the script')}</h4><p>{t('Start with a topic, a pasted script, or assistant output.')}</p><span class="demo-selection">{t('Script generation')} ↗</span></aside><div class="demo-paper"><small>{t('SCRIPT')}</small><h4>{t('Three short scenes about a trending topic')}</h4><p>{t('Opening hook, key point, final call to action.')}</p><div class="demo-type-lines" aria-hidden="true"><i></i><i></i><i></i><i></i></div><span class="demo-selection">{t('Choose presenter and style')} →</span></div></div>}
+          {i === 2 && <div class="demo-production"><div class="demo-photo demo-photo--left"><img src="/previews/creative-studio.webp" alt={t('Creative studio illustration')} width="1536" height="1024" loading="lazy" /></div><div class="demo-options"><small>{t('Assemble production')}</small><h4>{t('Choose presenter and style')}</h4>{['Digital Human', 'Voice', 'Template', 'Cover'].map((label) => <div><span>{t(label)}</span><b>✓</b></div>)}<span class="demo-selection">{t('Generate and review')} →</span></div></div>}
+          {i === 3 && <div class="demo-review">{media.src ? <MediaStage locale={locale} mediaKey={mediaKey} /> : <div class="demo-contact-sheet">{['left', 'center', 'right'].map((position) => <div class:list={['demo-photo', `demo-photo--${position}`]}><img src="/previews/creative-studio.webp" alt={t('Creative studio illustration')} width="1536" height="1024" loading="lazy" /></div>)}</div>}<div class="demo-review-controls"><h4>{t('Review and publish')}</h4><p>{t('Submit, track the task, then download or publish after review.')}</p><div><span>{t('Download')}</span><span>{t('Video publishing')}</span></div></div></div>}
+        </div>
+      </div>
+    ))}
+    <footer class="walkthrough-controls"><span data-step-count aria-live="polite" aria-atomic="true">01 / 04</span><div><button type="button" data-previous disabled aria-label={t('Previous step')}>←</button><button type="button" data-next>{t('Next step')} <span aria-hidden="true">→</span></button></div></footer>
+  </div>
+  <noscript><ol>{demoSteps.map((step) => <li><strong>{t(step.title)}</strong> — {t(step.body)}</li>)}</ol></noscript>
+</section>
+<script>
+  document.querySelectorAll<HTMLElement>('[data-walkthrough]').forEach((root) => {
+    const tabs = [...root.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+    const panels = [...root.querySelectorAll<HTMLElement>('[role="tabpanel"]')];
+    const previous = root.querySelector<HTMLButtonElement>('[data-previous]')!;
+    const next = root.querySelector<HTMLButtonElement>('[data-next]')!;
+    let active = 0;
+    const show = (index: number, focus = false) => {
+      active = (index + tabs.length) % tabs.length;
+      tabs.forEach((tab, i) => { tab.setAttribute('aria-selected', String(i === active)); tab.tabIndex = i === active ? 0 : -1; });
+      panels.forEach((panel, i) => { panel.hidden = i !== active; if (i !== active) panel.querySelectorAll('video').forEach((video) => video.pause()); });
+      previous.disabled = active === 0;
+      root.querySelector('[data-step-count]')!.textContent = `${String(active + 1).padStart(2, '0')} / 04`;
+      if (focus) tabs[active].focus();
+    };
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => show(i));
+      tab.addEventListener('keydown', (event) => {
+        const rtl = document.documentElement.dir === 'rtl';
+        let target: number | undefined;
+        if (event.key === 'ArrowRight') target = active + (rtl ? -1 : 1);
+        if (event.key === 'ArrowLeft') target = active + (rtl ? 1 : -1);
+        if (event.key === 'Home') target = 0;
+        if (event.key === 'End') target = tabs.length - 1;
+        if (target !== undefined) { event.preventDefault(); show(target, true); }
+      });
+    });
+    previous.addEventListener('click', () => show(active - 1));
+    next.addEventListener('click', () => show(active + 1));
+  });
+</script>
