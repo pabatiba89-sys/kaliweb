@@ -1,6 +1,6 @@
 {
   "name": "yixiu-overseas-site",
-  "version": "1.6.34",
+  "version": "1.6.35",
   "private": true,
   "type": "module",
   "scripts": {
@@ -15,7 +15,7 @@
     "version:patch": "npm version patch --no-git-tag-version",
     "check": "astro check",
     "seo:check": "node scripts/check-seo-output.mjs",
-    "verify": "npm run check && npm run build"
+    "verify": "node scripts/check-brand-content.mjs && node scripts/check-language-entry.mjs && npm run check && npm run build"
   },
   "dependencies": {
     "@astrojs/react": "^6.0.1",

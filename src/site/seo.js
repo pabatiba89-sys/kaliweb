@@ -22,6 +22,10 @@ if (invalidLocales.length > 0) {
 export const defaultSeoLocale = indexableLocales.includes('en') ? 'en' : indexableLocales[0];
 
 const englishSeoBySlug = {
+  'ai-script-writer': { keywords: ['AI script writer', 'social media script generator', 'video script writer', 'content ideas'] },
+  'smart-video-editing': { keywords: ['AI video editing', 'smart video editing', 'social media video editing'] },
+  'social-video-publishing': { keywords: ['social media video publishing', 'multi platform publishing', 'schedule social media videos'] },
+  developers: { keywords: ['Kali MCP', 'AI content API', 'AI video integration'] },
   '': {
     title: 'AI Video Generator & Content Production Workspace | Kali',
     description: 'Create AI avatar and social media videos from trends or scripts with reusable digital humans, voice cloning, music, templates, and publishing workflows.',

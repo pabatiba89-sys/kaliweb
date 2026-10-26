@@ -1,0 +1,19 @@
+---
+import { brandCopy } from '../../site/brand-copy.js';
+import { platformNames } from '../../site/brand-content.js';
+import { translateText } from '../../site/localization.js';
+const { locale, kind = 'video' } = Astro.props;
+const c = brandCopy[locale as keyof typeof brandCopy];
+const t = (value: string) => translateText(value, locale);
+const verifiedPlatforms = platformNames(locale);
+const stages = ['trend', 'script', 'video', 'editing', 'publishing'] as const;
+---
+<div class:list={['story-visual', `story-visual--${kind}`]}>
+  <span class="story-visual__caption">{t('Illustrative demo')}</span>
+  {kind === 'trend' && <div class="topic-orbit"><div class="orbit-core"><span>K</span></div>{[c.trend[0], c.audience[0][0], c.script[0]].map((label, i) => <div class={`orbit-label orbit-label--${i}`}><span>0{i + 1}</span>{label}</div>)}<div class="orbit-ring"></div><div class="orbit-ring orbit-ring--outer"></div></div>}
+  {kind === 'script' && <div class="story-paper"><div class="paper-top"><span>01 — 02</span><span>↗</span></div><p>{c.trend[0]}</p><strong>{c.script[1]}</strong><div class="paper-lines" aria-hidden="true"><i></i><i></i><i></i><i></i></div><span class="paper-next">{c.video[0]} →</span></div>}
+  {kind === 'video' && <div class="story-film"><img src="/previews/creative-studio.webp" width="1536" height="1024" alt={t('Creative studio illustration')} loading="lazy" /><div class="film-frame" aria-hidden="true"><span>03</span><span>9:16</span></div><span class="film-label">{c.avatar[0]} + {c.voice[0]}</span></div>}
+  {kind === 'editing' && <div class="story-edit"><div class="edit-screen"><img src="/previews/creative-studio.webp" width="1536" height="1024" alt={t('Creative studio illustration')} loading="lazy" /><span>{c.editing[0]}</span></div><div class="edit-timeline" aria-hidden="true"><div class="timeline-ruler">00:00 <span>00:15</span>00:30</div><div class="timeline-clips"><i></i><i></i><i></i></div><div class="timeline-wave"></div><div class="timeline-playhead"></div></div><p>{c.script[0]} + {c.video[0]} + {c.music[0]}</p></div>}
+  {kind === 'publishing' && <div class="story-distribute"><div class="distribute-source"><span class="mini-brand">K</span><strong>{c.publishing[0]}</strong><span>↗</span></div><div class="distribute-lines" aria-hidden="true"></div><div class="platform-grid">{verifiedPlatforms.map((name) => <span>{name}</span>)}</div></div>}
+  {kind === 'developers' && <div class="story-connect"><span class="connect-node">MCP</span><span class="connect-link" aria-hidden="true">↔</span><span class="connect-brand">K</span><span class="connect-link" aria-hidden="true">↔</span><span class="connect-node">API</span><div class="connect-flow">{stages.map((key) => <span>{c[key][0]}</span>)}</div></div>}
+</div>

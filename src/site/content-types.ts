@@ -18,6 +18,7 @@ export type WalkthroughStep = {
 };
 
 export type ProductWalkthrough = {
+  pipeline?: boolean;
   heading: string;
   name: string;
   position: 'left' | 'center' | 'right' | 'full';

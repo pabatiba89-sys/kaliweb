@@ -58,7 +58,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible, summary:focus-v
 .walkthrough { padding: 95px 0 100px; border-top: 1px solid var(--line); scroll-margin-top: 32px; }
 .walkthrough .section-heading { margin-bottom: 40px; }
 .walkthrough-shell { border-radius: 24px; overflow: hidden; border: 1px solid var(--line); background: white; }
-.walkthrough-tabs { display: grid; grid-template-columns: repeat(4, 1fr); padding: 10px 16px 0; border-bottom: 1px solid var(--line); background: #fafdFB; }
+.walkthrough-tabs { display: grid; grid-template-columns: repeat(var(--step-count, 4), minmax(0, 1fr)); padding: 10px 16px 0; border-bottom: 1px solid var(--line); background: #fafdFB; }
 .walkthrough-tabs button { display: flex; align-items: center; gap: 12px; min-height: 72px; padding: 18px 12px; cursor: pointer; border: 0; border-bottom: 3px solid transparent; background: none; color: var(--muted); text-align: start; font-size: 14px; font-weight: 650; }
 .walkthrough-tabs button span { font-size: 10px; font-weight: 500; }
 .walkthrough-tabs button[aria-selected=true] { border-color: var(--green); color: var(--deep); }

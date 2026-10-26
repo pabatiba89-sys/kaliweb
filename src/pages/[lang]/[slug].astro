@@ -7,6 +7,9 @@ import { getSeoMetadata } from '../../site/seo.js';
 import MediaStage from '../../components/site/MediaStage.astro';
 import WorkflowDemo from '../../components/site/WorkflowDemo.astro';
 import PracticalSections from '../../components/site/PracticalSections.astro';
+import StoryVisual from '../../components/site/StoryVisual.astro';
+import { brandCopy } from '../../site/brand-copy.js';
+import { platformNames } from '../../site/brand-content.js';
 import type { PracticalSection, ProductWalkthrough } from '../../site/content-types';
 import { productScenes, showcaseMedia } from '../../site/showcase.js';
 
@@ -52,6 +55,9 @@ const findPage = (slug: string) => allPages.find((item) => item.slug === slug);
 const isHelpIndex = page.contentType === 'helpIndex';
 const isGuide = page.contentType === 'guide';
 const productScene = productScenes[page.slug as keyof typeof productScenes];
+const featureKind = ({ 'ai-script-writer': 'script', 'smart-video-editing': 'editing', 'social-video-publishing': 'publishing', developers: 'developers' } as Record<string, string>)[page.slug];
+const brand = brandCopy[lang as keyof typeof brandCopy];
+const verifiedPlatforms = platformNames(lang);
 const relatedPages = (page.related || []).map(findPage).filter(Boolean);
 const pageSchema = {
   '@type': 'WebPage',
@@ -77,18 +83,19 @@ const faqSchema = {
 };
 ---
 <PublicLayout locale={lang} slug={page.slug} title={`${seo.title} | ${brandName(lang)}`} description={seo.description} keywords={seo.keywords} eyebrow={page.eyebrow} schema={[pageSchema, howToSchema, faqSchema].filter(Boolean)} pageClass={productScene ? 'showcase-product' : isHelpIndex || isGuide ? 'showcase-help' : 'showcase-info'}>
-  <section class:list={['page-hero', { 'help-hero': isHelpIndex || isGuide, 'product-hero': Boolean(productScene) }]}>
-    <div><p class="eyebrow">{page.eyebrow}</p><h1>{page.headline}</h1><p class="hero-lead">{page.lead}</p>{!isHelpIndex && !isGuide && <div class="hero-actions"><a class="primary-cta" href={page.primaryHref || '/app/'}>{page.primaryCta || t('Open the workspace')} <span>↗</span></a><a class="text-cta" href={productScene ? '#workflow-demo' : pagePath(lang, 'contact')}>{t(productScene ? 'See the production flow' : 'Talk to the team')} <span>→</span></a></div>}</div>
-    {productScene ? <MediaStage locale={lang} mediaKey={page.slug} position={productScene.position} eager={true} /> : <aside><p>{isGuide ? t('IN THIS GUIDE') : t('WHAT YOU CAN DO')}</p><ul>{page.bullets.map((bullet) => <li><span>✓</span>{bullet}</li>)}</ul></aside>}
+  <section class:list={['page-hero', { 'help-hero': isHelpIndex || isGuide, 'product-hero': Boolean(productScene), 'marketing-feature': Boolean(featureKind) }]}>
+    <div><p class="eyebrow">{page.eyebrow}</p><h1>{page.headline}</h1><p class="hero-lead">{page.lead}</p>{!isHelpIndex && !isGuide && <div class="hero-actions"><a class="primary-cta" href={page.primaryHref || '/app/'}>{page.primaryCta || t('Open the workspace')} <span>↗</span></a><a class="text-cta" href={productScene ? '#workflow-demo' : page.slug === 'developers' ? '#mcp-connection' : featureKind ? pagePath(lang) + '#workflow-demo' : pagePath(lang, 'contact')}>{page.slug === 'developers' ? 'MCP' : t(productScene || featureKind ? 'See the production flow' : 'Talk to the team')} <span>→</span></a></div>}</div>
+    {productScene ? <MediaStage locale={lang} mediaKey={page.slug} position={productScene.position} eager={true} /> : featureKind ? <StoryVisual locale={lang} kind={featureKind} /> : <aside><p>{isGuide ? t('IN THIS GUIDE') : t('WHAT YOU CAN DO')}</p><ul>{page.bullets.map((bullet) => <li><span>✓</span>{bullet}</li>)}</ul></aside>}
   </section>
 
   {productScene && <section class="product-benefits section-wrap" aria-label={t('WHAT YOU CAN DO')}>{page.bullets.map((bullet, index) => <div><span>{String(index + 1).padStart(2, '0')}</span><p>{bullet}</p></div>)}</section>}
   <PracticalSections locale={lang} sections={page.practicalSections} />
+  {page.slug === 'social-video-publishing' && <section class="section-wrap"><div class="section-heading"><p class="eyebrow">{brand.publishing[0]}</p><h2>{brand.publishing[1]}</h2><p>{brand.publishing[2]}</p></div><div class="platform-directory">{verifiedPlatforms.map((name) => <span>{name}</span>)}</div></section>}
   {productScene && <><WorkflowDemo locale={lang} mediaKey={page.slug} walkthrough={page.walkthrough} /><section class="product-studio-link section-wrap"><p>{t('Use each studio on its own, or move assets and decisions through one consistent workflow from idea to publish.')}</p><a class="text-cta" href="/app/">{t('Open the workspace')} ↗</a></section></>}
 
   {isHelpIndex && (
     <>
-      <WorkflowDemo locale={lang} />
+      <WorkflowDemo locale={lang} walkthrough={page.walkthrough} />
       <section class="help-groups">
         <div class="section-heading"><p class="eyebrow">{t('START HERE')}</p><h2>{t('Guides grouped by the production path')}</h2></div>
         <div class="help-group-grid">
@@ -164,7 +171,7 @@ const faqSchema = {
   )}
 
   {!isHelpIndex && !isGuide && (
-    <section class="detail-section">
+    <section class="detail-section" id={page.slug === 'developers' ? 'mcp-connection' : undefined}>
       <div class="section-heading"><p class="eyebrow">{t('HOW IT FITS TOGETHER')}</p><h2>{page.sectionHeading || t('A clear path from setup to repeatable output')}</h2></div>
       <div class="detail-grid">{page.sections.map(([heading, body], index) => <article><span>0{index + 1}</span><h3>{heading}</h3><p>{body}</p></article>)}</div>
     </section>

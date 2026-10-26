@@ -2,55 +2,51 @@
 import PublicLayout from '../../layouts/PublicLayout.astro';
 import WorkflowDemo from '../../components/site/WorkflowDemo.astro';
 import MediaStage from '../../components/site/MediaStage.astro';
+import StoryVisual from '../../components/site/StoryVisual.astro';
 import PracticalSections from '../../components/site/PracticalSections.astro';
-import type { PracticalSection } from '../../site/content-types';
 import { homeByLocale } from '../../site/home.js';
-import { pagesByLocale, pagePath, supportedLocales } from '../../site/content.js';
-import { translateText, brandName } from '../../site/localization.js';
-import { productScenes, showcaseMedia } from '../../site/showcase.js';
+import { pagePath, supportedLocales } from '../../site/content.js';
+import { brandName, translateText } from '../../site/localization.js';
+import { brandCopy } from '../../site/brand-copy.js';
+import { capabilitySlugs, pipelineKeys } from '../../site/brand-content.js';
 import { getSeoMetadata } from '../../site/seo.js';
-
 export function getStaticPaths() {
   return supportedLocales.map((lang) => ({ params: { lang }, props: { lang } }));
 }
 const { lang } = Astro.props;
-const home = homeByLocale[lang] as {
-  eyebrow: string; headline: string; lead: string; proof: string[];
-  sectionTitle: string; sectionLead: string; title: string; description: string;
-  primaryCta?: string; primaryHref?: string; overviewTitle?: string;
-  closingTitle?: string; closingCta?: string; practicalSections?: PracticalSection[];
-};
+const home = homeByLocale[lang];
+const c = brandCopy[lang as keyof typeof brandCopy];
 const seo = getSeoMetadata(lang, '', home);
-const t = (value: string) => translateText(value, lang);
-type ProductPage = { slug: string; eyebrow: string; headline: string; description: string };
-const products = (pagesByLocale[lang] as ProductPage[]).filter((page) => Object.hasOwn(productScenes, page.slug));
+const supporting = ['avatar', 'voice', 'music'] as const;
+const stages = pipelineKeys as Array<'trend' | 'script' | 'video' | 'editing' | 'publishing'>;
 const schema = {
   '@type': 'SoftwareApplication', name: brandName(lang), applicationCategory: 'MultimediaApplication',
   operatingSystem: 'Web', url: new URL(pagePath(lang), Astro.site), description: seo.description,
-  screenshot: new URL('/previews/workspace.webp', Astro.site),
-  ...(seo.keywords.length > 0 ? { keywords: seo.keywords.join(', ') } : {}),
-  publisher: { '@id': `${Astro.site}#organization` },
+  screenshot: new URL('/previews/workspace.webp', Astro.site), publisher: { '@id': `${Astro.site}#organization` },
+  ...(seo.keywords.length ? { keywords: seo.keywords.join(', ') } : {}),
 };
 ---
-<PublicLayout locale={lang} title={seo.title} description={seo.description} keywords={seo.keywords} schema={schema} pageClass="showcase-home">
-  <section class="showcase-hero section-wrap">
-    <div class="hero-copy"><p class="eyebrow">{home.eyebrow}</p><h1>{home.headline}</h1><p class="hero-lead">{home.lead}</p><div class="hero-actions"><a class="primary-cta" href={home.primaryHref || '/app/'}>{home.primaryCta || t('Open the workspace')} <span>↗</span></a><a class="text-cta" href="#workflow-demo">{t('See the production flow')} <span>↓</span></a></div></div>
-    <MediaStage locale={lang} eager={true} />
-  </section>
-  <section class="studio-overview section-wrap">
-    <div class="overview-copy"><p class="eyebrow">{t('CONTENT PIPELINE')}</p><h2>{home.overviewTitle || t('Turn today’s idea into a finished video')}</h2><ul>{home.proof.map((proof) => <li>{proof}</li>)}</ul></div>
-    <figure class="workspace-capture"><div class="capture-bar"><span class="mini-brand">K</span><span>{t('Workspace preview')}</span><a href="/app/" aria-label={t('Open the workspace')}>↗</a></div><img src="/previews/workspace.webp" width="1440" height="960" alt={`${brandName(lang)} — ${t('Workspace preview')}`} loading="lazy" /></figure>
-  </section>
-  <PracticalSections locale={lang} sections={home.practicalSections} />
-  <WorkflowDemo locale={lang} />
-  <section class="product-section">
-    <div class="section-heading"><p class="eyebrow">{t('CONNECTED STUDIOS')}</p><h2>{home.sectionTitle}</h2><p>{home.sectionLead}</p></div>
-    <div class="product-grid">
-      {products.map((product) => {
-        const scene = productScenes[product.slug as keyof typeof productScenes];
-        return <article class="product-card"><a class={`product-card__image product-card__image--${scene.position}`} href={pagePath(lang, product.slug)} tabindex="-1" aria-hidden="true"><img src={showcaseMedia[product.slug as keyof typeof showcaseMedia].poster} width="1536" height="1024" alt="" loading="lazy" /></a><div class="product-card__copy"><p class="eyebrow">{product.eyebrow}</p><h3>{product.headline}</h3><p>{product.description}</p><a href={pagePath(lang, product.slug)}>{t('Explore')} {t(scene.label)} <span>→</span></a></div></article>;
-      })}
+<PublicLayout locale={lang} title={seo.title} description={seo.description} keywords={seo.keywords} schema={schema} pageClass="showcase-home brand-home">
+  <section class="brand-hero">
+    <div class="brand-hero__glow" aria-hidden="true"></div>
+    <div class="section-wrap brand-hero__inner">
+      <div class="hero-copy"><p class="eyebrow">{home.eyebrow}</p><h1>{home.headline}</h1><p class="hero-lead">{home.lead}</p><div class="hero-actions"><a class="primary-cta" href="/app/">{c.ui[0]} <span>↗</span></a><a class="text-cta" href="#workflow-demo">{c.ui[1]} <span>↓</span></a></div></div>
+      <div class="brand-hero__stage"><MediaStage locale={lang} eager={true} position="left" /><div class="hero-stage-note"><span>01 — 05</span><strong>{c.hero[3]}</strong><div>{stages.map((key) => <span>{c[key][0]}</span>)}</div></div></div>
     </div>
   </section>
-  <section class="closing-cta"><p class="eyebrow">{t('READY FOR YOUR NEXT IDEA')}</p><h2>{home.closingTitle || t('Build once. Create for every market.')}</h2><a class="primary-cta" href={home.primaryHref || '/app/'}>{home.closingCta || t('Create with Kali')} <span>↗</span></a></section>
+  <nav class="pipeline-nav section-wrap" aria-label={c.ui[1]}>{stages.map((key, index) => <a href={`#story-${key}`}><span>0{index + 1}</span>{c[key][0]}</a>)}</nav>
+  <section class="brand-intro section-wrap"><p class="eyebrow">{brandName(lang)}</p><h2>{c.ui[4]}</h2></section>
+  <div class="brand-stories">
+    {stages.map((key, index) => {
+      const copy = c[key];
+      const slug = key === 'trend' ? 'help-trend-to-video' : capabilitySlugs[key];
+      return <section class:list={['brand-story', { 'brand-story--reverse': index % 2 === 1, 'brand-story--dark': index === 2 }]} id={`story-${key}`}><div class="section-wrap brand-story__inner"><div class="brand-story__copy"><p class="eyebrow">0{index + 1} / {copy[0]}</p><h2>{copy[1]}</h2><p>{copy[2]}</p><a class="text-cta" href={pagePath(lang, slug)}>{c.ui[2]} <span>→</span></a></div><StoryVisual locale={lang} kind={key} /></div></section>;
+    })}
+  </div>
+  <section class="brand-assets section-wrap"><div class="section-heading"><p class="eyebrow">{brandName(lang)}</p><h2>{c.ui[6]}</h2><p>{c.ui[7]}</p></div><div class="brand-assets__grid">{supporting.map((key) => <article><a class={`brand-asset-image brand-asset-image--${key}`} href={pagePath(lang, capabilitySlugs[key])} tabindex="-1" aria-hidden="true"><img src={key === 'music' ? '/previews/music-studio.webp' : '/previews/creative-studio.webp'} alt="" width="1536" height="1024" loading="lazy" /></a><div><p class="eyebrow">{c[key][0]}</p><h3>{c[key][1]}</h3><p>{c[key][2]}</p><a class="text-cta" href={pagePath(lang, capabilitySlugs[key])}>{c.ui[2]} →</a></div></article>)}</div></section>
+  <PracticalSections locale={lang} sections={home.practicalSections} />
+  <WorkflowDemo locale={lang} walkthrough={home.walkthrough} />
+  <section class="brand-developers"><div class="section-wrap brand-story__inner"><div class="brand-story__copy"><p class="eyebrow">MCP / API</p><h2>{c.developers[1]}</h2><p>{c.developers[2]}</p><a class="text-cta" href={pagePath(lang, 'developers')}>{c.ui[2]} →</a></div><StoryVisual locale={lang} kind="developers" /></div></section>
+  <section class="studio-overview section-wrap"><div class="overview-copy"><p class="eyebrow">{brandName(lang)}</p><h2>{c.ui[8]}</h2><p>{c.ui[9]}</p><a class="text-cta" href="/app/">{c.ui[0]} ↗</a></div><figure class="workspace-capture"><div class="capture-bar"><span class="mini-brand">K</span><span>{translateText('Workspace preview', lang)}</span></div><img src="/previews/workspace.webp" width="1440" height="960" alt={translateText('Workspace preview', lang)} loading="lazy" /></figure></section>
+  <section class="closing-cta"><p class="eyebrow">{brandName(lang)}</p><h2>{c.hero[3]}</h2><a class="primary-cta" href="/app/">{c.ui[0]} <span>↗</span></a></section>
 </PublicLayout>

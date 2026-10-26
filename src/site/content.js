@@ -1,6 +1,7 @@
 import { localeMeta, localize, supportedLocales } from './localization.js';
 import { helpPages } from './help.js';
 import { getContentRevision } from './content-revisions.js';
+import { newMarketingPages } from './brand-content.js';
 import {
   LEGAL_COMPANY_ADDRESS,
   LEGAL_COMPANY_NAME,
@@ -208,10 +209,16 @@ export const basePages = [
       faq: [['Which address handles privacy requests?', 'Use pabatiba89@gmail.com for personal-information rights, deletion, account cancellation, and withdrawal of authorization.'], ['How should I report a production problem?', 'Include the approximate time, feature, task identifier if available, and what you expected to happen.'], ['Will the team ask for my password?', 'No. Do not send passwords, verification codes, or other authentication secrets.']],
     },
   ...helpPages,
+  ...newMarketingPages,
 ];
 
 export const pagesByLocale = Object.fromEntries(supportedLocales.map((locale) => [locale,
-  localize(basePages, locale).map((page) => ({ ...page, ...getContentRevision(locale, page.slug) })),
+  localize(basePages, locale).map((page) => {
+    const revision = getContentRevision(locale, page.slug);
+    const result = { ...page, ...revision };
+    if (page.slug === 'about') result.sections = [...revision.sections, page.sections.at(-1)];
+    return result;
+  }),
 ]));
 
 export function getPage(locale, slug) {
