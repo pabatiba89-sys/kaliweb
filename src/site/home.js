@@ -1,4 +1,5 @@
 import { localize, supportedLocales } from './localization.js';
+import { getContentRevision } from './content-revisions.js';
 
 export const homeEn = {
     title: 'Kali — AI Content Production Workspace',
@@ -11,4 +12,4 @@ export const homeEn = {
     sectionLead: 'Use each studio on its own, or move assets and decisions through one consistent workflow from idea to publish.',
 };
 
-export const homeByLocale = Object.fromEntries(supportedLocales.map((locale) => [locale, localize(homeEn, locale)]));
+export const homeByLocale = Object.fromEntries(supportedLocales.map((locale) => [locale, { ...localize(homeEn, locale), ...getContentRevision(locale) }]));

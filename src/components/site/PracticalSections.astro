@@ -1,0 +1,13 @@
+---
+import { pagePath } from '../../site/content.js';
+import type { PracticalSection } from '../../site/content-types';
+const { locale, sections = [] } = Astro.props as { locale: string; sections?: PracticalSection[] };
+---
+{sections.map((section) => (
+  <section class="practical-content section-wrap">
+    <div class="section-heading"><p class="eyebrow">{section.eyebrow}</p><h2>{section.heading}</h2></div>
+    <div class="practical-grid" style={`--practical-columns: ${Math.min(section.items.length, 3)}`}>
+      {section.items.map((item) => <article><h3>{item.title}</h3><p>{item.body}</p>{(item.slug || item.href) && <a class="text-cta" href={item.slug ? pagePath(locale, item.slug) : item.href}>{item.linkLabel}<span aria-hidden="true">→</span></a>}</article>)}
+    </div>
+  </section>
+))}

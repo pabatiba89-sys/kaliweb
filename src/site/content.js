@@ -1,5 +1,6 @@
 import { localeMeta, localize, supportedLocales } from './localization.js';
 import { helpPages } from './help.js';
+import { getContentRevision } from './content-revisions.js';
 import {
   LEGAL_COMPANY_ADDRESS,
   LEGAL_COMPANY_NAME,
@@ -209,7 +210,9 @@ export const basePages = [
   ...helpPages,
 ];
 
-export const pagesByLocale = Object.fromEntries(supportedLocales.map((locale) => [locale, localize(basePages, locale)]));
+export const pagesByLocale = Object.fromEntries(supportedLocales.map((locale) => [locale,
+  localize(basePages, locale).map((page) => ({ ...page, ...getContentRevision(locale, page.slug) })),
+]));
 
 export function getPage(locale, slug) {
   return pagesByLocale[locale]?.find((page) => page.slug === slug);

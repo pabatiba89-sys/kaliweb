@@ -1,4 +1,5 @@
 import { supportedLocales } from './localization.js';
+import { getContentRevision } from './content-revisions.js';
 
 const configuredLocales = process.env.SEO_INDEXABLE_LOCALES || 'en';
 
@@ -89,9 +90,10 @@ export function isIndexableLocale(locale) {
 
 export function getSeoMetadata(locale, slug = '', fallback = {}) {
   const researched = locale === 'en' ? englishSeoBySlug[slug] : null;
+  const revision = getContentRevision(locale, slug);
   return {
-    title: researched?.title || fallback.title || '',
-    description: researched?.description || fallback.description || '',
+    title: revision?.title || researched?.title || fallback.title || '',
+    description: revision?.description || researched?.description || fallback.description || '',
     keywords: researched?.keywords || [],
   };
 }
