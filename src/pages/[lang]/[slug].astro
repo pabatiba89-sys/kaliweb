@@ -7,7 +7,7 @@ import { getSeoMetadata } from '../../site/seo.js';
 import MediaStage from '../../components/site/MediaStage.astro';
 import WorkflowDemo from '../../components/site/WorkflowDemo.astro';
 import PracticalSections from '../../components/site/PracticalSections.astro';
-import type { PracticalSection } from '../../site/content-types';
+import type { PracticalSection, ProductWalkthrough } from '../../site/content-types';
 import { productScenes, showcaseMedia } from '../../site/showcase.js';
 
 type TextPair = [string, string];
@@ -37,6 +37,7 @@ type PublicPage = {
   primaryHref?: string;
   sectionHeading?: string;
   relatedHeading?: string;
+  walkthrough?: ProductWalkthrough;
 };
 
 export function getStaticPaths() {
@@ -83,7 +84,7 @@ const faqSchema = {
 
   {productScene && <section class="product-benefits section-wrap" aria-label={t('WHAT YOU CAN DO')}>{page.bullets.map((bullet, index) => <div><span>{String(index + 1).padStart(2, '0')}</span><p>{bullet}</p></div>)}</section>}
   <PracticalSections locale={lang} sections={page.practicalSections} />
-  {productScene && <><WorkflowDemo locale={lang} mediaKey={page.slug} /><section class="product-studio-link section-wrap"><p>{t('Use each studio on its own, or move assets and decisions through one consistent workflow from idea to publish.')}</p><a class="text-cta" href="/app/">{t('Open the workspace')} ↗</a></section></>}
+  {productScene && <><WorkflowDemo locale={lang} mediaKey={page.slug} walkthrough={page.walkthrough} /><section class="product-studio-link section-wrap"><p>{t('Use each studio on its own, or move assets and decisions through one consistent workflow from idea to publish.')}</p><a class="text-cta" href="/app/">{t('Open the workspace')} ↗</a></section></>}
 
   {isHelpIndex && (
     <>

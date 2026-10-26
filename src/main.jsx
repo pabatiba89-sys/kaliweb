@@ -14169,6 +14169,8 @@ const getInitialWorkspacePage = () => {
   if (page === 'publish') return 'publish';
   if (page === 'publish-settings') return 'publish-settings';
   if (page === 'speech') return 'speech';
+  if (page === 'assets') return 'assets';
+  if (page === 'music') return 'music';
   if (page === 'presets') return 'presets';
   return 'home';
 };
@@ -14502,8 +14504,8 @@ export default function App() {
     const url = new URL(window.location.href);
     if (id === 'password-reset') {
       url.searchParams.set('page', 'password-reset');
-    } else if (id === 'speech') {
-      url.searchParams.set('page', 'speech');
+    } else if (id === 'speech' || id === 'assets' || id === 'music') {
+      url.searchParams.set('page', id);
     } else if (id === 'ai-video') {
       url.searchParams.set('page', 'ai-video');
     } else if (id === 'publish' || id === 'publish-settings') {

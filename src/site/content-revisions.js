@@ -1,5 +1,6 @@
 // Reviewed content rolls out per locale. Other locales keep their current copy.
 // Merge after localization so older machine translations cannot overwrite this batch.
+import { assetContentRevisions } from './asset-content-revisions.js';
 export const contentRevisions = {
   en: {
     '': {
@@ -226,4 +227,4 @@ export const contentRevisions = {
   },
 };
 
-export const getContentRevision = (locale, slug = '') => contentRevisions[locale]?.[slug];
+export const getContentRevision = (locale, slug = '') => contentRevisions[locale]?.[slug] || assetContentRevisions[locale]?.[slug];
