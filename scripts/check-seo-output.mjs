@@ -45,6 +45,12 @@ for (const file of publicFiles) {
     if (!robots.includes('index') || robots.includes('noindex')) {
       errors.push(`${file}: indexable locale does not use an index robots directive`);
     }
+    if (!robots.includes('max-snippet:-1') || !robots.includes('max-video-preview:-1')) {
+      errors.push(`${file}: indexable locale must allow full text and video previews`);
+    }
+    if (slugParts.length > 0 && !html.includes('"@type":"BreadcrumbList"')) {
+      errors.push(`${file}: public detail page is missing BreadcrumbList schema`);
+    }
 
     const xDefault = hreflangs.find((entry) => entry.code === 'x-default');
     const expectedXDefaultPath = `/${defaultSeoLocale}/${slugPath}`;
@@ -65,6 +71,7 @@ for (const file of publicFiles) {
 
 const sitemap = fs.readFileSync(path.join(distDir, 'sitemap.xml'), 'utf8');
 const sitemapUrls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((entry) => entry[1]);
+const sitemapDates = [...sitemap.matchAll(/<lastmod>([^<]+)<\/lastmod>/g)].map((entry) => entry[1]);
 const expectedUrls = [...canonicalByFile.entries()]
   .filter(([file]) => indexableLocales.includes(file.split('/')[0]))
   .map(([, canonical]) => canonical)
@@ -77,6 +84,9 @@ if (expectedUrls.some((url) => new URL(url).origin !== configuredOrigin)) {
 
 if (JSON.stringify([...sitemapUrls].sort()) !== JSON.stringify(expectedUrls)) {
   errors.push('sitemap URLs do not exactly match indexable public pages');
+}
+if (sitemapDates.some((date) => !/^\d{4}-\d{2}-\d{2}$/.test(date))) {
+  errors.push('sitemap lastmod values must use YYYY-MM-DD');
 }
 
 const appHtml = fs.readFileSync(path.join(distDir, 'app/index.html'), 'utf8');

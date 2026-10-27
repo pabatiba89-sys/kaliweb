@@ -2,6 +2,7 @@ import { localeMeta, localize, supportedLocales } from './localization.js';
 import { helpPages } from './help.js';
 import { getContentRevision } from './content-revisions.js';
 import { newMarketingPages } from './brand-content.js';
+import { solutionPages } from './solution-content.js';
 import {
   LEGAL_COMPANY_ADDRESS,
   LEGAL_COMPANY_NAME,
@@ -210,6 +211,7 @@ export const basePages = [
     },
   ...helpPages,
   ...newMarketingPages,
+  ...solutionPages,
 ];
 
 export const pagesByLocale = Object.fromEntries(supportedLocales.map((locale) => [locale,

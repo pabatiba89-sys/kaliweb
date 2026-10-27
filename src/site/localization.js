@@ -75,6 +75,7 @@ export const publicUiStrings = [
   'From trend discovery to publish-ready media.', 'Product', 'Company', 'Workspace', 'Legal',
   'AI video', 'Digital humans', 'Voice cloning', 'AI music', 'Product feedback',
   'Open Kali', 'Help center', 'Privacy requests', 'Kali · Yixiu',
+  'Home', 'Solutions', 'SOLUTIONS', 'Create videos for the work your audience needs',
   'Terms of service', 'Privacy policy', 'Law enforcement guidelines', 'Payment policy', 'Refund policy',
   'Open the workspace', 'See the production flow', 'Product capabilities',
   'Trend discovery', 'Script generation', 'Digital humans', 'Voice cloning', 'AI music', 'Video publishing',

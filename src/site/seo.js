@@ -22,6 +22,21 @@ if (invalidLocales.length > 0) {
 export const defaultSeoLocale = indexableLocales.includes('en') ? 'en' : indexableLocales[0];
 
 const englishSeoBySlug = {
+  'personal-brand-video-generator': {
+    title: 'Personal Brand Video Generator with AI Avatars',
+    description: 'Turn expert ideas and scripts into repeatable personal-brand videos with an authorized AI avatar, reusable voice, supporting media, and review workflow.',
+    keywords: ['personal brand video generator', 'AI avatar for personal brand', 'personal branding video maker', 'expert video generator', 'AI presenter video'],
+  },
+  'product-marketing-video-maker': {
+    title: 'AI Product Marketing Video Maker for Small Teams',
+    description: 'Create product explainers, feature launches, and campaign videos from scripts, screenshots, product clips, authorized presenters, and reusable brand assets.',
+    keywords: ['product marketing video maker', 'AI product video generator', 'product explainer video maker', 'feature launch video', 'AI marketing video generator'],
+  },
+  'ai-training-video-generator': {
+    title: 'AI Training Video Generator with Reusable Presenters',
+    description: 'Create repeatable training, onboarding, and instructional videos from reviewed scripts with authorized AI presenters, voices, screenshots, and supporting media.',
+    keywords: ['AI training video generator', 'employee training video maker', 'onboarding video generator', 'instructional video maker', 'AI presenter training video'],
+  },
   'ai-script-writer': { keywords: ['AI script writer', 'social media script generator', 'video script writer', 'content ideas'] },
   'smart-video-editing': { keywords: ['AI video editing', 'smart video editing', 'social media video editing'] },
   'social-video-publishing': { keywords: ['social media video publishing', 'multi platform publishing', 'schedule social media videos'] },

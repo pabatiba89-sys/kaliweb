@@ -1,6 +1,6 @@
 {
   "name": "yixiu-overseas-site",
-  "version": "1.6.37",
+  "version": "1.6.38",
   "private": true,
   "type": "module",
   "scripts": {
@@ -15,6 +15,7 @@
     "version:patch": "npm version patch --no-git-tag-version",
     "check": "astro check",
     "seo:check": "node scripts/check-seo-output.mjs",
+    "seo:audit": "node scripts/audit-google-seo.mjs",
     "verify": "node scripts/check-brand-content.mjs && node scripts/check-language-entry.mjs && npm run check && npm run build"
   },
   "dependencies": {

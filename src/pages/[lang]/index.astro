@@ -5,25 +5,30 @@ import FlowStage from '../../components/site/FlowStage.astro';
 import StoryVisual from '../../components/site/StoryVisual.astro';
 import PracticalSections from '../../components/site/PracticalSections.astro';
 import { homeByLocale } from '../../site/home.js';
-import { pagePath, supportedLocales } from '../../site/content.js';
+import { pagePath, pagesByLocale, supportedLocales } from '../../site/content.js';
 import { brandName, translateText } from '../../site/localization.js';
 import { brandCopy } from '../../site/brand-copy.js';
 import { capabilitySlugs, pipelineKeys } from '../../site/brand-content.js';
 import { getSeoMetadata } from '../../site/seo.js';
+import { getContentModifiedDate } from '../../site/content-dates.js';
 export function getStaticPaths() {
   return supportedLocales.map((lang) => ({ params: { lang }, props: { lang } }));
 }
 const { lang } = Astro.props;
+type SolutionPage = { contentType?: string; slug: string; eyebrow: string; headline: string; description: string };
 const home = homeByLocale[lang];
 const c = brandCopy[lang as keyof typeof brandCopy];
 const seo = getSeoMetadata(lang, '', home);
 const supporting = ['avatar', 'voice', 'music'] as const;
 const stages = pipelineKeys as Array<'trend' | 'script' | 'video' | 'editing' | 'publishing'>;
+const solutions = (pagesByLocale[lang] as SolutionPage[]).filter((page) => page.contentType === 'solution');
+const modifiedDate = getContentModifiedDate(lang);
 const schema = {
   '@type': 'SoftwareApplication', name: brandName(lang), applicationCategory: 'MultimediaApplication',
   operatingSystem: 'Web', url: new URL(pagePath(lang), Astro.site), description: seo.description,
   screenshot: new URL('/previews/workspace.webp', Astro.site), publisher: { '@id': `${Astro.site}#organization` },
   ...(seo.keywords.length ? { keywords: seo.keywords.join(', ') } : {}),
+  ...(modifiedDate ? { dateModified: modifiedDate } : {}),
 };
 ---
 <PublicLayout locale={lang} title={seo.title} description={seo.description} keywords={seo.keywords} schema={schema} pageClass="showcase-home brand-home">
@@ -45,6 +50,10 @@ const schema = {
   </div>
   <section class="brand-assets section-wrap"><div class="section-heading"><p class="eyebrow">{brandName(lang)}</p><h2>{c.ui[6]}</h2><p>{c.ui[7]}</p></div><div class="brand-assets__grid">{supporting.map((key) => <article><a class={`brand-asset-image brand-asset-image--${key}`} href={pagePath(lang, capabilitySlugs[key])} tabindex="-1" aria-hidden="true"><img src={key === 'music' ? '/previews/music-studio.webp' : '/previews/creative-studio.webp'} alt="" width="1536" height="1024" loading="lazy" /></a><div><p class="eyebrow">{c[key][0]}</p><h3>{c[key][1]}</h3><p>{c[key][2]}</p><a class="text-cta" href={pagePath(lang, capabilitySlugs[key])}>{c.ui[2]} →</a></div></article>)}</div></section>
   <PracticalSections locale={lang} sections={home.practicalSections} />
+  <section class="related-guides section-wrap">
+    <div class="section-heading"><p class="eyebrow">{translateText('SOLUTIONS', lang)}</p><h2>{translateText('Create videos for the work your audience needs', lang)}</h2></div>
+    <div>{solutions.map((page) => <a href={pagePath(lang, page.slug)}><span>{page.eyebrow}</span><strong>{page.headline}</strong><p>{page.description}</p></a>)}</div>
+  </section>
   <WorkflowDemo locale={lang} walkthrough={home.walkthrough} />
   <section class="brand-developers"><div class="section-wrap brand-story__inner"><div class="brand-story__copy"><p class="eyebrow">MCP / API</p><h2>{c.developers[1]}</h2><p>{c.developers[2]}</p><a class="text-cta" href={pagePath(lang, 'developers')}>{c.ui[2]} →</a></div><StoryVisual locale={lang} kind="developers" /></div></section>
   <section class="studio-overview section-wrap"><div class="overview-copy"><p class="eyebrow">{brandName(lang)}</p><h2>{c.ui[8]}</h2><p>{c.ui[9]}</p><a class="text-cta" href="/app/">{c.ui[0]} ↗</a></div><figure class="workspace-capture"><div class="capture-bar"><span class="mini-brand">K</span><span>{translateText('Content production workspace', lang)}</span></div><img src="/previews/workspace.webp" width="1440" height="960" alt={translateText('Content production workspace', lang)} loading="lazy" /></figure></section>

@@ -5,6 +5,7 @@ import {
   LEGAL_COMPANY_NUMBER,
   localeMeta,
   pagePath,
+  pagesByLocale,
   supportedLocales,
 } from '../site/content.js';
 import { translateText } from '../site/localization.js';
@@ -19,8 +20,10 @@ import '../site/brand-motion.css';
 import { brandCopy } from '../site/brand-copy.js';
 import { capabilitySlugs } from '../site/brand-content.js';
 import { productScenes, showcaseMedia } from '../site/showcase.js';
+import { solutionSlugs } from '../site/solution-content.js';
 
 type SchemaEntry = Record<string, unknown>;
+type FooterPage = { slug: string; title: string };
 
 const {
   locale = 'en',
@@ -58,6 +61,7 @@ const keywordContent = [...new Set(keywords.map((keyword) => keyword.trim()).fil
 const usesShowcaseImage = slug === '' || Object.hasOwn(productScenes, slug);
 const socialImage = usesShowcaseImage ? showcaseMedia[slug as keyof typeof showcaseMedia]?.poster || showcaseMedia.overview.poster : '/og.png';
 const socialImageAlt = brandName(locale);
+const footerPages = (pagesByLocale[locale] || []) as FooterPage[];
 const jsonLd = {
   '@context': 'https://schema.org',
   '@graph': [
@@ -97,7 +101,7 @@ const jsonLd = {
     <meta name="description" content={description} />
     {shouldIndex && keywordContent && <meta name="keywords" content={keywordContent} />}
     <meta name="google-site-verification" content={GOOGLE_SITE_VERIFICATION} />
-    <meta name="robots" content={shouldIndex ? 'index, follow, max-image-preview:large' : 'noindex, follow, noarchive'} />
+    <meta name="robots" content={shouldIndex ? 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' : 'noindex, follow, noarchive'} />
     <link rel="canonical" href={canonical} />
     {alternates.map((item) => <link rel="alternate" hreflang={item.code} href={item.href} />)}
     {shouldIndex && <link rel="alternate" hreflang="x-default" href={xDefault} />}
@@ -153,6 +157,10 @@ const jsonLd = {
       </div>
       <div class="footer-links">
         <div><strong>{t('Product')}</strong>{capabilityKeys.map((key) => <a href={pagePath(locale, capabilitySlugs[key])}>{brand[key][0]}</a>)}</div>
+        <div><strong>{t('Solutions')}</strong>{solutionSlugs.map((solutionSlug) => {
+          const page = footerPages.find((item) => item.slug === solutionSlug);
+          return page && <a href={pagePath(locale, solutionSlug)}>{page.title}</a>;
+        })}</div>
         <div><strong>{t('Company')}</strong><a href={pagePath(locale, 'about')}>{copy.about}</a><a href={pagePath(locale, 'contact')}>{copy.contact}</a><a href={`mailto:${CONTACT_EMAIL}`}>{t('Product feedback')}</a></div>
         <div><strong>Social</strong>{OFFICIAL_SOCIAL_LINKS.map(({ name, url }) => <a href={url} target="_blank" rel="noopener noreferrer">{name}</a>)}</div>
         <div><strong>{t('Legal')}</strong><a href={pagePath(locale, 'terms-of-service')}>{t('Terms of service')}</a><a href={pagePath(locale, 'privacy-policy')}>{t('Privacy policy')}</a><a href={pagePath(locale, 'law-enforcement-guidelines')}>{t('Law enforcement guidelines')}</a><a href={pagePath(locale, 'payment-policy')}>{t('Payment policy')}</a><a href={pagePath(locale, 'refund-policy')}>{t('Refund policy')}</a><a href={`mailto:${CONTACT_EMAIL}`}>{t('Privacy requests')}</a></div>
