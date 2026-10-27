@@ -68,7 +68,7 @@ const pageSchema = {
   isPartOf: { '@id': `${Astro.site}#website` },
   about: { '@id': `${Astro.site}#organization` },
   inLanguage: lang,
-  ...((productScene || isHelpIndex || isGuide) ? { primaryImageOfPage: { '@type': 'ImageObject', url: new URL(productScene ? showcaseMedia[page.slug as keyof typeof showcaseMedia].poster : '/previews/workspace.webp', Astro.site), caption: t(productScene ? 'Creative studio illustration' : 'Workspace preview') } } : {}),
+  ...((productScene || isHelpIndex || isGuide) ? { primaryImageOfPage: { '@type': 'ImageObject', url: new URL(productScene ? showcaseMedia[page.slug as keyof typeof showcaseMedia].poster : '/previews/workspace.webp', Astro.site) } } : {}),
 };
 const howToSchema = isGuide ? {
   '@type': 'HowTo',
@@ -113,10 +113,6 @@ const faqSchema = {
           ))}
         </div>
       </section>
-      <section class="help-roadmap">
-        <div class="section-heading"><p class="eyebrow">{t('BATCH PLAN')}</p><h2>{t('Build the help center in useful layers')}</h2></div>
-        <ol>{page.roadmap.map(([label, body]) => <li><span>{label}</span><p>{body}</p></li>)}</ol>
-      </section>
     </>
   )}
 
@@ -138,7 +134,7 @@ const faqSchema = {
             <p class="eyebrow">{page.visual.label}</p>
             <ol>{page.visual.stages.map((stage, index) => <li><span>{String(index + 1).padStart(2, '0')}</span><strong>{stage}</strong></li>)}</ol>
           </div>
-          <figure class="guide-preview"><img src="/previews/workspace.webp" width="1440" height="960" alt={t('Workspace preview')} loading="lazy" /><figcaption>{t('Workspace preview')}</figcaption><a class="text-cta" href={pagePath(lang, 'help') + '#workflow-demo'}>{t('See the production flow')} →</a></figure>
+          <figure class="guide-preview"><img src="/previews/workspace.webp" width="1440" height="960" alt={t('Content production workspace')} loading="lazy" /><a class="text-cta" href={pagePath(lang, 'help') + '#workflow-demo'}>{t('See the production flow')} →</a></figure>
         </div>
       </section>
       <section class="guide-steps">

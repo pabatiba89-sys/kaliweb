@@ -134,7 +134,7 @@ export function getBrandContent(locale) {
     title: u[3], description: `${u[3]} — ${u[17]}`, headline: u[3], lead: `${c.developers[2]} ${u[17]}`,
     primaryCta: u[3], primaryHref: 'mailto:pabatiba89@gmail.com',
   };
-  revisions.help = { title: searchTitles[locale][2], headline: u[16], description: `${u[16]} ${u[9]}`, lead: c.hero[1], walkthrough };
+  revisions.help = { title: searchTitles[locale][2], headline: u[16], description: `${u[16]} ${u[9]}`, lead: c.hero[1], walkthrough, faq: [[u[10], u[11]], [questions[locale][0], u[13]]] };
   return revisions;
 }
 

@@ -6,7 +6,7 @@ export const helpPages = [
     description: 'Practical guides for making a first digital-human video, choosing the right production mode, recovering failed tasks, and continuing drafts.',
     eyebrow: 'HELP CENTER',
     headline: 'Help for finishing the next video',
-    lead: 'The first batch focuses on the work users actually get stuck on: starting from a topic or script, choosing the right video mode, submitting safely, and recovering work without starting over.',
+    lead: 'Practical guides for making a first digital-human video, choosing the right production mode, recovering failed tasks, and continuing drafts.',
     bullets: ['Start from a topic or existing script', 'Choose the correct video mode before uploading assets', 'Recover drafts and failed tasks without rebuilding everything'],
     groups: [
       {
@@ -19,27 +19,6 @@ export const helpPages = [
         description: 'Read these when production is interrupted, saved as a draft, or returned as failed.',
         links: ['help-failed-video', 'help-drafts'],
       },
-      {
-        title: 'Next batches',
-        description: 'The next help releases should go deeper into asset preparation, materials, templates, publishing, billing, and account safety.',
-        links: ['digital-human', 'voice-cloning', 'pricing'],
-      },
-    ],
-    roadmap: [
-      ['Batch 1', 'First video, mode choice, failed tasks, and drafts.'],
-      ['Batch 2', 'Digital-human training, image-based avatars, voice cloning, and authorization materials.'],
-      ['Batch 3', 'Material upload, file limits, template selection, cover setup, and background music.'],
-      ['Batch 4', 'Publishing, scheduling, billing, refunds, password recovery, and account safety.'],
-    ],
-    sections: [
-      ['Written for operation', 'Each article says when to use the guide, what to prepare, what to click through, how to check the result, and what to do when something looks wrong.'],
-      ['Kept intentionally narrow', 'The first batch avoids broad product explanation. It only covers the path from idea to video and the recovery steps that prevent repeated work.'],
-      ['Ready for screenshots later', 'The layout reserves clear places for workflow images and checkpoints, so real product screenshots can replace the current guide images when the UI is finalized.'],
-    ],
-    faq: [
-      ['Why is the first help batch focused on video only?', 'Because a new user must complete one video before asset, billing, or publishing documentation becomes useful.'],
-      ['Are these articles product documentation or marketing pages?', 'They are product documentation. The pages are public for onboarding and search, but the structure is written as an operating guide.'],
-      ['Can more detailed screenshot tutorials be added later?', 'Yes. The content model supports adding screenshots, examples, troubleshooting notes, and separate article batches without changing the routing system.'],
     ],
   },
   {

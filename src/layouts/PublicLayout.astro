@@ -57,7 +57,7 @@ const graph = Array.isArray(schema) ? schema : [schema];
 const keywordContent = [...new Set(keywords.map((keyword) => keyword.trim()).filter(Boolean))].join(', ');
 const usesShowcaseImage = slug === '' || Object.hasOwn(productScenes, slug);
 const socialImage = usesShowcaseImage ? showcaseMedia[slug as keyof typeof showcaseMedia]?.poster || showcaseMedia.overview.poster : '/og.png';
-const socialImageAlt = usesShowcaseImage ? t('Creative studio illustration') : `${brandName(locale)} content production workflow`;
+const socialImageAlt = brandName(locale);
 const jsonLd = {
   '@context': 'https://schema.org',
   '@graph': [

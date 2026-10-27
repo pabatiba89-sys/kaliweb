@@ -52,7 +52,6 @@ export const contentRevisions = {
       faq: [
         ['Do I need to film a new video every time?', 'You can reuse a ready digital human and voice with a new script. Creating a custom digital human still requires the source material and authorization requested in the asset workflow.'],
         ['Can I make a video without a presenter?', 'Yes. Mixed-media production uses images and video clips. Choose the material-based Pro mode when you need to assign media to individual script scenes.'],
-        ['Is the walkthrough a real generation?', 'No. The public walkthrough explains the steps without submitting a task or using credits. Create a task in the signed-in workspace to generate a real result.'],
         ['How long does generation take?', 'There is no fixed completion time promised here. Watch the task status in the workspace; processing depends on the creation type, selected model, and service load.'],
         ['Can I publish directly from Kali?', 'Publishing needs a team publishing account and matching platform accounts in the local Kali Publish service. Complete that setup before sending a publishing task. You can also download the video.'],
         ['Where do I check the cost?', 'Open Credits & orders in the workspace for available credit packs and usage records. AI Video Lab shows a model-specific estimate after you enter valid settings and checks it again before creation.'],
@@ -75,7 +74,6 @@ export const contentRevisions = {
         ['Review orders and consumption', 'Credits & orders has separate payment and consumption records. Check those records and the task status when you need to understand a charge or returned credits.'],
       ],
       faq: [
-        ['Can I explore the site for free?', 'The public pages and illustrative walkthrough are available without signing in or spending credits. To generate content, sign in and check your balance and the cost information in the workspace.'],
         ['How much does one video cost?', 'There is no single price for every video. AI Video Lab quotes the selected model and valid settings. Other creation features have their own usage rules. Check the relevant creation page and your credit records.'],
         ['Are credit packs monthly subscriptions?', 'The current checkout is for a one-time credit-pack purchase. Review the selected pack and checkout amount before paying.'],
         ['Can a failed task return credits?', 'Check the task’s settlement status and your consumption records. Returned generation credits and a refund of a payment are different processes. A failure does not mean every feature follows the same settlement rule.'],
@@ -128,7 +126,6 @@ export const contentRevisions = {
       faq: [
         ['每条视频都要重新拍摄吗？', '已就绪的数字人和声音可以搭配新文案重复使用。首次创建自己的数字人，仍需按资产制作流程提供原始素材和授权材料。'],
         ['可以不使用数字人吗？', '可以。素材混剪使用图片和视频；需要为每个文案分镜分配素材时，选择素材成片 Pro。'],
-        ['页面里的 Demo 会实际生成视频吗？', '不会。公开 Demo 用于讲解步骤，不提交任务、不消耗积分。实际生成需要进入工作台并登录。'],
         ['生成一条视频需要多久？', '这里不承诺固定完成时间。请在工作台查看任务状态，处理时长取决于制作类型、所选模型和服务负载。'],
         ['可以直接发布到内容平台吗？', '需要先配置团队发布账号，并在本机 Kali Publish 中登录同名平台账号，再提交发布任务。也可以下载成片后自行发布。'],
         ['在哪里查看费用？', '在工作台的“积分与订单”中查看可购买的积分包和消耗记录。AI 视频工坊会根据模型和有效参数显示预计积分，创建任务前再次校验。'],
@@ -149,7 +146,6 @@ export const contentRevisions = {
         ['核对订单与积分记录', '“积分与订单”分别提供支付记录和消耗记录。需要了解扣除或退回的积分时，请结合记录与任务状态一起查看。'],
       ],
       faq: [
-        ['可以免费了解产品吗？', '官网页面和流程示意 Demo 无需登录，也不消耗积分。实际生成需要登录，请先查看工作台中的余额和费用信息。'],
         ['一条视频多少钱？', '不同视频没有统一单价。AI 视频工坊根据模型和有效参数试算；其他创作功能按各自的使用规则消耗积分，请在对应页面和积分记录中核对。'],
         ['购买积分包就是按月订阅吗？', '当前结账流程是一次性购买积分包。付款前请核对所选积分包和实际付款金额。'],
         ['任务失败会退回积分吗？', '请查看任务结算状态和消耗记录。生成积分退回与支付退款是不同流程，不能把某一功能的失败结算规则套用到全部功能。'],
@@ -197,7 +193,6 @@ export const contentRevisions = {
       faq: [
         ['每支影片都要重新拍攝嗎？', '已就緒的數位人與聲音可以搭配新文案重複使用。首次建立自己的數位人，仍需依資產製作流程提供原始素材與授權資料。'],
         ['可以不使用數位人嗎？', '可以。素材混剪使用圖片與影片；需要為每個文案分鏡分配素材時，選擇素材成片 Pro。'],
-        ['頁面裡的 Demo 會實際生成影片嗎？', '不會。公開 Demo 用於講解步驟，不提交任務、不消耗點數。實際生成需要進入工作區並登入。'],
         ['生成一支影片需要多久？', '這裡不承諾固定完成時間。請在工作區查看任務狀態，處理時間取決於製作類型、所選模型與服務負載。'],
         ['可以直接發布到內容平台嗎？', '需要先設定團隊發布帳號，並在本機 Kali Publish 中登入同名平台帳號，再提交發布任務。也可以下載成片後自行發布。'],
         ['在哪裡查看費用？', '在工作區的「點數與訂單」中查看可購買的點數包與消耗紀錄。AI 影片工作坊會依模型與有效參數顯示預計點數，建立任務前再次檢查。'],
@@ -217,7 +212,6 @@ export const contentRevisions = {
         ['核對訂單與點數紀錄', '「點數與訂單」分別提供付款紀錄與消耗紀錄。需要了解扣除或退回的點數時，請結合紀錄與任務狀態一起查看。'],
       ],
       faq: [
-        ['可以免費了解產品嗎？', '官網頁面與流程示意 Demo 無需登入，也不消耗點數。實際生成需要登入，請先查看工作區中的餘額與費用資訊。'],
         ['一支影片多少錢？', '不同影片沒有統一單價。AI 影片工作坊依模型與有效參數試算；其他創作功能依各自的使用規則消耗點數，請在對應頁面與點數紀錄中核對。'],
         ['購買點數包就是按月訂閱嗎？', '目前結帳流程是一次性購買點數包。付款前請核對所選點數包與實際付款金額。'],
         ['任務失敗會退回點數嗎？', '請查看任務結算狀態與消耗紀錄。生成點數退回與付款退款是不同流程，不能把某一功能的失敗結算規則套用到全部功能。'],

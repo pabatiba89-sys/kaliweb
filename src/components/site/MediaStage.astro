@@ -13,7 +13,6 @@ const media = showcaseMedia[mediaKey as keyof typeof showcaseMedia] || showcaseM
       <a href={media.src}>{t('Download')}</a>
     </video>
   ) : (
-    <img src={media.poster} width="1536" height="1024" alt={t('Creative studio illustration')} loading={eager ? 'eager' : 'lazy'} fetchpriority={eager ? 'high' : 'auto'} />
+    <img src={media.poster} width="1536" height="1024" alt="" loading={eager ? 'eager' : 'lazy'} fetchpriority={eager ? 'high' : 'auto'} />
   )}
-  <figcaption>{t(media.src ? 'Watch the video' : 'Creative studio illustration')}</figcaption>
 </figure>
