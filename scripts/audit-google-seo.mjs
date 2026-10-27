@@ -28,7 +28,11 @@ const robotsUrl = new URL('/robots.txt', origin);
 const { response: robotsResponse, body: robots } = await fetchText(robotsUrl);
 if (!robotsResponse.ok) errors.push(`${robotsUrl} returned ${robotsResponse.status}`);
 if (!/User-agent:\s*\*/i.test(robots)) errors.push('robots.txt does not define the default crawler group');
-if (/Disallow:\s*\/\s*$/im.test(robots)) errors.push('robots.txt blocks the whole site');
+const defaultCrawlerGroups = [...robots.matchAll(/User-agent:\s*\*\s*\n([\s\S]*?)(?=\nUser-agent:|$)/gi)]
+  .map((entry) => entry[1]);
+if (defaultCrawlerGroups.some((group) => /^Disallow:\s*\/\s*$/im.test(group))) {
+  errors.push('robots.txt blocks the whole site');
+}
 
 const sitemapDeclaration = textMatch(robots, /^Sitemap:\s*(\S+)/im);
 const sitemapUrl = explicitOrigin ? new URL('/sitemap.xml', origin).href : (sitemapDeclaration || new URL('/sitemap.xml', origin).href);
