@@ -8,7 +8,7 @@ const t = (value: string) => translateText(value, locale);
 const verifiedPlatforms = platformNames(locale);
 const stages = ['trend', 'script', 'video', 'editing', 'publishing'] as const;
 ---
-<div class:list={['story-visual', `story-visual--${kind}`]}>
+<div class:list={['story-visual', `story-visual--${kind}`]} data-motion-card>
   <span class="story-visual__caption">{t('Illustrative demo')}</span>
   {kind === 'trend' && <div class="topic-orbit"><div class="orbit-core"><span>K</span></div>{[c.trend[0], c.audience[0][0], c.script[0]].map((label, i) => <div class={`orbit-label orbit-label--${i}`}><span>0{i + 1}</span>{label}</div>)}<div class="orbit-ring"></div><div class="orbit-ring orbit-ring--outer"></div></div>}
   {kind === 'script' && <div class="story-paper"><div class="paper-top"><span>01 — 02</span><span>↗</span></div><p>{c.trend[0]}</p><strong>{c.script[1]}</strong><div class="paper-lines" aria-hidden="true"><i></i><i></i><i></i><i></i></div><span class="paper-next">{c.video[0]} →</span></div>}

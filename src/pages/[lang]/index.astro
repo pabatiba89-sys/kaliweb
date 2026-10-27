@@ -1,7 +1,7 @@
 ---
 import PublicLayout from '../../layouts/PublicLayout.astro';
 import WorkflowDemo from '../../components/site/WorkflowDemo.astro';
-import MediaStage from '../../components/site/MediaStage.astro';
+import FlowStage from '../../components/site/FlowStage.astro';
 import StoryVisual from '../../components/site/StoryVisual.astro';
 import PracticalSections from '../../components/site/PracticalSections.astro';
 import { homeByLocale } from '../../site/home.js';
@@ -31,7 +31,7 @@ const schema = {
     <div class="brand-hero__glow" aria-hidden="true"></div>
     <div class="section-wrap brand-hero__inner">
       <div class="hero-copy"><p class="eyebrow">{home.eyebrow}</p><h1>{home.headline}</h1><p class="hero-lead">{home.lead}</p><div class="hero-actions"><a class="primary-cta" href="/app/">{c.ui[0]} <span>↗</span></a><a class="text-cta" href="#workflow-demo">{c.ui[1]} <span>↓</span></a></div></div>
-      <div class="brand-hero__stage"><MediaStage locale={lang} eager={true} position="left" /><div class="hero-stage-note"><span>01 — 05</span><strong>{c.hero[3]}</strong><div>{stages.map((key) => <span>{c[key][0]}</span>)}</div></div></div>
+      <FlowStage locale={lang} />
     </div>
   </section>
   <nav class="pipeline-nav section-wrap" aria-label={c.ui[1]}>{stages.map((key, index) => <a href={`#story-${key}`}><span>0{index + 1}</span>{c[key][0]}</a>)}</nav>

@@ -1,12 +1,15 @@
 import assert from 'node:assert/strict';
 import { brandCopy } from '../src/site/brand-copy.js';
+import { motionCopy } from '../src/site/motion-copy.js';
 import { capabilitySlugs, getBrandContent, newMarketingPages } from '../src/site/brand-content.js';
 import { supportedLocales } from '../src/site/localization.js';
 import { pagesByLocale } from '../src/site/content.js';
 const keys = ['trend', ...Object.keys(capabilitySlugs)];
 assert.deepEqual(Object.keys(brandCopy).sort(), [...supportedLocales].sort());
+assert.deepEqual(Object.keys(motionCopy).sort(), [...supportedLocales].sort());
 for (const locale of supportedLocales) {
   const copy = brandCopy[locale];
+  assert.equal(motionCopy[locale].length, 2, `${locale}: animation controls`);
   for (const [key, count] of [['hero', 4], ['ui', 18], ...keys.map((key) => [key, 3])]) {
     assert.equal(copy[key].length, count, `${locale}.${key}: field coverage`);
     copy[key].forEach((value) => assert.ok(typeof value === 'string' && value.trim(), `${locale}.${key}: empty text`));

@@ -1,0 +1,22 @@
+---
+import { brandCopy } from '../../site/brand-copy.js';
+import { motionCopy } from '../../site/motion-copy.js';
+import { translateText } from '../../site/localization.js';
+const { locale } = Astro.props;
+const c = brandCopy[locale as keyof typeof brandCopy];
+const controls = motionCopy[locale as keyof typeof motionCopy];
+const stages = ['trend', 'script', 'video', 'editing', 'publishing'] as const;
+---
+<div class="flow-stage" data-flow-stage data-active="0" role="group" aria-label={c.ui[1]}>
+  <div class="flow-stage__surface">
+    <div class="flow-stage__top"><span class="flow-stage__brand">K</span><span>{translateText('Illustrative demo', locale)}</span><span class="flow-stage__counter" data-flow-count>01 / 05</span></div>
+    <div class="flow-stage__field" aria-hidden="true"><canvas data-flow-canvas></canvas><div class="flow-stage__halo"></div><span class="flow-stage__axis">+</span><span class="flow-stage__axis flow-stage__axis--end">+</span></div>
+    <div class="flow-stage__captions">
+      {stages.map((key, i) => <div class="flow-stage__caption" data-flow-caption aria-hidden={i !== 0 ? 'true' : undefined}><span>0{i + 1} / {c[key][0]}</span><strong>{c[key][1]}</strong></div>)}
+    </div>
+    <div class="flow-stage__navigation" role="group" aria-label={c.ui[1]}>
+      {stages.map((key, i) => <button type="button" data-flow-select={i} aria-pressed={i === 0 ? 'true' : 'false'} aria-label={`0${i + 1} · ${c[key][0]}`}><span class="flow-stage__track"><i></i></span><span class="flow-stage__step">0{i + 1}</span><span class="flow-stage__name">{c[key][0]}</span></button>)}
+    </div>
+    <button class="motion-toggle" type="button" data-motion-toggle data-pause-label={controls[0]} data-play-label={controls[1]} aria-label={controls[0]} aria-pressed="false"><span data-motion-icon aria-hidden="true">Ⅱ</span></button>
+  </div>
+</div>
