@@ -12647,10 +12647,10 @@ const selectGeneratedDraftText = (value, { allowUnstructured = true } = {}) => {
 };
 const normalizeGeneratedStreamPreview = (value) => {
   const partial = extractPartialGeneratedEnvelopeText(value);
-  if (partial) return selectGeneratedDraftText(partial, { allowUnstructured: false });
+  if (partial) return selectGeneratedDraftText(partial);
   const normalized = normalizeGeneratedText(value);
   if (/^[{[]/.test(normalized)) return '';
-  return selectGeneratedDraftText(normalized, { allowUnstructured: false });
+  return selectGeneratedDraftText(normalized);
 };
 const mergeGeneratedStreamText = (currentValue, incomingValue) => {
   const current = `${currentValue || ''}`;
@@ -12891,15 +12891,18 @@ async function requestGeneratedCopy({ prompt, topic, agent, messages, conversati
   const applyEventData = (dataText) => {
     const data = textOf(dataText);
     if (!data || data === '[DONE]') return;
+    let payload;
     try {
-      const payload = JSON.parse(data);
-      streamError = getGeneratedStreamError(payload) || streamError;
-      const chunk = extractGeneratedStreamChunk(payload);
-      if (!chunk) return;
-      rawReply = mergeGeneratedStreamText(rawReply, chunk);
+      payload = JSON.parse(data);
     } catch {
-      rawReply = mergeGeneratedStreamText(rawReply, data);
+      payload = data;
     }
+    streamError = getGeneratedStreamError(payload) || streamError;
+    const chunk = extractGeneratedStreamChunk(payload);
+    if (!chunk) return;
+    // Delta content is additive: repeated words and spaces are meaningful.
+    const isDelta = payload?.choices?.[0]?.delta != null || payload?.delta != null;
+    rawReply = isDelta ? rawReply + chunk : mergeGeneratedStreamText(rawReply, chunk);
     const preview = normalizeGeneratedStreamPreview(rawReply);
     if (preview && preview !== lastPreview) {
       lastPreview = preview;
@@ -12953,7 +12956,7 @@ async function requestGeneratedCopy({ prompt, topic, agent, messages, conversati
     }
   }
   reply = selectGeneratedDraftText(normalizeGeneratedText(reply));
-  if (!response.ok || !reply) throw new Error(streamError || reply || '文案生成失败，请重试');
+  if (streamError || !response.ok || !reply) throw new Error(streamError || reply || '文案生成失败，请重试');
   return {
     text: reply,
     script: parseGeneratedResult(reply),
