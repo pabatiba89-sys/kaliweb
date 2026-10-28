@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import {
   GENERATED_CONTENT_UNAVAILABLE_MESSAGE,
   getGeneratedRetryPrompt,
+  getGeneratedFailureMessage,
   isGeneratedMarkupFailure,
 } from '../src/generatedContent.js';
 
@@ -34,4 +35,12 @@ test('retries a failed generation with the original prompt from the same round',
   ];
 
   assert.equal(getGeneratedRetryPrompt(messages, 3), '双人对话视频需求');
+});
+
+
+test('never renders raw HTML as an error message', () => {
+  assert.equal(getGeneratedFailureMessage('</div>\n</div>\n</body>\n</html>'), '文案生成失败，请重试');
+  assert.equal(getGeneratedFailureMessage('<div>Gateway time-out</div>'), '文案生成失败，请重试');
+  assert.equal(getGeneratedFailureMessage({ message: 'invalid error object' }), '文案生成失败，请重试');
+  assert.equal(getGeneratedFailureMessage('积分不足'), '积分不足');
 });

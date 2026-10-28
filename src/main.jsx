@@ -108,7 +108,7 @@ import {
   uploadFile,
 } from './api';
 import { getInitialLocale, languages, translateStatic, useAutoTranslate, useLocaleCatalog } from './i18n';
-import { GENERATED_CONTENT_UNAVAILABLE_MESSAGE, getGeneratedRetryPrompt, isGeneratedMarkupFailure } from './generatedContent';
+import { GENERATED_CONTENT_UNAVAILABLE_MESSAGE, getGeneratedRetryPrompt, getGeneratedFailureMessage, isGeneratedMarkupFailure } from './generatedContent';
 import { buildMusicVideoPayload, cleanMusicLyrics, getFirstMusicResult, getMusicErrorMessage, getMusicVideoUrl } from './music';
 import {
   AI_VIDEO_DEFAULT_MODEL_KEY,
@@ -12858,6 +12858,17 @@ async function requestGeneratedCopy({ prompt, topic, agent, messages, conversati
     signal,
   });
   onActivity?.();
+  const contentType = response.headers.get('content-type') || '';
+  if (!response.ok || /text\/html|application\/xhtml/i.test(contentType)) {
+    let message = '';
+    if (/application\/json/i.test(contentType)) {
+      const errorPayload = await response.json().catch(() => null);
+      message = errorPayload?.error?.message || errorPayload?.msg || errorPayload?.message || errorPayload?.error;
+    } else {
+      await response.body?.cancel();
+    }
+    throw new Error(getGeneratedFailureMessage(message));
+  }
   const responseConversationId = Number(response.headers.get('X-Conversation-Id')) || Number(conversationId) || null;
   const responseRoundNo = Number(response.headers.get('X-Conversation-Round')) || null;
   const reusedConversation = response.headers.get('X-Conversation-Reused') === '1';
@@ -12870,7 +12881,7 @@ async function requestGeneratedCopy({ prompt, topic, agent, messages, conversati
       fallbackReply = parseStreamText(raw);
     }
     fallbackReply = selectGeneratedDraftText(normalizeGeneratedText(fallbackReply));
-    if (!response.ok || !fallbackReply) throw new Error(fallbackReply || '文案生成失败，请重试');
+    if (!response.ok || !fallbackReply) throw new Error(getGeneratedFailureMessage(fallbackReply));
     onProgress?.(fallbackReply);
     return {
       text: fallbackReply,
@@ -12956,7 +12967,7 @@ async function requestGeneratedCopy({ prompt, topic, agent, messages, conversati
     }
   }
   reply = selectGeneratedDraftText(normalizeGeneratedText(reply));
-  if (streamError || !response.ok || !reply) throw new Error(streamError || reply || '文案生成失败，请重试');
+  if (streamError || !response.ok || !reply) throw new Error(getGeneratedFailureMessage(streamError || reply));
   return {
     text: reply,
     script: parseGeneratedResult(reply),
@@ -12978,7 +12989,7 @@ const GENERATED_THINKING_MESSAGES = [
   'Думаю',
   'جارٍ التفكير',
 ];
-const COPY_GENERATION_INACTIVITY_TIMEOUT_MS = 10 * 60 * 1000;
+const COPY_GENERATION_INACTIVITY_TIMEOUT_MS = 5 * 60 * 1000;
 
 const formatCopyHistoryTime = (value) => {
   const raw = textOf(value);
@@ -13241,7 +13252,7 @@ function CopyGeneratorPage({ agent, useHotTopicFlow, onBack, onLogin, onMakeVide
       if (timedOut || error.name !== 'AbortError') {
         setMessages(nextMessages.concat({
           role: 'assistant',
-          text: timedOut ? '文案生成超过 10 分钟，请重新生成。' : error.message || '文案生成失败，请重试',
+          text: timedOut ? '文案生成超过 5 分钟，请重新生成。' : getGeneratedFailureMessage(error.message),
           roundNo: nextRoundNo,
           error: true,
         }));

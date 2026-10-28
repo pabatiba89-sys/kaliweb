@@ -2,22 +2,24 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
+import { getGeneratedFailureMessage } from '../src/generatedContent.js';
 
 // Exercise the actual request and parsing code without mounting the workbench.
 const source = readFileSync(new URL('../src/main.jsx', import.meta.url), 'utf8');
 const generationCode = source.slice(source.indexOf('const generatedScalar ='), source.indexOf('const GENERATED_THINKING_MESSAGES ='));
 const event = (content) => `data: ${JSON.stringify({ choices: [{ delta: { content } }] })}\r\n\r\n`;
 
-function startGeneration() {
+function startGeneration({ status = 200, contentType = 'text/event-stream' } = {}) {
   let controller;
   const previews = [];
   const stream = new ReadableStream({ start(value) { controller = value; } });
   const context = vm.createContext({
     TextDecoder,
+    getGeneratedFailureMessage,
     textOf: (value) => String(value ?? '').trim(),
     getAccessToken: () => '',
     buildAIVideoPromptInstruction: (prompt) => prompt,
-    fetch: async () => new Response(stream, { headers: { 'content-type': 'text/event-stream' } }),
+    fetch: async () => new Response(stream, { status, headers: { 'content-type': contentType } }),
   });
   vm.runInContext(`${generationCode}\nglobalThis.generate = requestGeneratedCopy;`, context);
   const completion = context.generate({
@@ -93,4 +95,35 @@ test('reports stream errors even after partial content', async () => {
   await run.send('data: {"error":{"message":"生成中断"}}\n\n');
   run.close();
   await assert.rejects(run.completion, /生成中断/);
+});
+
+
+test('rejects a gateway error before parsing its HTML body as generated copy', async () => {
+  const run = startGeneration({ status: 504, contentType: 'text/html' });
+  await assert.rejects(run.completion, /文案生成失败，请重试/);
+  assert.deepEqual(run.previews, []);
+});
+
+test('rejects an HTML page even if the gateway reports HTTP 200', async () => {
+  const run = startGeneration({ contentType: 'text/html; charset=utf-8' });
+  await assert.rejects(run.completion, /文案生成失败，请重试/);
+  assert.deepEqual(run.previews, []);
+});
+
+test('keeps a readable API error from a failed JSON response', async () => {
+  const run = startGeneration({ status: 403, contentType: 'application/json' });
+  const rejected = assert.rejects(run.completion, /积分不足/);
+  await run.send('{"msg":"积分不足"}');
+  run.close();
+  await rejected;
+  assert.deepEqual(run.previews, []);
+});
+
+test('filters HTML embedded in a JSON API error', async () => {
+  const run = startGeneration({ status: 502, contentType: 'application/json' });
+  const rejected = assert.rejects(run.completion, /文案生成失败，请重试/);
+  await run.send('{"msg":"</div>\\n</body>\\n</html>"}');
+  run.close();
+  await rejected;
+  assert.deepEqual(run.previews, []);
 });

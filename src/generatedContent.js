@@ -27,3 +27,10 @@ export const getGeneratedRetryPrompt = (messages = [], failedIndex = messages.le
   }
   return fallback;
 };
+
+export const getGeneratedFailureMessage = (value, fallback = '文案生成失败，请重试') => {
+  const message = typeof value === 'string' ? value.trim() : '';
+  return message && !isGeneratedMarkupFailure(message) && !/<\/?[a-z][^>]*>/i.test(message)
+    ? message
+    : fallback;
+};
