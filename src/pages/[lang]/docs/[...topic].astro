@@ -1,0 +1,59 @@
+---
+import type { PracticalSection } from '../../../site/content-types';
+import PublicLayout from '../../../layouts/PublicLayout.astro';
+import { pagesByLocale, pagePath, supportedLocales } from '../../../site/content.js';
+import { brandName, translateText } from '../../../site/localization.js';
+import { strategyDoc } from '../../../site/docs-strategy.js';
+import { docsCopy, docsPath, docModules } from '../../../site/docs-copy.js';
+import { workspacePath } from '../../../workspaceRoutes.js';
+import '../../../site/docs.css';
+export function getStaticPaths() {
+  return supportedLocales.flatMap((lang) => [undefined, ...docModules.map(({ id }) => id)].map((topic) => ({ params: { lang, topic }, props: { lang, topic } })));
+}
+const { lang, topic } = Astro.props;
+const copy = docsCopy(lang);
+const current = copy.modules.find(({ id }) => id === topic);
+type DocSource = { slug: string; description: string; lead: string; headline: string; sections?: [string, string][]; practicalSections?: PracticalSection[]; faq?: [string, string][] };
+const pages = pagesByLocale[lang] as DocSource[];
+const getSource = (module): DocSource => ['personal-branding', 'monetization'].includes(module.id) ? strategyDoc(lang, module) as DocSource : pages.find(({ slug }) => slug === module.source);
+const source = current ? getSource(current) : undefined;
+const guide = pages.find(({ slug }) => slug === current?.guide);
+const index = copy.modules.findIndex(({ id }) => id === topic);
+const sections = source?.sections || [];
+const t = (text: string) => translateText(text, lang);
+const title = current ? `${current.label} · ${copy.title}` : copy.title;
+const description = source?.description || copy.modules.map(({ label }) => label).join(' · ');
+const schema = [
+  { '@type': current ? 'TechArticle' : 'CollectionPage', name: title, description, inLanguage: lang, url: new URL(docsPath(lang, topic), Astro.site), ...(current ? { dateModified: '2026-10-29' } : { hasPart: copy.modules.map(({ id, label }) => ({ '@type': 'TechArticle', name: label, url: new URL(docsPath(lang, id), Astro.site) })) }) },
+  { '@type': 'BreadcrumbList', itemListElement: [
+    { name: t('Home'), item: new URL(pagePath(lang), Astro.site) },
+    { name: copy.title, item: new URL(docsPath(lang), Astro.site) },
+    ...(current ? [{ name: current.label, item: new URL(docsPath(lang, topic), Astro.site) }] : []),
+  ].map((entry, i) => ({ '@type': 'ListItem', position: i + 1, ...entry })) },
+];
+---
+<PublicLayout locale={lang} slug={`docs${topic ? `/${topic}` : ''}`} title={`${title} | ${brandName(lang)}`} description={description} schema={schema} pageClass="documentation">
+  <div class="docs-shell">
+    <aside class="docs-sidebar">
+      <a class="docs-home" href={docsPath(lang)} aria-current={!current ? 'page' : undefined}>{copy.title}</a>
+      <nav aria-label={copy.title}>{copy.modules.map(({ id, label }, i) => <a href={docsPath(lang, id)} aria-current={id === topic ? 'page' : undefined}><span aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>{label}</a>)}</nav>
+      <a class="docs-help" href={pagePath(lang, 'help')}>{t('Help center')} ↗</a>
+    </aside>
+    <article class="docs-article">
+      <div class="docs-breadcrumb"><a href={docsPath(lang)}>{copy.title}</a>{current && <><span aria-hidden="true">/</span><span>{current.label}</span></>}</div>
+      <header><p class="eyebrow">{brandName(lang)} / DOCS</p><h1>{current?.label || copy.title}</h1><p class="docs-lead">{source?.lead || description}</p></header>
+      {current && source ? <>
+        <div class="docs-actions"><a class="primary-cta" href={workspacePath(lang, current.workspace)}>{t('Open the workspace')} ↗</a><a href={pagePath(lang, source.slug)}>{t('Learn more')} →</a></div>
+        {sections.length > 0 && <nav class="docs-toc" aria-label={t('IN THIS GUIDE')}>{sections.map(([heading], i) => <a href={`#section-${i}`}>{heading}</a>)}</nav>}
+        {sections.map(([heading, body], i) => <section id={`section-${i}`} class="docs-section"><h2>{heading}</h2><p>{body}</p></section>)}
+        {source.practicalSections?.map((group) => <section class="docs-section"><h2>{group.heading}</h2>{group.items.map((item) => <div><h3>{item.title}</h3><p>{item.body}</p>{item.slug && <a href={pagePath(lang, item.slug)}>{item.linkLabel || t('Learn more')} →</a>}</div>)}</section>)}
+        {guide && <section class="docs-guide-link"><a href={pagePath(lang, guide.slug)}>{guide.headline} →</a><p>{guide.description}</p></section>}
+        {source.faq?.length > 0 && <section class="docs-section">{source.faq.map(([q, a]) => <details><summary>{q}</summary><p>{a}</p></details>)}</section>}
+        <nav class="docs-pagination" aria-label={copy.title}>{[copy.modules[index - 1], copy.modules[index + 1]].map((entry, i) => entry ? <a href={docsPath(lang, entry.id)}>{i === 0 ? '← ' : ''}{entry.label}{i === 1 ? ' →' : ''}</a> : <span />)}</nav>
+      </> : <div class="docs-directory">{copy.modules.map(({ id, label }, i) => {
+        const page = getSource(copy.modules[i]);
+        return <a href={docsPath(lang, id)}><span class="docs-number">{String(i + 1).padStart(2, '0')} →</span><h2>{label}</h2><p>{page?.description}</p></a>;
+      })}</div>}
+    </article>
+  </div>
+</PublicLayout>

@@ -1,3 +1,4 @@
+import { docsCopy, docsPath } from './site/docs-copy.js';
 import { initialWorkspacePage, syncWorkspaceLocation, workspaceLocale, workspacePagesForLocale, workspacePath } from './workspaceRoutes.js';
 import { refreshWorkspaceDocument } from './workspaceSeo.js';
 import { convertRmbToUsdAmount, usesMiniProgramPayment } from './billingPolicy.js';
@@ -485,7 +486,7 @@ const IMAGE_CAMERA_LANGUAGES = [
   { id: 'symmetrical_composition', name: '中心对称', desc: '秩序构图 · 稳定高级', prompt: '使用中心对称构图，人物位于画面中轴，背景建筑或陈设保持左右视觉平衡，水平垂直线端正，画面秩序清晰、稳定高级' },
 ];
 
-function Sidebar({ active, collapsed, onSelect, onToggle, showTrends }) {
+function Sidebar({ active, collapsed, onSelect, onToggle, showTrends, locale }) {
   return (
     <aside className={`sidebar ${collapsed ? 'is-collapsed' : ''}`}>
       <button className="sidebar__brand" onClick={() => onSelect('home')} aria-label="Go home">
@@ -510,6 +511,7 @@ function Sidebar({ active, collapsed, onSelect, onToggle, showTrends }) {
           );
         })}
       </nav>
+      <a className="nav-item" href={docsPath(locale)} title={docsCopy(locale).title}><BookOpen size={19} /><span>{docsCopy(locale).title}</span></a>
       <div className="sidebar__version" aria-label={`Version ${APP_VERSION}`}>
         <span>{APP_VERSION}</span>
       </div>
@@ -14503,7 +14505,7 @@ export default function App() {
       )}
       <div className={`mobile-scrim ${mobileNav ? 'is-visible' : ''}`} onClick={() => setMobileNav(false)} />
       <div className={`sidebar-wrap ${mobileNav ? 'is-open' : ''}`}>
-        <Sidebar active={active} collapsed={collapsed} onSelect={selectNav} onToggle={() => setCollapsed(!collapsed)} showTrends={showTrends} />
+        <Sidebar active={active} collapsed={collapsed} onSelect={selectNav} onToggle={() => setCollapsed(!collapsed)} showTrends={showTrends} locale={workspaceLocale(language)} />
       </div>
       <main className={`main-shell ${collapsed ? 'is-expanded' : ''}`}>
         <Topbar

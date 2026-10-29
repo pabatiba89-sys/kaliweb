@@ -1,3 +1,4 @@
+import { docModules, docsPath } from '../site/docs-copy.js';
 import { workspacePagesForLocale, workspacePath } from '../workspaceRoutes.js';
 import { pagePath, pagesByLocale } from '../site/content.js';
 import { indexableLocales } from '../site/seo.js';
@@ -8,6 +9,7 @@ export function GET({ site }) {
   const origin = site || new URL(DEFAULT_SITE_URL);
   const entries = indexableLocales.flatMap((locale) => [
     { locale, slug: '', path: pagePath(locale) },
+    ...['', ...docModules.map(({ id }) => id)].map((id) => ({ locale, slug: `docs${id ? `/${id}` : ''}`, path: docsPath(locale, id) })),
     ...workspacePagesForLocale(locale).map(({ id }) => ({ locale, slug: `app/${id}`, path: workspacePath(locale, id) })),
     ...pagesByLocale[locale].map((page) => ({ locale, slug: page.slug, path: pagePath(locale, page.slug) })),
   ]);
