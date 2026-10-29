@@ -2482,8 +2482,19 @@ const copyGenerationTimeoutMessages = {
   'hi-IN': 'टेक्स्ट बनाने में 5 मिनट से अधिक समय लगा। कृपया दोबारा बनाएँ।',
 };
 
+// This alternative appears only in the Simplified Chinese Mini Program dialog.
+const miniProgramAlternativeOverrides = {
+  'zh-CN': {
+    'Prefer to pay on the website?': '不想去小程序？',
+    'Switch to Traditional Chinese or English to use web checkout.': '切换至繁体中文或英文，即可使用网页支付。',
+    'Pay with Alipay, bank cards, or other available methods shown at checkout. Web payments are charged in USD.': '可使用支付宝、银行卡等方式，具体以结账页为准。网页支付以美元结算。',
+    'Web checkout language': '网页支付语言',
+    'Switch language and view web prices': '切换并查看网页价格',
+  },
+};
+
 export const workspaceLocalizationOverrides = Object.fromEntries(Object.entries(actionRows).map(([locale, values]) => {
-  const overrides = {};
+  const overrides = { ...(miniProgramAlternativeOverrides[locale] || {}) };
   actionKeys.forEach((key, index) => actionAliases[key].forEach((source) => { overrides[source] = values[index]; }));
   workflowKeys.forEach((key, index) => { overrides[key] = workflowRows[locale][index]; });
   homeKeys.forEach((key, index) => { overrides[key] = homeRows[locale][index]; });

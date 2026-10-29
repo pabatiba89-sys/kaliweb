@@ -1460,5 +1460,10 @@
   "制作流程": "制作流程",
   "选择创作方式": "选择创作方式",
   "智能剪辑": "智能剪辑",
-  "自动发布": "自动发布"
+  "自动发布": "自动发布",
+  "Prefer to pay on the website?": "不想去小程序？",
+  "Switch to Traditional Chinese or English to use web checkout.": "切换至繁体中文或英文，即可使用网页支付。",
+  "Pay with Alipay, bank cards, or other available methods shown at checkout. Web payments are charged in USD.": "可使用支付宝、银行卡等方式，具体以结账页为准。网页支付以美元结算。",
+  "Web checkout language": "网页支付语言",
+  "Switch language and view web prices": "切换并查看网页价格"
 }

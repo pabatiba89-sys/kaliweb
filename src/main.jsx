@@ -1,5 +1,6 @@
 import { initialWorkspacePage, syncWorkspaceLocation, workspaceLocale, workspacePagesForLocale, workspacePath } from './workspaceRoutes.js';
 import { refreshWorkspaceDocument } from './workspaceSeo.js';
+import { convertRmbToUsdAmount, usesMiniProgramPayment } from './billingPolicy.js';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowLeft,
@@ -8867,9 +8868,6 @@ const formatBillingDateTime = (value, locale = 'en-US') => {
     return new Intl.DateTimeFormat('en-US', options).format(date);
   }
 };
-const RMB_PER_USD = 7.2;
-const isChineseBillingLocale = (locale = '') => locale === 'zh-CN' || locale === 'zh-TW';
-const convertRmbToUsdAmount = (amount) => Math.ceil(amount / RMB_PER_USD);
 const formatBillingMoney = (
   plan = {},
   amountKeys = ['price', 'amount', 'sale_price', 'salePrice', 'pay_amount', 'payAmount', 'total_amount', 'totalAmount'],
@@ -8879,7 +8877,7 @@ const formatBillingMoney = (
   const amount = billingPick(plan, amountKeys);
   const number = billingNumber(amount);
   if (number === null) return pick(plan.price_text, plan.priceText, plan.display_price, plan.displayPrice, plan.billingText, plan.billing_text) || 'Contact sales';
-  const isChinese = isChineseBillingLocale(locale);
+  const isChinese = usesMiniProgramPayment(locale);
   const currency = rmbAnchored
     ? (isChinese ? 'CNY' : 'USD')
     : pick(plan.currency, plan.currency_code, plan.currencyCode) || (isChinese ? 'CNY' : 'USD');
@@ -9444,7 +9442,8 @@ function PaymentSuccessModal({
   );
 }
 
-function MiniProgramPurchaseModal({ plan, language, catalog, onClose }) {
+function MiniProgramPurchaseModal({ plan, language, catalog, onClose, onSwitchLanguage }) {
+  const [webPaymentLanguage, setWebPaymentLanguage] = useState('zh-TW');
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.key === 'Escape') onClose();
@@ -9487,6 +9486,21 @@ function MiniProgramPurchaseModal({ plan, language, catalog, onClose }) {
               <p>{translateBilling('After payment, return here and refresh your credit balance.', language, catalog)}</p>
             </div>
             <small>{translateBilling('The package and price shown in the Mini Program are final.', language, catalog)}</small>
+            <aside className="mini-program-payment-alternative">
+              <strong>{translateBilling('Prefer to pay on the website?', language, catalog)}</strong>
+              <p>{translateBilling('Switch to Traditional Chinese or English to use web checkout.', language, catalog)}</p>
+              <small>{translateBilling('Pay with Alipay, bank cards, or other available methods shown at checkout. Web payments are charged in USD.', language, catalog)}</small>
+              <label>
+                <span>{translateBilling('Web checkout language', language, catalog)}</span>
+                <select value={webPaymentLanguage} onChange={(event) => setWebPaymentLanguage(event.target.value)} translate="no">
+                  <option value="zh-TW">繁體中文</option>
+                  <option value="en-US">English</option>
+                </select>
+              </label>
+              <button type="button" className="outline-button" onClick={() => onSwitchLanguage(webPaymentLanguage)}>
+                <Globe2 size={16} /> {translateBilling('Switch language and view web prices', language, catalog)}
+              </button>
+            </aside>
             <button type="button" className="primary-button" onClick={onClose}>
               {translateBilling('Got it', language, catalog)}
             </button>
@@ -9502,11 +9516,14 @@ const billingBaseConfig = {
   endpoints: pageConfigs.billing.endpoints.filter((endpoint) => ['Credit balance', 'Credit packages'].includes(endpoint.label)),
 };
 
-function OverseasBillingPage({ language, authVersion }) {
+function OverseasBillingPage({ language, authVersion, onChangeLanguage }) {
   const localeCatalog = useLocaleCatalog(language);
   const [activeTab, setActiveTab] = useState('purchase');
   const [checkout, setCheckout] = useState(null);
   const [miniProgramPlan, setMiniProgramPlan] = useState(null);
+  useEffect(() => {
+    if (!usesMiniProgramPayment(language)) setMiniProgramPlan(null);
+  }, [language]);
   const [paymentSuccess, setPaymentSuccess] = useState(null);
   const [paymentRefreshing, setPaymentRefreshing] = useState(false);
   const [billingRefreshVersion, setBillingRefreshVersion] = useState(0);
@@ -9747,7 +9764,7 @@ function OverseasBillingPage({ language, authVersion }) {
   const startPlanPurchase = (plan) => {
     setPaymentMessage('');
     setPaymentError('');
-    if (language === 'zh-CN' || language === 'zh-TW') {
+    if (usesMiniProgramPayment(language)) {
       setMiniProgramPlan(plan);
       return;
     }
@@ -10086,6 +10103,11 @@ function OverseasBillingPage({ language, authVersion }) {
           language={language}
           catalog={localeCatalog}
           onClose={() => setMiniProgramPlan(null)}
+          onSwitchLanguage={(nextLanguage) => {
+            setMiniProgramPlan(null);
+            setPaymentError('');
+            onChangeLanguage(nextLanguage);
+          }}
         />
       )}
       {paymentSuccess && (
@@ -11403,8 +11425,8 @@ function TeamCenterPage({ language, authVersion, onLogin }) {
   );
 }
 
-function BillingPage({ language, authVersion }) {
-  return <OverseasBillingPage language={language} authVersion={authVersion} />;
+function BillingPage({ language, authVersion, onChangeLanguage }) {
+  return <OverseasBillingPage language={language} authVersion={authVersion} onChangeLanguage={onChangeLanguage} />;
 }
 
 function TemplatesPage({ authVersion }) {
@@ -14733,7 +14755,7 @@ export default function App() {
                 initialMode={assetInitialMode}
               />
             ) : active === 'billing' ? (
-              <BillingPage language={language} authVersion={authVersion} />
+              <BillingPage language={language} authVersion={authVersion} onChangeLanguage={setLanguage} />
             ) : active === 'team' ? (
               <TeamCenterPage
                 language={language}
