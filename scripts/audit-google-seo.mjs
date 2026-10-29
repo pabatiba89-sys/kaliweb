@@ -1,3 +1,4 @@
+import { canCrawl } from './robots-policy.mjs';
 const explicitOrigin = process.env.SEO_AUDIT_ORIGIN;
 const origin = new URL(explicitOrigin || 'https://www.kaliai.fun').origin;
 const errors = [];
@@ -20,6 +21,7 @@ async function fetchText(url) {
   const response = await fetch(url, {
     headers: { 'user-agent': 'KaliGoogleSeoAudit/1.0 (+https://www.kaliai.fun/en/)' },
     redirect: 'follow',
+    signal: AbortSignal.timeout(20000),
   });
   return { response, body: await response.text() };
 }
@@ -28,10 +30,8 @@ const robotsUrl = new URL('/robots.txt', origin);
 const { response: robotsResponse, body: robots } = await fetchText(robotsUrl);
 if (!robotsResponse.ok) errors.push(`${robotsUrl} returned ${robotsResponse.status}`);
 if (!/User-agent:\s*\*/i.test(robots)) errors.push('robots.txt does not define the default crawler group');
-const defaultCrawlerGroups = [...robots.matchAll(/User-agent:\s*\*\s*\n([\s\S]*?)(?=\nUser-agent:|$)/gi)]
-  .map((entry) => entry[1]);
-if (defaultCrawlerGroups.some((group) => /^Disallow:\s*\/\s*$/im.test(group))) {
-  errors.push('robots.txt blocks the whole site');
+for (const agent of ['Googlebot', 'bingbot', 'Baiduspider', 'OAI-SearchBot', 'KimiBot']) {
+  if (!canCrawl(robots, agent)) errors.push(`robots.txt blocks ${agent}; check Cloudflare Bot Preference Sync and crawler policies`);
 }
 
 const sitemapDeclaration = textMatch(robots, /^Sitemap:\s*(\S+)/im);
@@ -82,10 +82,13 @@ for (let offset = 0; offset < urls.length; offset += batchSize) {
     if (canonical !== url) errors.push(`${url} has mismatched canonical ${canonical || '(missing)'}`);
     if (h1Count !== 1) errors.push(`${url} has ${h1Count} H1 elements`);
     if (!hasJsonLd) errors.push(`${url} has no JSON-LD`);
-    if (new URL(url).pathname !== '/en/' && !hasBreadcrumb) errors.push(`${url} has no BreadcrumbList schema`);
+    if (!/^\/[^/]+\/$/.test(new URL(url).pathname) && !hasBreadcrumb) errors.push(`${url} has no BreadcrumbList schema`);
 
-    if (title) titles.set(title, [...(titles.get(title) || []), url]);
-    if (description) descriptions.set(description, [...(descriptions.get(description) || []), url]);
+    const locale = new URL(url).pathname.split('/').filter(Boolean)[new URL(url).pathname.startsWith('/app/') ? 1 : 0];
+    const titleKey = `${locale}: ${title}`;
+    const descriptionKey = `${locale}: ${description}`;
+    if (title) titles.set(titleKey, [...(titles.get(titleKey) || []), url]);
+    if (description) descriptions.set(descriptionKey, [...(descriptions.get(descriptionKey) || []), url]);
 
     for (const match of body.matchAll(/<a\s[^>]*href="([^"]+)"/gi)) {
       try {
@@ -105,7 +108,7 @@ for (const [description, descriptionUrls] of descriptions) {
   if (descriptionUrls.length > 1) errors.push(`duplicate description "${description}" on ${descriptionUrls.join(', ')}`);
 }
 for (const url of urls) {
-  if (new URL(url).pathname !== '/en/' && !discoveredInternalPaths.has(new URL(url).pathname)) {
+  if (!/^\/[^/]+\/$/.test(new URL(url).pathname) && !discoveredInternalPaths.has(new URL(url).pathname)) {
     errors.push(`${url} has no internal link from another sitemap page`);
   }
 }

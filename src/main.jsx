@@ -1,3 +1,4 @@
+import { initialWorkspacePage, syncWorkspaceLocation } from './workspaceRoutes.js';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowLeft,
@@ -13985,23 +13986,13 @@ const NOTIFICATION_POLL_MS = 60 * 1000;
 
 const getInitialWorkspacePage = () => {
   if (typeof window === 'undefined') return 'home';
-  const page = new URLSearchParams(window.location.search).get('page');
-  if (page === 'password-reset') return 'password-reset';
-  if (page === 'video') return 'video';
-  if (page === 'ai-video') return 'ai-video';
-  if (page === 'publish') return 'publish';
-  if (page === 'publish-settings') return 'publish-settings';
-  if (page === 'speech') return 'speech';
-  if (page === 'assets') return 'assets';
-  if (page === 'music') return 'music';
-  if (page === 'presets') return 'presets';
-  return 'home';
+  return initialWorkspacePage(window.location);
 };
 
 const isInitialVideoCreatorRequest = () => {
   if (typeof window === 'undefined') return false;
   const params = new URLSearchParams(window.location.search);
-  return params.get('page') === 'video' && params.get('creator') === 'prefill';
+  return initialWorkspacePage(window.location) === 'video' && params.get('creator') === 'prefill';
 };
 
 const getStoredVideoCreatorType = () => {
@@ -14338,21 +14329,9 @@ export default function App() {
   }, [inviteAttributionNotice.text]);
 
   const syncWorkspacePageQuery = (id) => {
-    const url = new URL(window.location.href);
-    if (id === 'password-reset') {
-      url.searchParams.set('page', 'password-reset');
-    } else if (id === 'speech' || id === 'assets' || id === 'music') {
-      url.searchParams.set('page', id);
-    } else if (id === 'ai-video') {
-      url.searchParams.set('page', 'ai-video');
-    } else if (id === 'publish' || id === 'publish-settings') {
-      url.searchParams.set('page', id);
-    } else if (id === 'presets') {
-      url.searchParams.set('page', 'presets');
-    } else {
-      url.searchParams.delete('page');
-    }
-    window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
+    const locale = language.toLowerCase() === 'en-us' ? 'en' : language.toLowerCase().split('-')[0];
+    const routeLocale = language === 'zh-CN' ? 'zh-cn' : language === 'zh-TW' ? 'zh-tw' : locale;
+    window.history.replaceState(null, '', syncWorkspaceLocation(window.location, id, routeLocale));
   };
   const selectNav = (id, { preserveHotTopic = false } = {}) => {
     const targetId = (id === 'affiliate' && !AFFILIATE_UI_ENABLED) || (id === 'trends' && !showTrends) ? 'home' : id;

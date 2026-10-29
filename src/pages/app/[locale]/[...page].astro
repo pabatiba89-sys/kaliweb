@@ -1,0 +1,11 @@
+---
+import WorkspaceLayout from '../../../layouts/WorkspaceLayout.astro';
+import { supportedLocales } from '../../../site/localization.js';
+import { workspacePagesForLocale } from '../../../workspaceRoutes.js';
+export function getStaticPaths() {
+  return supportedLocales.flatMap((locale) => workspacePagesForLocale(locale).map(({ id }) => ({
+    params: { locale, page: id === 'home' ? undefined : id }, props: { locale, page: id },
+  })));
+}
+---
+<WorkspaceLayout {...Astro.props} />

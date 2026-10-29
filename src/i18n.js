@@ -67,6 +67,8 @@ const normalizeLocale = (value) => {
 
 export const getInitialLocale = () => {
   if (typeof window === 'undefined') return 'en-US';
+  const routeLocale = window.location.pathname.match(/^\/app\/([^/]+)(?:\/|$)/)?.[1];
+  if (routeLocale && normalizeLocale(routeLocale)) return normalizeLocale(routeLocale);
   const stored = normalizeLocale(window.localStorage.getItem(LANGUAGE_STORAGE_KEY));
   if (stored) return stored;
   return normalizeLocale(window.navigator.language) || 'en-US';

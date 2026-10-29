@@ -1,3 +1,4 @@
+import { workspacePagesForLocale, workspacePath } from '../workspaceRoutes.js';
 import { pagePath, pagesByLocale } from '../site/content.js';
 import { indexableLocales } from '../site/seo.js';
 import { DEFAULT_SITE_URL } from '../site/site-config.js';
@@ -7,6 +8,7 @@ export function GET({ site }) {
   const origin = site || new URL(DEFAULT_SITE_URL);
   const entries = indexableLocales.flatMap((locale) => [
     { locale, slug: '', path: pagePath(locale) },
+    ...workspacePagesForLocale(locale).map(({ id }) => ({ locale, slug: `app/${id}`, path: workspacePath(locale, id) })),
     ...pagesByLocale[locale].map((page) => ({ locale, slug: page.slug, path: pagePath(locale, page.slug) })),
   ]);
   const urls = entries.map(({ locale, slug, path }) => {

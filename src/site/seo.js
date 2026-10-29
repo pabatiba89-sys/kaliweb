@@ -1,23 +1,9 @@
+import { getSolutionMetadata } from './solution-metadata.js';
 import { supportedLocales } from './localization.js';
 import { getContentRevision } from './content-revisions.js';
 
-const configuredLocales = process.env.SEO_INDEXABLE_LOCALES || 'en';
-
-export const indexableLocales = [...new Set(
-  configuredLocales
-    .split(',')
-    .map((locale) => locale.trim().toLowerCase())
-    .filter(Boolean),
-)];
-
-if (indexableLocales.length === 0) {
-  throw new Error('SEO_INDEXABLE_LOCALES must contain at least one locale.');
-}
-
-const invalidLocales = indexableLocales.filter((locale) => !supportedLocales.includes(locale));
-if (invalidLocales.length > 0) {
-  throw new Error(`Unsupported SEO locale(s): ${invalidLocales.join(', ')}`);
-}
+// All supported languages are indexable, including workspace entry pages.
+export const indexableLocales = [...supportedLocales];
 
 export const defaultSeoLocale = indexableLocales.includes('en') ? 'en' : indexableLocales[0];
 
@@ -110,9 +96,10 @@ export function isIndexableLocale(locale) {
 export function getSeoMetadata(locale, slug = '', fallback = {}) {
   const researched = locale === 'en' ? englishSeoBySlug[slug] : null;
   const revision = getContentRevision(locale, slug);
+  const solution = getSolutionMetadata(locale, slug);
   return {
-    title: revision?.title || researched?.title || fallback.title || '',
-    description: revision?.description || researched?.description || fallback.description || '',
+    title: solution?.title || revision?.title || researched?.title || fallback.title || '',
+    description: solution?.description || revision?.description || researched?.description || fallback.description || '',
     keywords: researched?.keywords || [],
   };
 }

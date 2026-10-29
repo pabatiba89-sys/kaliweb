@@ -1,5 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { supportedLocales, localeMeta } from '../src/site/localization.js';
+import { workspacePagesForLocale, workspacePath } from '../src/workspaceRoutes.js';
 import { defaultSeoLocale, getSeoMetadata, indexableLocales } from '../src/site/seo.js';
 import { DEFAULT_SITE_URL, GOOGLE_SITE_VERIFICATION } from '../src/site/site-config.js';
 
@@ -82,17 +84,35 @@ if (expectedUrls.some((url) => new URL(url).origin !== configuredOrigin)) {
   errors.push(`canonical URLs must use the configured origin ${configuredOrigin}`);
 }
 
-if (JSON.stringify([...sitemapUrls].sort()) !== JSON.stringify(expectedUrls)) {
-  errors.push('sitemap URLs do not exactly match indexable public pages');
-}
 if (sitemapDates.some((date) => !/^\d{4}-\d{2}-\d{2}$/.test(date))) {
   errors.push('sitemap lastmod values must use YYYY-MM-DD');
 }
 
-const appHtml = fs.readFileSync(path.join(distDir, 'app/index.html'), 'utf8');
-if (!/<meta name="robots" content="[^"]*noindex/i.test(appHtml)) {
-  errors.push('/app/ must remain noindex');
+for (const locale of supportedLocales) {
+  for (const page of workspacePagesForLocale(locale)) {
+    const pathname = workspacePath(locale, page.id);
+    const file = `${pathname.slice(1)}index.html`;
+    if (!fs.existsSync(path.join(distDir, file))) { errors.push(`${file}: missing workspace entry`); continue; }
+    const html = fs.readFileSync(path.join(distDir, file), 'utf8');
+    const robots = match(html, /<meta name="robots" content="([^"]+)">/i);
+    const canonical = match(html, /<link rel="canonical" href="([^"]+)">/i);
+    if (!robots.includes('index') || robots.includes('noindex')) errors.push(`${file}: workspace must be indexable`);
+    if (canonical !== new URL(pathname, process.env.SITE_URL || DEFAULT_SITE_URL).href) errors.push(`${file}: workspace canonical mismatch`);
+    if (!html.includes('<h1') || !html.includes('"@type":"BreadcrumbList"')) errors.push(`${file}: missing public content or breadcrumbs`);
+    if (!html.includes(`lang="${localeMeta[locale].hreflang}"`)) errors.push(`${file}: workspace language mismatch`);
+    const alternates = [...html.matchAll(/<link rel="alternate" hreflang="([^"]+)" href="([^"]+)">/gi)];
+    const expectedLocales = supportedLocales.filter((code) => workspacePagesForLocale(code).some((entry) => entry.id === page.id));
+    if (alternates.length !== expectedLocales.length + 1) errors.push(`${file}: incomplete workspace alternates`);
+    for (const code of expectedLocales) {
+      if (!alternates.some((entry) => entry[1] === localeMeta[code].hreflang && entry[2] === new URL(workspacePath(code, page.id), process.env.SITE_URL || DEFAULT_SITE_URL).href)) errors.push(`${file}: missing workspace alternate ${code}`);
+    }
+    expectedUrls.push(canonical);
+  }
 }
+expectedUrls.sort();
+if (JSON.stringify([...sitemapUrls].sort()) !== JSON.stringify(expectedUrls)) errors.push('sitemap must include all public and workspace pages');
+const appHtml = fs.readFileSync(path.join(distDir, 'app/index.html'), 'utf8');
+if (/<meta name="robots" content="[^"]*noindex/i.test(appHtml)) errors.push('/app/ must be indexable');
 
 const indexNowKeyFiles = fs.readdirSync(distDir).filter((file) => /^[a-f0-9]{32}\.txt$/.test(file));
 if (indexNowKeyFiles.length !== 1) {

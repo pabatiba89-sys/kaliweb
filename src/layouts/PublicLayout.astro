@@ -101,7 +101,7 @@ const jsonLd = {
     <meta name="description" content={description} />
     {shouldIndex && keywordContent && <meta name="keywords" content={keywordContent} />}
     <meta name="google-site-verification" content={GOOGLE_SITE_VERIFICATION} />
-    <meta name="robots" content={shouldIndex ? 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' : 'noindex, follow, noarchive'} />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <link rel="canonical" href={canonical} />
     {alternates.map((item) => <link rel="alternate" hreflang={item.code} href={item.href} />)}
     {shouldIndex && <link rel="alternate" hreflang="x-default" href={xDefault} />}
@@ -144,7 +144,7 @@ const jsonLd = {
             {supportedLocales.map((code) => <a class:list={{ active: code === locale }} href={pagePath(code, slug)} lang={localeMeta[code].appLocale} dir={localeMeta[code].dir}>{localeMeta[code].label}</a>)}
           </div>
         </details>
-        <a class="header-cta" href="/app/">{copy.workspace}<span aria-hidden="true">↗</span></a>
+        <a class="header-cta" href={`/app/${locale}/`}>{copy.workspace}<span aria-hidden="true">↗</span></a>
       </div>
     </header>
     <main id="main">

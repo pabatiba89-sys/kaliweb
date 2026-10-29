@@ -35,7 +35,7 @@ const schema = {
   <section class="brand-hero">
     <div class="brand-hero__glow" aria-hidden="true"></div>
     <div class="section-wrap brand-hero__inner">
-      <div class="hero-copy"><p class="eyebrow">{home.eyebrow}</p><h1>{home.headline}</h1><p class="hero-lead">{home.lead}</p><div class="hero-actions"><a class="primary-cta" href="/app/">{c.ui[0]} <span>↗</span></a><a class="text-cta" href="#workflow-demo">{c.ui[1]} <span>↓</span></a></div></div>
+      <div class="hero-copy"><p class="eyebrow">{home.eyebrow}</p><h1>{home.headline}</h1><p class="hero-lead">{home.lead}</p><div class="hero-actions"><a class="primary-cta" href={`/app/${lang}/`}>{c.ui[0]} <span>↗</span></a><a class="text-cta" href="#workflow-demo">{c.ui[1]} <span>↓</span></a></div></div>
       <FlowStage locale={lang} />
     </div>
   </section>
@@ -56,6 +56,6 @@ const schema = {
   </section>
   <WorkflowDemo locale={lang} walkthrough={home.walkthrough} />
   <section class="brand-developers"><div class="section-wrap brand-story__inner"><div class="brand-story__copy"><p class="eyebrow">MCP / API</p><h2>{c.developers[1]}</h2><p>{c.developers[2]}</p><a class="text-cta" href={pagePath(lang, 'developers')}>{c.ui[2]} →</a></div><StoryVisual locale={lang} kind="developers" /></div></section>
-  <section class="studio-overview section-wrap"><div class="overview-copy"><p class="eyebrow">{brandName(lang)}</p><h2>{c.ui[8]}</h2><p>{c.ui[9]}</p><a class="text-cta" href="/app/">{c.ui[0]} ↗</a></div><figure class="workspace-capture"><div class="capture-bar"><span class="mini-brand">K</span><span>{translateText('Content production workspace', lang)}</span></div><img src="/previews/workspace.webp" width="1440" height="960" alt={translateText('Content production workspace', lang)} loading="lazy" /></figure></section>
-  <section class="closing-cta"><p class="eyebrow">{brandName(lang)}</p><h2>{c.hero[3]}</h2><a class="primary-cta" href="/app/">{c.ui[0]} <span>↗</span></a></section>
+  <section class="studio-overview section-wrap"><div class="overview-copy"><p class="eyebrow">{brandName(lang)}</p><h2>{c.ui[8]}</h2><p>{c.ui[9]}</p><a class="text-cta" href={`/app/${lang}/`}>{c.ui[0]} ↗</a></div><figure class="workspace-capture"><div class="capture-bar"><span class="mini-brand">K</span><span>{translateText('Content production workspace', lang)}</span></div><img src="/previews/workspace.webp" width="1440" height="960" alt={translateText('Content production workspace', lang)} loading="lazy" /></figure></section>
+  <section class="closing-cta"><p class="eyebrow">{brandName(lang)}</p><h2>{c.hero[3]}</h2><a class="primary-cta" href={`/app/${lang}/`}>{c.ui[0]} <span>↗</span></a></section>
 </PublicLayout>

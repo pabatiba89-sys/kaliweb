@@ -1,0 +1,60 @@
+---
+import WorkspaceApp from '../main.jsx';
+import '../styles.css';
+import { localeMeta, supportedLocales } from '../site/localization.js';
+import { getWorkspaceContent } from '../site/workspace-content.js';
+import { workspacePath, workspacePagesForLocale } from '../workspaceRoutes.js';
+import { GOOGLE_SITE_VERIFICATION } from '../site/site-config.js';
+const { locale = 'en', page = 'home' } = Astro.props;
+const copy = localeMeta[locale];
+const content = getWorkspaceContent(locale, page);
+const canonical = new URL(workspacePath(locale, page), Astro.site);
+const alternates = supportedLocales.filter((code) => workspacePagesForLocale(code).some((entry) => entry.id === page));
+const defaultLocale = alternates.includes('en') ? 'en' : alternates[0];
+const schema = { '@context': 'https://schema.org', '@graph': [
+  { '@type': 'WebApplication', name: content.title, description: content.description, url: canonical, applicationCategory: 'MultimediaApplication', operatingSystem: 'Web', inLanguage: copy.hreflang },
+  { '@type': 'BreadcrumbList', itemListElement: [
+    { '@type': 'ListItem', position: 1, name: content.home, item: new URL(`/${locale}/`, Astro.site) },
+    { '@type': 'ListItem', position: 2, name: content.workspace, item: new URL(workspacePath(locale), Astro.site) },
+    ...(page === 'home' ? [] : [{ '@type': 'ListItem', position: 3, name: content.label, item: canonical }]),
+  ] },
+] };
+---
+<!doctype html>
+<html lang={copy.hreflang} dir={copy.dir}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{content.title}</title>
+    <meta name="description" content={content.description} />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="google-site-verification" content={GOOGLE_SITE_VERIFICATION} />
+    <link rel="canonical" href={canonical} />
+    {alternates.map((code) => <link rel="alternate" hreflang={localeMeta[code].hreflang} href={new URL(workspacePath(code, page), Astro.site)} />)}
+    <link rel="alternate" hreflang="x-default" href={new URL(workspacePath(defaultLocale, page), Astro.site)} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={content.title} />
+    <meta property="og:description" content={content.description} />
+    <meta property="og:url" content={canonical} />
+    <script is:inline src="/invite-attribution.js"></script>
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(schema)} />
+  </head>
+  <body>
+    <WorkspaceApp client:only="react" />
+    <section class="workspace-guide" aria-label={content.workspace}>
+      <h1>{content.label} · {content.workspace}</h1>
+      <p>{content.summary}</p>
+      <nav aria-label={content.workspace}>{content.pages.map((entry) => <a href={entry.path} aria-current={entry.id === page ? 'page' : undefined}>{entry.label}</a>)}</nav>
+      <p><a href={`/${locale}/`}>{content.home}</a> · <a href={`/${locale}/help/`}>{content.help}</a></p>
+      <nav aria-label="Languages">{supportedLocales.map((code) => <a href={workspacePath(code, workspacePagesForLocale(code).some((entry) => entry.id === page) ? page : 'home')} lang={localeMeta[code].hreflang}>{localeMeta[code].label}</a>)}</nav>
+    </section>
+  </body>
+</html>
+<style>
+  .workspace-guide { padding: 24px; margin-inline-start: 248px; color: var(--ink); background: var(--paper-soft); border-top: 1px solid var(--line); }
+  .workspace-guide h1 { font-size: 18px; }
+  .workspace-guide p { max-width: 900px; line-height: 1.6; }
+  .workspace-guide nav { display: flex; gap: 8px 18px; flex-wrap: wrap; margin-block: 12px; }
+  .workspace-guide a { color: var(--green); text-decoration: underline; }
+  @media (max-width: 900px) { .workspace-guide { margin-inline-start: 0; } }
+</style>
