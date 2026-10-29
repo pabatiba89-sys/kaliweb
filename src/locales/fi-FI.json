@@ -2376,5 +2376,6 @@
   "无权查看所选成员或团队的数据": "Et voi katsella valittua jäsentä tai tiimiä.",
   "请选择有效日期范围，最多 366 天": "Valitse kelvollinen ajanjakso, enintään 366 päivää.",
   "统计数据暂不可用，请重试": "Tilastot eivät ole saatavilla. Yritä uudelleen.",
-  "按北京时间及创建日期统计当前可见资产；历史累计截至所选结束日期，数据会随资产及团队变更调整。": "Näkyvät resurssit luontipäivän mukaan Pekingin ajassa. Summat päättyvät valittuun päivään ja muuttuvat resurssi- ja tiimimuutosten mukana."
+  "按北京时间及创建日期统计当前可见资产；历史累计截至所选结束日期，数据会随资产及团队变更调整。": "Näkyvät resurssit luontipäivän mukaan Pekingin ajassa. Summat päättyvät valittuun päivään ja muuttuvat resurssi- ja tiimimuutosten mukana.",
+  "手动刷新": "Manuaalinen päivitys"
 }

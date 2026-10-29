@@ -2439,5 +2439,6 @@
   "无权查看所选成员或团队的数据": "Bạn không thể xem thành viên hoặc nhóm đã chọn.",
   "请选择有效日期范围，最多 366 天": "Chọn khoảng ngày hợp lệ tối đa 366 ngày.",
   "统计数据暂不可用，请重试": "Chưa có thống kê. Vui lòng thử lại.",
-  "按北京时间及创建日期统计当前可见资产；历史累计截至所选结束日期，数据会随资产及团队变更调整。": "Tài sản có thể xem theo ngày tạo, giờ Bắc Kinh. Tổng tính đến ngày kết thúc đã chọn và thay đổi theo tài sản hoặc nhóm."
+  "按北京时间及创建日期统计当前可见资产；历史累计截至所选结束日期，数据会随资产及团队变更调整。": "Tài sản có thể xem theo ngày tạo, giờ Bắc Kinh. Tổng tính đến ngày kết thúc đã chọn và thay đổi theo tài sản hoặc nhóm.",
+  "手动刷新": "Làm mới thủ công"
 }

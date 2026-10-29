@@ -34,12 +34,12 @@ export default function ProductionDashboard({ authVersion, language, onLogin, on
     return () => clearInterval(timer);
   }, [running]);
   useEffect(() => {
-    const timer = setInterval(() => { setDay(statisticsDay()); if (!document.hidden) setRevision((n) => n + 1); }, 60000);
     const updateFull = () => setFull(document.fullscreenElement === panel.current);
     document.addEventListener('fullscreenchange', updateFull);
-    return () => { clearInterval(timer); document.removeEventListener('fullscreenchange', updateFull); };
+    return () => { document.removeEventListener('fullscreenchange', updateFull); };
   }, []);
   useEffect(() => {
+    setDay(statisticsDay());
     setOptionsState({data:null,error:null});
     setFilters(null);
   }, [authed, authVersion]);
@@ -88,8 +88,8 @@ export default function ProductionDashboard({ authVersion, language, onLogin, on
   const primary = selectedResources.filter((item) => ['video','music','image'].includes(item.value));
   const secondary = selectedResources.filter((item) => !['video','music','image'].includes(item.value));
   const periodLabel = data ? statisticsPeriodLabel(data, day) : filters?.period === 'today' ? '今日完成' : filters?.period === 'yesterday' ? '当日完成' : '期间完成';
-  const refresh = () => { if (!options) setOptionsRevision((n) => n + 1); setRevision((n) => n + 1); };
-  const updateFilter = (values) => setFilters((value) => ({...value,...values}));
+  const refresh = () => { setDay(statisticsDay()); if (!options) setOptionsRevision((n) => n + 1); setRevision((n) => n + 1); };
+  const updateFilter = (values) => { setDay(statisticsDay()); setFilters((value) => ({...value,...values})); };
   const toggleFull = async () => {
     if (full && !document.fullscreenElement) { setFull(false); return; }
     try {
@@ -113,13 +113,13 @@ export default function ProductionDashboard({ authVersion, language, onLogin, on
     <div className="production-dashboard__header">
       <div className="production-dashboard__intro"><span>KALI · STUDIO</span><h1>持续创作，让品牌被看见。</h1></div>
       <div className="production-dashboard__tools">
-        <time translate="no">{new Intl.DateTimeFormat(language, { dateStyle:'medium', timeZone:'Asia/Shanghai' }).format(new Date())}</time>
+        <time translate="no">{new Intl.DateTimeFormat(language, { dateStyle:'medium', timeZone:'Asia/Shanghai' }).format(new Date(`${day}T12:00:00+08:00`))}</time>
         <button key={paused ? 'resume' : 'pause'} className="icon-button" title={paused ? '播放动画' : '暂停动画'} aria-label={paused ? '播放动画' : '暂停动画'} aria-pressed={paused} onClick={() => setPaused((value) => !value)}>{paused ? <Play size={16} /> : <Pause size={16} />}</button>
         <button className="icon-button" title="刷新" aria-label="刷新" disabled={loading || !authed} onClick={refresh}><RefreshCw size={16} className={loading ? 'is-spinning' : ''} /></button>
         <button key={full ? 'exit' : 'enter'} className="icon-button" title={full ? '退出大屏' : '全屏展示'} aria-label={full ? '退出大屏' : '全屏展示'} onClick={toggleFull}>{full ? <Minimize2 size={16} /> : <Maximize2 size={16} />}</button>
       </div>
     </div>
-    <div className="production-dashboard__section-label"><h2>创作数据大屏</h2><span className={`production-dashboard__sync ${loading ? 'is-syncing' : ''}`}><i aria-hidden="true" /><span>{!authed ? '登录查看创作数据' : loading ? '正在同步创作数据' : error ? '加载失败' : '每分钟自动同步'}</span></span></div>
+    <div className="production-dashboard__section-label"><h2>创作数据大屏</h2><span className={`production-dashboard__sync ${loading ? 'is-syncing' : ''}`}><i aria-hidden="true" /><span>{!authed ? '登录查看创作数据' : loading ? '正在同步创作数据' : error ? '加载失败' : '手动刷新'}</span></span></div>
     {authed && options && filters && <div className="statistics-filters">
       <label><span>统计范围</span><select aria-label={tr('统计范围')} value={filters.scope} onChange={(event) => updateFilter({scope:event.target.value})} translate="no">{options.scopes.map((item) => <option key={item.value} value={item.value}>{tr(item.label)}</option>)}</select></label>
       {filters.scope === 'personal' && <label><span>成员</span><select aria-label={tr('成员')} value={filters.user_id} onChange={(event) => updateFilter({user_id:Number(event.target.value)})} translate="no">{options.members.map((member) => <option key={member.value} value={member.value}>{member.label}</option>)}</select></label>}

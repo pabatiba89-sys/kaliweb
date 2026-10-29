@@ -25,8 +25,18 @@ const rows = {
 'hi-IN': 'दायरा|सदस्य|तिथि सीमा|आरंभ तिथि|अंतिम तिथि|रिपोर्ट देखें|समूह का आधार|संसाधन प्रकार|तिथि|उपयोगकर्ता|वर्तमान टीम|व्यक्तिगत|आज|कल|पिछले 7 दिन|पिछले 30 दिन|कस्टम तिथियाँ|दिन|सदस्य|वॉयसओवर|उस दिन पूरे हुए|अवधि में पूरे हुए|सत्र समाप्त हो गया। फिर से लॉग इन करें।|चुने गए सदस्य या टीम को देखने की अनुमति नहीं है।|अधिकतम 366 दिनों की वैध तिथि सीमा चुनें।|आँकड़े उपलब्ध नहीं हैं। फिर कोशिश करें।|दिखने वाली संपत्तियाँ बीजिंग समय की निर्माण तिथि से गिनी जाती हैं। कुल चुनी गई अंतिम तिथि तक है और संपत्ति व टीम के बदलावों से बदलता है।',
 'th-TH': 'ขอบเขต|สมาชิก|ช่วงวันที่|วันที่เริ่มต้น|วันที่สิ้นสุด|ดูรายงาน|จัดกลุ่มตาม|ประเภททรัพยากร|วันที่|ผู้ใช้|ทีมปัจจุบัน|ส่วนบุคคล|วันนี้|เมื่อวาน|7 วันที่ผ่านมา|30 วันที่ผ่านมา|กำหนดวันที่เอง|วัน|สมาชิก|งานพากย์เสียง|เสร็จในวันนั้น|เสร็จในช่วงเวลา|เซสชันหมดอายุ กรุณาเข้าสู่ระบบอีกครั้ง|คุณไม่มีสิทธิ์ดูสมาชิกหรือทีมที่เลือก|เลือกช่วงวันที่ที่ถูกต้องไม่เกิน 366 วัน|สถิติไม่พร้อมใช้งาน กรุณาลองใหม่|นับทรัพยากรที่มองเห็นตามวันที่สร้างตามเวลาปักกิ่ง ยอดสะสมถึงวันสิ้นสุดที่เลือกและเปลี่ยนตามทรัพยากรและทีม',
 };
+const manualRefreshLabels = {
+ 'zh-CN':'手动刷新', 'zh-TW':'手動重新整理', 'en-US':'Manual refresh',
+ 'es-MX':'Actualización manual', 'fr-FR':'Actualisation manuelle', 'de-DE':'Manuell aktualisieren',
+ 'ru-RU':'Обновление вручную', 'pt-PT':'Atualização manual', 'it-IT':'Aggiornamento manuale',
+ 'ja-JP':'手動更新', 'ko-KR':'수동 새로고침', 'ar-AE':'تحديث يدوي',
+ 'id-ID':'Pembaruan manual', 'vi-VN':'Làm mới thủ công', 'tr-TR':'Manuel yenileme',
+ 'nl-NL':'Handmatig vernieuwen', 'uk-UA':'Оновлення вручну', 'pl-PL':'Odświeżanie ręczne',
+ 'ro-RO':'Actualizare manuală', 'el-GR':'Μη αυτόματη ανανέωση', 'cs-CZ':'Ruční obnovení',
+ 'fi-FI':'Manuaalinen päivitys', 'hi-IN':'मैन्युअल रीफ़्रेश', 'th-TH':'รีเฟรชด้วยตนเอง',
+};
 export const statisticsOverrides = Object.fromEntries(Object.entries(rows).map(([locale, text]) => {
  const values=text.split('|');
  if(values.length!==keys.length) throw new Error(`Statistics translation mismatch: ${locale}`);
- return [locale,{...Object.fromEntries(keys.map((key,i)=>[key,values[i]])),...(locale==='zh-TW'?{'条':'條','首':'首','张':'張','份':'份','个':'個'}:{})}];
+ return [locale,{'手动刷新':manualRefreshLabels[locale],...Object.fromEntries(keys.map((key,i)=>[key,values[i]])),...(locale==='zh-TW'?{'条':'條','首':'首','张':'張','份':'份','个':'個'}:{})}];
 }));

@@ -2387,5 +2387,6 @@
   "无权查看所选成员或团队的数据": "Non puoi visualizzare il membro o team selezionato.",
   "请选择有效日期范围，最多 366 天": "Scegli un intervallo valido fino a 366 giorni.",
   "统计数据暂不可用，请重试": "Statistiche non disponibili. Riprova.",
-  "按北京时间及创建日期统计当前可见资产；历史累计截至所选结束日期，数据会随资产及团队变更调整。": "Risorse visibili per data di creazione, ora di Pechino. I totali terminano alla data scelta e riflettono modifiche a risorse e team."
+  "按北京时间及创建日期统计当前可见资产；历史累计截至所选结束日期，数据会随资产及团队变更调整。": "Risorse visibili per data di creazione, ora di Pechino. I totali terminano alla data scelta e riflettono modifiche a risorse e team.",
+  "手动刷新": "Aggiornamento manuale"
 }
