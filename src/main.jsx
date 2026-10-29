@@ -25,6 +25,7 @@ import {
   EyeOff,
   ExternalLink,
   FileVideo,
+  Flame,
   Fingerprint,
   GalleryVerticalEnd,
   Globe2,
@@ -148,6 +149,7 @@ import { buildCreatorOptionalMedia, resolveCreatorOptionalMedia } from './videoC
 import { pageConfigs } from './pageConfig';
 import packageJson from '../package.json';
 import './styles.css';
+import ProductionDashboard from './components/ProductionDashboard.jsx';
 
 const APP_VERSION = `v${packageJson.version}`;
 const OPEN_SOURCE_PUBLISHER_URL = 'https://github.com/pabatiba89-sys/kali-publish';
@@ -227,14 +229,14 @@ const getCopy = (locale) => copy[sourceCopyLocales[locale] || 'en'];
 const primaryNavItems = [
   { id: 'home', label: 'Home', icon: Home },
   { id: 'trends', label: 'Hot Trends', icon: TrendingUp },
-  { id: 'assistant', label: 'AI Assistant', icon: Bot },
-  { id: 'video', label: 'Digital Human Video', icon: Video },
-  { id: 'ai-video', label: 'AI Video Lab', icon: FileVideo },
-  { id: 'assets', label: 'Digital Human Assets', icon: Layers3 },
-  { id: 'speech', label: 'Text to Speech', icon: AudioLines },
-  { id: 'music', label: 'AI Music', icon: Music2 },
-  { id: 'image', label: 'AI Images', icon: Image },
-  { id: 'materials', label: 'Media Library', icon: Library },
+  { id: 'assistant', label: 'AI Agents', icon: Bot, ai: true },
+  { id: 'video', label: 'Avatar Talking Videos', icon: Video, ai: true },
+  { id: 'ai-video', label: 'Seedance', icon: FileVideo, ai: true },
+  { id: 'music', label: 'AI Music', icon: Music2, ai: true },
+  { id: 'image', label: 'AI Images', icon: Image, ai: true },
+  { id: 'speech', label: 'Text to Speech', icon: AudioLines, ai: true },
+  { id: 'assets', label: 'Digital Human Assets', icon: Layers3, ai: true },
+  { id: 'materials', label: 'B-roll Library', icon: Library },
   { id: 'publish', label: 'Publishing Center', icon: Send },
 ];
 
@@ -378,19 +380,19 @@ const agreementCards = [
 const supportCards = [
   {
     id: 'ai-video',
-    title: 'AI Video Lab',
+    title: 'Seedance',
     icon: FileVideo,
     color: '#008e74',
   },
   {
     id: 'video',
-    title: 'Video Studio',
+    title: 'Avatar Talking Videos',
     icon: Video,
     color: '#0b6e69',
   },
   {
     id: 'assistant',
-    title: 'AI Assistant',
+    title: 'AI Agents',
     icon: Bot,
     color: '#4f6fae',
   },
@@ -402,7 +404,7 @@ const supportCards = [
   },
   {
     id: 'materials',
-    title: '素材库',
+    title: 'B-roll Library',
     icon: Library,
     color: '#0e8fbd',
   },
@@ -534,18 +536,17 @@ const IMAGE_CAMERA_LANGUAGES = [
   { id: 'symmetrical_composition', name: '中心对称', desc: '秩序构图 · 稳定高级', prompt: '使用中心对称构图，人物位于画面中轴，背景建筑或陈设保持左右视觉平衡，水平垂直线端正，画面秩序清晰、稳定高级' },
 ];
 
-function Sidebar({ active, collapsed, onSelect, onToggle }) {
+function Sidebar({ active, collapsed, onSelect, onToggle, showTrends }) {
   return (
     <aside className={`sidebar ${collapsed ? 'is-collapsed' : ''}`}>
       <button className="sidebar__brand" onClick={() => onSelect('home')} aria-label="Go home">
         <span className="brand-mark">K</span>
         <span className="brand-copy">
           <strong>Kali</strong>
-          <small>Yixiu</small>
         </span>
       </button>
       <nav className="sidebar__nav" aria-label="Primary navigation">
-        {primaryNavItems.map((item) => {
+        {primaryNavItems.filter((item) => showTrends || item.id !== 'trends').map((item) => {
           const Icon = item.icon;
           return (
             <button
@@ -555,6 +556,7 @@ function Sidebar({ active, collapsed, onSelect, onToggle }) {
             >
               <Icon size={19} />
               <span>{item.label}</span>
+              {item.ai && <Flame className="ai-flame" size={14} aria-hidden="true" />}
             </button>
           );
         })}
@@ -619,7 +621,7 @@ function AccountMenu({ onSelect, onLogout }) {
         <div className="account-menu-panel" role="menu" aria-label="Account">
           <div className="account-menu-panel__head">
             <span className="account-menu-avatar"><UserRound size={18} /></span>
-            <div><strong>Kali</strong><small>Yixiu</small></div>
+            <div><strong>Kali</strong></div>
           </div>
           <div className="account-menu-panel__links">
             {accountMenuItems.map((item) => {
@@ -817,25 +819,26 @@ function HomeAnnouncement({ onOpen }) {
         <strong>Seedance 2.5 is now available</strong>
       </div>
       <button type="button" onClick={() => onOpen('ai-video')}>
-        <span>AI Video Lab</span>
+        <span>Seedance</span>
         <ChevronRight size={16} />
       </button>
     </section>
   );
 }
 
-function HomeWorkflow({ onSelect, onStartVideo }) {
+function HomeWorkflow({ onSelect, onStartVideo, showTrends }) {
+  const steps = workflowSteps.filter((step) => showTrends || step.id !== 'trends');
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
     const timer = window.setInterval(() => {
-      setActiveIndex((index) => (index + 1) % workflowSteps.length);
+      setActiveIndex((index) => (index + 1) % steps.length);
     }, 2300);
     return () => window.clearInterval(timer);
-  }, []);
+  }, [showTrends]);
 
   const openStep = (step) => {
-    setActiveIndex(workflowSteps.findIndex((item) => item.no === step.no));
+    setActiveIndex(steps.findIndex((item) => item.no === step.no));
     if (step.production) {
       onStartVideo({ productionType: step.production });
       return;
@@ -848,13 +851,13 @@ function HomeWorkflow({ onSelect, onStartVideo }) {
       <div className="home-workflow__head">
         <div>
           <span>MAIN FLOW</span>
-          <h2>从热点到发布</h2>
+          <h2>{showTrends ? '从热点到发布' : '从创意到发布'}</h2>
         </div>
       </div>
       <div className="flow-track">
         <span className="flow-track__line" />
-        <span className="flow-track__pulse" style={{ '--flow-progress': `${(activeIndex / (workflowSteps.length - 1)) * 100}%` }} />
-        {workflowSteps.map((step, index) => {
+        <span className="flow-track__pulse" style={{ '--flow-progress': `${(activeIndex / (steps.length - 1)) * 100}%` }} />
+        {steps.map((step, index) => {
           const Icon = step.icon;
           const active = index === activeIndex;
           const done = index < activeIndex;
@@ -866,7 +869,7 @@ function HomeWorkflow({ onSelect, onStartVideo }) {
             >
               <span className="flow-step__node"><Icon size={20} /></span>
               <span className="flow-step__copy">
-                <small>{step.no}</small>
+                <small>{String(index + 1).padStart(2, '0')}</small>
                 <strong>{step.title}</strong>
               </span>
               <span className="flow-step__action">
@@ -2116,7 +2119,7 @@ function MaterialsPage({ authVersion, onLogin }) {
     <div className="material-page">
       <section className="material-header">
         <div>
-          <h1>Materials</h1>
+          <h1>B-roll Library</h1>
           <p>管理图片和视频素材，支持批量上传、预览和删除。</p>
         </div>
         <div className="material-actions">
@@ -13887,7 +13890,7 @@ function AboutPage({ onOpen }) {
         <article><Globe2 size={22} /><strong>面向全球市场</strong><p>独立站版会持续完善多语言、跨时区协作与主流媒体发布能力。</p></article>
       </section>
       <section className="company-facts">
-        <div><span>PRODUCT</span><strong>Kali · Yixiu</strong></div>
+        <div><span>PRODUCT</span><strong>Kali</strong></div>
         <div><span>FOCUS</span><strong>AI Content Production</strong></div>
         <div><span>WORKFLOW</span><strong>Discover · Create · Publish</strong></div>
         <div><span>COMPANY</span><strong>{LEGAL_COMPANY_NAME}</strong></div>
@@ -13946,7 +13949,7 @@ function MediaAccountsPage({ onOpen }) {
       </section>
       <section className="media-safety-note">
         <ShieldCheck size={21} />
-        <div><strong>账号安全提醒</strong><p>请仅通过本页公布的链接访问官方账号。任何以 Kali 或 Yixiu 名义索要密码、验证码或转账的账号均不可信。如需核验，请发送邮件至 <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>。</p></div>
+        <div><strong>账号安全提醒</strong><p>请仅通过本页公布的链接访问官方账号。任何以 Kali 名义索要密码、验证码或转账的账号均不可信。如需核验，请发送邮件至 <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>。</p></div>
       </section>
     </div>
   );
@@ -14467,7 +14470,21 @@ export default function App() {
   const [aiVideoPackagingSource, setAIVideoPackagingSource] = useState(null);
   const [videoStudioInitialSection, setVideoStudioInitialSection] = useState('oral');
   const t = useMemo(() => getCopy(language), [language]);
-  const isHome = active === 'home';
+  const showTrends = language === 'zh-CN' || language === 'zh-TW';
+  const isHome = active === 'home' || (active === 'trends' && !showTrends);
+
+  useEffect(() => {
+    if (!showTrends) {
+      window.localStorage.removeItem(HOT_TOPIC_FLOW_KEY);
+      setAssistantUsesHotTopic(false);
+      if (active === 'trends') {
+        setActive('home');
+        const url = new URL(window.location.href);
+        url.searchParams.delete('page');
+        window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
+      }
+    }
+  }, [showTrends, active]);
   const isPublicInfo = active.startsWith('info-') || Boolean(legalDocuments[active]);
   const authed = Boolean(getAccessToken());
   const taskNotifications = useTaskNotifications({ authed, authVersion });
@@ -14532,7 +14549,7 @@ export default function App() {
     window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
   };
   const selectNav = (id, { preserveHotTopic = false } = {}) => {
-    const targetId = id === 'affiliate' && !AFFILIATE_UI_ENABLED ? 'home' : id;
+    const targetId = (id === 'affiliate' && !AFFILIATE_UI_ENABLED) || (id === 'trends' && !showTrends) ? 'home' : id;
     const useHotTopic = targetId === 'assistant' && preserveHotTopic;
     if (targetId === 'assistant' && !useHotTopic) window.localStorage.removeItem(HOT_TOPIC_FLOW_KEY);
     setAssistantUsesHotTopic(useHotTopic);
@@ -14668,7 +14685,7 @@ export default function App() {
       )}
       <div className={`mobile-scrim ${mobileNav ? 'is-visible' : ''}`} onClick={() => setMobileNav(false)} />
       <div className={`sidebar-wrap ${mobileNav ? 'is-open' : ''}`}>
-        <Sidebar active={active} collapsed={collapsed} onSelect={selectNav} onToggle={() => setCollapsed(!collapsed)} />
+        <Sidebar active={active} collapsed={collapsed} onSelect={selectNav} onToggle={() => setCollapsed(!collapsed)} showTrends={showTrends} />
       </div>
       <main className={`main-shell ${collapsed ? 'is-expanded' : ''}`}>
         <Topbar
@@ -14762,12 +14779,12 @@ export default function App() {
             <>
               <section className="hero-panel">
                 <div className="hero-copy">
-                  <span>HOT TOPIC TO VIDEO</span>
-                  <h1>{t.workspace}</h1>
+                  <span>KALI</span>
+                  <h1 key={showTrends ? 'trends' : 'ideas'}>{showTrends ? copy.zh.workspace : '把创意变成可发布的视频'}</h1>
                   <div className="hero-actions">
-                    <button className="primary-button" onClick={() => selectNav('trends')}>
+                    <button className="primary-button" onClick={() => selectNav(showTrends ? 'trends' : 'assistant')}>
                       <TrendingUp size={18} />
-                      <span>从热点开始</span>
+                      <span key={showTrends ? 'trends' : 'ideas'}>{showTrends ? '从热点开始' : '从创意开始'}</span>
                     </button>
                     <button className="outline-button" onClick={() => openVideoCreator({ productionType: 'oral' })}>
                       <Video size={18} />
@@ -14776,15 +14793,16 @@ export default function App() {
                   </div>
                 </div>
               </section>
+              <ProductionDashboard authVersion={authVersion} language={language} onLogin={() => setLoginOpen(true)} onCreate={() => openVideoCreator()} />
               <HomeAnnouncement onOpen={selectNav} />
-              <HomeWorkflow onSelect={selectNav} onStartVideo={openVideoCreator} />
-              <div className="content-grid">
+              <HomeWorkflow key={showTrends ? 'trends' : 'ideas'} onSelect={selectNav} onStartVideo={openVideoCreator} showTrends={showTrends} />
+              <div className={`content-grid ${showTrends ? '' : 'without-trends'}`}>
                 <div className="content-main">
                   <SupportGrid active={active} onSelect={selectNav} />
                 </div>
-                <div className="content-side">
+                {showTrends && <div className="content-side">
                   <TrendsPanel />
-                </div>
+                </div>}
               </div>
             </>
           ) : (

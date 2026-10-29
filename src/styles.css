@@ -19542,3 +19542,38 @@ html[dir="rtl"] .training-submit-progress__fill {
     justify-content: center;
   }
 }
+
+/* Creative output display and AI navigation badges. */
+.nav-item .ai-flame { flex: 0 0 auto; margin-inline-start: auto; color: #f07824; fill: #ffbd59; filter: drop-shadow(0 0 3px #ff92394d); animation: kali-flame 1.7s ease-in-out infinite alternate; }
+@keyframes kali-flame { from { transform: scale(.9) rotate(-5deg); opacity: .7; } to { transform: scale(1.1) rotate(5deg); opacity: 1; } }
+.sidebar.is-collapsed .ai-flame { display: none; }
+.content-grid.without-trends { grid-template-columns: minmax(0, 1fr); }
+.production-dashboard { margin: 0 0 24px; padding: 26px; border-radius: 24px; background: #092f2d; color: #ecfff7; box-shadow: 0 16px 40px #092f2d18; }
+.production-dashboard__header, .production-dashboard__tools { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.production-dashboard__header h2 { margin: 7px 0 22px; color: inherit; font-size: 23px; }
+.production-dashboard__header > div > span { font-size: 10px; letter-spacing: .14em; color: #91c9b6; }
+.production-dashboard__tools { flex-wrap: wrap; justify-content: flex-end; }
+.production-dashboard__tools time { font-size: 12px; color: #b0d6ca; }
+.production-dashboard .icon-button { color: #d7f5e9; border-color: #ffffff30; background: #ffffff0c; }
+.production-dashboard__metrics { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 14px; }
+.production-dashboard__metrics article { min-width: 0; background: #ffffff08; border: 1px solid #ffffff1a; padding: 20px; border-radius: 15px; }
+.production-dashboard__metrics article > div { display: flex; align-items: center; gap: 9px; color: #b5e3d3; }
+.production-dashboard__metrics article > strong { display: block; font-size: clamp(34px,4.5vw,68px); letter-spacing: -.04em; line-height: 1.25; margin: 10px 0; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.production-dashboard__metrics footer { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; font-size: 11px; color: #9ec2b7; }
+.production-dashboard__metrics footer b { font-size: 17px; color: #b8f0d4; margin-inline-end: auto; }
+.production-goal { display: flex; align-items: center; gap: 16px; padding: 20px; margin-top: 18px; border-radius: 14px; border: 1px solid #71cf9e; background: #184e3f; }
+.production-goal.needs-attention { border: 2px solid #ffb37c; background: #663721; color: #fff1e5; box-shadow: 0 0 0 4px #f7a36612; }
+.production-goal > div { flex: 1; min-width: 0; }
+.production-goal strong { font-size: 18px; }
+.production-goal p { display: flex; flex-wrap: wrap; gap: 7px; margin: 8px 0; font-size: 13px; }
+.production-goal progress { width: 100%; height: 7px; accent-color: #8ce8bd; }
+.production-goal.needs-attention progress { accent-color: #ffb37c; }
+.production-dashboard__status { color: #ffd6ae; font-size: 13px; }
+.production-dashboard__status button { color: inherit; text-decoration: underline; background: transparent; border: 0; }
+.production-dashboard__note { color: #a8c4ba; font-size: 11px; margin: 16px 0 0; }
+.production-dashboard > .primary-button { margin-top: 18px; }
+.production-dashboard.is-fullscreen, .production-dashboard:fullscreen { position: fixed; inset: 0; z-index: 1000; border-radius: 0; margin: 0; padding: clamp(24px,5vw,90px); overflow: auto; display: flex; flex-direction: column; justify-content: center; }
+.production-dashboard.is-fullscreen .production-dashboard__metrics article > strong { font-size: clamp(48px,9vw,150px); }
+@media (max-width: 700px) { .production-dashboard { padding: 18px; } .production-dashboard__header { align-items: flex-start; } .production-dashboard__metrics { gap: 8px; } .production-dashboard__metrics article { padding: 12px; } .production-dashboard__metrics article > div { font-size: 12px; } .production-dashboard__metrics footer { font-size: 10px; } .production-goal { flex-wrap: wrap; padding: 14px; } .production-goal .primary-button { width: 100%; } }
+@media (prefers-reduced-motion: reduce) { .nav-item .ai-flame { animation: none; } }
+@media (max-width: 700px) { .production-dashboard__header { flex-direction: column; align-items: stretch; } .production-dashboard__header h2 { margin-bottom: 10px; } .production-dashboard__tools { justify-content: flex-start; margin-bottom: 16px; } .production-dashboard__tools time { margin-inline-end: auto; } }

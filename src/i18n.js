@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { applyBrandName } from './brand.js';
 
 const localeModules = import.meta.glob('./locales/*.json', { import: 'default' });
 const catalogCache = {};
@@ -51,14 +52,7 @@ const preservedPhrases = new Set([
   'BBC',
 ]);
 
-const isChineseLocale = (locale) => String(locale || '').toLowerCase().startsWith('zh');
-const yixiuVariants = ['一秀', '一修', '奕秀', '伊秀', 'Исиу', 'Исю', 'Ісю', 'Їсіу', 'ييشيو', 'يي شيو', '이쉬우', '이시우', 'यिक्सिउ'];
-const normalizeProductName = (value) => yixiuVariants.reduce((current, variant) => current.replaceAll(variant, 'Yixiu'), String(value));
-const applyProductNames = (value, locale) => {
-  const normalized = normalizeProductName(value);
-  if (!isChineseLocale(locale)) return normalized;
-  return normalized.replaceAll('Kali', '喀理').replaceAll('Yixiu', '亿秀');
-};
+const applyProductNames = applyBrandName;
 
 const normalizeLocale = (value) => {
   if (!value) return '';
@@ -85,7 +79,7 @@ const translateValue = (value, locale, catalog) => {
   const trailing = value.match(/\s*$/)?.[0] || '';
   const source = value.trim();
   if (/^[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}$/.test(source)) return value;
-  if (source === 'Kali · Yixiu') return `${leading}${isChineseLocale(locale) ? '喀理 · 亿秀' : 'Kali · Yixiu'}${trailing}`;
+  if (source === 'Kali · Yixiu') return `${leading}${applyBrandName('Kali', locale)}${trailing}`;
   const translated = preservedPhrases.has(source) ? source : (source && catalog[source] ? catalog[source] : source);
   return `${leading}${applyProductNames(translated, locale)}${trailing}`;
 };

@@ -1,0 +1,25 @@
+import assert from 'node:assert/strict';
+import { loadProductionSource, productionDay, productionSources, summarizeProduction } from '../src/productionStats.js';
+import { applyBrandName } from '../src/brand.js';
+import { workspaceRefreshOverrides } from './workspace-refresh-overrides.mjs';
+const source = productionSources[0];
+const rows = Array.from({ length: 205 }, (_, id) => ({ id, status: id % 2 ? 'failed' : 'succeeded', video_url: `/${id}.mp4`, created_at: id < 3 ? '2026-10-29 09:00:00' : '2026-10-28 23:59:59' }));
+let calls = 0;
+const loaded = await loadProductionSource(source, async (_, { params }) => {
+ calls++;
+ return { ok: true, data: { data: { list: rows.slice((params.page - 1) * 100, params.page * 100), total: 205 } } };
+});
+assert.equal(calls, 3);
+assert.deepEqual(summarizeProduction(source, loaded, '2026-10-29'), { total: 103, today: 2 });
+assert.deepEqual(summarizeProduction(source, [{ status:'succeeded', video_url:'/1.mp4', created_at:'2026-10-28 10:00:00', completed_at:'2026-10-29 11:00:00' }, { status:'draft',video_url:'/2.mp4' }, { status:'processing',video_url:'/3.mp4' },{status:'succeeded'}], '2026-10-29'), {total:1,today:1});
+assert.deepEqual(summarizeProduction({kind:'music'}, [{status:'succeeded',created_at:'2026-10-29 09:00:00',items:[{status:'succeeded',audio_url:'/a.mp3'},{status:'succeeded',audio_url:'/b.mp3'},{status:'failed',audio_url:'/bad.mp3'}]}], '2026-10-29'), {total:2,today:2});
+await assert.rejects(loadProductionSource(source, async () => ({ok:false})), /unavailable/);
+await assert.rejects(loadProductionSource(source, async () => ({ok:true,data:{list:[{id:1}],total:10}})), /incomplete/);
+await assert.rejects(loadProductionSource(source, async () => ({ok:true,data:{message:'unexpected'}})), /invalid/);
+await assert.rejects(loadProductionSource(source, async () => ({ok:true,data:{list:[],total:10}})), /incomplete/);
+assert.equal(productionDay({created_at:'2026-10-29 00:00:00'}),'2026-10-29');
+assert.equal(productionDay({created_at:'invalid'}),'');
+assert.equal(applyBrandName('Kali · Yixiu','zh-CN'),'喀理');
+assert.equal(applyBrandName('亿秀','en-US'),'Kali');
+assert.equal(Object.keys(workspaceRefreshOverrides).length,24);
+console.log('Production stats passed: full pagination, failures, date boundaries, music outputs, statuses and 24 locales.');

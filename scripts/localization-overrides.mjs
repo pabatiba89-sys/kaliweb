@@ -1,3 +1,4 @@
+import { workspaceRefreshOverrides } from './workspace-refresh-overrides.mjs';
 const siteKeys = ['Open the workspace', 'Create with Kali', 'Learn more', 'Explore', 'Talk to the team'];
 
 const siteRows = {
@@ -2517,6 +2518,14 @@ export const workspaceLocalizationOverrides = Object.fromEntries(Object.entries(
   Object.assign(overrides, imageHumanUploadOverrides[locale] || {});
   Object.assign(overrides, publishSettingsEnglishFallbacks);
   Object.assign(overrides, publishSettingsOverrides[locale] || {});
-  overrides['AI Video Lab'] = aiVideoLabLabels[locale];
+  overrides['AI Video Lab'] = 'Seedance';
+  Object.assign(overrides, workspaceRefreshOverrides[locale]);
+  overrides['AI Assistant'] = workspaceRefreshOverrides[locale]['AI Agents'];
+  overrides['Digital Human Video'] = workspaceRefreshOverrides[locale]['Avatar Talking Videos'];
+  overrides['Media Library'] = workspaceRefreshOverrides[locale]['B-roll Library'];
+  overrides['素材库'] = workspaceRefreshOverrides[locale]['B-roll Library'];
+  overrides.Materials = workspaceRefreshOverrides[locale]['B-roll Library'];
+  overrides['Video Studio'] = workspaceRefreshOverrides[locale]['Avatar Talking Videos'];
+  overrides['AI 助手'] = workspaceRefreshOverrides[locale]['AI Agents'];
   return [locale, overrides];
 }));

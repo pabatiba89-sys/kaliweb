@@ -1,3 +1,4 @@
+import { applyBrandName } from '../brand.js';
 import catalogs from './site-translations.json' with { type: 'json' };
 
 export const localeDefinitions = [
@@ -31,17 +32,12 @@ export const supportedLocales = localeDefinitions.map((locale) => locale.route);
 
 const isChineseLocale = (locale) => String(locale || '').startsWith('zh-');
 export const brandName = (locale) => isChineseLocale(locale) ? '喀理' : 'Kali';
-export const productName = (locale) => isChineseLocale(locale) ? '亿秀' : 'Yixiu';
-const yixiuVariants = ['一秀', '一修', '奕秀', '伊秀', 'Исиу', 'Исю', 'Ісю', 'Їсіу', 'ييشيو', 'يي شيو', '이쉬우', '이시우', 'यिक्सिउ'];
-const normalizeProductName = (value) => yixiuVariants.reduce((current, variant) => current.replaceAll(variant, 'Yixiu'), String(value));
-const applyProductNames = (value, locale) => {
-  const normalized = normalizeProductName(value);
-  return isChineseLocale(locale) ? normalized.replaceAll('Kali', '喀理').replaceAll('Yixiu', '亿秀') : normalized;
-};
+export const productName = brandName;
+const applyProductNames = applyBrandName;
 
 export function translateText(value, locale) {
   if (!value) return value;
-  if (value === 'Kali · Yixiu') return `${brandName(locale)} · ${productName(locale)}`;
+  if (value === 'Kali · Yixiu') return brandName(locale);
   const translated = locale === 'en' ? value : (catalogs[locale]?.[value] || value);
   return applyProductNames(translated, locale);
 }

@@ -3,15 +3,15 @@ import fs from 'node:fs/promises';
 const replacements = [
   ['Kali AI', 'Kali'],
   ['KALI AI', 'KALI'],
-  ['Yixiu Global', 'Yixiu'],
-  ['Yixiu System', 'Yixiu'],
-  ['YIXIU SYSTEM', 'YIXIU'],
-  ['亿秀系统', 'Yixiu'],
-  ['億秀系統', 'Yixiu'],
-  ['亿秀', 'Yixiu'],
-  ['藝秀', 'Yixiu'],
-  ['艺秀', 'Yixiu'],
-  ['same yixiu trial package', 'same Yixiu trial package'],
+  ['Yixiu Global', 'Kali'],
+  ['Yixiu System', 'Kali'],
+  ['YIXIU SYSTEM', 'KALI'],
+  ['亿秀系统', 'Kali'],
+  ['億秀系統', 'Kali'],
+  ['亿秀', 'Kali'],
+  ['藝秀', 'Kali'],
+  ['艺秀', 'Kali'],
+  ['same yixiu trial package', 'same Kali trial package'],
 ];
 
 const transformText = (value) => replacements.reduce((current, [from, to]) => current.replaceAll(from, to), String(value));
@@ -27,7 +27,7 @@ await Promise.all(localeFiles.map(async (file) => {
   const url = new URL(file, localeDirectory);
   const catalog = JSON.parse(await fs.readFile(url, 'utf8'));
   const transformed = transformCatalog(catalog);
-  transformed['Kali · Yixiu'] = 'Kali · Yixiu';
+  transformed['Kali · Yixiu'] = 'Kali';
   await fs.writeFile(url, `${JSON.stringify(transformed, null, 2)}\n`);
 }));
 

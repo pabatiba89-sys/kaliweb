@@ -1,6 +1,6 @@
 {
   "name": "yixiu-overseas-site",
-  "version": "1.6.40",
+  "version": "1.6.41",
   "private": true,
   "type": "module",
   "scripts": {
@@ -16,7 +16,7 @@
     "check": "astro check",
     "seo:check": "node scripts/check-seo-output.mjs",
     "seo:audit": "node scripts/audit-google-seo.mjs",
-    "verify": "node scripts/check-brand-content.mjs && node scripts/check-language-entry.mjs && npm run check && npm run build"
+    "verify": "node scripts/check-production-stats.mjs && node scripts/check-brand-content.mjs && node scripts/check-language-entry.mjs && npm run check && npm run build"
   },
   "dependencies": {
     "@astrojs/react": "^6.0.1",
