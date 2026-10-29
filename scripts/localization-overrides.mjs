@@ -1,3 +1,4 @@
+import { statisticsOverrides } from './statistics-overrides.mjs';
 import { workspaceHomeOverrides } from './workspace-home-overrides.mjs';
 import { workspaceRefreshOverrides } from './workspace-refresh-overrides.mjs';
 const siteKeys = ['Open the workspace', 'Create with Kali', 'Learn more', 'Explore', 'Talk to the team'];
@@ -2520,7 +2521,7 @@ export const workspaceLocalizationOverrides = Object.fromEntries(Object.entries(
   Object.assign(overrides, publishSettingsEnglishFallbacks);
   Object.assign(overrides, publishSettingsOverrides[locale] || {});
   overrides['AI Video Lab'] = 'Seedance';
-  Object.assign(overrides, workspaceRefreshOverrides[locale], workspaceHomeOverrides[locale]);
+  Object.assign(overrides, workspaceRefreshOverrides[locale], workspaceHomeOverrides[locale], statisticsOverrides[locale]);
   overrides['AI Assistant'] = workspaceRefreshOverrides[locale]['AI Agents'];
   overrides['Digital Human Video'] = workspaceRefreshOverrides[locale]['Avatar Talking Videos'];
   overrides['Media Library'] = workspaceRefreshOverrides[locale]['B-roll Library'];
