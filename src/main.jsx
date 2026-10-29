@@ -36,7 +36,6 @@ import {
   Library,
   LogOut,
   Mail,
-  Megaphone,
   Menu,
   Mic2,
   Music2,
@@ -149,7 +148,9 @@ import { buildCreatorOptionalMedia, resolveCreatorOptionalMedia } from './videoC
 import { pageConfigs } from './pageConfig';
 import packageJson from '../package.json';
 import './styles.css';
+import './components/workspace-home.css';
 import ProductionDashboard from './components/ProductionDashboard.jsx';
+import { useWorkspaceMotion } from './components/WorkspaceMotion.jsx';
 
 const APP_VERSION = `v${packageJson.version}`;
 const OPEN_SOURCE_PUBLISHER_URL = 'https://github.com/pabatiba89-sys/kali-publish';
@@ -378,67 +379,19 @@ const agreementCards = [
 ];
 
 const supportCards = [
-  {
-    id: 'ai-video',
-    title: 'Seedance',
-    icon: FileVideo,
-    color: '#008e74',
-  },
-  {
-    id: 'video',
-    title: 'Avatar Talking Videos',
-    icon: Video,
-    color: '#0b6e69',
-  },
-  {
-    id: 'assistant',
-    title: 'AI Agents',
-    icon: Bot,
-    color: '#4f6fae',
-  },
-  {
-    id: 'assets',
-    title: '数字人与声音',
-    icon: Layers3,
-    color: '#64748b',
-  },
-  {
-    id: 'materials',
-    title: 'B-roll Library',
-    icon: Library,
-    color: '#0e8fbd',
-  },
-  {
-    id: 'templates',
-    title: '视频模板',
-    icon: GalleryVerticalEnd,
-    color: '#6d4dc2',
-  },
-  {
-    id: 'music',
-    title: '音乐',
-    icon: Music2,
-    color: '#a05b12',
-  },
-  {
-    id: 'speech',
-    title: '文字转语音',
-    icon: AudioLines,
-    color: '#16857f',
-  },
-  {
-    id: 'image',
-    title: '图片',
-    icon: Image,
-    color: '#bf4652',
-  },
+  { id: 'trends', title: 'Hot Trends', icon: TrendingUp, color: '#bd6d22' },
+  { id: 'assistant', title: 'AI Agents', icon: Bot, color: '#4f6fae', ai: true },
+  { id: 'video', title: 'Avatar Talking Videos', icon: Video, color: '#0b6e69', ai: true },
+  { id: 'ai-video', title: 'Seedance', icon: FileVideo, color: '#008e74', ai: true },
+  { id: 'music', title: 'AI Music', icon: Music2, color: '#a05b12', ai: true },
+  { id: 'image', title: 'AI Images', icon: Image, color: '#bf4652', ai: true },
+  { id: 'speech', title: 'Text to Speech', icon: AudioLines, color: '#16857f', ai: true },
+  { id: 'assets', title: 'Digital Human Assets', icon: Layers3, color: '#64748b', ai: true },
+  { id: 'materials', title: 'B-roll Library', icon: Library, color: '#0e8fbd' },
+  { id: 'publish', title: 'Publishing Center', icon: Send, color: '#455ac1' },
+  { id: 'templates', title: '视频模板', icon: GalleryVerticalEnd, color: '#6d4dc2' },
 ];
 
-const trendRows = [
-  { source: 'TikTok', topic: 'AI presenter product demos', category: 'AI' },
-  { source: 'YouTube', topic: 'Founder-led short video funnels', category: 'Marketing' },
-  { source: 'BBC', topic: 'Synthetic media disclosure rules', category: 'News' },
-];
 const trendCategories = [
   { key: 'all', label: '综合', icon: '🐌' },
   { key: 'technology', label: '科技', icon: '💡' },
@@ -485,14 +438,6 @@ const instructionTypeAliases = {
   oral: '视频创作',
   mix: '视频创作',
 };
-
-const workflowSteps = [
-  { no: '01', id: 'trends', title: '热点确认', icon: TrendingUp, action: '打开热点' },
-  { no: '02', id: 'assistant', title: '发给智能体', icon: Bot, action: '选择智能体' },
-  { no: '03', id: 'assistant', title: '生成文案', icon: Edit3, action: '生成文案' },
-  { no: '04', id: 'video', title: '视频制作', icon: Video, action: '制作视频', production: 'oral' },
-  { no: '05', id: 'publish', title: '发布', icon: Send, action: '查看发布' },
-];
 
 const studioModes = [
   { id: 'mix', label: 'Mixed Video', icon: Clapperboard },
@@ -810,108 +755,22 @@ function Topbar({ language, setLanguage, onNewVideo, onMenu, onLogin, onLogout, 
   );
 }
 
-function HomeAnnouncement({ onOpen }) {
+function SupportGrid({ active, onSelect, showTrends }) {
+  const root = useRef(null);
+  const running = useWorkspaceMotion(root);
   return (
-    <section className="home-announcement" aria-label="Seedance 2.5 is now available">
-      <span className="home-announcement__icon"><Megaphone size={19} /></span>
-      <span className="home-announcement__badge">NEW</span>
-      <div className="home-announcement__copy">
-        <strong>Seedance 2.5 is now available</strong>
-      </div>
-      <button type="button" onClick={() => onOpen('ai-video')}>
-        <span>Seedance</span>
-        <ChevronRight size={16} />
-      </button>
-    </section>
-  );
-}
-
-function HomeWorkflow({ onSelect, onStartVideo, showTrends }) {
-  const steps = workflowSteps.filter((step) => showTrends || step.id !== 'trends');
-  const [activeIndex, setActiveIndex] = useState(0);
-
-  useEffect(() => {
-    const timer = window.setInterval(() => {
-      setActiveIndex((index) => (index + 1) % steps.length);
-    }, 2300);
-    return () => window.clearInterval(timer);
-  }, [showTrends]);
-
-  const openStep = (step) => {
-    setActiveIndex(steps.findIndex((item) => item.no === step.no));
-    if (step.production) {
-      onStartVideo({ productionType: step.production });
-      return;
-    }
-    onSelect(step.id);
-  };
-
-  return (
-    <section className="home-workflow" aria-label="主要工作流">
-      <div className="home-workflow__head">
-        <div>
-          <span>MAIN FLOW</span>
-          <h2>{showTrends ? '从热点到发布' : '从创意到发布'}</h2>
-        </div>
-      </div>
-      <div className="flow-track">
-        <span className="flow-track__line" />
-        <span className="flow-track__pulse" style={{ '--flow-progress': `${(activeIndex / (steps.length - 1)) * 100}%` }} />
-        {steps.map((step, index) => {
-          const Icon = step.icon;
-          const active = index === activeIndex;
-          const done = index < activeIndex;
-          return (
-            <button
-              key={step.no}
-              className={`flow-step ${active ? 'is-active' : ''} ${done ? 'is-done' : ''}`}
-              onClick={() => openStep(step)}
-            >
-              <span className="flow-step__node"><Icon size={20} /></span>
-              <span className="flow-step__copy">
-                <small>{String(index + 1).padStart(2, '0')}</small>
-                <strong>{step.title}</strong>
-              </span>
-              <span className="flow-step__action">
-                {step.action}
-                <ChevronRight size={15} />
-              </span>
-            </button>
-          );
-        })}
-      </div>
-    </section>
-  );
-}
-
-function SupportGrid({ active, onSelect }) {
-  return (
-    <section className="home-section" aria-label="支撑入口">
-      <div className="section-title">
-        <h2>支撑入口</h2>
-      </div>
-      <div className="action-grid">
-        {supportCards.map((card) => {
+    <section ref={root} className="workspace-launcher" data-motion-running={running} aria-label="开始创作">
+      <div className="workspace-launcher__heading"><h2>开始创作</h2><span>KALI STUDIO</span></div>
+      <div className="workspace-launcher__grid">
+        {supportCards.filter((card) => showTrends || card.id !== 'trends').map((card, index) => {
           const Icon = card.icon;
-          return (
-            <button
-              key={card.title}
-              className={`action-card ${active === card.id ? 'is-selected' : ''}`}
-              style={{ '--card-accent': card.color }}
-              onClick={() => onSelect(card.id)}
-            >
-              <span className="action-card__media">
-                <Icon size={24} />
-              </span>
-              <span className="action-card__body">
-                <span className="action-card__icon">
-                  <Icon size={22} />
-                </span>
-                <strong>{card.title}</strong>
-              </span>
-              <ChevronRight className="action-card__arrow" size={18} />
-            </button>
-          );
+          return <button key={card.id} className={`workspace-launcher__card ${active === card.id ? 'is-selected' : ''}`}
+            style={{ '--card-accent': card.color, '--entry-delay': `${index * 45}ms` }} onClick={() => onSelect(card.id)}>
+            <span className="workspace-launcher__icon"><Icon size={23} /></span>
+            <strong>{card.title}</strong>
+            {card.ai && <Flame className="ai-flame" size={13} aria-hidden="true" />}
+            <ChevronRight className="workspace-launcher__arrow" size={17} />
+          </button>;
         })}
       </div>
     </section>
@@ -959,60 +818,6 @@ function PreviewPanel({ language, activeMode, setActiveMode }) {
             </div>
           ))}
         </div>
-      </div>
-    </section>
-  );
-}
-
-function TrendsPanel() {
-  const [rows, setRows] = useState(trendRows);
-  const [status, setStatus] = useState('idle');
-
-  useEffect(() => {
-    let ignore = false;
-
-    setStatus('loading');
-    apiFetch('/api/hotlist/list', {
-      auth: false,
-      params: { page: 1, page_size: 20, pageSize: 20, categories: 'all' },
-    }).then((result) => {
-      if (ignore) return;
-
-      const list = toList(result.data);
-      setRows(
-        result.ok && list.length
-          ? list.slice(0, 3).map((item, index) => ({
-              source: item.source || item.platform || item.media || 'Trend',
-              topic: item.title || item.name || item.keyword || item.topic || `Trend ${index + 1}`,
-              category: item.category || item.channel || 'General',
-            }))
-          : trendRows,
-      );
-      setStatus(result.ok ? 'live' : 'fallback');
-    });
-
-    return () => {
-      ignore = true;
-    };
-  }, []);
-
-  return (
-    <section className="trends-panel">
-      <div className="panel-head">
-        <div>
-          <h2>Hot Trends</h2>
-        </div>
-        <Sparkles size={20} />
-      </div>
-      <div className="trend-table" translate="no">
-        {rows.map((row, index) => (
-          <button className="trend-row" key={row.topic}>
-            <span className="rank">{String(index + 1).padStart(2, '0')}</span>
-            <span>
-              <strong>{row.topic}</strong>
-            </span>
-          </button>
-        ))}
       </div>
     </section>
   );
@@ -14776,35 +14581,10 @@ export default function App() {
           ) : generatorAgent ? (
             null
           ) : isHome ? (
-            <>
-              <section className="hero-panel">
-                <div className="hero-copy">
-                  <span>KALI</span>
-                  <h1 key={showTrends ? 'trends' : 'ideas'}>{showTrends ? copy.zh.workspace : '把创意变成可发布的视频'}</h1>
-                  <div className="hero-actions">
-                    <button className="primary-button" onClick={() => selectNav(showTrends ? 'trends' : 'assistant')}>
-                      <TrendingUp size={18} />
-                      <span key={showTrends ? 'trends' : 'ideas'}>{showTrends ? '从热点开始' : '从创意开始'}</span>
-                    </button>
-                    <button className="outline-button" onClick={() => openVideoCreator({ productionType: 'oral' })}>
-                      <Video size={18} />
-                      <span>直接制作视频</span>
-                    </button>
-                  </div>
-                </div>
-              </section>
+            <div className="workspace-home">
               <ProductionDashboard authVersion={authVersion} language={language} onLogin={() => setLoginOpen(true)} onCreate={() => openVideoCreator()} />
-              <HomeAnnouncement onOpen={selectNav} />
-              <HomeWorkflow key={showTrends ? 'trends' : 'ideas'} onSelect={selectNav} onStartVideo={openVideoCreator} showTrends={showTrends} />
-              <div className={`content-grid ${showTrends ? '' : 'without-trends'}`}>
-                <div className="content-main">
-                  <SupportGrid active={active} onSelect={selectNav} />
-                </div>
-                {showTrends && <div className="content-side">
-                  <TrendsPanel />
-                </div>}
-              </div>
-            </>
+              <SupportGrid active={active} onSelect={selectNav} showTrends={showTrends} />
+            </div>
           ) : (
             active === 'trends' ? (
               <HotTrendsPage onTopicSelect={() => selectNav('assistant', { preserveHotTopic: true })} />

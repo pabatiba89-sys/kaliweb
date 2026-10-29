@@ -1,0 +1,28 @@
+const keys = ['持续创作，让品牌被看见。', '开始创作', '暂停动画', '播放动画'];
+const rows = {
+  'zh-CN': ['持续创作，让品牌被看见。','开始创作','暂停动画','播放动画'],
+  'zh-TW': ['持續創作，讓品牌被看見。','開始創作','暫停動畫','播放動畫'],
+  'en-US': ['Keep creating. Make your brand visible.','Start creating','Pause animation','Play animation'],
+  'es-MX': ['Sigue creando. Haz visible tu marca.','Empieza a crear','Pausar animación','Reproducir animación'],
+  'fr-FR': ['Continuez à créer. Faites connaître votre marque.','Commencer à créer','Mettre l’animation en pause','Lancer l’animation'],
+  'de-DE': ['Kontinuierlich kreativ. Ihre Marke wird sichtbar.','Mit dem Erstellen beginnen','Animation pausieren','Animation abspielen'],
+  'ru-RU': ['Создавайте регулярно. Сделайте свой бренд заметным.','Начать создание','Приостановить анимацию','Включить анимацию'],
+  'pt-PT': ['Continue a criar. Dê visibilidade à sua marca.','Começar a criar','Pausar animação','Reproduzir animação'],
+  'ar-AE': ['واصل الإبداع. اجعل علامتك مرئية.','ابدأ الإبداع','إيقاف الحركة مؤقتًا','تشغيل الحركة'],
+  'it-IT': ['Continua a creare. Fai conoscere il tuo brand.','Inizia a creare','Metti in pausa l’animazione','Riproduci l’animazione'],
+  'ja-JP': ['つくり続ける。ブランドの存在を届ける。','制作を始める','アニメーションを停止','アニメーションを再生'],
+  'ko-KR': ['꾸준한 창작으로 브랜드를 알리세요.','창작 시작','애니메이션 일시 정지','애니메이션 재생'],
+  'id-ID': ['Terus berkarya. Buat merek Anda dikenal.','Mulai berkarya','Jeda animasi','Putar animasi'],
+  'vi-VN': ['Sáng tạo đều đặn. Để thương hiệu được biết đến.','Bắt đầu sáng tạo','Tạm dừng hoạt ảnh','Phát hoạt ảnh'],
+  'tr-TR': ['Üretmeye devam edin. Markanızı görünür kılın.','Üretmeye başlayın','Animasyonu duraklat','Animasyonu oynat'],
+  'nl-NL': ['Blijf creëren. Maak je merk zichtbaar.','Begin met creëren','Animatie pauzeren','Animatie afspelen'],
+  'uk-UA': ['Створюйте регулярно. Зробіть свій бренд помітним.','Почати створення','Призупинити анімацію','Увімкнути анімацію'],
+  'th-TH': ['สร้างสรรค์อย่างต่อเนื่อง ให้แบรนด์เป็นที่รู้จัก','เริ่มสร้างสรรค์','หยุดภาพเคลื่อนไหวชั่วคราว','เล่นภาพเคลื่อนไหว'],
+  'pl-PL': ['Twórz regularnie. Pokaż swoją markę.','Zacznij tworzyć','Wstrzymaj animację','Odtwórz animację'],
+  'ro-RO': ['Creează constant. Fă-ți brandul vizibil.','Începe să creezi','Pauză animație','Redă animația'],
+  'el-GR': ['Συνεχίστε να δημιουργείτε. Κάντε το brand σας ορατό.','Ξεκινήστε τη δημιουργία','Παύση κίνησης','Αναπαραγωγή κίνησης'],
+  'cs-CZ': ['Tvořte pravidelně. Zviditelněte svou značku.','Začněte tvořit','Pozastavit animaci','Přehrát animaci'],
+  'fi-FI': ['Luo säännöllisesti. Tee brändisi näkyväksi.','Aloita luominen','Keskeytä animaatio','Toista animaatio'],
+  'hi-IN': ['लगातार रचें। अपने ब्रांड को पहचान दिलाएँ।','रचना शुरू करें','एनीमेशन रोकें','एनीमेशन चलाएँ'],
+};
+export const workspaceHomeOverrides = Object.fromEntries(Object.entries(rows).map(([locale, values]) => [locale, Object.fromEntries(keys.map((key, i) => [key, values[i]]))]));
