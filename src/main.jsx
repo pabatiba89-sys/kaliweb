@@ -501,7 +501,7 @@ function Sidebar({ active, collapsed, onSelect, onToggle, showTrends }) {
             >
               <Icon size={19} />
               <span>{item.label}</span>
-              {item.ai && <Flame className="ai-flame" size={14} aria-hidden="true" />}
+              {item.ai && <span className="ai-nav-dot" aria-hidden="true" />}
             </button>
           );
         })}
