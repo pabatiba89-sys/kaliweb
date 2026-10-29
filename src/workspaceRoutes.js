@@ -23,6 +23,10 @@ export const workspacePagesForLocale = (locale) => workspacePages.filter((page) 
 export function workspacePath(locale = 'en', page = 'home') {
   return `/app/${locale}/${page === 'home' ? '' : `${page}/`}`;
 }
+export function workspaceLocale(language) {
+  const code = language.toLowerCase();
+  return code.startsWith('zh-tw') ? 'zh-tw' : code.startsWith('zh') ? 'zh-cn' : code.split('-')[0];
+}
 export function readWorkspaceRoute(pathname) {
   const [root, locale, page = 'home'] = pathname.split('/').filter(Boolean);
   return root === 'app' && locale ? { locale, page: page || 'home' } : null;

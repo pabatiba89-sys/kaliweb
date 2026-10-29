@@ -1,4 +1,5 @@
-import { initialWorkspacePage, syncWorkspaceLocation } from './workspaceRoutes.js';
+import { initialWorkspacePage, syncWorkspaceLocation, workspaceLocale, workspacePagesForLocale, workspacePath } from './workspaceRoutes.js';
+import { refreshWorkspaceDocument } from './workspaceSeo.js';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowLeft,
@@ -14271,6 +14272,18 @@ export default function App() {
   const isHome = active === 'home' || (active === 'trends' && !showTrends);
 
   useEffect(() => {
+    const locale = workspaceLocale(language);
+    if (!workspacePagesForLocale(locale).some((page) => page.id === active)) return undefined;
+    const pathname = workspacePath(locale, active);
+    if (window.location.pathname !== pathname) {
+      window.history.replaceState(null, '', syncWorkspaceLocation(window.location, active, locale));
+    }
+    const controller = new AbortController();
+    refreshWorkspaceDocument(pathname, controller.signal).catch(() => { /* Navigation still works when a public page cannot be refreshed. */ });
+    return () => controller.abort();
+  }, [active, language]);
+
+  useEffect(() => {
     if (!showTrends) {
       window.localStorage.removeItem(HOT_TOPIC_FLOW_KEY);
       setAssistantUsesHotTopic(false);
@@ -14329,9 +14342,7 @@ export default function App() {
   }, [inviteAttributionNotice.text]);
 
   const syncWorkspacePageQuery = (id) => {
-    const locale = language.toLowerCase() === 'en-us' ? 'en' : language.toLowerCase().split('-')[0];
-    const routeLocale = language === 'zh-CN' ? 'zh-cn' : language === 'zh-TW' ? 'zh-tw' : locale;
-    window.history.replaceState(null, '', syncWorkspaceLocation(window.location, id, routeLocale));
+    window.history.replaceState(null, '', syncWorkspaceLocation(window.location, id, workspaceLocale(language)));
   };
   const selectNav = (id, { preserveHotTopic = false } = {}) => {
     const targetId = (id === 'affiliate' && !AFFILIATE_UI_ENABLED) || (id === 'trends' && !showTrends) ? 'home' : id;

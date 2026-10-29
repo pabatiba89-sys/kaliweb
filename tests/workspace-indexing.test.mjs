@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { initialWorkspacePage, readWorkspaceRoute, syncWorkspaceLocation, workspacePagesForLocale, workspacePath } from '../src/workspaceRoutes.js';
+import { initialWorkspacePage, readWorkspaceRoute, syncWorkspaceLocation, workspaceLocale, workspacePagesForLocale, workspacePath } from '../src/workspaceRoutes.js';
 import { canCrawl } from '../scripts/robots-policy.mjs';
 
 test('every workspace entry reopens its intended section, including legacy query links', () => {
@@ -31,4 +31,11 @@ test('crawler audit detects Cloudflare-specific blocks despite a wildcard allow'
   assert.equal(canCrawl('User-agent: *\nDisallow: /*.pdf$', 'Baiduspider', '/guide.pdf/info'), true);
   assert.equal(canCrawl('User-agent: *\nDisallow: /api/\nAllow: /', 'Baiduspider', '/app/zh-cn/'), true);
   assert.equal(canCrawl('User-agent: *\nDisallow: /api/\nAllow: /', 'Baiduspider', '/api/user/info'), false);
+});
+
+test('workspace language changes retain the exact public locale', () => {
+  for (const [language, locale] of [['en-US', 'en'], ['zh-CN', 'zh-cn'], ['zh-TW', 'zh-tw'], ['de-DE', 'de'], ['ar-AE', 'ar']]) {
+    assert.equal(workspaceLocale(language), locale);
+    assert.equal(readWorkspaceRoute(workspacePath(workspaceLocale(language), 'image')).locale, locale);
+  }
 });
