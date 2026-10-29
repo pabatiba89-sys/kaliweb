@@ -1,4 +1,5 @@
 ---
+import { BAIDU_SITE_VERIFICATION } from '../site/site-config.js';
 const canonical = new URL('/en/', Astro.site);
 ---
 <!doctype html>
@@ -6,6 +7,7 @@ const canonical = new URL('/en/', Astro.site);
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="baidu-site-verification" content={BAIDU_SITE_VERIFICATION} />
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href={canonical} />
     <title>Kali</title>

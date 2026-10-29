@@ -3,7 +3,7 @@ import path from 'node:path';
 import { supportedLocales, localeMeta } from '../src/site/localization.js';
 import { workspacePagesForLocale, workspacePath } from '../src/workspaceRoutes.js';
 import { defaultSeoLocale, getSeoMetadata, indexableLocales } from '../src/site/seo.js';
-import { DEFAULT_SITE_URL, GOOGLE_SITE_VERIFICATION } from '../src/site/site-config.js';
+import { BAIDU_SITE_VERIFICATION, DEFAULT_SITE_URL, GOOGLE_SITE_VERIFICATION } from '../src/site/site-config.js';
 
 const distDir = path.resolve('dist');
 const errors = [];
@@ -34,6 +34,7 @@ for (const file of publicFiles) {
 
   if (!canonical) errors.push(`${file}: missing canonical URL`);
   if (googleVerification !== GOOGLE_SITE_VERIFICATION) errors.push(`${file}: missing Google site verification`);
+  if (slugParts.length === 0 && match(html, /<meta name="baidu-site-verification" content="([^"]+)">/i) !== BAIDU_SITE_VERIFICATION) errors.push(`${file}: missing Baidu site verification`);
   canonicalByFile.set(file, canonical);
 
   if (shouldIndex) {
@@ -113,6 +114,9 @@ expectedUrls.sort();
 if (JSON.stringify([...sitemapUrls].sort()) !== JSON.stringify(expectedUrls)) errors.push('sitemap must include all public and workspace pages');
 const appHtml = fs.readFileSync(path.join(distDir, 'app/index.html'), 'utf8');
 if (/<meta name="robots" content="[^"]*noindex/i.test(appHtml)) errors.push('/app/ must be indexable');
+
+const rootHtml = fs.readFileSync(path.join(distDir, 'index.html'), 'utf8');
+if (match(rootHtml, /<meta name="baidu-site-verification" content="([^"]+)">/i) !== BAIDU_SITE_VERIFICATION) errors.push('root homepage: missing Baidu site verification');
 
 const indexNowKeyFiles = fs.readdirSync(distDir).filter((file) => /^[a-f0-9]{32}\.txt$/.test(file));
 if (indexNowKeyFiles.length !== 1) {
