@@ -2370,5 +2370,9 @@
   "请选择有效日期范围，最多 366 天": "Zvolte platné období do 366 dnů.",
   "统计数据暂不可用，请重试": "Statistiky nejsou dostupné. Zkuste to znovu.",
   "按北京时间及创建日期统计当前可见资产；历史累计截至所选结束日期，数据会随资产及团队变更调整。": "Viditelné zdroje podle data vytvoření v pekingském čase. Součty končí zvoleným dnem a mění se se zdroji a týmem.",
-  "手动刷新": "Ruční obnovení"
+  "手动刷新": "Ruční obnovení",
+  "制作流程": "Postup tvorby",
+  "选择创作方式": "Vyberte formát",
+  "智能剪辑": "Chytrý střih",
+  "自动发布": "Automatické publikování"
 }

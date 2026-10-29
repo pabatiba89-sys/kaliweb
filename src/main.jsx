@@ -150,6 +150,7 @@ import packageJson from '../package.json';
 import './styles.css';
 import './components/workspace-home.css';
 import ProductionDashboard from './components/ProductionDashboard.jsx';
+import WorkspaceWorkflow from './components/WorkspaceWorkflow.jsx';
 import { useWorkspaceMotion } from './components/WorkspaceMotion.jsx';
 
 const APP_VERSION = `v${packageJson.version}`;
@@ -14583,6 +14584,7 @@ export default function App() {
           ) : isHome ? (
             <div className="workspace-home">
               <ProductionDashboard authVersion={authVersion} language={language} onLogin={() => setLoginOpen(true)} onCreate={() => openVideoCreator()} />
+              <WorkspaceWorkflow onSelect={selectNav} onStartVideo={openVideoCreator} />
               <SupportGrid active={active} onSelect={selectNav} showTrends={showTrends} />
             </div>
           ) : (

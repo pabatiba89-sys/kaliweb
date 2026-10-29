@@ -2386,5 +2386,9 @@
   "请选择有效日期范围，最多 366 天": "Alege un interval valid de cel mult 366 de zile.",
   "统计数据暂不可用，请重试": "Statisticile nu sunt disponibile. Reîncearcă.",
   "按北京时间及创建日期统计当前可见资产；历史累计截至所选结束日期，数据会随资产及团队变更调整。": "Resurse vizibile după data creării, ora Beijingului. Totalurile se încheie la data aleasă și reflectă schimbările resurselor și echipei.",
-  "手动刷新": "Actualizare manuală"
+  "手动刷新": "Actualizare manuală",
+  "制作流程": "Flux de producție",
+  "选择创作方式": "Alege formatul",
+  "智能剪辑": "Montaj inteligent",
+  "自动发布": "Publicare automată"
 }

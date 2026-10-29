@@ -2386,5 +2386,9 @@
   "请选择有效日期范围，最多 366 天": "Choisissez une période valide de 366 jours maximum.",
   "统计数据暂不可用，请重试": "Statistiques indisponibles. Réessayez.",
   "按北京时间及创建日期统计当前可见资产；历史累计截至所选结束日期，数据会随资产及团队变更调整。": "Ressources visibles par date de création, heure de Pékin. Les totaux s’arrêtent à la date choisie et reflètent les changements de ressources et d’équipe.",
-  "手动刷新": "Actualisation manuelle"
+  "手动刷新": "Actualisation manuelle",
+  "制作流程": "Parcours de création",
+  "选择创作方式": "Choisir un format",
+  "智能剪辑": "Montage intelligent",
+  "自动发布": "Publication automatique"
 }

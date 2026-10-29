@@ -1,0 +1,28 @@
+const keys = ['制作流程','选择创作方式','智能剪辑','自动发布'];
+const rows = {
+ 'zh-CN':['制作流程','选择创作方式','智能剪辑','自动发布'],
+ 'zh-TW':['製作流程','選擇創作方式','智慧剪輯','自動發布'],
+ 'en-US':['Production workflow','Choose a format','Smart editing','Auto publishing'],
+ 'es-MX':['Flujo de producción','Elige un formato','Edición inteligente','Publicación automática'],
+ 'fr-FR':['Parcours de création','Choisir un format','Montage intelligent','Publication automatique'],
+ 'de-DE':['Produktionsablauf','Format wählen','Intelligenter Schnitt','Automatisch veröffentlichen'],
+ 'ru-RU':['Процесс создания','Выберите формат','Умный монтаж','Автопубликация'],
+ 'pt-PT':['Fluxo de produção','Escolher formato','Edição inteligente','Publicação automática'],
+ 'ar-AE':['مسار الإنتاج','اختر صيغة','مونتاج ذكي','نشر تلقائي'],
+ 'it-IT':['Flusso di produzione','Scegli un formato','Montaggio intelligente','Pubblicazione automatica'],
+ 'ja-JP':['制作フロー','制作形式を選択','スマート編集','自動投稿'],
+ 'ko-KR':['제작 흐름','제작 방식 선택','스마트 편집','자동 게시'],
+ 'id-ID':['Alur produksi','Pilih format','Pengeditan cerdas','Penerbitan otomatis'],
+ 'vi-VN':['Quy trình sản xuất','Chọn hình thức','Biên tập thông minh','Đăng tự động'],
+ 'tr-TR':['Üretim akışı','Biçim seçin','Akıllı düzenleme','Otomatik yayınlama'],
+ 'nl-NL':['Productieproces','Kies een formaat','Slim monteren','Automatisch publiceren'],
+ 'uk-UA':['Процес створення','Виберіть формат','Розумний монтаж','Автопублікація'],
+ 'th-TH':['ขั้นตอนการผลิต','เลือกรูปแบบ','ตัดต่ออัจฉริยะ','เผยแพร่อัตโนมัติ'],
+ 'pl-PL':['Proces produkcji','Wybierz format','Inteligentny montaż','Automatyczna publikacja'],
+ 'ro-RO':['Flux de producție','Alege formatul','Montaj inteligent','Publicare automată'],
+ 'el-GR':['Ροή παραγωγής','Επιλέξτε μορφή','Έξυπνο μοντάζ','Αυτόματη δημοσίευση'],
+ 'cs-CZ':['Postup tvorby','Vyberte formát','Chytrý střih','Automatické publikování'],
+ 'fi-FI':['Tuotantoprosessi','Valitse muoto','Älykäs editointi','Automaattinen julkaisu'],
+ 'hi-IN':['निर्माण प्रक्रिया','प्रारूप चुनें','स्मार्ट संपादन','स्वचालित प्रकाशन'],
+};
+export const workspaceWorkflowOverrides = Object.fromEntries(Object.entries(rows).map(([locale,values]) => [locale,Object.fromEntries(keys.map((key,i) => [key,values[i]]))]));

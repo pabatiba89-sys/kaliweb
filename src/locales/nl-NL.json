@@ -2356,5 +2356,9 @@
   "请选择有效日期范围，最多 366 天": "Kies een geldig bereik van maximaal 366 dagen.",
   "统计数据暂不可用，请重试": "Statistieken zijn niet beschikbaar. Probeer opnieuw.",
   "按北京时间及创建日期统计当前可见资产；历史累计截至所选结束日期，数据会随资产及团队变更调整。": "Zichtbare middelen op aanmaakdatum in Beijing-tijd. Totalen lopen tot de gekozen einddatum en veranderen bij wijzigingen in middelen en team.",
-  "手动刷新": "Handmatig vernieuwen"
+  "手动刷新": "Handmatig vernieuwen",
+  "制作流程": "Productieproces",
+  "选择创作方式": "Kies een formaat",
+  "智能剪辑": "Slim monteren",
+  "自动发布": "Automatisch publiceren"
 }
