@@ -42,19 +42,45 @@ const schema = { '@context': 'https://schema.org', '@graph': [
   <body>
     <WorkspaceApp client:only="react" />
     <section class="workspace-guide" aria-label={content.workspace}>
-      <h1>{content.label} · {content.workspace}</h1>
-      <p>{content.summary}</p>
-      <nav aria-label={content.workspace}>{content.pages.map((entry) => <a href={entry.path} aria-current={entry.id === page ? 'page' : undefined}>{entry.label}</a>)}</nav>
-      <p><a href={`/${locale}/`}>{content.home}</a> · <a href={`/${locale}/help/`}>{content.help}</a></p>
-      <nav aria-label="Languages">{supportedLocales.map((code) => <a href={workspacePath(code, workspacePagesForLocale(code).some((entry) => entry.id === page) ? page : 'home')} lang={localeMeta[code].hreflang}>{localeMeta[code].label}</a>)}</nav>
+      <div class="workspace-guide__header">
+        <h1>{content.label}</h1>
+        <nav class="workspace-guide__quick-links"><a href={`/${locale}/`}>{content.home}</a><a href={`/${locale}/help/`}>{content.help}</a></nav>
+      </div>
+      <details class="workspace-guide__group">
+        <summary>{content.workspace}</summary>
+        <div class="workspace-guide__panel">
+          <p>{content.summary}</p>
+          <nav class="workspace-guide__grid" aria-label={content.workspace}>{content.pages.map((entry) => <a href={entry.path} aria-current={entry.id === page ? 'page' : undefined}>{entry.label}</a>)}</nav>
+        </div>
+      </details>
+      <details class="workspace-guide__group">
+        <summary>{copy.label}</summary>
+        <nav class="workspace-guide__grid workspace-guide__panel" aria-label="Languages">{supportedLocales.map((code) => <a href={workspacePath(code, workspacePagesForLocale(code).some((entry) => entry.id === page) ? page : 'home')} lang={localeMeta[code].hreflang} dir={localeMeta[code].dir} aria-current={code === locale ? 'page' : undefined}>{localeMeta[code].label}</a>)}</nav>
+      </details>
     </section>
   </body>
 </html>
 <style>
-  .workspace-guide { padding: 24px; margin-inline-start: 248px; color: var(--ink); background: var(--paper-soft); border-top: 1px solid var(--line); }
-  .workspace-guide h1 { font-size: 18px; }
-  .workspace-guide p { max-width: 900px; line-height: 1.6; }
-  .workspace-guide nav { display: flex; gap: 8px 18px; flex-wrap: wrap; margin-block: 12px; }
-  .workspace-guide a { color: var(--green); text-decoration: underline; }
-  @media (max-width: 900px) { .workspace-guide { margin-inline-start: 0; } }
+  .workspace-guide { margin-block: 0 24px; margin-inline: 302px 26px; padding: 14px 18px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 24px; border: 1px solid var(--line); border-radius: 14px; color: var(--muted); background: var(--paper); font-size: 12px; line-height: 1.6; }
+  :global(body:has(.main-shell.is-expanded)) .workspace-guide { margin-inline-start: 120px; }
+  .workspace-guide__header { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block-end: 8px; }
+  .workspace-guide h1 { margin: 0; font-size: 12px; font-weight: 650; color: var(--muted); }
+  .workspace-guide a { color: var(--green); text-decoration: none; overflow-wrap: anywhere; }
+  .workspace-guide a:hover { text-decoration: underline; }
+  .workspace-guide a:focus-visible, .workspace-guide summary:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; border-radius: 4px; }
+  .workspace-guide__quick-links { display: flex; gap: 16px; flex-wrap: wrap; }
+  .workspace-guide__group { min-width: 0; border-top: 1px solid var(--line); }
+  .workspace-guide summary { padding-block: 8px; cursor: pointer; width: fit-content; color: var(--ink); }
+  .workspace-guide__panel { padding-block: 4px 10px; }
+  .workspace-guide__panel p { margin: 0 0 12px; max-width: 65ch; }
+  .workspace-guide__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)); gap: 6px 14px; }
+  .workspace-guide__grid a { padding-block: 4px; }
+  .workspace-guide__grid a[aria-current="page"] { font-weight: 700; color: var(--ink); }
+  @media (max-width: 920px) {
+    .workspace-guide, :global(body:has(.main-shell.is-expanded)) .workspace-guide { margin-inline: 18px; }
+  }
+  @media (max-width: 640px) {
+    .workspace-guide, :global(body:has(.main-shell.is-expanded)) .workspace-guide { margin-inline: 12px; padding: 12px 14px; grid-template-columns: minmax(0, 1fr); }
+    .workspace-guide__header { align-items: flex-start; flex-wrap: wrap; }
+  }
 </style>
