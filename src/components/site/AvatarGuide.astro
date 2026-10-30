@@ -1,0 +1,24 @@
+---
+import { getAvatarGuide } from '../../site/avatar-guide.js';
+const { locale } = Astro.props;
+type GuideSection = { title: string; body: string; items: string[][] };
+const guide = getAvatarGuide(locale) as { toc: string; sections: GuideSection[] };
+const mediaCopies: Record<string, {setup: string; portrait: string; video: string; note: string; download: string; label: string}> = {
+  'zh-cn': { setup: 'AI 原创拍摄示范：固定手机，镜头接近眼睛高度，用柔和的正面光照亮人脸。', portrait: 'AI 原创选图示例：正面单人，头肩完整，眼睛和嘴巴无遮挡，表情自然。', video: '30 秒拍摄指引', note: 'AI 原创场景配字幕说明，无声。用来理解拍摄方法，准备素材时请拍摄你自己的形象。', download: '下载拍摄指引', label: '简体中文' },
+  'zh-tw': { setup: 'AI 原創拍攝示範：固定手機，鏡頭接近眼睛高度，用柔和的正面光照亮人臉。', portrait: 'AI 原創選圖示例：正面單人，頭肩完整，眼睛和嘴巴無遮擋，表情自然。', video: '30 秒拍攝指引', note: 'AI 原創場景配字幕說明，無聲。用來理解拍攝方法，準備素材時請拍攝你自己的形象。', download: '下載拍攝指引', label: '繁體中文' },
+  en: { setup: 'Original AI filming illustration: a steady phone at eye level with soft light facing the subject.', portrait: 'Original AI portrait example: one person, front-facing, space around the head and shoulders, eyes and mouth visible.', video: '30-second filming guide', note: 'Original AI scenes with text guidance, without audio. Use this to plan how to capture your own likeness.', download: 'Download the filming guide', label: 'English' },
+};
+const media = mediaCopies[locale];
+const videoPath = `/docs/avatars/filming-guide-${locale}.mp4`;
+
+---
+<nav class="docs-toc" aria-label={guide.toc}>
+  {guide.sections.map((section, i: number) => <a href={`#avatar-step-${i}`}>{section.title}</a>)}
+</nav>
+{guide.sections.map((section, i: number) => <section id={`avatar-step-${i}`} class="docs-section">
+  <h2>{section.title}</h2><p>{section.body}</p>
+  {i === 1 && <figure class="docs-screenshot"><a href="/docs/avatars/filming-setup.png" target="_blank" rel="noopener noreferrer"><img src="/docs/avatars/filming-setup.png" alt={media.setup} width="1536" height="1024" loading="lazy" decoding="async" /></a><figcaption>{media.setup}</figcaption></figure>}
+  {i === 2 && <figure class="docs-avatar-video"><h3>{media.video}</h3><video controls playsinline preload="none" poster={`/docs/avatars/filming-guide-${locale}-poster.png`} width="1280" height="720" aria-label={media.video}><source src={videoPath} type="video/mp4" /><track kind="captions" src={`/docs/avatars/filming-guide-${locale}.vtt`} srclang={locale === 'zh-cn' ? 'zh-CN' : locale === 'zh-tw' ? 'zh-TW' : 'en'} label={media.label} /><a href={videoPath}>{media.download}</a></video><figcaption>{media.note} <a href={videoPath} download>{media.download} ↗</a></figcaption></figure>}
+  {i === 3 && <figure class="docs-screenshot"><a href="/docs/avatars/portrait-example.png" target="_blank" rel="noopener noreferrer"><img src="/docs/avatars/portrait-example.png" alt={media.portrait} width="1536" height="1024" loading="lazy" decoding="async" /></a><figcaption>{media.portrait}</figcaption></figure>}
+  <dl class="docs-field-list">{section.items.map(([title, body]) => <div><dt>{title}</dt><dd>{body}</dd></div>)}</dl>
+</section>)}

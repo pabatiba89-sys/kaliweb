@@ -62,3 +62,8 @@
 .docs-contact-wechat figcaption { display: grid; gap: 6px; margin-top: 14px; font-size: 13px; line-height: 1.6; color: var(--muted); }
 .docs-contact-wechat strong { color: var(--ink); font-size: 15px; }
 @media (max-width: 680px) { .docs-contact { grid-template-columns: minmax(0, 1fr); padding: 22px; gap: 24px; } .docs-contact-wechat { justify-self: center; width: 220px; max-width: 100%; } }
+
+.docs-avatar-video { margin: 28px 0; }
+.docs-avatar-video video { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--soft); }
+.docs-avatar-video figcaption { margin-top: 10px; font-size: 12px; line-height: 1.7; color: var(--muted); }
+.docs-avatar-video figcaption a { display: inline-block; text-decoration: underline; text-underline-offset: 3px; }
