@@ -1,0 +1,15 @@
+---
+import { getPublishingGuide } from '../../site/publishing-guide.js';
+import { workspacePath } from '../../workspaceRoutes.js';
+const { locale } = Astro.props;
+type Section = { title: string; body: string; items: string[][]; image?: string; caption?: string; download?: boolean; settings?: boolean };
+const guide = getPublishingGuide(locale) as { toc: string; download: string; settings: string; sections: Section[] };
+---
+<nav class="docs-toc" aria-label={guide.toc}>{guide.sections.map((section, i) => <a href={`#publish-step-${i}`}>{section.title}</a>)}</nav>
+{guide.sections.map((section, i) => <section id={`publish-step-${i}`} class="docs-section">
+  <h2>{section.title}</h2><p>{section.body}</p>
+  {section.download && <p><a href="https://github.com/pabatiba89-sys/kali-publish#下载与启动" target="_blank" rel="noopener noreferrer">{guide.download} ↗</a></p>}
+  {section.settings && <p><a href={workspacePath(locale, 'publish-settings')}>{guide.settings} →</a></p>}
+  {section.image && <figure class="docs-screenshot"><a href={`/docs/publishing/${section.image}`} target="_blank" rel="noopener noreferrer" aria-label={section.caption}><img src={`/docs/publishing/${section.image}`} alt={section.caption} width="1280" height="720" loading="lazy" decoding="async" /></a><figcaption>{section.caption}</figcaption></figure>}
+  <dl class="docs-field-list">{section.items.map(([title, body]) => <div><dt>{title}</dt><dd>{body}</dd></div>)}</dl>
+</section>)}
