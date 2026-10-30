@@ -1,0 +1,12 @@
+---
+import { getVoiceGuide } from '../../site/voice-guide.js';
+const { locale } = Astro.props;
+type VoiceSection = { title: string; body: string; items: string[][]; image?: string; caption?: string };
+const guide = getVoiceGuide(locale) as { toc: string; sections: VoiceSection[] };
+---
+<nav class="docs-toc" aria-label={guide.toc}>{guide.sections.map((section, i) => <a href={`#voice-step-${i}`}>{section.title}</a>)}</nav>
+{guide.sections.map((section, i) => <section id={`voice-step-${i}`} class="docs-section">
+  <h2>{section.title}</h2><p>{section.body}</p>
+  {section.image && <figure class="docs-screenshot"><a href={`/docs/voices/${section.image}`} target="_blank" rel="noopener noreferrer" aria-label={section.caption}><img src={`/docs/voices/${section.image}`} alt={section.caption} width="1280" height="720" loading="lazy" decoding="async" /></a><figcaption>{section.caption}</figcaption></figure>}
+  {section.items.length > 0 && <dl class="docs-field-list">{section.items.map(([title, body]) => <div><dt>{title}</dt><dd>{body}</dd></div>)}</dl>}
+</section>)}
