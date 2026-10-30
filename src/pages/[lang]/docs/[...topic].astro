@@ -1,4 +1,6 @@
 ---
+import TemplateGuide from '../../../components/site/TemplateGuide.astro';
+import { getTemplateGuide } from '../../../site/template-guide.js';
 import VoiceGuide from '../../../components/site/VoiceGuide.astro';
 import { getVoiceGuide } from '../../../site/voice-guide.js';
 import DocsContact from '../../../components/site/DocsContact.astro';
@@ -24,6 +26,10 @@ const current = copy.modules.find(({ id }) => id === topic);
 type DocSource = { slug: string; description: string; lead: string; headline: string; sections?: [string, string][]; practicalSections?: PracticalSection[]; faq?: [string, string][] };
 const pages = pagesByLocale[lang] as DocSource[];
 const getSource = (module: { id: string; source: string; label: string }): DocSource | undefined => {
+  if (module.id === 'editing-templates') {
+    const editing = getTemplateGuide(lang);
+    if (editing) return { slug: module.source, headline: module.label, lead: editing.lead, description: editing.description };
+  }
   if (module.id === 'voice-cloning') {
     const recording = getVoiceGuide(lang);
     if (recording) return { slug: module.source, headline: module.label, lead: recording.lead, description: recording.description };
@@ -40,6 +46,7 @@ const getSource = (module: { id: string; source: string; label: string }): DocSo
   return pages.find(({ slug }) => slug === module.source);
 };
 const source = current ? getSource(current) : undefined;
+const templateGuide = topic === 'editing-templates' ? getTemplateGuide(lang) : null;
 const voiceGuide = topic === 'voice-cloning' ? getVoiceGuide(lang) : null;
 const avatarGuide = topic === 'digital-humans' ? getAvatarGuide(lang) : null;
 const agentGuide = topic === 'agents' ? getAgentGuide(lang) : null;
@@ -69,8 +76,8 @@ const schema = [
       <div class="docs-breadcrumb"><a href={docsPath(lang)}>{copy.title}</a>{current && <><span aria-hidden="true">/</span><span>{current.label}</span></>}</div>
       <header><p class="eyebrow">{brandName(lang)} / DOCS</p><h1>{current?.label || copy.title}</h1><p class="docs-lead">{source?.lead || description}</p></header>
       {current && source ? <>
-        <div class="docs-actions"><a class="primary-cta" href={workspacePath(lang, current.workspace)}>{t('Open the workspace')} ↗</a>{!agentGuide && !avatarGuide && !voiceGuide && <a href={pagePath(lang, source.slug)}>{t('Learn more')} →</a>}</div>
-        {voiceGuide ? <VoiceGuide locale={lang} /> : agentGuide ? <AgentGuide locale={lang} /> : avatarGuide ? <AvatarGuide locale={lang} /> : <>
+        <div class="docs-actions"><a class="primary-cta" href={workspacePath(lang, current.workspace)}>{t('Open the workspace')} ↗</a>{!agentGuide && !avatarGuide && !voiceGuide && !templateGuide && <a href={pagePath(lang, source.slug)}>{t('Learn more')} →</a>}</div>
+        {templateGuide ? <TemplateGuide locale={lang} /> : voiceGuide ? <VoiceGuide locale={lang} /> : agentGuide ? <AgentGuide locale={lang} /> : avatarGuide ? <AvatarGuide locale={lang} /> : <>
         {sections.length > 0 && <nav class="docs-toc" aria-label={t('IN THIS GUIDE')}>{sections.map(([heading], i) => <a href={`#section-${i}`}>{heading}</a>)}</nav>}
         {sections.map(([heading, body], i) => <section id={`section-${i}`} class="docs-section"><h2>{heading}</h2><p>{body}</p></section>)}
         {source.practicalSections?.map((group) => <section class="docs-section"><h2>{group.heading}</h2>{group.items.map((item) => <div><h3>{item.title}</h3><p>{item.body}</p>{item.slug && <a href={pagePath(lang, item.slug)}>{item.linkLabel || t('Learn more')} →</a>}</div>)}</section>)}

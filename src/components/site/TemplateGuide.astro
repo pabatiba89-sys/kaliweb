@@ -1,0 +1,14 @@
+---
+import { getTemplateGuide } from '../../site/template-guide.js';
+import { templateExamples } from '../../site/template-examples.js';
+const { locale } = Astro.props;
+type Section = { title: string; body: string; items: string[][]; image?: string; caption?: string; demos?: boolean };
+const guide = getTemplateGuide(locale) as { toc: string; sections: Section[]; demoTitle: string; demoNote: string; demoNames: string[]; demoDescriptions: string[] };
+---
+<nav class="docs-toc" aria-label={guide.toc}>{guide.sections.map((section, i) => <a href={`#template-step-${i}`}>{section.title}</a>)}</nav>
+{guide.sections.map((section, i) => <section id={`template-step-${i}`} class="docs-section">
+  <h2>{section.title}</h2><p>{section.body}</p>
+  {section.image && <figure class="docs-screenshot"><a href={`/docs/templates/${section.image}`} target="_blank" rel="noopener noreferrer" aria-label={section.caption}><img src={`/docs/templates/${section.image}`} alt={section.caption} width="1280" height="720" loading="lazy" decoding="async" /></a><figcaption>{section.caption}</figcaption></figure>}
+  {section.demos && <div class="docs-template-examples"><h3>{guide.demoTitle}</h3><p>{guide.demoNote}</p><div class="docs-template-example-grid">{templateExamples.map((example, index) => <figure><video src={example.demoUrl} poster={example.coverUrl} controls playsinline preload="none" aria-label={guide.demoNames[index]} /><figcaption><strong>{guide.demoNames[index]}</strong><span>{guide.demoDescriptions[index]}</span></figcaption></figure>)}</div></div>}
+  {section.items.length > 0 && <dl class="docs-field-list">{section.items.map(([title, body]) => <div><dt>{title}</dt><dd>{body}</dd></div>)}</dl>}
+</section>)}
