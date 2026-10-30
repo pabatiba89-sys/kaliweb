@@ -16,6 +16,7 @@ const modifiedDates = {
 };
 
 export function getContentModifiedDate(locale, slug = '') {
+  if (['en', 'zh-cn', 'zh-tw'].includes(locale) && ['docs', 'docs/agents'].includes(slug)) return '2026-10-30';
   if (slug === 'docs' || slug.startsWith('docs/')) return '2026-10-29';
   return modifiedDates[locale]?.[slug] || '';
 }

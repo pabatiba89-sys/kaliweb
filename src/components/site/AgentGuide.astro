@@ -1,0 +1,25 @@
+---
+import { getAgentGuide } from '../../site/agent-guide.js';
+const { locale } = Astro.props;
+const guide = getAgentGuide(locale)!;
+const entryImage = '/docs/agents/create-entry.png';
+const formImage = '/docs/agents/instruction-form.png';
+---
+<nav class="docs-toc" aria-label={guide.outlineLabel}>
+  {guide.headings.map((heading: string, i: number) => <a href={`#agent-step-${i}`}>{heading}</a>)}
+</nav>
+<section id="agent-step-0" class="docs-section"><h2>{guide.headings[0]}</h2><p>{guide.prepare}</p></section>
+<section id="agent-step-1" class="docs-section">
+  <h2>{guide.headings[1]}</h2><p>{guide.entry}</p>
+  <figure class="docs-screenshot"><a href={entryImage} target="_blank" rel="noopener noreferrer" aria-label={guide.entryCaption}><img src={entryImage} alt={guide.entryCaption} width="2834" height="1600" loading="lazy" decoding="async" /></a><figcaption>{guide.entryCaption}</figcaption></figure>
+</section>
+<section id="agent-step-2" class="docs-section">
+  <h2>{guide.headings[2]}</h2><p>{guide.form}</p>
+  <figure class="docs-screenshot"><a href={formImage} target="_blank" rel="noopener noreferrer" aria-label={guide.formCaption}><img src={formImage} alt={guide.formCaption} width="2444" height="1428" loading="lazy" decoding="async" /></a><figcaption>{guide.formCaption}</figcaption></figure>
+  <dl class="docs-field-list">{guide.fields.map(([label, body]) => <div><dt>{label}</dt><dd>{body}</dd></div>)}</dl>
+</section>
+<section id="agent-step-3" class="docs-section">
+  <h2>{guide.headings[3]}</h2><p>{guide.outlineIntro}</p>
+  <ol class="docs-reference-outline">{guide.outline.map(([heading, body]) => <li><h3>{heading}</h3><p>{body}</p></li>)}</ol>
+</section>
+<section id="agent-step-4" class="docs-section"><h2>{guide.headings[4]}</h2><p>{guide.try}</p><p>{guide.revise}</p></section>
