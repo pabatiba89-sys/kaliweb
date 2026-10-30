@@ -1,0 +1,26 @@
+---
+import { CONTACT_EMAIL } from '../../contact.js';
+import { translateText } from '../../site/localization.js';
+const { locale = 'en' } = Astro.props;
+const chinese = locale.startsWith('zh-');
+const traditional = locale === 'zh-tw';
+const title = traditional ? '聯繫我們' : chinese ? '联系我们' : translateText('Contact', locale);
+const copy = traditional ? {
+  intro: '想聊聊自己的 IP，或在製作時遇到問題，可以加微信，也可以寄信給我們。',
+  wechat: '個人微信', name: '掃碼添加「岳同學」', original: '查看原圖', email: '電子郵件',
+} : chinese ? {
+  intro: '想聊聊自己的 IP，或在制作时遇到问题，可以加微信，也可以发邮件给我们。',
+  wechat: '个人微信', name: '扫码添加「岳同学」', original: '查看原图', email: '邮箱',
+} : {
+  intro: '', wechat: 'WeChat', name: '岳同学', original: translateText('Learn more', locale), email: 'Email',
+};
+---
+<section id="docs-contact" class="docs-section docs-contact" aria-labelledby="docs-contact-title">
+  <div class="docs-contact-copy"><h2 id="docs-contact-title">{title}</h2>{copy.intro && <p>{copy.intro}</p>}<h3>{copy.email}</h3><a class="docs-contact-email" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a></div>
+  <figure class="docs-contact-wechat">
+    <a class="docs-wechat-qr" href="/contact/wechat-card.png" target="_blank" rel="noopener noreferrer" aria-label={`${copy.wechat} · ${copy.original}`}>
+      <img src="/contact/wechat-card.png" width="1080" height="1500" alt={`${copy.wechat} · ${copy.name}`} loading="lazy" decoding="async" />
+    </a>
+    <figcaption><strong>{copy.wechat}</strong><span>{copy.name}</span><a href="/contact/wechat-card.png" target="_blank" rel="noopener noreferrer">{copy.original} ↗</a></figcaption>
+  </figure>
+</section>

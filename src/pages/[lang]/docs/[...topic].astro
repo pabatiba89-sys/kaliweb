@@ -1,4 +1,5 @@
 ---
+import DocsContact from '../../../components/site/DocsContact.astro';
 import AgentGuide from '../../../components/site/AgentGuide.astro';
 import { getAgentGuide } from '../../../site/agent-guide.js';
 import { getContentModifiedDate } from '../../../site/content-dates.js';
@@ -62,6 +63,7 @@ const schema = [
         {guide && <section class="docs-guide-link"><a href={pagePath(lang, guide.slug)}>{guide.headline} →</a><p>{guide.description}</p></section>}
         {source.faq?.length > 0 && <section class="docs-section">{source.faq.map(([q, a]) => <details><summary>{q}</summary><p>{a}</p></details>)}</section>}
         </>}
+        <DocsContact locale={lang} />
         <nav class="docs-pagination" aria-label={copy.title}>{[copy.modules[index - 1], copy.modules[index + 1]].map((entry, i) => entry ? <a href={docsPath(lang, entry.id)}>{i === 0 ? '← ' : ''}{entry.label}{i === 1 ? ' →' : ''}</a> : <span />)}</nav>
       </> : <div class="docs-directory">{copy.modules.map(({ id, label }, i) => {
         const page = getSource(copy.modules[i]);

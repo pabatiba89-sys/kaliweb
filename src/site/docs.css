@@ -50,3 +50,15 @@
 .docs-reference-outline h3 { margin: 0 0 8px; }
 .docs-reference-outline p { margin: 0; }
 @media (max-width: 680px) { .docs-field-list > div { grid-template-columns: minmax(0, 1fr); gap: 6px; } .docs-reference-outline { padding-inline: 36px 16px; } }
+
+.docs-contact { display: grid; grid-template-columns: minmax(0, 1fr) 220px; align-items: center; gap: 32px; padding: 28px; border: 1px solid var(--line); border-radius: 16px; background: var(--soft); }
+.docs-contact-copy { min-width: 0; }
+.docs-contact-copy h3 { margin-top: 24px; }
+.docs-contact-email { font-size: 16px; overflow-wrap: anywhere; text-decoration: underline !important; text-underline-offset: 4px; }
+.docs-contact-wechat { margin: 0; text-align: center; }
+/* Show the personal WeChat code from the supplied card without resampling or regenerating it. */
+.docs-wechat-qr { position: relative; display: block; width: 220px; max-width: 100%; aspect-ratio: 1; overflow: hidden; background: #fff; border-radius: 8px; }
+.docs-wechat-qr img { position: absolute; width: 415.384615%; max-width: none; height: auto; left: -38.461538%; top: -374.615385%; }
+.docs-contact-wechat figcaption { display: grid; gap: 6px; margin-top: 14px; font-size: 13px; line-height: 1.6; color: var(--muted); }
+.docs-contact-wechat strong { color: var(--ink); font-size: 15px; }
+@media (max-width: 680px) { .docs-contact { grid-template-columns: minmax(0, 1fr); padding: 22px; gap: 24px; } .docs-contact-wechat { justify-self: center; width: 220px; max-width: 100%; } }
