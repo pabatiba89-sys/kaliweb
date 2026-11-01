@@ -74,3 +74,15 @@
 .docs-template-example-grid figcaption { display: grid; gap: 8px; margin-top: 12px; font-size: 13px; line-height: 1.8; color: var(--muted); }
 .docs-template-example-grid strong { color: var(--ink); font-size: 15px; }
 @media (max-width: 680px) { .docs-template-example-grid { grid-template-columns: minmax(0, 1fr); gap: 28px; } .docs-template-example-grid figure { width: min(100%, 300px); margin-inline: auto; } }
+
+.docs-ip-example, .docs-ip-worksheet { margin: 24px 0; padding: 22px 24px; border: 1px solid var(--line); border-radius: 12px; background: var(--soft); }
+.docs-ip-example h3, .docs-ip-worksheet h3 { margin-top: 0; }
+.docs-ip-example p:last-child { margin-bottom: 0; }
+.docs-ip-worksheet pre { margin: 16px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; font-size: 14px; line-height: 2.4; color: var(--ink); user-select: text; }
+.docs-ip-table table { width: 100%; border-collapse: collapse; table-layout: fixed; margin: 24px 0; font-size: 14px; line-height: 1.85; }
+.docs-ip-table th, .docs-ip-table td { padding: 16px; border: 1px solid var(--line); text-align: start; vertical-align: top; }
+.docs-ip-table th { background: var(--soft); }
+.docs-ip-table td { color: var(--muted); }
+.docs-ip-links { margin: 20px 0; padding-inline-start: 20px; font-size: 14px; line-height: 2; }
+.docs-ip-links a { text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 680px) { .docs-ip-example, .docs-ip-worksheet { padding: 18px; } .docs-ip-table th, .docs-ip-table td { padding: 10px; } }

@@ -1,0 +1,24 @@
+---
+import { getPersonalBrandGuide } from '../../site/personal-brand-guide.js';
+import { docsPath } from '../../site/docs-copy.js';
+const { locale } = Astro.props;
+type Section = {
+  title: string; body: string[]; items?: string[][];
+  example?: { title: string; paragraphs: string[] };
+  worksheet?: { title: string; text: string };
+  table?: { headers: string[]; rows: string[][] };
+  links?: { topic: string; label: string }[]; faq?: string[][];
+};
+const guide = getPersonalBrandGuide(locale) as { toc: string; sections: Section[] };
+---
+<nav class="docs-toc" aria-label={guide.toc}>{guide.sections.map((section, i) => <a href={`#ip-step-${i}`}>{section.title}</a>)}</nav>
+{guide.sections.map((section, i) => <section id={`ip-step-${i}`} class="docs-section">
+  <h2>{section.title}</h2>
+  {section.body.map((paragraph) => <p>{paragraph}</p>)}
+  {section.items && <dl class="docs-field-list">{section.items.map(([title, body]) => <div><dt>{title}</dt><dd>{body}</dd></div>)}</dl>}
+  {section.example && <aside class="docs-ip-example" aria-labelledby={`ip-example-${i}`}><h3 id={`ip-example-${i}`}>{section.example.title}</h3>{section.example.paragraphs.map((paragraph) => <p>{paragraph}</p>)}</aside>}
+  {section.worksheet && <div class="docs-ip-worksheet"><h3>{section.worksheet.title}</h3><pre>{section.worksheet.text}</pre></div>}
+  {section.table && <div class="docs-ip-table"><table><thead><tr>{section.table.headers.map((heading) => <th scope="col">{heading}</th>)}</tr></thead><tbody>{section.table.rows.map((row) => <tr>{row.map((cell) => <td>{cell}</td>)}</tr>)}</tbody></table></div>}
+  {section.links && <ul class="docs-ip-links">{section.links.map(({ topic, label }) => <li><a href={docsPath(locale, topic)}>{label} →</a></li>)}</ul>}
+  {section.faq?.map(([question, answer]) => <details><summary>{question}</summary><p>{answer}</p></details>)}
+</section>)}
