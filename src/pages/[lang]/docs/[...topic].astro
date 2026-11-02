@@ -63,6 +63,7 @@ const getSource = (module: { id: string; source: string; label: string }): DocSo
   return pages.find(({ slug }) => slug === module.source);
 };
 const source = current ? getSource(current) : undefined;
+const fallbackSource = current ? pages.find(({ slug }) => slug === current.source) : undefined;
 const practicalGuide = topic === 'monetization' ? getMonetizationGuide(lang) : getIntegrationGuide(lang, topic);
 const personalBrandGuide = topic === 'personal-branding' ? getPersonalBrandGuide(lang) : null;
 const publishingGuide = topic === 'publishing' ? getPublishingGuide(lang) : null;
@@ -75,7 +76,10 @@ const index = copy.modules.findIndex(({ id }) => id === topic);
 const sections = source?.sections || [];
 const t = (text: string) => translateText(text, lang);
 const title = current ? `${current.label} · ${copy.title}` : copy.title;
-const description = source?.description || copy.modules.map(({ label }) => label).join(' · ');
+const baseDescription = source?.description || copy.modules.map(({ label }) => label).join(' · ');
+const description = current && source === fallbackSource
+  ? `${current.label} · ${copy.title}. ${baseDescription}`
+  : baseDescription;
 const schema = [
   { '@type': current ? 'TechArticle' : 'CollectionPage', name: title, description, inLanguage: lang, url: new URL(docsPath(lang, topic), Astro.site), ...(current ? { dateModified: getContentModifiedDate(lang, `docs/${topic}`) } : { hasPart: copy.modules.map(({ id, label }) => ({ '@type': 'TechArticle', name: label, url: new URL(docsPath(lang, id), Astro.site) })) }) },
   { '@type': 'BreadcrumbList', itemListElement: [
