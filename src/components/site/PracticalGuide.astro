@@ -1,0 +1,53 @@
+---
+import { docsPath } from '../../site/docs-copy.js';
+import { workspacePath } from '../../workspaceRoutes.js';
+type Guide = { toc: string; sections: Section[] };
+type Section = {
+  title: string; body: string[]; items?: string[][]; faq?: string[][];
+  flow?: { title: string; steps: string[][] };
+  table?: { headers: string[]; rows: string[][] };
+  worksheet?: { title: string; text: string }; code?: { title: string; text: string };
+  blocks?: { title: string; text: string }[];
+  example?: { title: string; paragraphs: string[] };
+  image?: { src: string; caption: string };
+  links?: { topic: string; label: string }[];
+  references?: string[][]; download?: { url: string; label: string };
+  workspace?: string; workspaceLabel?: string;
+};
+const { locale, guide, prefix } = Astro.props as { locale: string; guide: Guide; prefix: string };
+const ui = locale === 'zh-cn' ? ['复制','已复制','请选中文字后复制','参考说明'] : locale === 'zh-tw' ? ['複製','已複製','請選取文字後複製','參考說明'] : ['Copy','Copied','Select the text to copy','References'];
+---
+<nav class="docs-toc" aria-label={guide.toc}>{guide.sections.map((section, i) => <a href={`#${prefix}-step-${i}`}>{section.title}</a>)}</nav>
+{guide.sections.map((section, i) => <section id={`${prefix}-step-${i}`} class="docs-section">
+  <h2>{section.title}</h2>
+  {section.body.map((paragraph) => <p>{paragraph}</p>)}
+  {section.flow && <figure class="docs-flow"><figcaption>{section.flow.title}</figcaption><ol>{section.flow.steps.map(([title, description], step) => <li><span class="docs-flow-number" aria-hidden="true">{String(step+1).padStart(2,'0')}</span><strong>{title}</strong><span>{description}</span></li>)}</ol></figure>}
+  {section.image && <figure class="docs-screenshot"><a href={section.image.src} target="_blank" rel="noopener noreferrer" aria-label={section.image.caption}><img src={section.image.src} alt={section.image.caption} width="2400" height="1600" loading="lazy" decoding="async" /></a><figcaption>{section.image.caption}</figcaption></figure>}
+  {section.table && <div class="docs-practical-table"><table><thead><tr>{section.table.headers.map((heading) => <th scope="col">{heading}</th>)}</tr></thead><tbody>{section.table.rows.map((row) => <tr>{row.map((cell) => <td>{cell}</td>)}</tr>)}</tbody></table></div>}
+  {section.items && <dl class="docs-field-list">{section.items.map(([title, body]) => <div><dt>{title}</dt><dd>{body}</dd></div>)}</dl>}
+  {section.example && <aside class="docs-ip-example" aria-labelledby={`${prefix}-example-${i}`}><h3 id={`${prefix}-example-${i}`}>{section.example.title}</h3>{section.example.paragraphs.map((paragraph) => <p>{paragraph}</p>)}</aside>}
+  {[section.worksheet, section.code, ...(section.blocks || [])].filter(Boolean).map((block, blockIndex) => block && <div class="docs-practical-copy"><div class="docs-practical-copy-header"><h3>{block.title}</h3><button type="button" data-guide-copy={`${prefix}-copy-${i}-${blockIndex}`} data-copied={ui[1]} data-copy-error={ui[2]} aria-label={`${ui[0]} · ${block.title}`}>{ui[0]}</button></div><pre id={`${prefix}-copy-${i}-${blockIndex}`}>{block.text}</pre><span class="docs-copy-status" aria-live="polite"></span></div>)}
+  {section.download && <p><a class="docs-download" href={section.download.url} download>{section.download.label} ↓</a></p>}
+  {section.workspace && <p><a href={workspacePath(locale,section.workspace)}>{section.workspaceLabel} →</a></p>}
+  {section.links && <ul class="docs-ip-links">{section.links.map(({topic,label}) => <li><a href={docsPath(locale,topic)}>{label} →</a></li>)}</ul>}
+  {section.faq?.map(([question,answer]) => <details><summary>{question}</summary><p>{answer}</p></details>)}
+  {section.references && <p class="docs-reference-links">{ui[3]}: {section.references.map(([label,url]) => <a href={url} target="_blank" rel="noopener noreferrer">{label} ↗</a>)}</p>}
+</section>)}
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-guide-copy]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const content = document.getElementById(button.dataset.guideCopy || '');
+      const status = button.closest('.docs-practical-copy')?.querySelector('.docs-copy-status');
+      if (!content || !status) return;
+      try {
+        await navigator.clipboard.writeText(content.textContent || '');
+        status.textContent = button.dataset.copied || 'Copied';
+      } catch {
+        const selection = window.getSelection();
+        const range = document.createRange(); range.selectNodeContents(content);
+        selection?.removeAllRanges(); selection?.addRange(range);
+        status.textContent = button.dataset.copyError || 'Select the text to copy';
+      }
+    });
+  });
+</script>

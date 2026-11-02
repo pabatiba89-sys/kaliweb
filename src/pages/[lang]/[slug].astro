@@ -1,4 +1,5 @@
 ---
+import { docsCopy, docsPath } from '../../site/docs-copy.js';
 import PublicLayout from '../../layouts/PublicLayout.astro';
 import { pagePath, pagesByLocale, supportedLocales } from '../../site/content.js';
 import { translateText } from '../../site/localization.js';
@@ -107,6 +108,7 @@ const faqSchema = {
 
   {productScene && <section class="product-benefits section-wrap" aria-label={t('WHAT YOU CAN DO')}>{page.bullets.map((bullet, index) => <div><span>{String(index + 1).padStart(2, '0')}</span><p>{bullet}</p></div>)}</section>}
   <PracticalSections locale={lang} sections={page.practicalSections} />
+  {page.slug === 'developers' && <section class="detail-section"><div class="section-heading"><p class="eyebrow">MCP / SKILL</p><h2>{docsCopy(lang).title}</h2></div><div class="detail-grid">{docsCopy(lang).modules.filter(({id}) => ['mcp', 'skills'].includes(id)).map(({id,label}) => <article><h3><a href={docsPath(lang,id)}>{label} →</a></h3></article>)}</div></section>}
   {page.slug === 'social-video-publishing' && <section class="section-wrap"><div class="section-heading"><p class="eyebrow">{brand.publishing[0]}</p><h2>{brand.publishing[1]}</h2><p>{brand.publishing[2]}</p></div><div class="platform-directory">{verifiedPlatforms.map((name) => <span>{name}</span>)}</div></section>}
   {productScene && <><WorkflowDemo locale={lang} mediaKey={page.slug} walkthrough={page.walkthrough} /><section class="product-studio-link section-wrap"><p>{t('Use each studio on its own, or move assets and decisions through one consistent workflow from idea to publish.')}</p><a class="text-cta" href="/app/">{t('Open the workspace')} ↗</a></section></>}
 

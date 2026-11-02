@@ -1,4 +1,7 @@
 ---
+import PracticalGuide from '../../../components/site/PracticalGuide.astro';
+import { getMonetizationGuide } from '../../../site/monetization-guide.js';
+import { getIntegrationGuide } from '../../../site/integration-guide.js';
 import PersonalBrandGuide from '../../../components/site/PersonalBrandGuide.astro';
 import { getPersonalBrandGuide } from '../../../site/personal-brand-guide.js';
 import PublishingGuide from '../../../components/site/PublishingGuide.astro';
@@ -30,6 +33,8 @@ const current = copy.modules.find(({ id }) => id === topic);
 type DocSource = { slug: string; description: string; lead: string; headline: string; sections?: [string, string][]; practicalSections?: PracticalSection[]; faq?: [string, string][] };
 const pages = pagesByLocale[lang] as DocSource[];
 const getSource = (module: { id: string; source: string; label: string }): DocSource | undefined => {
+  const practical = module.id === 'monetization' ? getMonetizationGuide(lang) : getIntegrationGuide(lang, module.id);
+  if (practical) return { slug: module.source, headline: module.label, lead: practical.lead, description: practical.description };
   if (module.id === 'personal-branding') {
     const personalBrand = getPersonalBrandGuide(lang);
     if (personalBrand) return { slug: module.source, headline: module.label, lead: personalBrand.lead, description: personalBrand.description };
@@ -58,6 +63,7 @@ const getSource = (module: { id: string; source: string; label: string }): DocSo
   return pages.find(({ slug }) => slug === module.source);
 };
 const source = current ? getSource(current) : undefined;
+const practicalGuide = topic === 'monetization' ? getMonetizationGuide(lang) : getIntegrationGuide(lang, topic);
 const personalBrandGuide = topic === 'personal-branding' ? getPersonalBrandGuide(lang) : null;
 const publishingGuide = topic === 'publishing' ? getPublishingGuide(lang) : null;
 const templateGuide = topic === 'editing-templates' ? getTemplateGuide(lang) : null;
@@ -90,8 +96,8 @@ const schema = [
       <div class="docs-breadcrumb"><a href={docsPath(lang)}>{copy.title}</a>{current && <><span aria-hidden="true">/</span><span>{current.label}</span></>}</div>
       <header><p class="eyebrow">{brandName(lang)} / DOCS</p><h1>{current?.label || copy.title}</h1><p class="docs-lead">{source?.lead || description}</p></header>
       {current && source ? <>
-        <div class="docs-actions"><a class="primary-cta" href={workspacePath(lang, current.workspace)}>{t('Open the workspace')} ↗</a>{!agentGuide && !avatarGuide && !voiceGuide && !templateGuide && !publishingGuide && !personalBrandGuide && <a href={pagePath(lang, source.slug)}>{t('Learn more')} →</a>}</div>
-        {personalBrandGuide ? <PersonalBrandGuide locale={lang} /> : publishingGuide ? <PublishingGuide locale={lang} /> : templateGuide ? <TemplateGuide locale={lang} /> : voiceGuide ? <VoiceGuide locale={lang} /> : agentGuide ? <AgentGuide locale={lang} /> : avatarGuide ? <AvatarGuide locale={lang} /> : <>
+        <div class="docs-actions"><a class="primary-cta" href={workspacePath(lang, current.workspace)}>{t('Open the workspace')} ↗</a>{!agentGuide && !avatarGuide && !voiceGuide && !templateGuide && !publishingGuide && !personalBrandGuide && !practicalGuide && <a href={pagePath(lang, source.slug)}>{t('Learn more')} →</a>}</div>
+        {practicalGuide ? <PracticalGuide locale={lang} guide={practicalGuide} prefix={topic === 'monetization' ? 'money' : topic} /> : personalBrandGuide ? <PersonalBrandGuide locale={lang} /> : publishingGuide ? <PublishingGuide locale={lang} /> : templateGuide ? <TemplateGuide locale={lang} /> : voiceGuide ? <VoiceGuide locale={lang} /> : agentGuide ? <AgentGuide locale={lang} /> : avatarGuide ? <AvatarGuide locale={lang} /> : <>
         {sections.length > 0 && <nav class="docs-toc" aria-label={t('IN THIS GUIDE')}>{sections.map(([heading], i) => <a href={`#section-${i}`}>{heading}</a>)}</nav>}
         {sections.map(([heading, body], i) => <section id={`section-${i}`} class="docs-section"><h2>{heading}</h2><p>{body}</p></section>)}
         {source.practicalSections?.map((group) => <section class="docs-section"><h2>{group.heading}</h2>{group.items.map((item) => <div><h3>{item.title}</h3><p>{item.body}</p>{item.slug && <a href={pagePath(lang, item.slug)}>{item.linkLabel || t('Learn more')} →</a>}</div>)}</section>)}

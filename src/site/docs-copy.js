@@ -25,6 +25,104 @@ const labels = {
   fi: ['Dokumentaatio', 'Tekoälyagenttien luonti', 'Digitaalisten avatarien luonti', 'Äänen kloonaus', 'Editointimallit', 'Automaattinen julkaisu', 'Henkilöbrändi', 'Liikenteen kaupallistaminen'],
   hi: ['दस्तावेज़', 'AI एजेंट बनाना', 'डिजिटल मानव बनाना', 'आवाज़ की क्लोनिंग', 'संपादन टेम्पलेट', 'स्वचालित प्रकाशन', 'व्यक्तिगत ब्रांड', 'ट्रैफ़िक से कमाई'],
 };
+const integrationLabels = {
+  "en": [
+    "MCP connection",
+    "Skills"
+  ],
+  "zh-cn": [
+    "MCP 接入",
+    "Skill 使用"
+  ],
+  "zh-tw": [
+    "MCP 連線",
+    "Skill 使用"
+  ],
+  "es": [
+    "Conexión MCP",
+    "Uso de Skills"
+  ],
+  "fr": [
+    "Connexion MCP",
+    "Utiliser les Skills"
+  ],
+  "ru": [
+    "Подключение MCP",
+    "Использование Skills"
+  ],
+  "de": [
+    "MCP-Verbindung",
+    "Skills verwenden"
+  ],
+  "pt": [
+    "Ligação MCP",
+    "Usar Skills"
+  ],
+  "ar": [
+    "اتصال MCP",
+    "استخدام Skills"
+  ],
+  "it": [
+    "Connessione MCP",
+    "Usare Skills"
+  ],
+  "ja": [
+    "MCP 接続",
+    "Skill の使い方"
+  ],
+  "ko": [
+    "MCP 연결",
+    "Skill 사용"
+  ],
+  "id": [
+    "Koneksi MCP",
+    "Menggunakan Skill"
+  ],
+  "vi": [
+    "Kết nối MCP",
+    "Sử dụng Skill"
+  ],
+  "tr": [
+    "MCP bağlantısı",
+    "Skill kullanımı"
+  ],
+  "nl": [
+    "MCP-verbinding",
+    "Skills gebruiken"
+  ],
+  "uk": [
+    "Підключення MCP",
+    "Використання Skills"
+  ],
+  "th": [
+    "เชื่อมต่อ MCP",
+    "การใช้ Skill"
+  ],
+  "pl": [
+    "Połączenie MCP",
+    "Korzystanie ze Skills"
+  ],
+  "ro": [
+    "Conectare MCP",
+    "Utilizarea Skills"
+  ],
+  "el": [
+    "Σύνδεση MCP",
+    "Χρήση Skills"
+  ],
+  "cs": [
+    "Připojení MCP",
+    "Použití Skills"
+  ],
+  "fi": [
+    "MCP-yhteys",
+    "Skills-käyttö"
+  ],
+  "hi": [
+    "MCP कनेक्शन",
+    "Skill का उपयोग"
+  ]
+};
 export const docModules = [
   { id: 'agents', source: 'ai-script-writer', workspace: 'assistant', guide: 'help-script-to-video' },
   { id: 'digital-humans', source: 'digital-human', workspace: 'assets', guide: 'help-script-to-video' },
@@ -33,9 +131,11 @@ export const docModules = [
   { id: 'publishing', source: 'social-video-publishing', workspace: 'publish' },
   { id: 'personal-branding', source: 'personal-brand-video-generator', workspace: 'assistant' },
   { id: 'monetization', source: 'product-marketing-video-maker', workspace: 'assistant' },
+  { id: 'mcp', source: 'developers', workspace: 'settings' },
+  { id: 'skills', source: 'developers', workspace: 'settings' },
 ];
 export const docsCopy = (locale) => {
   const copy = labels[locale] || labels.en;
-  return { title: copy[0], modules: docModules.map((entry, index) => ({ ...entry, label: copy[index + 1] })) };
+  return { title: copy[0], modules: docModules.map((entry, index) => ({ ...entry, label: copy[index + 1] || (integrationLabels[locale] || integrationLabels.en)[index - 7] })) };
 };
 export const docsPath = (locale, id = '') => `/${locale}/docs/${id ? `${id}/` : ''}`;

@@ -1,0 +1,13 @@
+interface:
+  display_name: "Kaliai Creator"
+  short_description: "Manage digital humans, voices, materials, and videos"
+  default_prompt: "Use $kaliai-creator to show my available production assets and prepare a digital-human video."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "kaliai"
+      description: "Authenticated hosted Kaliai digital-human production and task service"
+      transport: "streamable_http"
+      url: "https://mcp.kaliai.fun/mcp"
+policy:
+  allow_implicit_invocation: true
