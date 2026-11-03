@@ -123,7 +123,35 @@ const integrationLabels = {
     "Skill का उपयोग"
   ]
 };
+const gettingStartedLabels = {
+  "en": "Getting started",
+  "zh-cn": "新手上路",
+  "zh-tw": "新手入門",
+  "es": "Primeros pasos",
+  "fr": "Premiers pas",
+  "ru": "Начало работы",
+  "de": "Erste Schritte",
+  "pt": "Primeiros passos",
+  "ar": "البدء",
+  "it": "Primi passi",
+  "ja": "はじめに",
+  "ko": "시작하기",
+  "id": "Mulai di sini",
+  "vi": "Bắt đầu",
+  "tr": "Başlangıç",
+  "nl": "Aan de slag",
+  "uk": "Початок роботи",
+  "th": "เริ่มต้นใช้งาน",
+  "pl": "Pierwsze kroki",
+  "ro": "Primii pași",
+  "el": "Ξεκινώντας",
+  "cs": "Začínáme",
+  "fi": "Aloittaminen",
+  "hi": "शुरुआत करें"
+};
+const coreModuleIds = ['agents', 'digital-humans', 'voice-cloning', 'editing-templates', 'publishing', 'personal-branding', 'monetization'];
 export const docModules = [
+  { id: 'getting-started', source: 'ai-video-generator', workspace: 'video' },
   { id: 'agents', source: 'ai-script-writer', workspace: 'assistant', guide: 'help-script-to-video' },
   { id: 'digital-humans', source: 'digital-human', workspace: 'assets', guide: 'help-script-to-video' },
   { id: 'voice-cloning', source: 'voice-cloning', workspace: 'assets' },
@@ -136,6 +164,9 @@ export const docModules = [
 ];
 export const docsCopy = (locale) => {
   const copy = labels[locale] || labels.en;
-  return { title: copy[0], modules: docModules.map((entry, index) => ({ ...entry, label: copy[index + 1] || (integrationLabels[locale] || integrationLabels.en)[index - 7] })) };
+  const byId = Object.fromEntries(coreModuleIds.map((id, index) => [id, copy[index + 1]]));
+  const integrations = integrationLabels[locale] || integrationLabels.en;
+  Object.assign(byId, { 'getting-started': gettingStartedLabels[locale] || gettingStartedLabels.en, mcp: integrations[0], skills: integrations[1] });
+  return { title: copy[0], modules: docModules.map((entry) => ({ ...entry, label: byId[entry.id] })) };
 };
 export const docsPath = (locale, id = '') => `/${locale}/docs/${id ? `${id}/` : ''}`;

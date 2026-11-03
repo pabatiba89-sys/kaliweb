@@ -16,8 +16,9 @@ const modifiedDates = {
 };
 
 export function getContentModifiedDate(locale, slug = '') {
+  if (['docs', 'docs/getting-started'].includes(slug)) return '2026-11-03';
   if (slug === 'developers') return '2026-11-02';
-  if (['docs/mcp', 'docs/skills'].includes(slug) || slug === 'docs') return '2026-11-02';
+  if (['docs/mcp', 'docs/skills'].includes(slug)) return '2026-11-02';
   if (['en', 'zh-cn', 'zh-tw'].includes(locale) && slug === 'docs/monetization') return '2026-11-02';
   if (['en', 'zh-cn', 'zh-tw'].includes(locale) && slug === 'docs/personal-branding') return '2026-11-01';
   if (slug.startsWith('docs/')) return '2026-10-30';
