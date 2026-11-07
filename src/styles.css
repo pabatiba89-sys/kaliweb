@@ -4863,7 +4863,13 @@
   font-size: 24px;
 }
 
-.video-creator-resource-dialog header > button {
+.video-creator-resource-actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 8px;
+}
+
+.video-creator-resource-actions button {
   width: 35px;
   height: 35px;
   border-radius: 10px;
@@ -4871,6 +4877,20 @@
   color: var(--muted);
   display: grid;
   place-items: center;
+}
+
+.video-creator-resource-actions button:first-child {
+  width: auto;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--green);
+}
+
+.video-creator-resource-actions button:disabled {
+  opacity: 0.55;
+  cursor: wait;
 }
 
 .video-creator-material-source-tabs {

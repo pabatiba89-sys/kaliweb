@@ -6118,6 +6118,7 @@ function AIVideoPackagingPage({ sourceVideo, authVersion, language, onBack, onLo
   const [materials, setMaterials] = useState([]);
   const [resources, setResources] = useState({ videoTemplate: [], coverTemplate: [], music: [], material: [], aiVideoMaterial: [], aiImageMaterial: [] });
   const [loadingResources, setLoadingResources] = useState(true);
+  const { refreshState, refreshResource } = useCreatorResourceRefresh({ scope: `${authVersion}:${token}:${sourceUrl}`, templateScene: 'realMan', resources, setResources, sourceUrl });
   const [dialogType, setDialogType] = useState('');
   const [materialSource, setMaterialSource] = useState('library');
   const [message, setMessage] = useState('');
@@ -6168,6 +6169,8 @@ function AIVideoPackagingPage({ sourceVideo, authVersion, language, onBack, onLo
     load();
     return () => { ignore = true; };
   }, [authVersion, sourceUrl, token]);
+
+  const dialogResourceKey = dialogType === 'material' ? getCreatorMaterialSource(materialSource).resourceKey : dialogType === 'cover' ? 'aiImageMaterial' : dialogType;
 
   const chooseResource = (type, option) => {
     setMessage('');
@@ -6330,7 +6333,7 @@ function AIVideoPackagingPage({ sourceVideo, authVersion, language, onBack, onLo
         <section className="video-creator-section"><div className="video-creator-section__head"><span>02</span><div><h2>选择包装配置</h2><p>真人口播模板必选；背景音乐和封面可按需关闭。</p></div>{optionalMedia.useCover && selected.coverTemplate.id && <button className="video-creator-preset-button" onClick={removeCoverTemplate}>清除封面模板</button>}{optionalMedia.useBackgroundMusic && selected.music.id && <button className="video-creator-preset-button" onClick={() => setSelected((current) => ({ ...current, music: {} }))}>改为自动音乐</button>}</div><div className="video-creator-option-toggles"><article><span><Music2 size={19} /></span><div><strong>背景音乐</strong><small>{optionalMedia.useBackgroundMusic ? (selected.music.title || '自动匹配背景音乐') : '关闭'}</small></div><button className={optionalMedia.useBackgroundMusic ? 'is-on' : ''} type="button" role="switch" aria-checked={optionalMedia.useBackgroundMusic} aria-label="是否开启背景音乐" onClick={() => toggleOptionalMedia('useBackgroundMusic')}><i /><em>{optionalMedia.useBackgroundMusic ? '开启' : '关闭'}</em></button></article><article><span><Image size={19} /></span><div><strong>封面</strong><small>{optionalMedia.useCover ? (selected.coverTemplate.title || cover?.title || '封面图片') : '关闭'}</small></div><button className={optionalMedia.useCover ? 'is-on' : ''} type="button" role="switch" aria-checked={optionalMedia.useCover} aria-label="是否使用封面" onClick={() => toggleOptionalMedia('useCover')}><i /><em>{optionalMedia.useCover ? '开启' : '关闭'}</em></button></article></div><div className="video-creator-select-list">{packagingSelectorRows.map(([key, label, hint, Icon]) => { const value = selected[key]; return <button type="button" key={key} onClick={() => setDialogType(key)}><i><Icon size={19} /></i><span><strong>{label}</strong><small>{value.title || hint}</small></span>{value.cover && <img src={value.cover} alt="" />}{key === 'music' && value.audioUrl && <audio src={value.audioUrl} controls onClick={(event) => event.stopPropagation()} />}<ChevronRight size={18} /></button>; })}</div></section>
         <section className="video-creator-section"><div className="video-creator-section__head"><span>03</span><div><h2>{optionalMedia.useCover ? '封面与补充素材' : '补充素材'}</h2><p>{optionalMedia.useCover ? '封面图片必填，可本地上传或从 AI 图片选择；补充素材可选，总时长不超过 5 分钟。' : '补充素材可选，总时长不超过 5 分钟。'}</p></div></div><div className={`video-creator-upload-grid ai-video-packaging-upload-grid${optionalMedia.useCover ? '' : ' is-single'}`}>{optionalMedia.useCover && <div className="video-creator-cover"><h3>视频封面 <em>必填</em></h3>{cover ? <div className="video-creator-cover-preview"><img src={cover.previewUrl || cover.url} alt="" /><span><strong>{cover.title}</strong><small>{cover.origin === 'local' ? '本地图片' : 'AI 图片'}</small><button type="button" onClick={removeCover}><Trash2 size={15} />删除</button></span></div> : <div className="ai-video-packaging-cover-empty"><Image size={28} /><strong>请选择视频封面</strong><small>支持 jpg / png / webp</small></div>}<div className="ai-video-packaging-cover-actions"><label><Upload size={17} />{cover?.origin === 'local' ? '本地更换' : '本地上传'}<input type="file" accept="image/jpeg,image/png,image/webp" onChange={chooseCover} /></label><button type="button" onClick={() => setDialogType('cover')}><Image size={17} />{cover?.origin === 'ai-image' ? '从 AI 图片更换' : '从 AI 图片选择'}</button></div></div>}<div className="video-creator-material-actions ai-video-packaging-material-actions"><h3>补充素材 <em>可选</em></h3><div><button type="button" onClick={() => setDialogType('material')}><Library size={18} />选择素材</button></div><small>已选 {materials.length} 个 · 总时长 {formatDuration(materialDuration)}</small></div></div>{materials.length > 0 && <div className="video-creator-material-grid">{materials.map((material) => <article key={material.id}><span>{material.previewUrl ? <img src={material.previewUrl} alt="" /> : <Video size={24} />}</span><div><strong>{material.title}</strong><small>{material.type === 'video' ? `视频 · ${formatDuration(material.duration)}` : '图片 · 2 秒'}</small></div><button onClick={() => setMaterials((current) => current.filter((item) => item.id !== material.id))} aria-label="删除素材"><X size={16} /></button></article>)}</div>}</section>
       </main><aside className="video-creator-summary"><span>PACKAGING SUMMARY</span><h2>包装确认</h2><dl><div><dt>标题</dt><dd>{form.title || '未填写'}</dd></div><div><dt>话题</dt><dd>{form.topic || '未填写'}</dd></div><div><dt>源视频</dt><dd>{activeSourceVideo ? (activeSourceVideo.duration ? formatDuration(activeSourceVideo.duration) : '已选择') : '未选择'}</dd></div><div><dt>口播模板</dt><dd>{selected.videoTemplate.title || '未选择'}</dd></div><div><dt>封面模板</dt><dd>{optionalMedia.useCover ? (selected.coverTemplate.title || '未选择') : '关闭'}</dd></div><div><dt>视频封面</dt><dd>{optionalMedia.useCover ? (cover?.title || '未选择') : '关闭'}</dd></div><div><dt>背景音乐</dt><dd>{optionalMedia.useBackgroundMusic ? (selected.music.title || '系统自动匹配') : '关闭'}</dd></div><div><dt>补充素材</dt><dd>{materials.length} 个 / {formatDuration(materialDuration)}</dd></div></dl>{loadingResources && <div className="video-creator-uploading"><RefreshCw className="is-spinning" size={17} />正在加载包装资源…</div>}{uploadProgress && <div className="video-creator-uploading"><RefreshCw className="is-spinning" size={17} />{uploadProgress}</div>}{message && <div className={`video-list-message ${/失败|请|不能|不存在|超过|仅支持|未返回/.test(message) ? 'is-error' : ''}`}>{message}</div>}<div className="video-creator-submit ai-video-packaging-submit"><button className="primary-button" onClick={submit} disabled={busy || loadingResources}><Cuboid size={17} />{busy ? '提交中…' : '提交包装'}</button></div><p>提交后进入制作队列，可在 Video Studio 的“真人视频包装”查看进度。</p></aside></div>}
-      {dialogType && <VideoCreatorDialog type={dialogType} titleOverride={dialogType === 'videoTemplate' ? '选择真人口播模板' : ''} options={resources[dialogType === 'material' ? materialResourceKey : dialogType === 'cover' ? 'aiImageMaterial' : dialogType] || []} selected={dialogType === 'material' ? materials : dialogType === 'cover' ? cover : selected[dialogType]} loading={loadingResources} hasMore={false} loadingMore={false} loadMessage="" materialSource={materialSource} onMaterialSourceChange={setMaterialSource} onClose={() => setDialogType('')} onSelect={(option) => chooseResource(dialogType, option)} />}
+      {dialogType && <VideoCreatorDialog type={dialogType} titleOverride={dialogType === 'videoTemplate' ? '选择真人口播模板' : ''} options={resources[dialogType === 'material' ? materialResourceKey : dialogType === 'cover' ? 'aiImageMaterial' : dialogType] || []} selected={dialogType === 'material' ? materials : dialogType === 'cover' ? cover : selected[dialogType]} onRefresh={() => refreshResource(dialogResourceKey)} loading={loadingResources || refreshState[dialogResourceKey]?.loading || false} hasMore={false} loadingMore={false} loadMessage={refreshState[dialogResourceKey]?.message || ''} materialSource={materialSource} onMaterialSourceChange={setMaterialSource} onClose={() => setDialogType('')} onSelect={(option) => chooseResource(dialogType, option)} />}
     </div>
   );
 }
@@ -7590,6 +7593,7 @@ function PackagingPresetsPage({ authVersion, onLogin }) {
     videoTemplate: { page: 1, cursor: '', hasMore: false, loadingMore: false, message: '' },
     coverTemplate: { page: 1, cursor: '', hasMore: false, loadingMore: false, message: '' },
   });
+  const { refreshState, refreshResource } = useCreatorResourceRefresh({ scope: `${authVersion}:${token}`, templateScene: 'virtualman', resources, setResources, setResourcePaging, resourceLoadingRef });
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ text: '', error: false });
@@ -7857,7 +7861,7 @@ function PackagingPresetsPage({ authVersion, onLogin }) {
           </section>
         </div>
       )}
-      {editor && dialogType && <VideoCreatorDialog type={dialogType} options={resources[dialogType] || []} selected={editor[dialogType]} loading={false} hasMore={resourcePaging[dialogType]?.hasMore || false} loadingMore={resourcePaging[dialogType]?.loadingMore || false} loadMessage={resourcePaging[dialogType]?.message || ''} onClose={() => setDialogType('')} onSelect={(option) => { setEditor((current) => ({ ...current, [dialogType]: option })); setDialogType(''); }} onLoadMore={() => loadMorePackagingTemplates(dialogType)} />}
+      {editor && dialogType && <VideoCreatorDialog type={dialogType} options={resources[dialogType] || []} selected={editor[dialogType]} onRefresh={() => refreshResource(dialogType)} loading={loading || refreshState[dialogType]?.loading || false} hasMore={resourcePaging[dialogType]?.hasMore || false} loadingMore={resourcePaging[dialogType]?.loadingMore || false} loadMessage={refreshState[dialogType]?.message || resourcePaging[dialogType]?.message || ''} onClose={() => setDialogType('')} onSelect={(option) => { setEditor((current) => ({ ...current, [dialogType]: option })); setDialogType(''); }} onLoadMore={() => loadMorePackagingTemplates(dialogType)} />}
     </div>
   );
 }
@@ -7874,7 +7878,86 @@ const withCreatorMaterialDurationFields = (material = {}) => {
   };
 };
 
-function VideoCreatorDialog({ type, titleOverride, options, selected, loading, hasMore, loadingMore, loadMessage, materialSource = 'library', onMaterialSourceChange, onClose, onSelect, onLoadMore }) {
+// Refresh one resource group without touching form selections or other resource lists.
+async function fetchCreatorResource(type, { templateScene, resources, sourceUrl = '' }) {
+  const request = (path, params = {}, auth = true) => apiFetch(path, { params, auth, timeoutMs: 12000 });
+  let results;
+  let items;
+  let paging = { page: 1, cursor: '', hasMore: false, loadingMore: false, message: '' };
+  if (type === 'human' || type === 'voice') {
+    const base = type === 'human' ? '/api/aihuman' : '/api/ai-voice';
+    results = await Promise.all(['list', 'common-list'].map((path) => request(`${base}/${path}`, { page: 1, page_size: 50 })));
+    items = results.flatMap((result) => type === 'voice' && getVoiceItems(result).length ? getVoiceItems(result) : getCreatorPayloadList(result))
+      .map(type === 'human' ? normalizeHuman : normalizeVoiceAsset)
+      .filter((item) => item.id && !['failed', 'processing'].includes(item.status.key));
+    items = Array.from(new Map(items.map((item) => [String(item.id), item])).values());
+  } else if (type === 'preset') {
+    const user = getStoredUserInfo();
+    results = [await request('/api/team-video-preset/list', buildPackagingPresetListParams(videoText(user.teamPhone, user.team_phone, user.phone)))];
+    items = getCreatorPayloadList(results[0]).map(normalizeCreatorPreset).map((preset) => hydrateCreatorPresetVoice(preset, resources.voice || []));
+  } else if (type === 'music') {
+    results = [await request('/api/music/generated', { page: 1, page_size: 50 })];
+    items = getMusicList(results[0]).map(normalizeMusicItem).flatMap((item) => item.tracks.length
+      ? item.tracks.map((track) => ({ ...track, title: track.title || item.title, meta: item.createdAt }))
+      : [{ id: item.id, title: item.title, audioUrl: item.audioUrl, meta: item.createdAt }]).filter((item) => item.audioUrl);
+  } else {
+    const isTemplate = type === 'videoTemplate' || type === 'coverTemplate';
+    const isMaterial = type === 'material';
+    const isVideo = type === 'aiVideoMaterial';
+    const size = isTemplate ? TEMPLATE_PAGE_SIZE : isMaterial ? MATERIAL_PAGE_SIZE : 24;
+    const path = isTemplate
+      ? (type === 'coverTemplate' ? '/api/shanjian/cover-templates' : templateScene === 'realMan' ? '/api/shanjian/realman-video-templates' : '/api/shanjian/video-templates')
+      : isMaterial ? '/api/material/list' : isVideo ? '/api/ai-video/videos' : '/api/image-generation/images';
+    results = [await request(path, { page: 1, page_size: size, pageSize: size, limit: size, ...(isTemplate ? { scene: templateScene } : isMaterial ? { include_total: 0 } : {}) }, !isTemplate)];
+    const result = results[0];
+    const raw = isTemplate ? getCreatorPayloadList(result) : isMaterial || isVideo ? toList(result.data) : getImageGenerationItems(result);
+    items = raw.map((item, index) => isTemplate ? normalizeTemplate(item, index, type === 'coverTemplate' ? '封面包装' : '视频包装')
+      : isMaterial ? normalizeMaterial(item, index) : isVideo ? normalizeCreatorAIVideoMaterial(item, index) : normalizeCreatorAIImageMaterial(item, index))
+      .filter((item) => item && (isTemplate || item.url) && (!isVideo || item.url !== sourceUrl));
+    paging.cursor = isTemplate ? getTemplateNextCursor(result) : isMaterial ? getMaterialNextCursor(result) : '';
+    paging.hasMore = isTemplate ? getTemplateHasMore({ result, cursor: '', list: raw, page: 1 }) : isMaterial ? raw.length > 0 : raw.length >= size;
+  }
+  const failed = results.find((result) => !result.ok);
+  if (failed) throw new Error(getResultMessage(failed, '素材加载失败，请重试'));
+  return { items, paging };
+}
+
+function useCreatorResourceRefresh({ scope, templateScene, resources, setResources, setResourcePaging, resourceLoadingRef, sourceUrl }) {
+  const [state, setState] = useState({});
+  const generationRef = useRef(0);
+  const pendingRef = useRef(new Set());
+  useEffect(() => {
+    setState({});
+    pendingRef.current = new Set();
+    return () => {
+      generationRef.current += 1;
+      if (resourceLoadingRef) pendingRef.current.forEach((type) => { resourceLoadingRef.current[type] = false; });
+    };
+  }, [scope]);
+  const refresh = async (type) => {
+    if (pendingRef.current.has(type) || resourceLoadingRef?.current[type]) return;
+    const generation = generationRef.current;
+    const pending = pendingRef.current;
+    pending.add(type);
+    if (resourceLoadingRef) resourceLoadingRef.current[type] = true;
+    setState((current) => ({ ...current, [type]: { loading: true, message: '' } }));
+    try {
+      const { items, paging } = await fetchCreatorResource(type, { templateScene, resources, sourceUrl });
+      if (generation !== generationRef.current) return;
+      setResources((current) => ({ ...current, [type]: items }));
+      setResourcePaging?.((current) => ({ ...current, [type]: paging }));
+      setState((current) => ({ ...current, [type]: { loading: false, message: '' } }));
+    } catch (error) {
+      if (generation === generationRef.current) setState((current) => ({ ...current, [type]: { loading: false, message: error.message || '素材加载失败，请重试' } }));
+    } finally {
+      pending.delete(type);
+      if (generation === generationRef.current && resourceLoadingRef) resourceLoadingRef.current[type] = false;
+    }
+  };
+  return { refreshState: state, refreshResource: refresh };
+}
+
+function VideoCreatorDialog({ type, titleOverride, options, selected, loading, hasMore, loadingMore, loadMessage, materialSource = 'library', onMaterialSourceChange, onClose, onSelect, onLoadMore, onRefresh }) {
   const config = VIDEO_CREATOR_RESOURCE_CONFIG[type];
   const title = titleOverride || config?.title;
   const activeMaterialSource = type === 'material' ? getCreatorMaterialSource(materialSource) : null;
@@ -7893,14 +7976,14 @@ function VideoCreatorDialog({ type, titleOverride, options, selected, loading, h
   if (!config) return null;
   const handleScroll = (event) => {
     const element = event.currentTarget;
-    if (hasMore && !loadingMore && element.scrollTop + element.clientHeight >= element.scrollHeight - 80) onLoadMore?.();
+    if (hasMore && !loading && !loadingMore && !loadMessage && element.scrollTop + element.clientHeight >= element.scrollHeight - 80) onLoadMore?.();
   };
   return (
     <div className="video-action-layer video-creator-resource-layer" role="dialog" aria-modal="true" aria-label={title}>
       <button className="video-action-layer__mask" aria-label="关闭" onClick={onClose} />
       <section className="video-creator-resource-dialog">
         <div className="video-creator-resource-heading">
-          <header><div><span>PRODUCTION RESOURCE</span><h2>{title}</h2></div><button onClick={onClose} aria-label="关闭"><X size={19} /></button></header>
+          <header><div><span>PRODUCTION RESOURCE</span><h2>{title}</h2></div><div className="video-creator-resource-actions"><button type="button" onClick={onRefresh} disabled={loading || loadingMore} aria-label="刷新"><RefreshCw size={16} className={loading ? 'is-spinning' : ''} />刷新</button><button type="button" onClick={onClose} aria-label="关闭"><X size={19} /></button></div></header>
           {type === 'material' && <nav className="video-creator-material-source-tabs" aria-label="选择素材来源">{VIDEO_CREATOR_MATERIAL_SOURCES.map((source) => <button type="button" key={source.key} className={source.key === activeMaterialSource.key ? 'is-active' : ''} onClick={() => onMaterialSourceChange?.(source.key)}>{source.label}</button>)}</nav>}
           {type === 'videoTemplate' && <nav className="video-creator-ratio-tabs" aria-label={title}>{VIDEO_TEMPLATE_ASPECT_RATIOS.map((ratio) => <button type="button" key={ratio} className={ratio === aspectRatio ? 'is-active' : ''} aria-pressed={ratio === aspectRatio} onClick={() => setAspectRatio(ratio)}><i aria-hidden="true" />{ratio}</button>)}</nav>}
         </div>
@@ -8041,6 +8124,7 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
   const scenesRef = useRef(scenes);
   const resourceLoadingRef = useRef({ videoTemplate: false, coverTemplate: false, material: false, aiVideoMaterial: false, aiImageMaterial: false });
   const token = getAccessToken();
+  const { refreshState, refreshResource } = useCreatorResourceRefresh({ scope: `${authVersion}:${token}:${currentProductionType}`, templateScene, resources, setResources, setResourcePaging, resourceLoadingRef });
   const useBackgroundMusic = optionalMedia.useBackgroundMusic;
   const useCover = optionalMedia.useCover;
 
@@ -8760,7 +8844,7 @@ function VideoCreatorPage({ authVersion, usePrefill, productionType = 'oral', ba
       {dialogType && (() => {
         const materialResourceKey = getCreatorMaterialSource(materialSource).resourceKey;
         const resourceKey = dialogType === 'material' ? materialResourceKey : dialogType;
-        return <VideoCreatorDialog type={dialogType} titleOverride={isMixed && dialogType === 'videoTemplate' ? '选择混剪剪辑模板' : isCustomMixcut && dialogType === 'videoTemplate' ? '选择包装混剪模板' : ''} options={resources[resourceKey] || []} selected={dialogType === 'material' ? activeSceneMaterials : selected[dialogType]} loading={loadingResources} hasMore={resourcePaging[resourceKey]?.hasMore || false} loadingMore={resourcePaging[resourceKey]?.loadingMore || false} loadMessage={resourcePaging[resourceKey]?.message || ''} materialSource={materialSource} onMaterialSourceChange={setMaterialSource} onClose={() => { setDialogType(''); setActiveSceneId(''); }} onSelect={(option) => chooseResource(dialogType, option)} onLoadMore={() => loadMoreCreatorResources(resourceKey)} />;
+        return <VideoCreatorDialog type={dialogType} titleOverride={isMixed && dialogType === 'videoTemplate' ? '选择混剪剪辑模板' : isCustomMixcut && dialogType === 'videoTemplate' ? '选择包装混剪模板' : ''} options={resources[resourceKey] || []} selected={dialogType === 'material' ? activeSceneMaterials : selected[dialogType]} onRefresh={() => refreshResource(resourceKey)} loading={loadingResources || refreshState[resourceKey]?.loading || false} hasMore={resourcePaging[resourceKey]?.hasMore || false} loadingMore={resourcePaging[resourceKey]?.loadingMore || false} loadMessage={refreshState[resourceKey]?.message || resourcePaging[resourceKey]?.message || ''} materialSource={materialSource} onMaterialSourceChange={setMaterialSource} onClose={() => { setDialogType(''); setActiveSceneId(''); }} onSelect={(option) => chooseResource(dialogType, option)} onLoadMore={() => loadMoreCreatorResources(resourceKey)} />;
       })()}
     </div>
   );
