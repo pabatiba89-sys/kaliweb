@@ -1,3 +1,4 @@
+import VideoAudioPage from './VideoAudioPage.jsx';
 import { docsCopy, docsPath } from './site/docs-copy.js';
 import { initialWorkspacePage, syncWorkspaceLocation, workspaceLocale, workspacePagesForLocale, workspacePath } from './workspaceRoutes.js';
 import { refreshWorkspaceDocument } from './workspaceSeo.js';
@@ -240,6 +241,7 @@ const primaryNavItems = [
   { id: 'ai-video', label: 'Seedance', icon: FileVideo, ai: true },
   { id: 'music', label: 'AI Music', icon: Music2, ai: true },
   { id: 'image', label: 'AI Images', icon: Image, ai: true },
+  { id: 'video-audio', label: 'Video to Audio', icon: AudioLines },
   { id: 'speech', label: 'Text to Speech', icon: AudioLines, ai: true },
   { id: 'assets', label: 'Digital Human Assets', icon: Layers3, ai: true },
   { id: 'materials', label: 'B-roll Library', icon: Library },
@@ -390,6 +392,7 @@ const supportCards = [
   { id: 'ai-video', title: 'Seedance', icon: FileVideo, color: '#008e74', ai: true },
   { id: 'music', title: 'AI Music', icon: Music2, color: '#a05b12', ai: true },
   { id: 'image', title: 'AI Images', icon: Image, color: '#bf4652', ai: true },
+  { id: 'video-audio', title: 'Video to Audio', icon: AudioLines, color: '#16857f' },
   { id: 'speech', title: 'Text to Speech', icon: AudioLines, color: '#16857f', ai: true },
   { id: 'assets', title: 'Digital Human Assets', icon: Layers3, color: '#64748b', ai: true },
   { id: 'materials', title: 'B-roll Library', icon: Library, color: '#0e8fbd' },
@@ -14732,6 +14735,8 @@ export default function App() {
                 }}
                 onOpenBilling={() => selectNav('billing')}
               />
+            ) : active === 'video-audio' ? (
+              <VideoAudioPage />
             ) : active === 'speech' ? (
               <TextToSpeechPage
                 authVersion={authVersion}

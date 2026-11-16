@@ -2392,5 +2392,20 @@
   "制作流程": "Flusso di produzione",
   "选择创作方式": "Scegli un formato",
   "智能剪辑": "Montaggio intelligente",
-  "自动发布": "Pubblicazione automatica"
+  "自动发布": "Pubblicazione automatica",
+  "Video to Audio": "Estrai audio da video",
+  "从本地视频提取音轨，试听后下载 WAV。文件仅在当前浏览器中处理。": "Extract audio from a local video, preview it, and download a WAV. Your files are processed in this browser.",
+  "支持 MP4、MOV，最多 5 分钟、100 MB。": "MP4 and MOV, up to 5 minutes and 100 MB.",
+  "正在提取音频…": "Extracting audio…",
+  "提取音频": "Extract audio",
+  "提取结果": "Extraction result",
+  "试听音频": "Preview audio",
+  "下载 WAV": "Download WAV",
+  "请选择 MP4 或 MOV 视频。": "Choose an MP4 or MOV video.",
+  "视频不能超过 100 MB。": "The video must be 100 MB or smaller.",
+  "当前浏览器不支持提取音频。": "This browser does not support audio extraction.",
+  "无法读取视频，请选择可播放的 MP4 或 MOV 文件。": "Unable to read the video. Choose a playable MP4 or MOV file.",
+  "视频不能超过 5 分钟。": "The video must be 5 minutes or shorter.",
+  "未找到可提取的音轨，或当前浏览器不支持此音频编码。": "No readable audio track was found, or this browser does not support its codec.",
+  "请选择带有单声道或立体声音轨的视频。": "Choose a video with mono or stereo audio."
 }

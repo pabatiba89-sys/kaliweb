@@ -14,7 +14,9 @@ export function getWorkspaceContent(locale, page = 'home') {
   if (!current) throw new Error(`Unknown workspace page ${locale}/${page}`);
   const copy = brandCopy[locale];
   const workspace = translateText('Content production workspace', locale);
-  const summary = current.kind === 'hero' ? copy.hero[1] : copy[current.kind][2];
+  const summary = current.kind === 'video-audio'
+    ? t('从本地视频提取音轨，试听后下载 WAV。文件仅在当前浏览器中处理。')
+    : current.kind === 'hero' ? copy.hero[1] : copy[current.kind][2];
   return { ...current, pages, workspace, summary,
     title: `${current.label} | ${brandName(locale)} · ${workspace}`,
     description: `${current.label} — ${summary}`,

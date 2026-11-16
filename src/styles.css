@@ -19636,3 +19636,15 @@ html[dir="rtl"] .training-submit-progress__fill {
 @media (max-width: 700px) { .production-dashboard { padding: 18px; } .production-dashboard__header { align-items: flex-start; } .production-dashboard__metrics { gap: 8px; } .production-dashboard__metrics article { padding: 12px; } .production-dashboard__metrics article > div { font-size: 12px; } .production-dashboard__metrics footer { font-size: 10px; } .production-goal { flex-wrap: wrap; padding: 14px; } .production-goal .primary-button { width: 100%; } }
 @media (prefers-reduced-motion: reduce) { .nav-item .ai-nav-dot { animation: none; } }
 @media (max-width: 700px) { .production-dashboard__header { flex-direction: column; align-items: stretch; } .production-dashboard__header h2 { margin-bottom: 10px; } .production-dashboard__tools { justify-content: flex-start; margin-bottom: 16px; } .production-dashboard__tools time { margin-inline-end: auto; } }
+
+.video-audio-page .video-audio-card {
+  display: grid;
+  justify-items: start;
+  gap: 16px;
+  min-width: 0;
+}
+.video-audio-card .outline-button,
+.video-audio-card .primary-button { width: auto; }
+.video-audio-card audio { width: min(100%, 440px); }
+.video-audio-card p { margin: 8px 0 0; color: var(--muted); }
+.video-audio-filename { overflow-wrap: anywhere; }

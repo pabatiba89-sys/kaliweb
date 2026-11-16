@@ -2493,6 +2493,38 @@ const miniProgramAlternativeOverrides = {
   },
 };
 
+const videoAudioTitles = {
+  'en-US': 'Video to Audio', 'zh-CN': '视频提取音频', 'zh-TW': '影片擷取音訊',
+  'es-MX': 'Extraer audio de video', 'fr-FR': 'Extraire l’audio d’une vidéo',
+  'ru-RU': 'Извлечь звук из видео', 'de-DE': 'Audio aus Video extrahieren',
+  'pt-PT': 'Extrair áudio de vídeo', 'ar-AE': 'استخراج الصوت من الفيديو',
+  'it-IT': 'Estrai audio da video', 'ja-JP': '動画から音声を抽出',
+  'ko-KR': '동영상에서 오디오 추출', 'id-ID': 'Ekstrak audio dari video',
+  'vi-VN': 'Tách âm thanh từ video', 'tr-TR': 'Videodan ses çıkar',
+  'nl-NL': 'Audio uit video halen', 'uk-UA': 'Витягти звук із відео',
+  'th-TH': 'แยกเสียงจากวิดีโอ', 'pl-PL': 'Wyodrębnij dźwięk z wideo',
+  'ro-RO': 'Extrage audio din videoclip', 'el-GR': 'Εξαγωγή ήχου από βίντεο',
+  'cs-CZ': 'Extrahovat zvuk z videa', 'fi-FI': 'Erota ääni videosta',
+  'hi-IN': 'वीडियो से ऑडियो निकालें',
+};
+
+const videoAudioCopy = {
+  '从本地视频提取音轨，试听后下载 WAV。文件仅在当前浏览器中处理。': ['Extract audio from a local video, preview it, and download a WAV. Your files are processed in this browser.', '從本機影片擷取音軌，試聽後下載 WAV。檔案僅在目前的瀏覽器中處理。'],
+  '支持 MP4、MOV，最多 5 分钟、100 MB。': ['MP4 and MOV, up to 5 minutes and 100 MB.', '支援 MP4、MOV，最多 5 分鐘、100 MB。'],
+  '正在提取音频…': ['Extracting audio…', '正在擷取音訊…'],
+  '提取音频': ['Extract audio', '擷取音訊'],
+  '提取结果': ['Extraction result', '擷取結果'],
+  '试听音频': ['Preview audio', '試聽音訊'],
+  '下载 WAV': ['Download WAV', '下載 WAV'],
+  '请选择 MP4 或 MOV 视频。': ['Choose an MP4 or MOV video.', '請選擇 MP4 或 MOV 影片。'],
+  '视频不能超过 100 MB。': ['The video must be 100 MB or smaller.', '影片不能超過 100 MB。'],
+  '当前浏览器不支持提取音频。': ['This browser does not support audio extraction.', '目前的瀏覽器不支援擷取音訊。'],
+  '无法读取视频，请选择可播放的 MP4 或 MOV 文件。': ['Unable to read the video. Choose a playable MP4 or MOV file.', '無法讀取影片，請選擇可播放的 MP4 或 MOV 檔案。'],
+  '视频不能超过 5 分钟。': ['The video must be 5 minutes or shorter.', '影片不能超過 5 分鐘。'],
+  '未找到可提取的音轨，或当前浏览器不支持此音频编码。': ['No readable audio track was found, or this browser does not support its codec.', '找不到可擷取的音軌，或目前的瀏覽器不支援此音訊編碼。'],
+  '请选择带有单声道或立体声音轨的视频。': ['Choose a video with mono or stereo audio.', '請選擇含有單聲道或立體聲音軌的影片。'],
+};
+
 export const workspaceLocalizationOverrides = Object.fromEntries(Object.entries(actionRows).map(([locale, values]) => {
   const overrides = { ...(miniProgramAlternativeOverrides[locale] || {}) };
   actionKeys.forEach((key, index) => actionAliases[key].forEach((source) => { overrides[source] = values[index]; }));
@@ -2541,5 +2573,9 @@ export const workspaceLocalizationOverrides = Object.fromEntries(Object.entries(
   overrides.Materials = workspaceRefreshOverrides[locale]['B-roll Library'];
   overrides['Video Studio'] = workspaceRefreshOverrides[locale]['Avatar Talking Videos'];
   overrides['AI 助手'] = workspaceRefreshOverrides[locale]['AI Agents'];
+  overrides['Video to Audio'] = videoAudioTitles[locale] || videoAudioTitles['en-US'];
+  if (locale !== 'zh-CN') Object.entries(videoAudioCopy).forEach(([key, values]) => {
+    overrides[key] = values[locale === 'zh-TW' ? 1 : 0];
+  });
   return [locale, overrides];
 }));

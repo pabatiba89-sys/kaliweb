@@ -7,6 +7,7 @@ export const workspacePages = [
   { id: 'ai-video', label: 'Seedance', kind: 'video' },
   { id: 'music', label: 'AI Music', kind: 'music' },
   { id: 'image', label: 'AI Images', kind: 'hero' },
+  { id: 'video-audio', label: 'Video to Audio', kind: 'video-audio' },
   { id: 'speech', label: 'Text to Speech', kind: 'voice' },
   { id: 'assets', label: 'Digital Human Assets', kind: 'avatar' },
   { id: 'materials', label: 'B-roll Library', kind: 'editing' },
