@@ -19662,17 +19662,36 @@ html[dir="rtl"] .training-submit-progress__fill {
   max-height: 420px;
   overflow-y: auto;
 }
-.realman-subtitle-editor label {
-  display: grid;
-  gap: 4px;
+.realman-subtitle-hint { margin: 14px 0 0; color: var(--muted); }
+.realman-subtitle-row { display: grid; gap: 6px; }
+.realman-subtitle-row small, .realman-subtitle-dialog small { color: var(--muted); }
+.realman-subtitle-characters { display: flex; flex-wrap: wrap; gap: 4px; }
+.realman-subtitle-characters button {
+  min-width: 34px;
+  min-height: 36px;
+  padding: 4px 6px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--ink);
+  background: var(--paper-soft);
 }
-.realman-subtitle-editor small { color: var(--muted); }
-.realman-subtitle-editor textarea {
+.realman-subtitle-characters button:is(:hover, :focus-visible) { border-color: var(--green); }
+.realman-subtitle-dialog {
+  width: min(360px, calc(100% - 32px));
+  padding: 20px;
+  margin: auto;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  color: var(--ink);
+  background: var(--paper);
+}
+.realman-subtitle-dialog::backdrop { background: #132e2880; }
+.realman-subtitle-dialog form, .realman-subtitle-dialog label { display: grid; gap: 8px; }
+.realman-subtitle-dialog h3 { margin: 0; }
+.realman-subtitle-dialog input {
   width: 100%;
   padding: 8px 12px;
-  background: var(--paper-soft);
   border: 1px solid var(--line);
-  border-radius: 10px;
-  color: var(--ink);
-  resize: vertical;
+  border-radius: 8px;
 }
+.realman-subtitle-dialog .primary-button { width: auto; }

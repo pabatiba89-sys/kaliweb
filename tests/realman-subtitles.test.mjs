@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { groupRealmanSubtitles, buildEditedRealmanSubtitles } from '../src/realmanSubtitles.js';
+import { groupRealmanSubtitles, replaceRealmanSubtitleCharacter } from '../src/realmanSubtitles.js';
 
 const recognized = [
   { startMs: 0, endMs: 110, text: '她' },
@@ -8,24 +8,22 @@ const recognized = [
   { startMs: 1300, endMs: 1500, text: '🙂' },
 ];
 
-test('groups speech around pauses and preserves untouched character timestamps', () => {
+test('replaces only the selected character without changing any timestamps', () => {
   const groups = groupRealmanSubtitles(recognized);
-  assert.deepEqual(groups.map(group => group.text), ['她好', '🙂']);
-  assert.deepEqual(buildEditedRealmanSubtitles(groups), recognized);
-  groups[0].text = '你好';
-  assert.deepEqual(buildEditedRealmanSubtitles(groups), [{ ...recognized[0], text: '你' }, ...recognized.slice(1)]);
+  assert.deepEqual(groups, [recognized.slice(0, 2), recognized.slice(2)]);
+  const edited = replaceRealmanSubtitleCharacter(groups, 0, 0, '你');
+  assert.deepEqual(edited.flat(), [{ ...recognized[0], text: '你' }, ...recognized.slice(1)]);
+  assert.deepEqual(groups.flat(), recognized);
 });
 
-test('insertion only changes timing within the edited segment and supports Unicode characters', () => {
+test('rejects empty and multi-character edits and accepts one Unicode character', () => {
   const groups = groupRealmanSubtitles(recognized);
-  groups[0].text = '你真好🙂';
-  const result = buildEditedRealmanSubtitles(groups);
-  assert.deepEqual(result.slice(0, 4).map(item => item.text), ['你', '真', '好', '🙂']);
-  assert.equal(result[0].startMs, 0);
-  assert.equal(result[3].endMs, 200);
-  assert.deepEqual(result[4], recognized[2]);
-  groups[0].text = '';
-  assert.deepEqual(buildEditedRealmanSubtitles(groups), [recognized[2]]);
+  for (const text of ['', '你好', '\n']) {
+    assert.equal(replaceRealmanSubtitleCharacter(groups, 0, 0, text), groups);
+  }
+  assert.deepEqual(replaceRealmanSubtitleCharacter(groups, 1, 0, '𠮷').flat(), [
+    ...recognized.slice(0, 2), { ...recognized[2], text: '𠮷' },
+  ]);
 });
 
 test('rejects malformed timestamps and leaves empty recognition results empty', () => {

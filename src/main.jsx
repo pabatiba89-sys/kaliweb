@@ -1,4 +1,4 @@
-import { buildEditedRealmanSubtitles } from './realmanSubtitles.js';
+import RealmanSubtitleEditor from './RealmanSubtitleEditor.jsx';
 import { useRealmanSubtitles } from './useRealmanSubtitles.js';
 import VideoAudioPage from './VideoAudioPage.jsx';
 import { docsCopy, docsPath } from './site/docs-copy.js';
@@ -6278,8 +6278,7 @@ function AIVideoPackagingPage({ sourceVideo, authVersion, language, onBack, onLo
     if (!sourceUrl && !activeSourceVideo?.file) { setMessage('请上传需要包装的视频'); return; }
     if (!selected.videoTemplate.id) { setMessage('请选择真人口播模板'); return; }
     if (optionalMedia.useCover && !cover) { setMessage('请选择或上传视频封面'); return; }
-    const subtitle = buildEditedRealmanSubtitles(subtitles.groups);
-    if (subtitles.groups.length && !subtitle.length) { setMessage('请保留至少一条字幕，或选择使用自动字幕。'); return; }
+    const subtitle = subtitles.groups.flat();
     setBusy(true);
     setMessage('');
     setUploadProgress('');
@@ -6356,12 +6355,9 @@ function AIVideoPackagingPage({ sourceVideo, authVersion, language, onBack, onLo
           </div>
           {subtitles.stage && <div className="video-creator-uploading" role="status"><RefreshCw className="is-spinning" size={16} />{subtitles.stage}</div>}
           {subtitles.error && <div className="video-list-message is-error" role="alert">{subtitles.error}</div>}
-          {subtitles.groups.length > 0 && <div className="realman-subtitle-editor">
-            {subtitles.groups.map((group, index) => <label key={index}>
-              <small>{(group.items[0].startMs / 1000).toFixed(2)} – {(group.items.at(-1).endMs / 1000).toFixed(2)} s</small>
-              <textarea rows={2} maxLength={160} value={group.text} disabled={busy} onChange={(event) => subtitles.edit(index, event.target.value)} />
-            </label>)}
-          </div>}
+          {subtitles.groups.length > 0 && (
+            <RealmanSubtitleEditor groups={subtitles.groups} disabled={busy} onReplace={subtitles.replaceCharacter} />
+          )}
         </section>
         <section className="video-creator-section"><div className="video-creator-section__head"><span>02</span><div><h2>选择包装配置</h2><p>真人口播模板必选；背景音乐和封面可按需关闭。</p></div>{optionalMedia.useCover && selected.coverTemplate.id && <button className="video-creator-preset-button" onClick={removeCoverTemplate}>清除封面模板</button>}{optionalMedia.useBackgroundMusic && selected.music.id && <button className="video-creator-preset-button" onClick={() => setSelected((current) => ({ ...current, music: {} }))}>改为自动音乐</button>}</div><div className="video-creator-option-toggles"><article><span><Music2 size={19} /></span><div><strong>背景音乐</strong><small>{optionalMedia.useBackgroundMusic ? (selected.music.title || '自动匹配背景音乐') : '关闭'}</small></div><button className={optionalMedia.useBackgroundMusic ? 'is-on' : ''} type="button" role="switch" aria-checked={optionalMedia.useBackgroundMusic} aria-label="是否开启背景音乐" onClick={() => toggleOptionalMedia('useBackgroundMusic')}><i /><em>{optionalMedia.useBackgroundMusic ? '开启' : '关闭'}</em></button></article><article><span><Image size={19} /></span><div><strong>封面</strong><small>{optionalMedia.useCover ? (selected.coverTemplate.title || cover?.title || '封面图片') : '关闭'}</small></div><button className={optionalMedia.useCover ? 'is-on' : ''} type="button" role="switch" aria-checked={optionalMedia.useCover} aria-label="是否使用封面" onClick={() => toggleOptionalMedia('useCover')}><i /><em>{optionalMedia.useCover ? '开启' : '关闭'}</em></button></article></div><div className="video-creator-select-list">{packagingSelectorRows.map(([key, label, hint, Icon]) => { const value = selected[key]; return <button type="button" key={key} onClick={() => setDialogType(key)}><i><Icon size={19} /></i><span><strong>{label}</strong><small>{value.title || hint}</small></span>{value.cover && <img src={value.cover} alt="" />}{key === 'music' && value.audioUrl && <audio src={value.audioUrl} controls onClick={(event) => event.stopPropagation()} />}<ChevronRight size={18} /></button>; })}</div></section>
         <section className="video-creator-section"><div className="video-creator-section__head"><span>03</span><div><h2>{optionalMedia.useCover ? '封面与补充素材' : '补充素材'}</h2><p>{optionalMedia.useCover ? '封面图片必填，可本地上传或从 AI 图片选择；补充素材可选，总时长不超过 5 分钟。' : '补充素材可选，总时长不超过 5 分钟。'}</p></div></div><div className={`video-creator-upload-grid ai-video-packaging-upload-grid${optionalMedia.useCover ? '' : ' is-single'}`}>{optionalMedia.useCover && <div className="video-creator-cover"><h3>视频封面 <em>必填</em></h3>{cover ? <div className="video-creator-cover-preview"><img src={cover.previewUrl || cover.url} alt="" /><span><strong>{cover.title}</strong><small>{cover.origin === 'local' ? '本地图片' : 'AI 图片'}</small><button type="button" onClick={removeCover}><Trash2 size={15} />删除</button></span></div> : <div className="ai-video-packaging-cover-empty"><Image size={28} /><strong>请选择视频封面</strong><small>支持 jpg / png / webp</small></div>}<div className="ai-video-packaging-cover-actions"><label><Upload size={17} />{cover?.origin === 'local' ? '本地更换' : '本地上传'}<input type="file" accept="image/jpeg,image/png,image/webp" onChange={chooseCover} /></label><button type="button" onClick={() => setDialogType('cover')}><Image size={17} />{cover?.origin === 'ai-image' ? '从 AI 图片更换' : '从 AI 图片选择'}</button></div></div>}<div className="video-creator-material-actions ai-video-packaging-material-actions"><h3>补充素材 <em>可选</em></h3><div><button type="button" onClick={() => setDialogType('material')}><Library size={18} />选择素材</button></div><small>已选 {materials.length} 个 · 总时长 {formatDuration(materialDuration)}</small></div></div>{materials.length > 0 && <div className="video-creator-material-grid">{materials.map((material) => <article key={material.id}><span>{material.previewUrl ? <img src={material.previewUrl} alt="" /> : <Video size={24} />}</span><div><strong>{material.title}</strong><small>{material.type === 'video' ? `视频 · ${formatDuration(material.duration)}` : '图片 · 2 秒'}</small></div><button onClick={() => setMaterials((current) => current.filter((item) => item.id !== material.id))} aria-label="删除素材"><X size={16} /></button></article>)}</div>}</section>

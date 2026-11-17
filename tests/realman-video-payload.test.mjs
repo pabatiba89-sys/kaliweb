@@ -26,6 +26,7 @@ test('builds a real-person packaging payload without digital-human-only fields',
   assert.equal(payload.coverUrl, 'https://cdn.example.com/video-cover.jpg');
   assert.equal(payload.cover, 'https://cdn.example.com/video-cover.jpg');
   assert.deepEqual(payload.processRules, {
+    resourcePreprocessMethod: 'sliceMerge',
     firstFrameCover: {
       coverSwitch: true,
       imageUrl: 'https://cdn.example.com/video-cover.jpg',
@@ -54,7 +55,7 @@ test('leaves background music unset so the backend can pick one automatically', 
   assert.equal(payload.packRules.materialSwitch, false);
   assert.equal(Object.hasOwn(payload.packRules, 'backgroundMusic'), false);
   assert.equal(payload.coverUrl, '');
-  assert.deepEqual(payload.processRules, {});
+  assert.deepEqual(payload.processRules, { resourcePreprocessMethod: 'sliceMerge' });
 });
 
 test('submits an uploaded source video through the existing packaging fields', () => {
@@ -88,6 +89,7 @@ test('keeps the cover template and cover image in separate submission fields', (
   assert.equal(payload.coverTemplateName, 'Clean cover');
   assert.equal(payload.coverTemplatePreviewUrl, 'https://cdn.example.com/template-preview.jpg');
   assert.deepEqual(payload.processRules, {
+    resourcePreprocessMethod: 'sliceMerge',
     firstFrameCover: {
       coverSwitch: true,
       templateId: 'cover-template-3',
@@ -120,7 +122,7 @@ test('explicitly disables background music and cover for real-person packaging',
     url: '',
     volume: 0.3,
   });
-  assert.deepEqual(payload.processRules, { firstFrameCover: { coverSwitch: false } });
+  assert.deepEqual(payload.processRules, { resourcePreprocessMethod: 'sliceMerge', firstFrameCover: { coverSwitch: false } });
   assert.equal(payload.shanjianData.useBackgroundMusic, false);
   assert.equal(payload.shanjianData.useCover, false);
 });
@@ -128,7 +130,9 @@ test('explicitly disables background music and cover for real-person packaging',
 test('sends edited subtitles without changing the remaining packaging payload', () => {
   const options = { title: 'Interview', template: { id: 'interview' }, useCover: false };
   const subtitle = [{ startMs: 10, endMs: 200, text: '你' }];
-  const { shanjianData: { subtitle: submitted, ...nested }, ...outer } = buildRealmanPackagingPayload({ ...options, subtitle });
+  const { subtitle: topLevel, shanjianData: { subtitle: submitted, ...nested }, ...outer } = buildRealmanPackagingPayload({ ...options, subtitle });
   assert.deepEqual(submitted, subtitle);
+  assert.deepEqual(topLevel, submitted);
+  assert.equal(nested.processRules.resourcePreprocessMethod, 'sliceMerge');
   assert.deepEqual({ ...outer, shanjianData: nested }, buildRealmanPackagingPayload(options));
 });

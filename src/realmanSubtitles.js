@@ -1,3 +1,7 @@
+export function isSingleSubtitleCharacter(text) {
+  return typeof text === 'string' && Array.from(text).length === 1 && !/[\r\n\t]/u.test(text);
+}
+
 export function groupRealmanSubtitles(entries) {
   if (!Array.isArray(entries) || !entries.length) return [];
   const groups = [];
@@ -19,25 +23,14 @@ export function groupRealmanSubtitles(entries) {
     }
   }
   if (chars.length) groups.push(chars);
-  return groups.map((items) => ({
-    items,
-    text: items.map((item) => item.text).join(''),
-  }));
+  return groups;
 }
 
-export function buildEditedRealmanSubtitles(groups) {
-  return groups.flatMap(({ items, text }) => {
-    if (text === items.map((item) => item.text).join('')) return items;
-    if (!text.trim()) return [];
-    const characters = Array.from(text.replace(/[\r\n]/gu, ' '));
-    if (characters.length === items.length) {
-      return items.map((item, index) => ({ ...item, text: characters[index] }));
-    }
-    // Keep other segments untouched when words are inserted or removed.
-    const start = items[0].startMs;
-    const end = Math.max(...items.map((item) => item.endMs));
-    const boundary = (index) => start + Math.round((end - start) * index / characters.length);
-    return characters.map((character, index) => ({ startMs: boundary(index), endMs: boundary(index + 1), text: character }));
+export function replaceRealmanSubtitleCharacter(groups, groupIndex, itemIndex, text) {
+  if (!isSingleSubtitleCharacter(text) || !groups[groupIndex]?.[itemIndex]) return groups;
+  return groups.map((group, index) => {
+    if (index !== groupIndex) return group;
+    return group.map((item, characterIndex) => characterIndex === itemIndex ? { ...item, text } : item);
   });
 }
 

@@ -48,7 +48,7 @@ export const buildRealmanPackagingPayload = ({
         ? { backgroundMusic: { audioSwitch: true, audioUrl, url: audioUrl, volume: 0.3 } }
         : {}),
   };
-  const processRules = !coverEnabled
+  const coverRules = !coverEnabled
     ? { firstFrameCover: { coverSwitch: false } }
     : coverUrl || coverTemplateId
       ? {
@@ -60,7 +60,11 @@ export const buildRealmanPackagingPayload = ({
         }
       : {};
 
+  const processRules = { ...coverRules, resourcePreprocessMethod: 'sliceMerge' };
+  const subtitleFields = Array.isArray(subtitle) && subtitle.length ? { subtitle } : {};
+
   return {
+    ...subtitleFields,
     title: cleanText(title),
     topic: normalizedTopic,
     tags: normalizedTopic,
@@ -95,7 +99,7 @@ export const buildRealmanPackagingPayload = ({
       coverTemplateName,
       language: cleanText(language) || 'zh-CN',
       materials: normalizedMaterials,
-      ...(Array.isArray(subtitle) && subtitle.length ? { subtitle } : {}),
+      ...subtitleFields,
       materialSoundSwitch: false,
       useBackgroundMusic: backgroundMusicEnabled,
       useCover: coverEnabled,
