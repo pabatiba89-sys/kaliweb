@@ -44,9 +44,9 @@ export function useRealmanSubtitles(getUploadedUrl, scope) {
           timer = setTimeout(() => controller.abort(), 45000);
           try {
             video = await fetchRealmanVideoFile(url, signal);
-          } catch (failure) {
+          } catch {
             if (active.current !== controller) return;
-            throw new Error(failure.message === '视频不能超过 100 MB。' ? failure.message : '无法读取在线成片，请下载视频后从本地选择。');
+            throw new Error('无法读取在线成片，请下载视频后从本地选择。');
           } finally {
             clearTimeout(timer);
           }

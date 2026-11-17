@@ -32,7 +32,6 @@ export function encodeAudioWav(audio) {
 
 export async function extractVideoAudio(file) {
   if (!/\.(mp4|mov)$/i.test(file.name)) throw new Error('请选择 MP4 或 MOV 视频。');
-  if (file.size > VIDEO_AUDIO_MAX_BYTES) throw new Error('视频不能超过 100 MB。');
   if (!globalThis.OfflineAudioContext) throw new Error('当前浏览器不支持提取音频。');
 
   const sourceUrl = URL.createObjectURL(file);

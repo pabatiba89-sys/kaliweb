@@ -1,5 +1,3 @@
-import { VIDEO_AUDIO_MAX_BYTES } from './videoAudio.js';
-
 export function groupRealmanSubtitles(entries) {
   if (!Array.isArray(entries) || !entries.length) return [];
   const groups = [];
@@ -46,27 +44,7 @@ export function buildEditedRealmanSubtitles(groups) {
 export async function fetchRealmanVideoFile(url, signal) {
   const response = await fetch(url, { signal, credentials: 'omit' });
   if (!response.ok || !response.body) throw new Error('无法读取在线成片，请下载视频后从本地选择。');
-  if (Number(response.headers.get('content-length')) > VIDEO_AUDIO_MAX_BYTES) {
-    await response.body.cancel();
-    throw new Error('视频不能超过 100 MB。');
-  }
-  const reader = response.body.getReader();
-  const chunks = [];
-  let bytes = 0;
-  try {
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      bytes += value.byteLength;
-      if (bytes > VIDEO_AUDIO_MAX_BYTES) {
-        await reader.cancel();
-        throw new Error('视频不能超过 100 MB。');
-      }
-      chunks.push(value);
-    }
-  } finally {
-    reader.releaseLock();
-  }
+  const video = await response.blob();
   const isMov = /\.mov$/i.test(new URL(url, window.location.href).pathname) || response.headers.get('content-type')?.startsWith('video/quicktime');
-  return new File(chunks, isMov ? 'source.mov' : 'source.mp4', { type: isMov ? 'video/quicktime' : 'video/mp4' });
+  return new File([video], isMov ? 'source.mov' : 'source.mp4', { type: isMov ? 'video/quicktime' : 'video/mp4' });
 }

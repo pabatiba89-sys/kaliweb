@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { AudioLines, Download, FileVideo, RefreshCw } from 'lucide-react';
-import { extractVideoAudio } from './videoAudio.js';
+import { extractVideoAudio, VIDEO_AUDIO_MAX_BYTES } from './videoAudio.js';
 
 export default function VideoAudioPage() {
   const [file, setFile] = useState(null);
@@ -33,6 +33,7 @@ export default function VideoAudioPage() {
     clearResult();
     setBusy(true);
     try {
+      if (file.size > VIDEO_AUDIO_MAX_BYTES) throw new Error('视频不能超过 100 MB。');
       const audio = await extractVideoAudio(file);
       if (!active.current) return;
       outputUrl.current = URL.createObjectURL(audio.blob);
