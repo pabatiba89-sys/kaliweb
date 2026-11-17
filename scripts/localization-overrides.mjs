@@ -2125,11 +2125,8 @@ const realmanSubtitleCopy = {
     "Keep at least one subtitle or choose automatic subtitles.",
     "請保留至少一條字幕，或選擇使用自動字幕。"
   ],
-  '点击单字修改。提交时会使用校对后的字幕和原始时间戳。': ['Select a character to edit it. Submitting uses your corrected subtitles and the original timestamps.', '點選單字修改。提交時會使用校對後的字幕和原始時間戳記。'],
-  '修改单字': ['Edit character', '修改單字'],
-  '替换字符': ['Replacement character', '替換字元'],
-  '请输入一个字符。': ['Enter one character.', '請輸入一個字元。'],
-  '确认替换': ['Apply replacement', '確認替換']
+  '编辑字幕': ['Edit subtitle', '編輯字幕'],
+  '点击字幕改字或补字，按回车或点其他位置保存。': ['Click a character to correct it or add missing text. Press Enter or click away to save.', '點選字幕改字或補字，按 Enter 或點選其他位置儲存。'],
 };
 
 const realmanPackagingOverrides = {

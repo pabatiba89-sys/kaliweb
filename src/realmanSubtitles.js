@@ -1,7 +1,3 @@
-export function isSingleSubtitleCharacter(text) {
-  return typeof text === 'string' && Array.from(text).length === 1 && !/[\r\n\t]/u.test(text);
-}
-
 export function groupRealmanSubtitles(entries) {
   if (!Array.isArray(entries) || !entries.length) return [];
   const groups = [];
@@ -26,12 +22,26 @@ export function groupRealmanSubtitles(entries) {
   return groups;
 }
 
-export function replaceRealmanSubtitleCharacter(groups, groupIndex, itemIndex, text) {
-  if (!isSingleSubtitleCharacter(text) || !groups[groupIndex]?.[itemIndex]) return groups;
-  return groups.map((group, index) => {
-    if (index !== groupIndex) return group;
-    return group.map((item, characterIndex) => characterIndex === itemIndex ? { ...item, text } : item);
-  });
+export function editRealmanSubtitleCharacters(groups, groupIndex, itemIndex, text) {
+  const group = groups[groupIndex];
+  const item = group?.[itemIndex];
+  const characters = Array.from(text.replace(/[\r\n\t]/gu, ''));
+  if (!item || !characters.length || text === item.text) return groups;
+
+  // Fit inserted characters into the selected interval without shifting other words.
+  const duration = item.endMs - item.startMs;
+  const boundary = (index) => item.startMs + Math.round(duration * index / characters.length);
+  const entries = characters.map((character, index) => ({
+    ...item,
+    startMs: boundary(index),
+    endMs: boundary(index + 1),
+    text: character,
+  }));
+  const edited = group.slice();
+  edited.splice(itemIndex, 1, ...entries);
+  const result = groups.slice();
+  result[groupIndex] = edited;
+  return result;
 }
 
 export async function fetchRealmanVideoFile(url, signal) {

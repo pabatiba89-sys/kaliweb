@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { apiFetch, uploadFile } from './api.js';
-import { fetchRealmanVideoFile, groupRealmanSubtitles, replaceRealmanSubtitleCharacter } from './realmanSubtitles.js';
+import { fetchRealmanVideoFile, groupRealmanSubtitles, editRealmanSubtitleCharacters } from './realmanSubtitles.js';
 import { extractVideoAudio } from './videoAudio.js';
 
 export function useRealmanSubtitles(getUploadedUrl, scope) {
@@ -112,6 +112,6 @@ export function useRealmanSubtitles(getUploadedUrl, scope) {
   return {
     groups, stage, error, canResume, clear, recognize,
     isBusy: () => Boolean(active.current),
-    replaceCharacter: (groupIndex, itemIndex, text) => setGroups((current) => replaceRealmanSubtitleCharacter(current, groupIndex, itemIndex, text)),
+    editCharacters: (groupIndex, itemIndex, text) => setGroups((current) => editRealmanSubtitleCharacters(current, groupIndex, itemIndex, text)),
   };
 }
