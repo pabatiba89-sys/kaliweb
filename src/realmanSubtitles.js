@@ -26,7 +26,7 @@ export function editRealmanSubtitleCharacters(groups, groupIndex, itemIndex, tex
   const group = groups[groupIndex];
   const item = group?.[itemIndex];
   const characters = Array.from(text.replace(/[\r\n\t]/gu, ''));
-  if (!item || !characters.length || text === item.text) return groups;
+  if (!item || text === item.text) return groups;
 
   // Fit inserted characters into the selected interval without shifting other words.
   const duration = item.endMs - item.startMs;
@@ -40,7 +40,8 @@ export function editRealmanSubtitleCharacters(groups, groupIndex, itemIndex, tex
   const edited = group.slice();
   edited.splice(itemIndex, 1, ...entries);
   const result = groups.slice();
-  result[groupIndex] = edited;
+  if (edited.length) result[groupIndex] = edited;
+  else result.splice(groupIndex, 1);
   return result;
 }
 

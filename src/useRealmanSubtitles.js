@@ -4,7 +4,7 @@ import { fetchRealmanVideoFile, groupRealmanSubtitles, editRealmanSubtitleCharac
 import { extractVideoAudio } from './videoAudio.js';
 
 export function useRealmanSubtitles(getUploadedUrl, scope) {
-  const [groups, setGroups] = useState([]);
+  const [groups, setGroups] = useState(null);
   const [stage, setStage] = useState('');
   const [error, setError] = useState('');
   const [canResume, setCanResume] = useState(false);
@@ -15,7 +15,7 @@ export function useRealmanSubtitles(getUploadedUrl, scope) {
     active.current?.abort();
     active.current = null;
     task.current = null;
-    setGroups([]);
+    setGroups(null);
     setStage('');
     setError('');
     setCanResume(false);
@@ -110,8 +110,8 @@ export function useRealmanSubtitles(getUploadedUrl, scope) {
   };
 
   return {
-    groups, stage, error, canResume, clear, recognize,
+    groups: groups ?? [], hasRecognized: groups !== null, stage, error, canResume, clear, recognize,
     isBusy: () => Boolean(active.current),
-    editCharacters: (groupIndex, itemIndex, text) => setGroups((current) => editRealmanSubtitleCharacters(current, groupIndex, itemIndex, text)),
+    editCharacters: (groupIndex, itemIndex, text) => setGroups((current) => current === null ? current : editRealmanSubtitleCharacters(current, groupIndex, itemIndex, text)),
   };
 }

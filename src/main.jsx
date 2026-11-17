@@ -6279,6 +6279,10 @@ function AIVideoPackagingPage({ sourceVideo, authVersion, language, onBack, onLo
     if (!selected.videoTemplate.id) { setMessage('请选择真人口播模板'); return; }
     if (optionalMedia.useCover && !cover) { setMessage('请选择或上传视频封面'); return; }
     const subtitle = subtitles.groups.flat();
+    if (subtitles.hasRecognized && !subtitle.length) {
+      setMessage('请保留至少一条字幕，或选择使用自动字幕。');
+      return;
+    }
     setBusy(true);
     setMessage('');
     setUploadProgress('');
@@ -6350,11 +6354,14 @@ function AIVideoPackagingPage({ sourceVideo, authVersion, language, onBack, onLo
         <section className="video-creator-section realman-subtitles">
           <div className="video-creator-section__head"><span><AudioLines size={18} /></span><div><h2>字幕识别与校对</h2><p>从源视频提取音频并上传识别。校对后的字幕会用在成片里；跳过则按原流程自动识别。</p></div></div>
           <div className="realman-subtitle-actions">
-            {!subtitles.groups.length && <button type="button" className="outline-button" disabled={!activeSourceVideo || readingSource || busy || Boolean(subtitles.stage)} onClick={() => subtitles.recognize({ file: activeSourceVideo?.file, url: sourceUrl, language: form.language }, subtitles.canResume)}><AudioLines size={16} />{subtitles.canResume ? '继续查询字幕' : '提取音频并识别字幕'}</button>}
-            {(subtitles.groups.length > 0 || subtitles.stage) && <button type="button" className="outline-button" disabled={busy} onClick={subtitles.clear}>使用自动字幕</button>}
+            {!subtitles.hasRecognized && <button type="button" className="outline-button" disabled={!activeSourceVideo || readingSource || busy || Boolean(subtitles.stage)} onClick={() => subtitles.recognize({ file: activeSourceVideo?.file, url: sourceUrl, language: form.language }, subtitles.canResume)}><AudioLines size={16} />{subtitles.canResume ? '继续查询字幕' : '提取音频并识别字幕'}</button>}
+            {(subtitles.hasRecognized || subtitles.stage) && <button type="button" className="outline-button" disabled={busy} onClick={subtitles.clear}>使用自动字幕</button>}
           </div>
           {subtitles.stage && <div className="video-creator-uploading" role="status"><RefreshCw className="is-spinning" size={16} />{subtitles.stage}</div>}
           {subtitles.error && <div className="video-list-message is-error" role="alert">{subtitles.error}</div>}
+          {subtitles.hasRecognized && !subtitles.groups.length && (
+            <div className="video-list-message" role="status">请保留至少一条字幕，或选择使用自动字幕。</div>
+          )}
           {subtitles.groups.length > 0 && (
             <RealmanSubtitleEditor groups={subtitles.groups} disabled={busy} onEdit={subtitles.editCharacters} />
           )}

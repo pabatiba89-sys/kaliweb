@@ -2126,7 +2126,7 @@ const realmanSubtitleCopy = {
     "請保留至少一條字幕，或選擇使用自動字幕。"
   ],
   '编辑字幕': ['Edit subtitle', '編輯字幕'],
-  '点击字幕改字或补字，按回车或点其他位置保存。': ['Click a character to correct it or add missing text. Press Enter or click away to save.', '點選字幕改字或補字，按 Enter 或點選其他位置儲存。'],
+  '点击字幕改字或补字，清空即可删字。按回车或点其他位置保存。': ['Click a character to edit or add text, or clear the field to delete it. Press Enter or click away to save.', '點選字幕改字或補字，清空即可刪字。按 Enter 或點選其他位置儲存。'],
 };
 
 const realmanPackagingOverrides = {

@@ -31,7 +31,7 @@ export default function RealmanSubtitleEditor({ groups, disabled, onEdit }) {
 
   return (
     <>
-      <p className="realman-subtitle-hint">点击字幕改字或补字，按回车或点其他位置保存。</p>
+      <p className="realman-subtitle-hint">点击字幕改字或补字，清空即可删字。按回车或点其他位置保存。</p>
       <div className="realman-subtitle-editor">
         {groups.map((group, groupIndex) => (
           <div className="realman-subtitle-row" key={groupIndex}>

@@ -2422,6 +2422,6 @@
   "暂时无法查询识别结果，请继续查询。": "Could not check subtitle progress. Try checking again.",
   "字幕还在识别，可以继续查询。": "Subtitle recognition is still running. You can check progress again.",
   "请保留至少一条字幕，或选择使用自动字幕。": "Keep at least one subtitle or choose automatic subtitles.",
-  "点击字幕改字或补字，按回车或点其他位置保存。": "Click a character to correct it or add missing text. Press Enter or click away to save.",
-  "编辑字幕": "Edit subtitle"
+  "编辑字幕": "Edit subtitle",
+  "点击字幕改字或补字，清空即可删字。按回车或点其他位置保存。": "Click a character to edit or add text, or clear the field to delete it. Press Enter or click away to save."
 }

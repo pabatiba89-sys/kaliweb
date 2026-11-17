@@ -24,10 +24,18 @@ test('inserts missing characters as separate entries without shifting neighborin
     { startMs: 55, endMs: 110, text: '她' },
     ...recognized.slice(1),
   ]);
-  assert.equal(editRealmanSubtitleCharacters(groups, 0, 0, ''), groups);
 });
 
 test('rejects malformed timestamps and leaves empty recognition results empty', () => {
   assert.throws(() => groupRealmanSubtitles([{ startMs: 100, endMs: 20, text: 'a' }]), /字幕时间轴/);
   assert.deepEqual(groupRealmanSubtitles(null), []);
+});
+
+test('removes the deleted subtitle and drops empty rows without shifting timestamps', () => {
+  const groups = groupRealmanSubtitles(recognized);
+  const firstDeleted = editRealmanSubtitleCharacters(groups, 0, 0, '');
+  assert.deepEqual(firstDeleted.flat(), recognized.slice(1));
+  const rowDeleted = editRealmanSubtitleCharacters(firstDeleted, 0, 0, '');
+  assert.deepEqual(rowDeleted, [[recognized[2]]]);
+  assert.deepEqual(editRealmanSubtitleCharacters(rowDeleted, 0, 0, ''), []);
 });
