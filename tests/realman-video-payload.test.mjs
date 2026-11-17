@@ -124,3 +124,11 @@ test('explicitly disables background music and cover for real-person packaging',
   assert.equal(payload.shanjianData.useBackgroundMusic, false);
   assert.equal(payload.shanjianData.useCover, false);
 });
+
+test('sends edited subtitles without changing the remaining packaging payload', () => {
+  const options = { title: 'Interview', template: { id: 'interview' }, useCover: false };
+  const subtitle = [{ startMs: 10, endMs: 200, text: '你' }];
+  const { shanjianData: { subtitle: submitted, ...nested }, ...outer } = buildRealmanPackagingPayload({ ...options, subtitle });
+  assert.deepEqual(submitted, subtitle);
+  assert.deepEqual({ ...outer, shanjianData: nested }, buildRealmanPackagingPayload(options));
+});

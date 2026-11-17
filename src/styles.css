@@ -19648,3 +19648,31 @@ html[dir="rtl"] .training-submit-progress__fill {
 .video-audio-card audio { width: min(100%, 440px); }
 .video-audio-card p { margin: 8px 0 0; color: var(--muted); }
 .video-audio-filename { overflow-wrap: anywhere; }
+
+.realman-subtitle-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.realman-subtitle-actions .outline-button { width: auto; }
+.realman-subtitle-editor {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+  max-height: 420px;
+  overflow-y: auto;
+}
+.realman-subtitle-editor label {
+  display: grid;
+  gap: 4px;
+}
+.realman-subtitle-editor small { color: var(--muted); }
+.realman-subtitle-editor textarea {
+  width: 100%;
+  padding: 8px 12px;
+  background: var(--paper-soft);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: var(--ink);
+  resize: vertical;
+}

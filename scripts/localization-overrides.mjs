@@ -2060,6 +2060,73 @@ const videoOptionalMediaOverrides = {
 };
 videoOptionalMediaOverrides['zh-CN'] = Object.fromEntries(Object.keys(videoOptionalMediaOverrides['en-US']).map((source) => [source, source]));
 
+const realmanSubtitleCopy = {
+  "字幕识别与校对": [
+    "Recognize and edit subtitles",
+    "字幕辨識與校對"
+  ],
+  "从源视频提取音频并上传识别。校对后的字幕会用在成片里；跳过则按原流程自动识别。": [
+    "Extract and upload audio for recognition. Edited subtitles are used in the final video. Skip to use automatic subtitles.",
+    "從來源影片擷取音訊並上傳辨識。校對後的字幕會用在成片中；略過則沿用自動字幕。"
+  ],
+  "继续查询字幕": [
+    "Check subtitle progress",
+    "繼續查詢字幕"
+  ],
+  "提取音频并识别字幕": [
+    "Extract audio and recognize subtitles",
+    "擷取音訊並辨識字幕"
+  ],
+  "使用自动字幕": [
+    "Use automatic subtitles",
+    "使用自動字幕"
+  ],
+  "正在上传识别用音频…": [
+    "Uploading audio for recognition…",
+    "正在上傳辨識用音訊…"
+  ],
+  "正在识别字幕…": [
+    "Recognizing subtitles…",
+    "正在辨識字幕…"
+  ],
+  "无法读取在线成片，请下载视频后从本地选择。": [
+    "Could not read the online video. Download it and choose the local file.",
+    "無法讀取線上成片，請下載影片後選擇本機檔案。"
+  ],
+  "音频上传失败，请重试。": [
+    "Audio upload failed. Try again.",
+    "音訊上傳失敗，請重試。"
+  ],
+  "字幕识别提交失败，请重试。": [
+    "Could not start subtitle recognition. Try again.",
+    "無法開始辨識字幕，請重試。"
+  ],
+  "字幕时间轴或文字格式有误，请重新识别。": [
+    "Unexpected subtitle timing or text format. Run recognition again.",
+    "字幕時間軸或文字格式有誤，請重新辨識。"
+  ],
+  "未识别出可编辑的字幕，请检查视频中的人声。": [
+    "No editable subtitles were recognized. Check the speech in the video.",
+    "未辨識出可編輯的字幕，請檢查影片中的人聲。"
+  ],
+  "字幕识别失败，请重试。": [
+    "Subtitle recognition failed. Try again.",
+    "字幕辨識失敗，請重試。"
+  ],
+  "暂时无法查询识别结果，请继续查询。": [
+    "Could not check subtitle progress. Try checking again.",
+    "暫時無法查詢辨識結果，請繼續查詢。"
+  ],
+  "字幕还在识别，可以继续查询。": [
+    "Subtitle recognition is still running. You can check progress again.",
+    "字幕仍在辨識，可以繼續查詢。"
+  ],
+  "请保留至少一条字幕，或选择使用自动字幕。": [
+    "Keep at least one subtitle or choose automatic subtitles.",
+    "請保留至少一條字幕，或選擇使用自動字幕。"
+  ]
+};
+
 const realmanPackagingOverrides = {
   'en-US': {
     '包装视频': 'Package video',
@@ -2560,6 +2627,9 @@ export const workspaceLocalizationOverrides = Object.fromEntries(Object.entries(
   Object.assign(overrides, musicVideoOverrides[locale] || musicVideoOverrides['en-US']);
   Object.assign(overrides, videoOptionalMediaOverrides[locale] || videoOptionalMediaOverrides['en-US']);
   Object.assign(overrides, realmanPackagingOverrides[locale] || realmanPackagingOverrides['en-US']);
+  if (locale !== 'zh-CN') Object.entries(realmanSubtitleCopy).forEach(([key, values]) => {
+    overrides[key] = values[locale === 'zh-TW' ? 1 : 0];
+  });
   Object.assign(overrides, imageHumanUploadEnglishFallbacks);
   Object.assign(overrides, imageHumanUploadOverrides[locale] || {});
   Object.assign(overrides, publishSettingsEnglishFallbacks);

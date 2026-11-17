@@ -20,6 +20,7 @@ export const buildRealmanPackagingPayload = ({
   cover = {},
   coverTemplate = {},
   materials = [],
+  subtitle,
   useBackgroundMusic = true,
   useCover = true,
 } = {}) => {
@@ -94,6 +95,7 @@ export const buildRealmanPackagingPayload = ({
       coverTemplateName,
       language: cleanText(language) || 'zh-CN',
       materials: normalizedMaterials,
+      ...(Array.isArray(subtitle) && subtitle.length ? { subtitle } : {}),
       materialSoundSwitch: false,
       useBackgroundMusic: backgroundMusicEnabled,
       useCover: coverEnabled,

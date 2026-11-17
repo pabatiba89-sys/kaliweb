@@ -2460,5 +2460,21 @@
   "无法读取视频，请选择可播放的 MP4 或 MOV 文件。": "Unable to read the video. Choose a playable MP4 or MOV file.",
   "视频不能超过 5 分钟。": "The video must be 5 minutes or shorter.",
   "未找到可提取的音轨，或当前浏览器不支持此音频编码。": "No readable audio track was found, or this browser does not support its codec.",
-  "请选择带有单声道或立体声音轨的视频。": "Choose a video with mono or stereo audio."
+  "请选择带有单声道或立体声音轨的视频。": "Choose a video with mono or stereo audio.",
+  "字幕识别与校对": "Recognize and edit subtitles",
+  "从源视频提取音频并上传识别。校对后的字幕会用在成片里；跳过则按原流程自动识别。": "Extract and upload audio for recognition. Edited subtitles are used in the final video. Skip to use automatic subtitles.",
+  "继续查询字幕": "Check subtitle progress",
+  "提取音频并识别字幕": "Extract audio and recognize subtitles",
+  "使用自动字幕": "Use automatic subtitles",
+  "正在上传识别用音频…": "Uploading audio for recognition…",
+  "正在识别字幕…": "Recognizing subtitles…",
+  "无法读取在线成片，请下载视频后从本地选择。": "Could not read the online video. Download it and choose the local file.",
+  "音频上传失败，请重试。": "Audio upload failed. Try again.",
+  "字幕识别提交失败，请重试。": "Could not start subtitle recognition. Try again.",
+  "字幕时间轴或文字格式有误，请重新识别。": "Unexpected subtitle timing or text format. Run recognition again.",
+  "未识别出可编辑的字幕，请检查视频中的人声。": "No editable subtitles were recognized. Check the speech in the video.",
+  "字幕识别失败，请重试。": "Subtitle recognition failed. Try again.",
+  "暂时无法查询识别结果，请继续查询。": "Could not check subtitle progress. Try checking again.",
+  "字幕还在识别，可以继续查询。": "Subtitle recognition is still running. You can check progress again.",
+  "请保留至少一条字幕，或选择使用自动字幕。": "Keep at least one subtitle or choose automatic subtitles."
 }
