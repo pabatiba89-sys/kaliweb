@@ -16,6 +16,7 @@ const modifiedDates = {
 };
 
 export function getContentModifiedDate(locale, slug = '') {
+  if (locale === 'zh-cn' && ['docs', 'docs/agents', 'docs/personal-branding'].includes(slug)) return '2026-11-20';
   if (['docs', 'docs/getting-started'].includes(slug)) return '2026-11-03';
   if (slug === 'developers') return '2026-11-02';
   if (['docs/mcp', 'docs/skills'].includes(slug)) return '2026-11-02';

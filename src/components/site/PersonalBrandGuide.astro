@@ -1,7 +1,10 @@
 ---
+import PracticalGuide from './PracticalGuide.astro';
+import { getBossIPGuide } from '../../site/ip-dialogue-additions.js';
 import { getPersonalBrandGuide } from '../../site/personal-brand-guide.js';
 import { docsPath } from '../../site/docs-copy.js';
 const { locale } = Astro.props;
+const bossGuide = getBossIPGuide(locale);
 type Section = {
   title: string; body: string[]; items?: string[][];
   example?: { title: string; paragraphs: string[] };
@@ -11,7 +14,7 @@ type Section = {
 };
 const guide = getPersonalBrandGuide(locale) as { toc: string; sections: Section[] };
 ---
-<nav class="docs-toc" aria-label={guide.toc}>{guide.sections.map((section, i) => <a href={`#ip-step-${i}`}>{section.title}</a>)}</nav>
+<nav class="docs-toc" aria-label={guide.toc}>{guide.sections.map((section, i) => <a href={`#ip-step-${i}`}>{section.title}</a>)}{bossGuide && <a href="#boss-step-0">老板 IP 的打造与 AI 分工</a>}</nav>
 {guide.sections.map((section, i) => <section id={`ip-step-${i}`} class="docs-section">
   <h2>{section.title}</h2>
   {section.body.map((paragraph) => <p>{paragraph}</p>)}
@@ -22,3 +25,5 @@ const guide = getPersonalBrandGuide(locale) as { toc: string; sections: Section[
   {section.links && <ul class="docs-ip-links">{section.links.map(({ topic, label }) => <li><a href={docsPath(locale, topic)}>{label} →</a></li>)}</ul>}
   {section.faq?.map(([question, answer]) => <details><summary>{question}</summary><p>{answer}</p></details>)}
 </section>)}
+
+{bossGuide && <PracticalGuide locale={locale} guide={bossGuide} prefix="boss" />}

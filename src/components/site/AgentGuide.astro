@@ -1,12 +1,16 @@
 ---
+import PracticalGuide from './PracticalGuide.astro';
+import { getDialogueAgentGuide } from '../../site/ip-dialogue-additions.js';
 import { getAgentGuide } from '../../site/agent-guide.js';
 const { locale } = Astro.props;
 const guide = getAgentGuide(locale)!;
+const dialogueGuide = getDialogueAgentGuide(locale);
 const entryImage = '/docs/agents/create-entry.png';
 const formImage = '/docs/agents/instruction-form.png';
 ---
 <nav class="docs-toc" aria-label={guide.outlineLabel}>
   {guide.headings.map((heading: string, i: number) => <a href={`#agent-step-${i}`}>{heading}</a>)}
+  {dialogueGuide && <a href="#dialogue-step-0">双人对话智能体怎么创建</a>}
 </nav>
 <section id="agent-step-0" class="docs-section"><h2>{guide.headings[0]}</h2><p>{guide.prepare}</p></section>
 <section id="agent-step-1" class="docs-section">
@@ -23,3 +27,5 @@ const formImage = '/docs/agents/instruction-form.png';
   <ol class="docs-reference-outline">{guide.outline.map(([heading, body]) => <li><h3>{heading}</h3><p>{body}</p></li>)}</ol>
 </section>
 <section id="agent-step-4" class="docs-section"><h2>{guide.headings[4]}</h2><p>{guide.try}</p><p>{guide.revise}</p></section>
+
+{dialogueGuide && <PracticalGuide locale={locale} guide={dialogueGuide} prefix="dialogue" />}
